@@ -1403,3 +1403,48 @@ def action_diff(sim, tag=None):
             "strict_missing": [r for r in rows if not r["called_exact"]],
             "n_gold": len(gold), "n_matched": len(matched),
             "clean": not missing}
+
+
+def evidence_ctx_at(sim, upto_index=None):
+    """영속 궤적에서 **특정 시점의 grounding 코퍼스**를 재구성한다 (`t2_scaffold_get._evidence_ctx` 동형).
+
+    ## 왜 정본에 있어야 하나 (2026-08-24 `refute_094.json` §계기_결손 이 지목한 자리)
+
+    라이브 `_evidence_ctx` 는 `orch` 를 요구하므로, *"그 호출 시점에 이 값이 원장에 실재했나"* 를
+    부검에서 물으려면 매번 임시 코드를 짜야 했다. 그때 그 사본을 남기지 않았고 정본도 안 고쳤다 —
+    그래서 같은 물음이 이번에 다시 왔다([[67]] 사본 짜지 마라).
+
+    ## 술어
+
+    `_evidence_ctx` 와 **바이트 동형**으로 맞춘다: 호출 id→이름 색인 → `role=tool` 이고
+    `requestor=='assistant'` 인 메시지의 본문을 **도구 이름별로 누적** → `__tool_outputs` 는
+    소문자화, `__tool_outputs_raw` 는 원문, `__user_text` 는 user 발화 연결(소문자).
+    `upto_index` 가 주어지면 그 인덱스 **직전까지**만 본다(그 호출 시점의 원장).
+
+    ⚠영속 궤적은 모델이 본 것이 아니다 — 재생성이 막힌 호출을 지운다([[30]]). 여기서 재구성되는
+    것은 **성공한 도구 출력**뿐이고, 그것이 grounding 코퍼스의 정의와 같다(막힌 호출은 출력이
+    없으므로 라이브에서도 코퍼스에 없다). 사이드카가 필요한 것은 *무엇이 시도됐나* 쪽이다.
+    """
+    users, outs, id2name = [], {}, {}
+    msgs = (sim or {}).get("messages") or []
+    end = len(msgs) if upto_index is None else max(0, int(upto_index))
+    for m in msgs[:end]:
+        if not isinstance(m, dict):
+            continue
+        for tc in (m.get("tool_calls") or []):
+            d = _as_dict(tc)
+            if d.get("id"):
+                id2name[d.get("id")] = nameof(d)
+        r, c = m.get("role"), m.get("content")
+        if c is None:
+            continue
+        s = c if isinstance(c, str) else str(c)
+        if r == "user":
+            users.append(s)
+        elif r == "tool" and m.get("requestor", "assistant") == "assistant":
+            nm = id2name.get(m.get("id"))
+            if nm:
+                outs[nm] = (outs.get(nm, "") + " " + s)
+    return {"__user_text": " ".join(users).lower(),
+            "__tool_outputs": {k: v.lower() for k, v in outs.items()},
+            "__tool_outputs_raw": dict(outs)}

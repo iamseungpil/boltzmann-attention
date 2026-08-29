@@ -2641,7 +2641,31 @@
       ],
       "kind": "number",
       "on_fail": "drop",
-      "_note_corpus": "2026-08-26 P1(`TASK_094.md` §7-P1): `ledger` 는 도구 출력 **+ 손님 발화**라 *정답은 막고 손님의 오답은 통과*시켰다(t7346 5.1 을 5회 반려 ↔ t7348 손님의 5.0 을 무경고 통과·4 sim 0/4). 이 필드의 `_ground_note` 는 원래 의도를 **'원장(계좌레코드 도구출력)'** 이라고 적어 뒀다 ⇒ 선언 의도대로 도구 출력 전용 축으로 옮긴다. 다른 필드(principal·기간)는 손님이 정확히 말해 주는 경우가 있어 그대로 둔다([[70]])."
+      "_note_corpus": "2026-08-26 P1(`TASK_094.md` §7-P1): `ledger` 는 도구 출력 **+ 손님 발화**라 *정답은 막고 손님의 오답은 통과*시켰다(t7346 5.1 을 5회 반려 ↔ t7348 손님의 5.0 을 무경고 통과·4 sim 0/4). 이 필드의 `_ground_note` 는 원래 의도를 **'원장(계좌레코드 도구출력)'** 이라고 적어 뒀다 ⇒ 선언 의도대로 도구 출력 전용 축으로 옮긴다. 다른 필드(principal·기간)는 손님이 정확히 말해 주는 경우가 있어 그대로 둔다([[70]]).",
+      "derived_from": {
+       "op": {
+        "op": "multiply",
+        "a": {
+         "op": "multiply",
+         "a": "principal",
+         "b": {
+          "op": "multiply",
+          "a": "actual_apy",
+          "b": 0.01
+         }
+        },
+        "b": {
+         "op": "const",
+         "value": 0.08333333333333333
+        }
+       },
+       "round_to": 2,
+       "corpus": [
+        "ledger_tools"
+       ],
+       "_note": "2026-08-29 P1' (x592_derived_grounding_iso.py). 이 필드는 **파생 지시** 필드다 - 바로 위 `params.actual_apy` 가 축자로 \"Derive it from the latest MONTHLY INTEREST CREDIT ... monthly credit amount x 12 / principal x 100\" 이라고 적는다. 그런데 접지 술어는 존재검사라, 파생값이 원장에 문자로 없는 정상 상태에서 **옳은 파생일수록 반드시 드롭**됐다(t7388 task_094#s626729 에서 옳은 5.1 이 msg[28]/[34]/[42] 3회 드롭 -> `-> None` 3회, 모델이 보고서로 써 넣은 뒤 msg[58] 에서야 통과 = write-세탁만 통과). ⇒ 값 대신 **그 값이 함의하는 원장 리터럴**(= 월 이자 크레딧)을 대조한다. 이 op 은 같은 선언의 `op`(principal x (expected-actual)/100 / 12) 의 역이고 상수도 그 op 에서 그대로 왔다 - 새 도메인 지식 0 · gold 미참조([[23]]). corpus 가 도구출력 전용인 이유: 손님은 관측 사실 $408 과 자기 주장 $480 을 **둘 다** 말하므로 `ledger` 로 대조하면 오답 6.0(=480 함의)도 통과한다(x592 실측 오답 3/3 통과). 도구출력 전용이면 거래 레코드의 `amount: 408.0` 만 남아 **정답 9/9 통과 · 오답 19/19 거절**([[21]]·[[25]]). ⚠[[70]] 무엇을 파나: 거래 read 가 없는 궤적에서는 이 축이 아무것도 안 산다(그때는 종전대로 드롭) - 그래서 `T2_SG_REQREADS_CANON` 과 **짝**이다. 그리고 도구 출력에 우연히 같은 수가 있으면 통과한다(존재검사의 원리적 한계 - `_val_grounded` 독스트링이 이미 자인)."
+      },
+      "fail_feedback": "this APY is a DERIVED figure, so it will not appear in the records as written - what has to appear is the monthly interest credit it implies, and for this principal that figure is not in any tool result you have read yet. Read the account's transactions and derive the APY from the MONTHLY INTEREST CREDIT there (monthly credit x 12 / principal x 100), then pass that value."
      },
      {
       "param": "period_start",

@@ -523,6 +523,65 @@ def _omitted_rows_note(sr):
             "re-read them and call again with every row's values included." % miss)
 
 
+def _derived_grounded(orch, scf, ctx):
+    """**파생 필드**의 접지 — 값 자체가 아니라 그 값이 **함의하는 원장 리터럴**이 실재하나.
+
+    ## 왜 (2026-08-29 · `x592_derived_grounding_iso.py` · t7385~t7388 실측)
+
+    존재검사는 *레코드에서 복사한* 필드를 위한 술어인데, 같은 선언이 *파생하라고 지시한* 필드에도
+    걸려 있었다. `get_interest_correction.params.actual_apy` 는 축자로 *"Derive it from the latest
+    MONTHLY INTEREST CREDIT ... monthly credit amount x 12 / principal x 100"* 이라며 파생을 지시한다.
+    파생값이 원장에 문자로 없는 것은 **정상**이므로 **구조상 옳은 파생일수록 반드시 드롭된다** —
+    `bank_t7388_hB2_20260829 task_094#s626729` 에서 옳은 `actual_apy=5.1` 이 msg[28]·[34]·[42] 에서
+    세 번 드롭됐고(`[T2_SCAFFOLD_GET] get_interest_correction -> None` 3회), 모델이 그 값을 보고서로
+    **써 넣은 뒤에야** msg[58] 에서 '원장에 실재'가 되어 통과했다 — 우리 게이트가 정답을 막고
+    write-세탁만 통과시킨 것이다([[25]]).
+
+    ## 술어 (닫힘 · 도메인 낱말 0 · 새 산수 0)
+
+    A2 가 `derived_from.op` 로 **역산 스펙**을 선언하면 엔진은 그것을 `t2_compute.apply_op` 로 ctx
+    위에서 돌려 *"이 값이 참이라면 원장에 있어야 할 리터럴"* 을 얻고, 그 리터럴을 기존
+    `_val_grounded` 로 대조한다. 엔진이 하는 것은 **선언된 산수 1회 + 존재 대조 1회**뿐이고 무엇이
+    옳은 값인지는 말하지 않는다([[62]] — 역산은 검산이지 생성이 아니다·[[67]] 사본 0).
+
+    ## 왜 코퍼스가 도구 출력 전용이어야 하나 (x592 실측)
+
+    같은 대화에서 손님은 **두 수**를 말한다 — 관측 사실 `$408`(받은 이자)과 자기 주장 `$480`
+    (받아야 한다고 믿는 액수·축자 *"that's $480 a month — you're shorting me $72!"*). 손님 발화를
+    코퍼스에 넣으면 둘 다 실재하므로 오답 `6.0`(=480 함의)도 통과한다(x592: `ledger` 코퍼스에서
+    오답 3/3 통과). 도구 출력 전용이면 거래 레코드의 `amount: 408.0` 만 남아 **정답 9/9 통과 ·
+    오답 19/19 거절**이다([[21]] 손님 주장도 원장 대조 대상·[[25]]).
+
+    반환: True=접지됨(드롭 안 함) · False=종전대로 드롭. 선언 없으면 항상 False(거동 보존).
+    """
+    spec = scf.get("derived_from")
+    if not isinstance(spec, dict) or not isinstance(spec.get("op"), dict):
+        return False
+    param = scf.get("param")
+    try:
+        import t2_compute as _c
+        implied = _c.apply_op(spec.get("op"), ctx)
+    except Exception as _de:
+        print("[T2_SG_GROUND] %s 파생-검산 예외: %r" % (param, _de), file=_sys.stderr, flush=True)
+        return False
+    if implied is None:
+        return False                       # 입력이 하나라도 없으면 검산 불가 = 종전대로 드롭
+    rnd = spec.get("round_to")
+    if rnd is not None:
+        try:
+            implied = round(float(implied), int(rnd))
+        except Exception:
+            return False
+    ok = bool(_val_grounded(implied, _corpus_texts(orch, spec.get("corpus")
+                                                   or scf.get("corpus") or ["ledger"]), "number"))
+    # ★계기 (`TASK_094.md` §8 이 지목한 결손): 종전 로그는 **드롭한 것만** 찍어서 통과가
+    #   *검사돼서 통과* 인지 *검사 자체가 없었는지* 구분 불가였다. 파생 축은 양쪽을 찍는다.
+    print("[T2_SG_GROUND] %s=%s 파생-검산 %s (함의 리터럴 %s %s)"
+          % (param, ctx.get(param), "통과" if ok else "불성립",
+             implied, "실재" if ok else "부재"), file=_sys.stderr, flush=True)
+    return ok
+
+
 def _ground_operands(orch, d, ctx):
     """★operand grounding (관문1·`ACCOUNT_APY_OFFLOAD §2a` 리뷰③·2026-07-20 배선). A2 `ground` 선언 시
     op 실행 前 각 grounded operand가 **KB/원장에 실재하는지 검증** — 미검증=드롭+플래그(→abstain).
@@ -601,8 +660,15 @@ def _ground_operands(orch, d, ctx):
             continue
         if not _val_grounded(ctx.get(param), _corpus_texts(orch, scf.get("corpus") or ["ledger"]),
                              scf.get("kind")):
-            flags.append("%s=%s (not found in the records — re-read the exact value)"
-                         % (param, ctx.get(param)))
+            # ★파생 축(2026-08-29·x592): 값이 원장에 없는 것이 **정상**인 필드는 역산으로 검산한다.
+            #   선언이 없으면 False 라 종전 거동 그대로다(`_derived_grounded` 독스트링).
+            if _derived_grounded(orch, scf, ctx):
+                continue
+            # 문면은 A2 오버라이드 가능([[64]] 거부는 무엇을 하면 풀리는지 담아야 한다 — 파생
+            # 필드에 "re-read the exact value" 는 원리상 이행 불가능한 지시다).
+            flags.append("%s=%s (%s)" % (param, ctx.get(param),
+                         scf.get("fail_feedback")
+                         or "not found in the records — re-read the exact value"))
             if scf.get("on_fail", "drop") == "drop":
                 ctx[param] = None          # op가 missing_hint로 abstain(가짜 정밀도 차단)
     # (c) ★intent-field (C203·D4′ 재설계·2026-07-26 D4 폐기 후속): **값의 실재가 아니라 제약 의도의
