@@ -3993,7 +3993,14 @@ def _ctx_fits(work, text, min_len=5000):
         hist = sum(len(_content_str(m) or "") for m in (work or []))
     except Exception:
         hist = 0
-    return (hist + len(text)) / 3.5 <= (44672 - 8192 - 1024 - 11000), hist
+    # ★모델 의존 상수를 변수로 (2026-08-31): `44672` 는 **Qwen2.5-32B 의 max_model_len** 이고
+    #   `8192` 는 그때의 생성 상한이었다. Q3.8 은 131,072 라 같은 산식이 배달을 필요보다 훨씬
+    #   일찍 막는다(모델을 바꿔도 안 따라오는 상수 = [[84]] 사고와 같은 계열).
+    #   출처 순서: 런처/프로필 선언 → `t2_run_gated` 의 서버 탐지 → 종전 상수(되돌리기 경로).
+    #   산식·보정(k=3.5·O=11,000)은 실측이라 그대로 둔다.
+    _cap = int(os.environ.get("T2_MAX_MODEL_LEN") or 44672)
+    _gen = int(os.environ.get("T2_AGENT_MAX_TOKENS") or 8192)
+    return (hist + len(text)) / 3.5 <= (_cap - _gen - 1024 - 11000), hist
 
 
 # ★T2_REQUIRE_DOC_DELIVER 배달 헤더 — `x465_transfer_doc_iso.DELIVER_HEAD` **축자**(격리 조건 동형·

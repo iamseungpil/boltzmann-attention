@@ -419,16 +419,11 @@ def main():
             from tau2.data_model.message import ToolCall as _TC_tr
         except Exception:
             _TC_tr = None
-        _TC_RE = _re_tr.compile(r"<tool_call>\s*(\{.*?\})\s*</tool_call>", _re_tr.S)
-        # ★서버 표면형(qwen3_coder/qwen3_xml)도 줍는다 (2026-08-31·x703 격리).
-        #   구판은 **hermes 형만** 봤다. 그 형은 우리 문법이 강제할 때만 나오므로, 문법을 서버에
-        #   맞추자마자(`T2_TOOL_SURFACE=qwen3_xml`) 이 구제망은 **구조적으로 눈이 먼다** —
-        #   강등이 나면 본문은 `<tool_call><function=NAME><parameter=K>V</parameter></function>`
-        #   형이기 때문이다(vLLM `parser/qwen3.py:7-11` 축자 형식).
-        #   ⚠엔진은 **형식 복구만** 한다: 이름·인자는 모델이 쓴 문자열 그대로(선택·해석 0).
-        _XTC_RE = _re_tr.compile(r"<tool_call>\s*<function=(.*?)>(.*?)</function>\s*</tool_call>",
-                                 _re_tr.S)
-        _XPARAM_RE = _re_tr.compile(r"<parameter=(.*?)>(.*?)</parameter>", _re_tr.S)
+        # ★표면형 파싱은 **정본 한 곳**에서만 한다 (2026-08-31·[[67]] 사본 금지).
+        #   `t2_salvage.extract_calls/strip_calls` 가 hermes(JSON)와 qwen3_xml(XML) 둘 다 읽는다.
+        #   구판은 여기 hermes 정규식이 인라인으로 있었고, 서버 파서가 qwen3_coder 로 바뀐 뒤
+        #   **눈이 먼 채로** 두 달을 돌았다([[84]]).
+        import t2_salvage as _SALV
 
         def _reasoning_of(_r):
             """응답의 reasoning 원문 — 타입 표면에 없으면 `raw_data` 에서 꺼낸다(읽기만)."""
@@ -456,34 +451,9 @@ def main():
             if "<tool_call>" not in _c:
                 return None
             _made = []
-            for _i, _m in enumerate(_XTC_RE.finditer(_c)):        # ① 서버 표면형(XML)
-                _nm = (_m.group(1) or "").strip()
-                if not _nm:
-                    continue
-                _ar = {}
-                for _k, _v in _XPARAM_RE.findall(_m.group(2) or ""):
-                    _k = (_k or "").strip()
-                    _v = (_v or "").strip()
-                    try:                       # 숫자·불리언·객체는 파서와 같은 해석으로 복원
-                        _ar[_k] = _json_tr.loads(_v)
-                    except Exception:
-                        _ar[_k] = _v
+            for _i, (_nm, _ar) in enumerate(_SALV.extract_calls(_c)):
                 try:
-                    _made.append(_TC_tr(id="salvx_%d" % _i, name=str(_nm), arguments=_ar))
-                except Exception:
-                    continue
-            for _i, _b in enumerate(_TC_RE.findall(_c)):          # ② hermes 형(구 문법 잔재)
-                try:
-                    _j = _json_tr.loads(_b)
-                except Exception:
-                    continue                     # 미종결/깨진 블록은 버린다(원래 파서와 같은 판정)
-                _nm = _j.get("name")
-                if not _nm:
-                    continue
-                _ar = _j.get("arguments")
-                try:
-                    _made.append(_TC_tr(id="salv_%d" % _i, name=str(_nm),
-                                        arguments=_ar if isinstance(_ar, dict) else (_ar or {})))
+                    _made.append(_TC_tr(id="salv_%d" % _i, name=str(_nm), arguments=_ar))
                 except Exception:
                     continue
             # ★첫 블록만 (2026-08-31 수리 · 7월 설계서 §2-1 축자를 내가 안 읽고 어겼다):
@@ -503,7 +473,7 @@ def main():
                 return None
             try:
                 _r.tool_calls = _made
-                _r.content = _XTC_RE.sub("", _TC_RE.sub("", _c)).strip() or None
+                _r.content = _SALV.strip_calls(_c).strip() or None
             except Exception:
                 return None
             return _made
@@ -834,6 +804,26 @@ def main():
         max_concurrency=a.max_concurrency,
         save_to=a.save_to,
     )
+    # ★모델에 매인 상수는 **서버에서 읽는다** (2026-08-31 · 사용자 지시 "config 파일과 옵션으로").
+    #   결손: `_ctx_fits` 의 캡이 `44672`(Qwen2.5-32B 의 max_model_len)로 **박혀 있었다**.
+    #   Q3.8 은 131,072 라 그 캡은 배달 게이트를 필요보다 훨씬 일찍 닫는다 — 모델을 바꿔도
+    #   따라오지 않는 상수는 [[84]] 가 기록한 사고(표면형)와 같은 종류다.
+    #   여기서 한 번 읽어 `T2_MAX_MODEL_LEN` 으로 깔면, 소비자는 그 하나만 본다([[67]] 사본 금지).
+    #   ⚠프로필/런처가 이미 선언했으면 **덮지 않는다**(선언 > 자동탐지).
+    if not os.environ.get("T2_MAX_MODEL_LEN"):
+        try:
+            import json as _js0, urllib.request as _ur0
+            with _ur0.urlopen((a.agent_base or "").rstrip("/") + "/models", timeout=5) as _r0:
+                _d00 = ((_js0.load(_r0).get("data") or [{}])[0]) or {}
+            _mml = _d00.get("max_model_len")
+            if _mml:
+                os.environ["T2_MAX_MODEL_LEN"] = str(int(_mml))
+                print("[t2_run] served max_model_len=%s (id=%s) -> T2_MAX_MODEL_LEN"
+                      % (_mml, _d00.get("id")), file=sys.stderr, flush=True)
+        except Exception as _e0:
+            print("[t2_run] max_model_len 탐지 실패(기본값 사용): %r" % (_e0,),
+                  file=sys.stderr, flush=True)
+
     results = run_domain(cfg)
     sims = getattr(results, "simulations", [])
     rewards = [getattr(s, "reward_info", None) and s.reward_info.reward for s in sims]

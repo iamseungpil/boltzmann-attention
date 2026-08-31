@@ -20,29 +20,65 @@ over-action 재앙이고, 복제는 의도가 아니라 정지 실패의 산물�
 """
 import json
 import os
+import re
 import sys
 
 _OPEN = "<tool_call>"
 _CLOSE = "</tool_call>"
 
+# ★두 표면형을 **한 곳에서** 읽는다 (2026-08-31·[[67]] 사본 금지·[[84]]).
+#   서버의 도구 파서가 무엇이냐에 따라 모델이 내는 형식이 다르다:
+#     hermes      : <tool_call>{"name": …, "arguments": {…}}</tool_call>   (Qwen2.5 계열 런)
+#     qwen3_xml   : <tool_call><function=NAME><parameter=K>V</parameter></function></tool_call>
+#                   (vLLM `parser/qwen3.py:7-11` 축자 · Qwen3.8 계열 런)
+#   ⛔한쪽만 읽으면 모델을 바꾸는 순간 **구제망이 눈이 먼다** — 그 사고를 2026-08-31 에 겪었다.
+#   ⚠엔진은 **형식 복구만** 한다: 이름·인자는 모델이 쓴 문자열 그대로다(선택·해석 0·[[10]]).
+_HERMES_RE = re.compile(r"<tool_call>\s*(\{.*?\})\s*</tool_call>", re.S)
+_XML_RE = re.compile(r"<tool_call>\s*<function=(.*?)>(.*?)</function>\s*</tool_call>", re.S)
+_XML_PARAM_RE = re.compile(r"<parameter=(.*?)>(.*?)</parameter>", re.S)
+
+
+def extract_calls(content):
+    """본문의 완결 호출을 **선언 순서대로** [(name, arguments dict), …] 로. 표면형 무관."""
+    if not isinstance(content, str) or _OPEN not in content:
+        return []
+    out = []
+    for _m in _XML_RE.finditer(content):                 # 서버 표면형(XML)
+        nm = (_m.group(1) or "").strip()
+        if not nm:
+            continue
+        args = {}
+        for k, v in _XML_PARAM_RE.findall(_m.group(2) or ""):
+            k, v = (k or "").strip(), (v or "").strip()
+            try:                    # 숫자·불리언·객체는 파서와 같은 해석으로 복원
+                args[k] = json.loads(v)
+            except Exception:
+                args[k] = v
+        out.append((nm, args))
+    for _b in _HERMES_RE.findall(content):               # hermes 표면형(JSON)
+        try:
+            o = json.loads(_b)
+        except Exception:
+            continue                                     # 미종결/깨진 블록은 파서와 같은 판정
+        if isinstance(o, dict) and o.get("name"):
+            a = o.get("arguments", {})
+            out.append((str(o["name"]), a if isinstance(a, dict) else (a or {})))
+    return out
+
+
+def strip_calls(content):
+    """본문에서 호출 블록만 지운 나머지(산문). 표면형 무관."""
+    if not isinstance(content, str):
+        return ""
+    return _XML_RE.sub("", _HERMES_RE.sub("", content))
+
 
 def find_first_call(content):
     """본문에서 **첫 완결 블록**의 호출 하나만 회수. 없으면 None (순수 함수·selftest 대상)."""
-    if not isinstance(content, str) or _OPEN not in content:
+    calls = extract_calls(content)
+    if not calls:
         return None
-    i = content.find(_OPEN)
-    while i >= 0:
-        j = content.find(_CLOSE, i)
-        if j > 0:
-            try:
-                o = json.loads(content[i + len(_OPEN):j].strip())
-                if isinstance(o, dict) and "name" in o:
-                    args = o.get("arguments", {})
-                    return {"name": o["name"], "arguments": args}
-            except Exception:
-                pass
-        i = content.find(_OPEN, i + 1)
-    return None
+    return {"name": calls[0][0], "arguments": calls[0][1]}
 
 
 def salvage_message(msg):
@@ -88,6 +124,12 @@ if __name__ == "__main__":
         ("산문만", "I will help you with that.", None),
         ("give-flow 서술", 'Use this: {"name": "x", "arguments": {}}', None),
         ("첫 블록 깨짐", _OPEN + ' {"name": "a", "arguments": "{\\"x\\": ' + _CLOSE, None),
+        # ★qwen3_xml 표면형(2026-08-31) — 서버 파서가 qwen3_coder 인 런의 강등은 이 형태다
+        ("XML 1블록", _OPEN + "<function=KB_search><parameter=query>dispute</parameter>"
+                       "</function>" + _CLOSE, "KB_search"),
+        ("XML 복제 2블록", ("x" + _OPEN + "<function=KB_search><parameter=query>a</parameter>"
+                            "</function>" + _CLOSE) * 2, "KB_search"),
+        ("XML 미종결", _OPEN + "<function=KB_search><parameter=query>a</parameter>", None),
     ]
     ok = 0
     for name, txt, want in cases:
