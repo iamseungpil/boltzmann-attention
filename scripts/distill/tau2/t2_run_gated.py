@@ -430,6 +430,19 @@ def main():
                                  _re_tr.S)
         _XPARAM_RE = _re_tr.compile(r"<parameter=(.*?)>(.*?)</parameter>", _re_tr.S)
 
+        def _reasoning_of(_r):
+            """응답의 reasoning 원문 — 타입 표면에 없으면 `raw_data` 에서 꺼낸다(읽기만)."""
+            for _k in ("reasoning", "reasoning_content"):
+                _v = getattr(_r, _k, None)
+                if _v:
+                    return str(_v)
+            try:
+                _rd = getattr(_r, "raw_data", None) or {}
+                _m = ((_rd.get("choices") or [{}])[0] or {}).get("message") or {}
+                return str(_m.get("reasoning") or _m.get("reasoning_content") or "")
+            except Exception:
+                return ""
+
         def _t2_salvage_calls(_r, _kw):
             """★T2_TC_SALVAGE (2026-08-30·§L-12) — vLLM 파서가 **통째로 버린** 유효 블록 되살리기.
 
@@ -699,6 +712,13 @@ def main():
                     except Exception as _pe2:
                         print("[T2_P2] regen failed (no-op): %r" % (_pe2,),
                               file=_sys_tr.stderr, flush=True)
+            # ★계기 수리 (2026-08-31): reasoning 은 tau2 `AssistantMessage` 에 **필드가 없다**
+            #   (`data_model/message.py` 에 reasoning* 0회) — 그래서 `getattr(_r,"reasoning")` 은
+            #   언제나 None 이고 `reason=` 칸이 **2336/2336 상수 0** 이었다. 원문은 응답 그대로가
+            #   실린 `raw_data` 에만 남는다(`utils/llm_utils.py` 가 `raw_data=response.to_dict()`).
+            #   ⇒ 그 자리를 읽는다. 절단 시 생성물이 전부 여기로 가므로, 이 칸이 0인지 아닌지가
+            #     *"전손"* 과 *"진짜 빈 응답"* 을 가르는 유일한 계기다.
+            _rsn = _reasoning_of(_r)
             _salv = None
             if _t2_salvage and not (getattr(_r, "tool_calls", None) or None):
                 _salv = _t2_salvage_calls(_r, _kw)
@@ -710,7 +730,10 @@ def main():
             #   여기는 **모든 생성이 지나는 자리**이고, **실패 시에만** 쓰므로 비용이 0에 가깝다.
             if _t2_faildump and (_salv or not (getattr(_r, "tool_calls", None) or None)):
                 _c0 = str(getattr(_r, "content", None) or "")
-                if "<tool_call>" in _c0:
+                # ★2026-08-31: 구판 술어는 본문에 `<tool_call>` 이 **있을 때만** 떴다. 그런데
+                #   제일 비싼 실패(전손 = content 0B ∧ tool_calls 0)에는 그 문자열이 없다 —
+                #   그래서 원문 회수가 구조적으로 0이었다. 전손도 뜬다.
+                if "<tool_call>" in _c0 or not _c0.strip():
                     try:
                         _msgs = _a[1] if len(_a) > 1 else _kw.get("messages")
                         _rec = {"call_name": _kw.get("call_name"),
@@ -750,11 +773,7 @@ def main():
                 #   이고 reasoning 1,761B / content 27B 로 **정상 분리**되고 있었다.
                 #   ⚠vLLM #35221: 절단되면(끝 토큰 부재) 파서가 경계를 못 찾아 **전부를 한쪽으로 쏟는다**.
                 #     그때 content 에 담긴 <tool_call> 은 **사고 중 검토물**일 수 있다 -> salvage 위험.
-                _rsn = ""
-                for _k in ("reasoning", "reasoning_content"):
-                    _v = getattr(_r, _k, None)
-                    if _v:
-                        _rsn = str(_v); break
+                _rsn = _reasoning_of(_r)
                 _u = getattr(_r, "usage", None) or {}
                 _ct = _u.get("completion_tokens") if isinstance(_u, dict) else None
                 _pt = _u.get("prompt_tokens") if isinstance(_u, dict) else None
