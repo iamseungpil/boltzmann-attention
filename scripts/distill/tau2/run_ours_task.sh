@@ -23,6 +23,8 @@ PREFLIGHT=1
 # 동시성 — [[83]] 실측: max_concurrency=4 가 총 처리량 2배(23.6→46.4 tok/s · KV 2%→26% · Waiting 0).
 #   기본 1 은 base 대조군 규격(x617·x644)과 맞추기 위한 값이다.
 CONC=1
+# 시행 수 — 기본 1(base 대조군 규격). 결정론 신호가 필요하면 2 이상([[08]] pass^1 점추정 단독 금지).
+TRIALS=1
 POS=()
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -30,9 +32,11 @@ while [ $# -gt 0 ]; do
     --profile=*) PROFILE="${1#*=}"; shift ;;
     --no-preflight) PREFLIGHT=0; shift ;;
     --concurrency) CONC="$2"; shift 2 ;;
+    --trials) TRIALS="$2"; shift 2 ;;
+    --trials=*) TRIALS="${1#*=}"; shift ;;
     --concurrency=*) CONC="${1#*=}"; shift ;;
     -h|--help)
-      echo "사용: run_ours_task.sh [--profile 이름|경로] [--no-preflight] [--concurrency N] <TAG> <PORT> <TASK_IDS>"
+      echo "사용: run_ours_task.sh [--profile 이름|경로] [--no-preflight] [--concurrency N] [--trials N] <TAG> <PORT> <TASK_IDS>"
       echo "  프로필 = model_profiles/<모델 id 의 / 를 __ 로 바꾼 이름>.env"
       ls -1 "$(dirname "$0")/model_profiles" 2>/dev/null | sed 's|^|  가용: |'
       exit 0 ;;
@@ -126,7 +130,7 @@ export PYTHONPATH=src:$REPO/scripts/distill/tau2
   --domain banking_knowledge --gate 1 --retrieval_config alltools \
   --agent_model "$EXPECT" --agent_base "http://localhost:$PORT/v1" \
   --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 --user_reasoning_effort low \
-  --task_ids "$TASKS" --num_trials 1 --max_concurrency "$CONC" --max_steps 200 \
+  --task_ids "$TASKS" --num_trials "$TRIALS" --max_concurrency "$CONC" --max_steps 200 \
   --save_to "$TAG" 2>&1 | tee "$LOG/$TAG.log"
 
 echo "=================================================================="
