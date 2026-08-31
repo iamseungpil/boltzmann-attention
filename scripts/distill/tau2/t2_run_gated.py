@@ -494,6 +494,37 @@ def main():
             #   실측 근거: `sg_docs_class` 가 전역 3072 를 꽉 채우고 `content=0B`(답 없음)로 잘렸다.
             _cn = str(_kw.get("call_name") or "")
             _is_probe = bool(_cn) and not _cn.startswith("agent_response")
+            # ★사고 예산은 **매 호출에 따로 준다** (2026-08-31·사용자 지시).
+            #   구판은 예산을 **프로브 가지에만** 걸었다(:513). 본 응답에는 없었고, 그래서
+            #   상한이 사고 도중에 걸리면 생성 전량이 reasoning 으로 분류돼 `content=None` 이
+            #   되고 tau2 가 태스크를 통째로 버렸다(x693 에서 1,590초 폐기).
+            #   격리 x705(같은 서버·같은 프롬프트·n=2·전부 결정론):
+            #     예산 없음 mt=512  → 전손 2/2 (reason 2,250B · content 0B)
+            #     예산 없음 mt=2048 → 전손 2/2 (reason 8,340B · content 0B)
+            #     예산 256  mt=512  → 전손 **0/2** (reason 1,131B · content 1,046B)
+            #     예산 1024 mt=2048 → 전손 **0/2** · finish=stop(절단 자체가 사라진다)
+            #     예산 1024 + 도구  → tool_calls 1 정상
+            #   ⇒ 상한을 키우는 것이 아니라 **사고에 예산을 걸어 답 자리를 남긴다**.
+            #   선언(`T2_THINK_BUDGET`) 없으면 상한의 절반으로 파생하고, 그 사실을 로그에 남긴다.
+            #   ⚠[[70]] 무엇을 파나: 사고가 예산에서 끊긴다. 예산이 너무 작으면 답이 바뀐다
+            #     (선행 실측: 486토큰에서 답이 바뀐다) — 그래서 모델 프로필에 값을 선언한다.
+            if not _is_probe:
+                _tbm = os.environ.get("T2_THINK_BUDGET")
+                _capm = (_kw.get("max_tokens")
+                         or os.environ.get("T2_AGENT_MAX_TOKENS") or 8192)
+                try:
+                    _tbm = int(_tbm) if _tbm else max(256, int(_capm) // 2)
+                except Exception:
+                    _tbm = max(256, int(_capm or 8192) // 2)
+                if _tbm and not _kw.get("thinking_token_budget"):
+                    _kw = dict(_kw)
+                    _kw["thinking_token_budget"] = _tbm
+                    if not globals().get("_T2_TB_SAID"):
+                        globals()["_T2_TB_SAID"] = True
+                        print("[t2_run] 사고 예산: 본 응답 %d (상한 %s · %s)"
+                              % (_tbm, _capm,
+                                 "선언" if os.environ.get("T2_THINK_BUDGET") else "상한의 절반 파생"),
+                              file=_sys_tr.stderr, flush=True)
             if _t2_probe_terse and _is_probe and _cn not in _t2_probe_calls:
                 _kw = dict(_kw)
                 _jmt2 = _t2_judge_mt
