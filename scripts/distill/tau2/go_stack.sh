@@ -857,3 +857,22 @@ export T2_TC_SALVAGE=1
 #   [[82]] 대로 **max_tokens** 가 이미 맡는다. 표면형 수리 후 폭주가 재발하는지 다음 런에서
 #   재고 그때 다시 판단한다(재도입 조건 = 폭주 재현 계기 + 부호표).
 export T2_STOP_FIRST_TOOLCALL=0
+
+# ★자유서술 기본값 인자는 근거 없으면 안 넘긴다 (`T2_FREE_TEXT_ARG`·2026-08-31·R-A1).
+#   선언 = A2 `free_text_defaults`(출처: env 시그니처 `tools.py:2508`
+#     `close_bank_account_7392(..., reason: str = "Customer requested closure", ...)`).
+#   정책 축자: `policy_header.md:8` *"Do not make up policies, information or actions that you
+#     can take on behalf of the user."*  ⇒ gold 근거 0.
+#   결손: gold 는 이 인자를 **안 넘겨** 행이 기본값으로 남는데 모델은 매번 자기 문장을 채운다
+#     (base 실측 060 065 066 067 068 069 · 전부 `gold=None ↔ act='Customer …'`).
+#   부호표(base 98 sim · **자기-그라운딩 제거**·호출 직전 문맥만):
+#     ⊕ 실패 sim 발화 6 · ⊖ **통과 sim 발화 0** · 무발화 92  ⇒ 파는 것이 실측 0이라 켠다.
+#   거동: 호출은 그대로 두고 **그 인자만** 뺀다(엔진 기본값이 정본·값 선택 0).
+export T2_FREE_TEXT_ARG=1
+
+# ★행동 선택 ↔ 호출 형식 분리 (`T2_ACTION_CANDSET`·2026-08-31·기본 ON).
+#   결손: A2 `action_tools` 가 행동 4개와 **호출형 4개**를 한 통에 담아, 판단 프로브가
+#     x709 에서 **21/21 회 `call_discoverable_agent_tool`**(=형식)을 답으로 냈다(사이드카 전수).
+#   격리 x711: 현행 집합 → 형식 3/3. 호출형을 빼면 그 범주 오류가 사라진다.
+#   ⚠010 은 이것으로 안 산다(재료 축까지 넣어도 프로브는 none) — 범주 오류만 닫는다.
+export T2_ACTION_CANDSET=1

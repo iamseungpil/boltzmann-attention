@@ -826,6 +826,63 @@ SCOPE_WITH_FINDINGS = ("Based on what the user asked together with the findings 
 FINDINGS_HEAD = "Findings already established:"
 
 
+def _a2_of_agent(agent):
+    """이 sim 의 A2 — 없으면 빈 dict(그러면 후보 필터는 아무것도 안 뺀다)."""
+    for attr in ("_t2_a2", "_t2_sg_a2"):
+        v = getattr(agent, attr, None)
+        if isinstance(v, dict):
+            return v
+    orch = getattr(agent, "_t2_orch", None)
+    for attr in ("_t2_a2", "_t2_sg_a2"):
+        v = getattr(orch, attr, None)
+        if isinstance(v, dict):
+            return v
+    return {}
+
+
+def call_form_tools(a2):
+    """A2 가 **호출 형식**으로 선언한 도구들 — 행동이 아니라 *어떻게 부르는가* 다.
+
+    출처는 선언뿐이다: `dispatcher_role_check`(unlock_tool·agent_call·give_tool·user_call) 와
+    `eplan`(dispatch_tool·unlock_tool). 도메인 리터럴 0.
+    """
+    drs = ((a2 or {}).get("dispatcher_role_check") or {})
+    epl = ((a2 or {}).get("eplan") or {})
+    return {drs.get("unlock_tool"), drs.get("agent_call"), drs.get("give_tool"),
+            drs.get("user_call"), epl.get("dispatch_tool"), epl.get("unlock_tool")} - {None, ""}
+
+
+def action_candidates(action_tools, a2):
+    """**행동 후보**만 남긴다 — 호출 형식은 후보가 아니다(`T2_ACTION_CANDSET`·기본 ON).
+
+    ★결손 (2026-08-31 · x709 `task_010` 실측 · 사용자 지적): `a2["action_tools"]` 가
+      행동 4개(`apply_for_credit_card` `submit_referral` `change_user_email` `submit_transaction`)와
+      **호출 형식 4개**(`unlock_discoverable_agent_tool` `call_discoverable_agent_tool`
+      `give_discoverable_user_tool` `call_discoverable_user_tool`)를 한 통에 담고 있었다.
+      그 8개에서 하나를 고르라고 물으니 프로브가 **21/21 회 `call_discoverable_agent_tool`**,
+      즉 *형식*을 답으로 냈다(사이드카 `fb_bank_x709_…jsonl` 전수). 그 오답이 캐시로 굳었고
+      `T2_ACTIONREQ` 는 그 표적으로 밀 곳을 찾다 침묵했다. gold 는 손님의 `submit_referral` 이었다.
+      격리 x711(n=3): 현행 후보집합 → `call_discoverable_agent_tool` 3/3.
+    ★분담: **선택은 모델, 형식은 엔진**([[10]]). 형식은 이미 선언에서 결정론으로 나온다 —
+      자기 도구면 직접 호출 · agent-discoverable 이면 `unlock → call` · user 도구면 `give → 손님 실행`
+      (`dispatcher_role_check` 가 그 세 역할을 이미 들고 있다).
+    ⚠집합 차집합 하나다 — 의도 분류도, 도메인 판단도 없다([[66]]/[[59]]).
+    ⚠OFF(`T2_ACTION_CANDSET=0`)면 종전 집합 그대로(되돌리기 경로).
+    """
+    tools = set(action_tools or ())
+    if os.environ.get("T2_ACTION_CANDSET", "1") != "1":
+        return tools
+    cf = call_form_tools(a2)
+    out = {t for t in tools if t not in cf}
+    if out and out != tools:
+        _dropped = sorted(tools - out)
+        if not globals().get("_T2_CANDSET_SAID"):
+            globals()["_T2_CANDSET_SAID"] = True
+            print("[T2_ACTION_CANDSET] 행동 후보 %d개 (호출형 %s 제외)"
+                  % (len(out), _dropped), file=sys.stderr, flush=True)
+    return out or tools          # 전부 호출형이면 종전대로(빈 후보로 죽이지 않는다)
+
+
 def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None, material=None):
     """★FIND(의도→operator): 격리 LLM 서브콜 — 사용자 요청이 요구하는 action_tool 1개(or none).
     도메인-일반(intent→operator = 값 formalize의 operator판·learn 정의역). 실패=None(안전).
@@ -851,6 +908,8 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None, 
         의도를 분류하지 않는다. 고르는 것은 여전히 서브다([[62]] ③ 사라지는 판단 0)."""
     if not action_tools or agent is None or la is None:
         return None
+    # ★행동과 호출 형식을 가른다(`action_candidates` 독스트링에 결손·격리·분담).
+    action_tools = action_candidates(action_tools, _a2_of_agent(agent))
     _uall = [i for i, m in enumerate(msgs or [])
              if getattr(m, "role", None) == "user"]
     users = [str(getattr(m, "content", "") or "") for m in msgs

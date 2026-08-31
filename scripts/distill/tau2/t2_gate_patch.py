@@ -12804,6 +12804,72 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_blocknote[_commit_block_note(am, note, regen=_bn_regen_u)] += 1
                 self._t2_gate_strips = getattr(self, "_t2_gate_strips", 0) + 1
                 print("[T2_UNIFIED] R8 strip: %s" % note[:140], file=_sys.stderr, flush=True)
+        # ★[T2_FREE_TEXT_ARG] 자유서술 기본값 인자는 **근거 없으면 넘기지 않는다** (2026-08-31·R-A1).
+        #   선언: A2 `free_text_defaults` = {도구: [인자]} — 출처는 **env 시그니처**다
+        #     (`tools.py:2508` `close_bank_account_7392(..., reason: str = "Customer requested
+        #      closure", ...)` · 독스트링 *"reason (string, optional)"*). gold 근거 0.
+        #   정책 축자(`prompts/components/policy_header.md:8`):
+        #     *"Do not make up policies, information or actions that you can take on behalf of the user."*
+        #   결손(base 전수 실측): gold 는 이 인자를 **안 넘겨** 행이 기본값으로 남는데 모델은 매번
+        #     자기 문장을 채운다 — 060 065 066 067 068 069, 전부 `gold=None ↔ act='Customer …'`.
+        #   부호표(base 98 sim · **자기-그라운딩 제거**: 호출 직전 문맥만 코퍼스로):
+        #     ⊕실패 sim 발화 6 · ⊖**통과 sim 발화 0** · 무발화 92.
+        #   ⚠거동: **호출은 그대로 실행**하고 그 인자만 뺀다(엔진 기본값이 정본). 값을 고르지 않는다.
+        #   ⚠자기-그라운딩 금지: 코퍼스는 `state.messages`(=커밋된 직전 문맥)뿐이다. 우리가 방금
+        #     보낸 값이 도구 응답에 메아리쳐 돌아오면 그 다음 호출부터 무조건 "실재"가 된다(003 실측).
+        #   ⚠OFF(`T2_FREE_TEXT_ARG` != 1)면 한 글자도 안 바뀐다.
+        if (os.environ.get("T2_FREE_TEXT_ARG") == "1" and getattr(am, "tool_calls", None)
+                and ((a2 or {}).get("free_text_defaults"))):
+            try:
+                _ftd = (a2 or {}).get("free_text_defaults") or {}
+                _corp = []
+                for _m9 in (state.messages or []):
+                    _r9 = getattr(_m9, "role", None)
+                    if _r9 in ("user", "tool"):
+                        _corp.append(str(getattr(_m9, "content", "") or "").lower())
+                try:                       # KB 도 코퍼스에 넣는다(회수 여부와 무관하게 문서 축자면 정당)
+                    import t2_scaffold_get as _sg9
+                    _dom9 = getattr(getattr(self, "_t2_orch", None), "environment", None)
+                    _dom9 = getattr(_dom9, "domain_name", None)
+                    if _dom9:
+                        _corp += [str(_d9.get("content") or "").lower()
+                                  for _d9 in (_sg9._load_domain_docs(_dom9) or [])]
+                except Exception:
+                    pass
+                _corp = " ".join(_corp)
+                for _tc9 in (am.tool_calls or []):
+                    _ar9 = _args_dict(_tc9) or {}
+                    _in9 = (_ar9.get("agent_tool_name") or _ar9.get("user_tool_name")
+                            or _ar9.get("discoverable_tool_name") or "")
+                    _sub9 = _ar9.get("arguments")
+                    if isinstance(_sub9, str):
+                        try:
+                            _sub9 = _json.loads(_sub9)
+                        except Exception:
+                            _sub9 = None
+                    _tgt9 = _ftd.get(str(_in9)) or _ftd.get(str(getattr(_tc9, "name", "")))
+                    if not _tgt9:
+                        continue
+                    _bag9 = _sub9 if isinstance(_sub9, dict) else _ar9
+                    for _k9 in _tgt9:
+                        _v9 = _bag9.get(_k9)
+                        if not isinstance(_v9, str) or not _v9.strip():
+                            continue
+                        if _v9.strip().lower() in _corp:
+                            continue
+                        _bag9.pop(_k9, None)
+                        if isinstance(_sub9, dict) and _bag9 is _sub9:
+                            _ar9["arguments"] = _json.dumps(_sub9, ensure_ascii=False)
+                        try:
+                            _tc9.arguments = _ar9
+                        except Exception:
+                            pass
+                        print("[T2_FREE_TEXT_ARG] %s.%s 제거 — 발화·문서·직전 원장 어디에도 없다: %r"
+                              % (_in9 or getattr(_tc9, "name", "?"), _k9, _v9[:60]),
+                              file=_sys.stderr, flush=True)
+            except Exception as _fe9:
+                print("[T2_FREE_TEXT_ARG] skip: %r" % (_fe9,), file=_sys.stderr, flush=True)
+
         # ★EXHAUSTION→FAIL (T2_FAB_STRIP=1·BANK_IMPL_REDESIGN §2·2026-07-16):
         #   regen 소진 후에도 근거 없는(id-operand ∉ctx) WRITE 호출 = pass-through 금지 → strip + abstain.
         #   (C12 "id 날조는 env가 거부" 가정이 banking 디스패처 dispute엔 불성립=날조 txn이 reward0로 통과.)

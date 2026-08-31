@@ -10963,5 +10963,11 @@
    "_note_source_": "도구 설명 축자(env 출력): \"The apply_checking_account_credit_5829 tool may only be called ONCE per checking account per customer interaction. After a credit is applied to a checking account, the system enforces a 14-day cooldown period\" - gold 무참조([[23]])."
   }
  ],
- "_note_write_once_keys": "정책이 선언한 **유일성 키**. 엔진은 이 이름들의 값을 읽어 이어 붙일 뿐이고 무엇이 유일한지는 여기서만 정한다([[05]])."
+ "_note_write_once_keys": "정책이 선언한 **유일성 키**. 엔진은 이 이름들의 값을 읽어 이어 붙일 뿐이고 무엇이 유일한지는 여기서만 정한다([[05]]).",
+ "free_text_defaults": {
+  "close_bank_account_7392": [
+   "reason"
+  ]
+ },
+ "_note_free_text_defaults": "★2026-08-31 (R-A1 · base 전수 부호표): env 시그니처가 **기본값을 가진 자유서술(str) 인자**로 선언한 자리다 — tools.py:2508 close_bank_account_7392(..., reason: str = \"Customer requested closure\", ...) · 독스트링 \"reason (string, optional)\". gold 는 이 인자를 **넘기지 않아** 행이 기본값으로 남는데, 모델은 매번 자기 문장을 채운다(060 065 066 067 068 069 실측 · 전부 gold=None). 값이 손님 발화·회수 문서·호출 직전 원장 어디에도 축자로 없으면 **인자를 빼고** 호출한다 — 엔진 기본값이 정본이다. 출처: policy_header.md:8 \"Do not make up policies, information or actions that you can take on behalf of the user.\" + env 시그니처. gold 근거 0. 부호표(base 98 sim · 자기-그라운딩 제거): ⊕실패 sim 발화 6 · ⊖통과 sim 발화 **0** · 무발화 92."
 }
