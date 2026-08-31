@@ -7071,6 +7071,73 @@ def _rebuild_gate_state(gate, a2, messages):
             gate.observe(name, _args_dict(tc), _content_str(tm))
 
 
+def unused_grants(messages, a2):
+    """**주거나 잠금해제해 놓고 끝내 쓰지 않은 도구** — 정책이 명시적으로 금지한 그것 (계기 전용).
+
+    ★정책 축자 (`prompts/components/additional_instructions.md` · 이 문장은 에이전트 시스템
+      프롬프트에 실린다 — `all_tools.md` 가 `{{component:additional_instructions}}` 로 부른다):
+        *"IMPORTANT: Do not unlock tools that you do not plan on giving to the user and actually
+          using: this causes issues in database logging."*
+        *"Only give a tool when the user would like to perform an action, and the knowledge base
+          explicitly has a tool that allows the user to perform this action"*
+        *"…and do not unlock tools you do not plan to use."*
+    ★왜 세나 (2026-08-31·base x644 `task_010` 실측): 그 sim 은 gold 액션 **2/2 를 정확한 인자로**
+      실행했는데(`action_reward` 1.0 · 1.0) `db_match=false` 로 **reward 0.0** 이었다. 차이는
+      `give_discoverable_user_tool(get_referral_link)` 한 번이다 — 손님은 그것을 쓰지 않고
+      `submit_referral` 을 실행했다. env 소스가 그 한 줄을 DB 변이로 만든다:
+        `discoverable_tool_record = {…, "status": "GIVEN"}` → `add_to_db("user_discoverable_tools", …)`
+      즉 **정책 위반 한 건이 만점 궤적을 0점으로 만든다**.
+    ⚠계기뿐이다 — 아무것도 막지 않는다. 규모를 먼저 재고 나서 집행을 논한다([[62]] 결손을 재라).
+    ⚠도구 이름은 전부 **A2 선언**에서 온다(`dispatcher_role_check` → 없으면 `eplan`).
+      도메인 리터럴 0 · 판단 0: 집합 차집합과 이름 대조뿐이다([[59]]).
+    ⚠짝짓기는 **접미사를 뗀 base 이름**으로 한다(디스패처 경유 이름은 `_1234` 가 붙는다).
+
+    반환: {"given": [...], "unlocked": [...], "unused_given": [...], "unused_unlocked": [...]}
+    """
+    drs = ((a2 or {}).get("dispatcher_role_check") or {})
+    epl = ((a2 or {}).get("eplan") or {})
+    give_tool = drs.get("give_tool")
+    user_call = drs.get("user_call")
+    unlock_tool = drs.get("unlock_tool") or epl.get("unlock_tool")
+    agent_call = drs.get("agent_call") or epl.get("dispatch_tool")
+    keys = ("agent_tool_name", "user_tool_name", "discoverable_tool_name",
+            epl.get("dispatch_name_key") or "agent_tool_name")
+
+    def _inner(tc):
+        ar = _args_dict(tc) or {}
+        for k in keys:
+            v = ar.get(k)
+            if v:
+                return re.sub(r"_\d+$", "", str(v))
+        return ""
+
+    given, unlocked, ran_user, ran_agent = set(), set(), set(), set()
+    for m in (messages or []):
+        role = getattr(m, "role", None)
+        for tc in (getattr(m, "tool_calls", None) or []):
+            nm = getattr(tc, "name", None)
+            iv = _inner(tc)
+            if not iv:
+                continue
+            if nm == give_tool:
+                given.add(iv)
+            elif nm == unlock_tool:
+                unlocked.add(iv)
+            elif nm == user_call:
+                ran_user.add(iv)
+            elif nm == agent_call:
+                ran_agent.add(iv)
+        # 손님이 자기 도구를 직접 부른 형태(디스패처 미경유)도 실행으로 센다
+        if role == "user":
+            for tc in (getattr(m, "tool_calls", None) or []):
+                nm = getattr(tc, "name", None)
+                if nm:
+                    ran_user.add(re.sub(r"_\d+$", "", str(nm)))
+    return {"given": sorted(given), "unlocked": sorted(unlocked),
+            "unused_given": sorted(given - ran_user),
+            "unused_unlocked": sorted(unlocked - ran_agent)}
+
+
 def give_exec_idle(messages, give_tool, user_call):
     """건네졌으나 손님이 **아직 실행하지 않은** discoverable user 도구 (닫힌 술어·순수함수).
 
@@ -8280,6 +8347,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_PAIRCHECK] pairing broken: %s" % _pc, file=_sys.stderr, flush=True)
         gate = getattr(self, "_t2_gate", None)
         a2 = getattr(self, "_t2_a2", None)
+        # ★[T2_UNUSED_GRANT] 계기 (2026-08-31·기록 전용·거동 불변). 정책이 금지한 *쓰지 않을
+        #   도구를 주기/잠금해제* 가 이 대화에서 몇 건인지 남긴다 — base `task_010` 은 그 한 건으로
+        #   액션 만점(2/2)에서 reward 0.0 이 됐다(`unused_grants` 독스트링에 축자·기전).
+        #   집합이 **바뀔 때만** 찍는다.
+        if os.environ.get("T2_UNUSED_GRANT", "1") == "1":
+            try:
+                _ug = unused_grants(state.messages, a2)
+                _sig = (tuple(_ug["unused_given"]), tuple(_ug["unused_unlocked"]))
+                if _sig != getattr(self, "_t2_ug_sig", None):
+                    self._t2_ug_sig = _sig
+                    if _sig[0] or _sig[1]:
+                        print("[T2_UNUSED_GRANT] 준 뒤 안 쓰임=%s · 잠금해제 뒤 안 쓰임=%s "
+                              "(given=%d unlocked=%d)"
+                              % (_ug["unused_given"] or "-", _ug["unused_unlocked"] or "-",
+                                 len(_ug["given"]), len(_ug["unlocked"])),
+                              file=_sys.stderr, flush=True)
+            except Exception as _uge:
+                print("[T2_UNUSED_GRANT] 계기 실패(무시): %r" % (_uge,),
+                      file=_sys.stderr, flush=True)
         # ★T2_DELIVER_PRECOMMIT (2026-08-16·기본 OFF) — **배달 시점만** 앞으로 옮긴다.
         #
         # 왜. 지금 배달은 **결정 자리**에서만 난다(t7299 실측: 결정자리 22 · 일반자리 0). 그런데
