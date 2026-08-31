@@ -803,3 +803,25 @@ export T2_CALL_FORM_FIX=0
 #     ⑴자기완결이 태스크마다 다시 고를 것을 없앤다 ⑵원장이 서브 문맥에 두 번 실리는 것을
 #     없앤다([[65]] 부하). 마감은 `_tl is None` 이라 도구가 없어 잃는 능력이 0이다.
 export T2_SG_CLOSE_SELF=0
+
+# ★이름 없는 거부를 이름 있는 것으로 (`T2_KEEP_DENY_BODY`·2026-08-31 등재·[[81]]).
+#   ⛔이 레버는 **2026-08-11 에 구현·격리 검증까지 끝났는데 정본 런처에 오른 적이 없다**
+#     (`git log -S T2_KEEP_DENY_BODY -- go_stack.sh` = 0건 · x692 launch env 201개 중 부재).
+#     그 사이 실험 런들은 계속 이름 없는 문면을 내보냈다 — x692 `task_094` 축자:
+#       `[T2_TOOL_OBS] err=True -> Error: resolve the flagged call(s) first; do not call this tool yet.`
+#   근거(재유도 금지·[[40]]): C413 = 이 문구가 한 sim 에 3회 이상 나온 6건 **6/6 전부 실패**.
+#     격리 x246(같은 문맥·다음 한 수·n=8) = 일반 문구 3회 **정체 3/8** ↔ 원본 본문 **0/8**.
+#   거동: 창이 접혀도 **본문을 지우지 않고**, 이름 없는 자리에는 막힌 형제 호출의 이름을 댄다
+#     (`_sibling_wait` · 래퍼는 대상 도구까지). fail-closed 불변 — 막히는 것은 그대로 막힌다.
+export T2_KEEP_DENY_BODY=1
+
+# ★거부가 **A2 선언을 가리킨다** (`T2_DENY_HOWTO`·기본 OFF·2026-08-31·[[64]] 뒷칸).
+#   [[73]]: 새 레버는 **격리 후에만** 켠다 — 배선·단위검정(`test_deny_howto.py` 5/5)만 끝났고
+#   격리 프로브는 x692/x693 착지 후(GPU 경합 회피). 켤 때 부호표를 함께 잰다([[70]]).
+#   무엇을 붙이나: 그 도구의 `relations.by_tool[t].requires`(선행 read) — 주입 스키마에 **없는**
+#   순증분만. 인자 계약(`params`)은 스키마 중복이라 별도 옵트인이다.
+#   왜: 실패 305 액션 중 **275(90%)가 WRONGARG**(handoff 2026-08-31 §2) — 부르기는 부르는데
+#   인자가 다르다. 그 자리에 필요한 것은 "다시 하라" 가 아니라 **값을 어디서 뜨는가**다.
+export T2_DENY_HOWTO=0
+export T2_DENY_HOWTO_PARAMS=0
+export T2_DENY_HOWTO_CAP=900

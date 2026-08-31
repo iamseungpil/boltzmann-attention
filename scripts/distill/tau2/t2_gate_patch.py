@@ -4174,6 +4174,79 @@ def _sibling_wait(tag, flagged, what):
             % (tag, name, what))
 
 
+def _decl_howto(eff, a2, cap=None):
+    """거부 문면이 **A2 선언을 가리키게** 한다 — 새 저작 0·엔진은 조회와 나열만.
+
+    ★결손 (2026-08-31·x692 `task_094` 실물): 이름 없는 거부(`_FB_GENERIC`)와 형제-대기 문면은
+      *"무엇이 막혔나"* 까지만 말하고 **무엇을 하면 풀리는지**는 안 말한다. 그런데 그 답은 이미
+      A2 에 네 겹으로 적혀 있다 — `relations.by_tool[t].requires`(선행 read) ·
+      `scaffold_get_tools[].requires_reads` · 그 도구의 `params` 선언 · `arg_source_reads`
+      (인자→원천 read). [[64]] 의 두 칸 중 뒷칸을 **선언 인용**으로 채운다.
+    ★실패 305 액션의 **275(90%)가 WRONGARG**(handoff 2026-08-31 §2) — 부르기는 부르는데 인자가
+      다르다. 그 자리에서 필요한 것은 "다시 하라" 가 아니라 **인자를 어디서 뜨는지**다.
+    ⚠[[23]] 출처: A2 선언뿐(gold·tasks 무참조). ⚠[[59]]/[[10]]: 패턴매칭·선택 0 — 선언 조회와
+      나열만 한다. ⚠[[24]]: `relations` 를 먼저 보고 없을 때만 `scaffold_get_tools` 로 폴백한다.
+    ⚠거동 불변 — 이 호출은 여전히 실행되지 않는다(fail-closed). 문면만 정보를 얻는다.
+    ⚠못 대면 **빈 문자열**(지어내지 않는다·C416 규율).
+    """
+    try:
+        cap = int(cap if cap is not None else os.environ.get("T2_DENY_HOWTO_CAP", "900"))
+    except Exception:
+        cap = 900
+    name = str(eff or "")
+    if not name or not a2:
+        return ""
+    try:
+        import t2_precedence as _PC
+        fam = _PC._fam(name)
+    except Exception:
+        fam = name
+    reads = []
+    try:
+        rel = ((a2 or {}).get("relations") or {}).get("by_tool") or {}
+        for k in (name, fam):
+            for r in ((rel.get(k) or {}).get("requires") or []):
+                if r not in reads:
+                    reads.append(r)
+    except Exception:
+        pass
+    decl = None
+    try:
+        for d in ((a2 or {}).get("scaffold_get_tools") or []):
+            if not isinstance(d, dict):
+                continue
+            if (d.get("name") or d.get("tool")) in (name, fam):
+                decl = d
+                break
+    except Exception:
+        decl = None
+    if decl is not None:
+        for r in (decl.get("requires_reads") or []):
+            if r not in reads:
+                reads.append(r)
+    params = []
+    if decl is not None and isinstance(decl.get("params"), dict):
+        for k, v in decl["params"].items():
+            if str(k).startswith("_"):
+                continue
+            params.append("%s: %s" % (k, str(v)))
+    if not reads and not params:
+        return ""
+    out = ""
+    if reads:
+        out += (" Its declaration lists the reads this call depends on: %s — run those first and "
+                "copy the values from their output." % ", ".join(reads))
+    # ★[[70]] 무엇을 파나 — `params` 는 **주입 스키마에 이미 실려 있다**(`t2_scaffold_get`
+    #   `injected name=… desc=…ch params=[…]`). 여기 다시 실으면 같은 텍스트가 문맥에 두 번
+    #   앉는다([[65]] 부하). 그래서 기본은 **선행 read 만**이고, 인자 계약은 옵트인이다.
+    #   선행 read 는 스키마 어디에도 없으므로 이쪽이 순증분이다.
+    if params and os.environ.get("T2_DENY_HOWTO_PARAMS") == "1":
+        body = " ".join("[%s]" % p for p in params)
+        out += " Its declared argument contract is: " + body
+    out = out if len(out) <= cap else (out[:cap] + " [...]")
+    return " [HOW-TO from the declaration of '%s']%s" % (name, out)
+
+
 def _degenerate_axes(po):
     """**고를 것이 없는 축** = A3 `doc_index[군]` 의 계열 집합이 `_general_` 뿐인 군 (닫힌 술어).
 
@@ -12293,6 +12366,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                for _n8b, v in _SRC8))), None)
                     if _flag8 is not None:
                         _body8 = _sibling_wait("BLOCKED", _flag8, "what to fix")
+                # ★[[64]] 뒷칸 — **무엇을 하면 풀리나**를 A2 선언 인용으로 붙인다
+                #   (2026-08-31·`T2_DENY_HOWTO`·기본 OFF·격리 전까지 배선만).
+                #   x692 `task_094` 실물: `[T2_TOOL_OBS] err=True -> Error: resolve the flagged
+                #   call(s) first; do not call this tool yet.` — 이 문면은 *다음 한 수*가 없다.
+                #   그런데 그 답(선행 read·인자 계약)은 A2 에 이미 있다(`_decl_howto` 독스트링).
+                #   ⚠fail-closed 불변·새 결정론 0·도메인 어휘 0. 못 대면 빈 문자열이라 OFF 와
+                #     **바이트 동일**이다. 계기·회계(`_FB_GENERIC` 센티널·`_chose8`)는 위에서
+                #     이미 끝났으므로 한 글자도 안 건드린다.
+                if os.environ.get("T2_DENY_HOWTO") == "1":
+                    try:
+                        _hw8 = _decl_howto(_eff_tool_name(c), a2)
+                        if _hw8:
+                            _body8 = _body8 + _hw8
+                            print("[T2_DENY_HOWTO] appended tool=%s chars=%d"
+                                  % (_eff_tool_name(c), len(_hw8)), file=_sys.stderr, flush=True)
+                    except Exception as _he8:
+                        print("[T2_DENY_HOWTO] skip: %r" % (_he8,), file=_sys.stderr, flush=True)
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                       error=True, content=_body8))
                 # ★배달 계측 (2026-08-11·설계 §5·§7-1·원장 C427) — **거동 불변**.
