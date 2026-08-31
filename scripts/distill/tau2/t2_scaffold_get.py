@@ -2833,6 +2833,8 @@ def apply():
                                 "copied word for word from the '# Documents' section that shows "
                                 "this>\"}. The quote MUST come from the documents, never from the "
                                 "customer. If no document sentence supports a value, set it to null."
+                                # 간결 지시 (2026-08-31): 사고를 끄지 않고 줄인다. 실측 33~66% 절감·답 동일.
+                                " Reason in at most 200 characters, then answer."
                                 "\n\n# Documents\n%s\n\n# What the customer said\n%s\n"
                                 % (_ag2, _ag2, ", ".join(_vals), _mat, _utx))
                         _raw4 = _SC4.sub_generate(getattr(self, "agent", None), _la4, _UM4,

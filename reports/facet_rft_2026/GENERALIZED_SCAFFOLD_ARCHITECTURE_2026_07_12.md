@@ -151,3 +151,123 @@ tool <T>:
   - **★★재분류 결정타: describe-confirm은 *정책 준수*이지 스킬 아님 (2026-07-12 정책+프롬프트 검증)**: **모든 agent 동일 정책 수신**(우리=frontier=policy.md 6699 chars 바이트동일·검증). **정책 line 16 명령**: "write 전 **list the action details and obtain explicit user confirmation**." ⇒ top 모델 describe-confirm = **정책 준수**(특별스킬 아님)·우리 32B는 같은 정책 받고도 **under-comply**. ⇒ **"가장 최근" 해소 = 정책 "확인-후-write" 준수 = COMPLIANCE = GATE 레버의 일**(도메인일반·정책도출·A2-encodable·게이트 confirm kind 기존재). = learn-잔여도 미싱툴도 아님. compliance-scale 명제 정확 사례(소형 under-comply→게이트 결정론 강제). caveat: 게이트=확인강제 결정론·"details 충분나열"은 부분 agent생성·확인할 주문 *선택*은 agent(오선택도 confirm-반복이 잡음). ⇒ **most-recent=gate-compliance로 대부분 닫힘·진짜 잔여=t106형 표현애매성만.**
   - **★신형 top 모델 검증 (S3 submissions·2026-05·user-sim=gpt-5.2)**: **qwen3.5-397b(retail 84.4·top)=71/102 둘다 4/4·*일관되게 describe-confirm/ASK*(positional 안 씀)** · gpt-5-2(81.6)=3/4·주로 ASK·일부 positional · opus-4-5(79.6)=3/4~4/4·**trial마다 방식 다름**(describe/positional/content 혼재). ⇒ **방식 비-uniform(모델간·*trial간*)**·**최고모델=일관 ASK-confirm=robust**·positional=약한 shortcut. **미문서화(정책확인) 상황선 ASK-confirm이 원리적 정답**=top 모델이 그것. ⇒ 처방=**describe-and-confirm 스킬**(애매-엔티티 write 전 서술-확인·learn/scaffold-force)·"date 도구 추가"는 배포-only 대안. 신형 retail traj=S3 `submissions/<model>/trajectories/*_retail_gpt-5.2_4trials.json`(opus-4-6/4-7=retail 미제출·banking_knowledge만).
 - **★pass 이중-회계 규칙 (2026-07-12 사용자·LOCK)**: (1) **벤치/논문 = 기존-도구만** pass → frontier 공정대조(우리 도입 DB-도구 *제외*·최근류 fail 그대로 계상=정직). (2) **특허 = 도입 DB-도구를 별도 기술** + **enhanced pass**. (3) **pass를 분리 보고**: `pass_existing`(기존 도구로 닫힌 것) vs `pass_added`(우리 도입 DB-getter로 추가 닫힌 것) → "기존 X% + 도입도구 +Y%" 기여 명시. 벤치 수치엔 pass_added 혼입 금지.
+
+---
+
+## 9. ★엔진 술어 폐포 확정 초안 (2026-08-29 · 사용자 지시 *"엔진을 도메인 일반화된 규칙으로 만들 수 있을지 정확하게 판가름하라"*)
+
+> 목적 = **엔진을 한 번 확정하고 freeze**, 이후 성능은 A2/A3 로만 올린다.
+> 판정 방법 = 엔진 술어 어휘 전수 열거 ↔ 세 도메인 **정책 축자** 대조(런 불요·무료).
+> 상위 = [[16]] LOCK · [[05]] 고정/가변 · 특허 `PATENT_B_ADDENDUM_2026_08_29` §11~12.
+
+### 9.1 현행 어휘 (전수·2026-08-29)
+
+```
+게이트 kind  8 : auth · confirm · ownership · notice · preconditions · constraints
+                 select_confirm · exhaust_before_escalate
+연산 op      8 : count · count_where · sum · argmax_where/argmin_where
+                 most_recent · lookup · disjoint · equal_len
+```
+
+### 9.2 ★판정 — 결손 술어는 **유한하고 도메인을 가로질러 재현**한다
+
+세 도메인 정책이 요구하는데 표현 불가한 규칙을 계열로 묶으면 **7 계열**이고, **5계열이 3/3
+도메인**, 2계열이 2/3 에서 재현된다.
+
+| # | 계열 | airline | retail | banking | 재현 |
+|---|---|---|---|---|---|
+| P1 | **개수·수치 상한** | 탑승객 ≤5 · 증서 ≤1 · 카드 ≤3 | 결제수단 단일 | `param_cap_check` · `ledger_metrics` 롤링창 | 3/3 |
+| P2 | **인자↔레코드 대조** | 탑승객 수 불변 · 수하물 단조↑ · 결제 ⊆ 프로필 · 항공편 불변 | 원결제와 달라야 · 환불 ∈ 원결제∪상품권 · 같은 상품군 | `withdrawn_row_check` · `transcription_check` · `ref_verify` | 3/3 |
+| P3 | **중첩 존재량화** | 이미 운항한 구간 유무 | 변형 재고 유무 | 해결된 분쟁 유무 | 3/3 |
+| P4 | **선언적 논리합** | 취소 자격 4지선다 | 환불처 = 원결제∪상품권 | 자격 티어 | 3/3 |
+| P5 | **수치 충족** | 차액 지불 가능 | 상품권 잔액 ≥ 차액 | 한도 검사 | 3/3 |
+| P6 | **개체당 1회** | — | 수정·교환 1회 | `write_once_keys`(부분) | 2/3 |
+| P7 | **리스트 균일성** | cabin 전 구간 동일 | 상품군 동일 | — | 2/3 |
+
+⇒ **도메인마다 새 술어가 필요한 형태가 아니다.** 같은 술어가 옷만 갈아입는다.
+현행 16 + 결손 7 = **약 23 술어로 폐포가 닫힌다**(정책이 축자로 정한 결정가능 규칙 기준).
+
+### 9.3 ★이 일반화가 A2/A3 **비용을 줄인다**는 증거는 이미 코드 안에 있다
+
+banking 은 P1·P2 를 **일반 술어가 아니라 개별 키로** 저작했다 — 술어가 없어서 생긴 **우회 저작**이다:
+
+| 우회 저작된 키 | 바이트 | 흡수될 계열 |
+|---|---|---|
+| `param_cap_check` | 1,542 | P1 |
+| `withdrawn_row_check` | 1,579 | P2 |
+| `transcription_check` | 2,787 | P2 |
+| `ref_verify` | 1,270 | P2 |
+
+⇒ 술어를 올리면 이것들이 **A2 세팅 한 줄**로 접히고, 같은 규칙을 airline·retail 이 **저작 없이**
+얻는다. A3(현재 65.7%·358KB)의 일부가 **A3 → A2 로 이동**한다. 이것이 §6.5 의 `S ≺ A2 ≺ T ≺ A3`
+을 실제로 작동시키는 기전이다.
+
+### 9.4 술어 선언 스키마 초안 (A2 가 값을 준다 · 엔진에 도메인 낱말 0)
+
+공통 규약 — 기존 게이트와 같다:
+- `applies_to`: 도구명 목록 · `applies_when`: 디스패처형 한정(선택)
+- `resolver_path: [<인자명>, <생산 도구>, <필드>]` — 인자로 레코드 필드를 해소한다
+- **fail-open**: 해소 실패(인자 부재·조회 실패)면 **deny 하지 않는다**(오차단 회피·기존 규약)
+- `steer`: 거부 시 모델에게 줄 문면. **도메인 낱말은 A2 가 준다.**
+
+```jsonc
+// P1 개수·수치 상한
+{"op":"max_count","applies_to":["book_reservation"],"arg":"passengers","max":5,
+ "steer":"..."}
+{"op":"max_count","applies_to":["book_reservation"],"arg":"payment_methods",
+ "group_by":"payment_type","per_group":{"certificate":1,"credit_card":1,"gift_card":3}}
+{"op":"max_value","applies_to":["submit_..."],"arg":"requested_increase_amount",
+ "against":{"resolver_path":["account_id","get_...","credit_limit"],
+            "scale_by":{"field":"card_type","map":{"blue":0.2,"gold":0.3}}}}
+
+// P2 인자↔레코드 대조   rel ∈ equal|differs|subset_of|superset_of|unchanged|same_len|monotone_nondecreasing
+{"op":"rel_to_record","applies_to":["book_reservation"],"arg":"payment_methods",
+ "rel":"subset_of","against":{"resolver_path":["user_id","get_user_details","payment_methods"]}}
+{"op":"rel_to_record","applies_to":["update_reservation_passengers"],"arg":"passengers",
+ "rel":"same_len","against":{"resolver_path":["reservation_id","get_reservation_details","passengers"]}}
+
+// P3 중첩 존재량화   none_where = 하나라도 맞으면 거부 · any_where = 하나도 없으면 거부
+{"op":"none_where","applies_to":["update_reservation_flights"],
+ "against":{"resolver_path":["reservation_id","get_reservation_details","flights"]},
+ "cond_field":"status","cond_value":"flown","steer":"..."}
+
+// P4 선언적 논리합 — 하위 검사 중 하나라도 통과하면 통과
+{"op":"any_of","applies_to":["cancel_reservation"],"checks":[ {...}, {...}, {...} ],"steer":"..."}
+
+// P5 수치 충족
+{"op":"covers","applies_to":["modify_pending_order_payment"],
+ "have":{"resolver_path":["payment_method_id","get_user_details","balance"]},
+ "need":{"compute":{"op":"sum","nested_field":"items","item_field":"price"}},"steer":"..."}
+
+// P6 개체당 1회 — 궤적에서 같은 개체값으로 성공 호출이 있었는가
+{"op":"once_per","applies_to":["modify_pending_order_items"],"entity_arg":"order_id","steer":"..."}
+
+// P7 리스트 균일성
+{"op":"uniform","applies_to":["book_reservation"],"arg":"flights","field":"cabin","steer":"..."}
+```
+
+### 9.5 ⛔확정 전 반드시 통과해야 할 것
+
+1. **조건 4 — 교차-도메인 무해성**(특허 §11.4 신설). 술어를 하나 올릴 때마다 **3도메인 동시 검증**:
+   배터리 25/25 · `x18 --verify` 등가 · **같은 sha A/B 부호표**([[70]]). 2026-08-29 의 retail
+   −11.8pp 회귀가 이 조건 없이 흡수했을 때 무슨 일이 나는지의 실물이다.
+2. **fail-open 유지** — 모든 신설 술어는 해소 실패 시 통과. 오차단은 회귀의 주된 형태다
+   (`_over_rows` 39발화·구제 0·gold 총액 3종 차단).
+3. **[[62]] 자기점검** — 이 술어들은 **답을 고르지 않는다**. 전부 *"선언된 관계가 성립하는가"* 만
+   판정하고, 무엇을 할지는 모델이 정한다. argmax·"정답은 X"를 내는 술어는 넣지 않는다.
+
+### 9.6 이 초안이 **덮지 못하는 것** (정직)
+
+- **F3(의미 참조·의도)** 은 어떤 술어로도 안 닫힌다 — 격리천장 ~.44 에서 scale·CoT·RL 전부 실패.
+  23 술어가 덮는 것은 **정책이 축자로 정한 규칙**이지 도메인 전부가 아니다.
+- 이 판정은 **정책 문면 기반 예측이지 실측이 아니다.**
+  ⛔**반증 조건**: 7계열을 넣고도 airline A2 를 채울 때 **새 절차를 저작해야** 한다면 판정은 거짓이다.
+  검증 = §9.7 키스톤.
+
+### 9.7 ★키스톤 실험 (이 초안의 존재 이유)
+
+> **같은 엔진 sha · 같은 도메인 · A2 충전율만 바꾼 A/B.**
+
+airline 50 태스크가 가장 싸다(팔당 약 5시간). 술어 7계열을 올린 뒤 airline A2 를 7키 → N키로
+채우고 pass 차를 본다. 이것이 *"선언이 도메인을 산다"* 의 **유일한 직접 증명**이며, 특허 독립항
+3(ABox 최소화)과 §6.5 목적함수가 서는 자리다. 이 실험 없이는 *"스캐폴드가 좋다"* 까지만 말할 수 있다.

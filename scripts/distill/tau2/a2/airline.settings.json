@@ -79,5 +79,20 @@
   "scope_note": "키스톤 = auth/confirm/ownership 4-kind만. G4/G5/G6 eligibility(db_check DSL)=후속(preconditions kind와 함께)."
  },
  "_note_eplan": "v6 전이(2026-07-13): READALL/COV용. items_id_path 미선언=L10 침묵(우아한 강등). 데이터만·엔진 무수정.",
- "_note_layer": "L2 settings — 구조는 3층 공통, 값만 이 도메인. 정본=A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md"
+ "_note_layer": "L2 settings — 구조는 3층 공통, 값만 이 도메인. 정본=A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md",
+ "action_tools": [
+  "book_reservation",
+  "cancel_reservation",
+  "send_certificate",
+  "update_reservation_baggages",
+  "update_reservation_flights",
+  "update_reservation_passengers"
+ ],
+ "_note_action_tools": "출처 = env 레지스트리 실측(`MUTATES_STATE_ATTR`). airline 도구 14종 중 `mutates=True` 인 것이 정확히 이 6개다. 정책 축자가 같은 집합을 부른다: *\"Before taking any actions that update the booking database (booking, modifying flights, editing baggage, changing cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes)\"*. ⚠banking `_note_action_tools` 가 박제한 함정 재발 방지 — 목록이 빠지면 손님-실행/행동 분기가 통째로 조용해진다(x369: 58태스크 영향). gold 무참조.",
+ "failure_markers": [
+  "Error:"
+ ],
+ "_note_failure_markers": "출처 = env 축자. `tau2-bench/src/tau2/environment/environment.py:452` 가 도구 예외를 `resp = f\"Error: {e}\"` 로 감싼다 — 이 도메인의 도구 실패는 **전부** 이 접두사로 나온다(airline/retail `tools.py` 의 ValueError 23종 전수 확인). banking 이 표지를 넷 더 가진 것은 예외를 안 쓰고 문자열로 실패를 알리는 경로가 따로 있기 때문이고, 여기에는 그 경로가 없다. 미선언이면 실패한 호출이 '실행됨'으로 잡혀 게이트가 거짓 충족된다(`t2_gate_patch.py:3537` 독스트링). gold 무참조.",
+ "calc_tool": "calculate",
+ "_note_calc_tool": "출처 = env 레지스트리(airline `calculate(expression)` 실재). 엔진(`t2_gate_patch.py:12844` T2_NLNUM_PROV)은 통화기호+숫자 패턴만 보고 도메인 어휘가 0이며, 재발행 문구가 이 도구명을 지목한다. 정책이 금액을 다루도록 요구한다 — 축자: *\"Each extra baggage is 50 dollars\"* · *\"The travel insurance is 30 dollars per passenger\"* · *\"the user is required to pay for the difference\"*. gold 무참조."
 }

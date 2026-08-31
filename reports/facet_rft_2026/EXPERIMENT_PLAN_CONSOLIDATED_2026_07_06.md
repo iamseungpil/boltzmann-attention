@@ -7,7 +7,7 @@
 
 ## 0. 한 장 요약 (지금 위치)
 
-- **확정(claim 가능)**: ① compliance 규모-불변(g2 per-write flat)·게이트가 전 규모 위반 0 = **강한형 백본**. ② 조립 스택 robust pass^3: **14B 0.313 / 32B 0.457** — 조립 14B > bare 32B(plain 0.281·compliant 0.219). ③ frontier 리더보드서 조립 32B(0.457) = o4-mini 수준·하위 frontier 진입·compliant 기준 우리 낙폭 0(결정론 보장). ④ **SOPBench 도메인-간 전이(bank→held-out 6도메인) 평균 77.3% public success·재학습 0·ABox-swap** = 전이가 *한 벤치 안에서는* 실증됨.
+- **확정(claim 가능)**: ① compliance 규모-불변(g2 per-write flat)·게이트가 전 규모 위반 0 = **강한형 백본**. ~~② 조립 스택 robust pass^3: **14B 0.313 / 32B 0.457** — 조립 14B > bare 32B(plain 0.281·compliant 0.219).~~ ⇒ **★2026-08-29 철회·대체**: 이 넷은 **방법-유발 크래시를 포함한 nt=3 추정**이고 replay-safe 재측정으로 대체됐다(`PATENT_B_CAPABILITY_PARTITION_2026_07_05.md:1073` 축자). **정본(clean nt=4·표 9.3)** = 조립 pass^3 **14B 0.336 / 32B 0.423** · floor pass^3 **14B 0.193 / 32B 0.358** · **준수-통과 교차 = 조립 14B 0.336 > 32B floor 0.300**. ~~③ frontier 리더보드서 조립 32B(0.457) = o4-mini 수준·하위 frontier 진입~~ ⇒ **★철회**: *"0.457 ≈ o4-mini 0.468"* 은 **우리 pass^3 를 상용 pass^4 와 견준 k-불일치**였다(`PATENT_B:1112` 축자). 원-통과 기준 우리 위치는 **동급이 아니다**. 살아남는 것은 **compliant 기준 낙폭 0(결정론 보장)** 뿐이다. ④ **SOPBench 도메인-간 전이(bank→held-out 6도메인) 평균 77.3% public success·재학습 0·ABox-swap** = 전이가 *한 벤치 안에서는* 실증됨(⚠**다른 벤치·다른 모델(7B)·SFT 포함** — τ²-bench 수치와 나란히 놓지 마라).
 - **미확정/취약(현 최대 공백)**: ⓐ **τ²-retail 밖 전이 미측정**(airline 스펙만·bank/telecom 미착수). ⓑ **cross-bench 통합-TBox→τ² 전이 = 현재 0 pass**(Synth v6, 2-hop binding P2b 미해결). 즉 "학습된 도메인-일반 스킬이 τ²로 ABox-swap 전이"라는 **헤드라인 전이 주장은 아직 미실증**(특허 P5 각주로 로드맵 처리 완료). ⓒ 비용 배수 = 토큰 계측 전 추정(정성만). ⓓ gpt-5.2-sim 32k 재측정 in-flight(40/64).
 - **정리된 방향**: 결정론 레버는 τ²-retail서 **대체로 소진**(make-or-break NO-GO·operand 32B gap 없음). 다음 성능개선 여지 = **orchestration-under-load**(GPU-free plan-probe가 learn GO/NO-GO 판가름) + **전이 폭 확장**(진짜 whitespace).
 
@@ -21,10 +21,10 @@
 | operand 실행 | given-spec 32B 88/88(100%)·goal-only 70%·격차=기준해석 | §3.2 |
 | 부하 은퇴 | 유효부하≈{길이·조건} 2D·L_state/L_interf 규모 은퇴 | §3.3 |
 | 무학습 결정론 회복 | grounding 33→9·통과 0.14→0.264 | §3.4 |
-| 조립 스택 | robust pass^3 14B 0.313 / 32B 0.457·floor compliant 7B .035/14B .152/32B .219 | §3.5 |
+| 조립 스택 | ⛔**철회(2026-08-29)** ~~robust pass^3 14B 0.313 / 32B 0.457·floor compliant 7B .035/14B .152/32B .219~~ ⇒ **정본(clean nt=4·표 9.3)**: 조립 pass^3 **14B 0.336 / 32B 0.423** · floor compliant **14B 0.145 / 32B 0.300** (7B은 옛 nt=3 참조값 .035) | §3.5 |
 | 실패 원인 분포 | clean robust-fail 32B 21·14B 30·단일 지배 없음 | §3.5 |
 | globality 라우팅 | max-select 77%→S 회복·intent 68%→T 후보·결합 50→85% | §3.7 |
-| frontier 리더보드 | 조립 32B 0.457 = o4-mini·compliant 낙폭 우리 0 vs frontier 0~2.6pp | §3.9·3.9b |
+| frontier 리더보드 | ⛔**철회(2026-08-29)** ~~조립 32B 0.457 = o4-mini~~ — **우리 pass^3 를 상용 pass^4 와 견준 k-불일치**(`PATENT_B:1112`). 원-통과 기준 동급 아님. **살아남는 것 = compliant 낙폭 우리 0 vs frontier 0~2.6pp** | §3.9·3.9b |
 | **SOPBench 전이** | bank→held-out 6도메인 avg **77.3%**·재학습0·arm-4a 9.5→26.1 | SOPBENCH_EXPERIMENT_RESULTS Exp-5 |
 | TaskBench scale | edge-F1 72B 45.8·GPT-4 69.3 대비 −25.5pp·LODO 홀드아웃 전이 null(단일템플릿) | TASKBENCH_EXPERIMENT_RESULTS |
 

@@ -888,7 +888,13 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None, 
               "Tools: " + ", ".join(sorted(action_tools)) + "\n"
               "User said:\n- " + "\n- ".join(u[:300] for u in users)
               + (("\n" + FINDINGS_HEAD + "\n- " + "\n- ".join(_mat)) if _mat else "")
-              + '\nReply JSON only: {"tool": "<name or none>"}')
+              + '\nReply JSON only: {"tool": "<name or none>"}'
+              # 간결 지시 (2026-08-31 사용자 지시 "200자 이내로 간결히 대답하라"):
+              #   사고를 끄지 않고 줄인다 - 끄면 답이 틀린다(사고OFF -> "none" 오답).
+              #   실측(8141): 무제약 gen 1,135~2,048토큰/51~125s -> 200자 gen 675/42.8s, 답 동일.
+              #   100자로 조이면 답이 바뀐다(과압박). 서버 thinking_token_budget 도 듣지만
+              #   486토큰에서 답이 바뀐다 -> 프롬프트 경로가 답을 지키면서 같은 절감을 낸다.
+              + " Reason in at most 200 characters, then answer.")
     try:
         txt = SC.sub_generate(agent, la, UserMessage, prompt, "intent_operator_formalize")
         m = re.search(r'"tool"\s*:\s*"([^"]+)"', txt)
@@ -942,6 +948,12 @@ def _formalize_correct_operand(agent, la, UserMessage, msgs, action, operand, ch
               "qualifies or info is missing, reply 'none'.\n"
               "User said:\n- %s\n\nOption details (from lookups):\n%s\n"
               'Reply JSON only: {"%s": "<value or none>"}'
+              # 간결 지시 (2026-08-31 사용자 지시 "200자 이내로 간결히 대답하라"):
+              #   사고를 끄지 않고 줄인다 - 끄면 답이 틀린다(사고OFF -> "none" 오답).
+              #   실측(8141): 무제약 gen 1,135~2,048토큰/51~125s -> 200자 gen 675/42.8s, 답 동일.
+              #   100자로 조이면 답이 바뀐다(과압박). 서버 thinking_token_budget 도 듣지만
+              #   486토큰에서 답이 바뀐다 -> 프롬프트 경로가 답을 지키면서 같은 절감을 낸다.
+              " Reason in at most 200 characters, then answer."
               % (action, operand, "\n- ".join(u[:400] for u in users[-8:]),
                  "\n".join(c[:600] for c in ctx[-8:]), operand))
     try:
@@ -970,6 +982,12 @@ def _formalize_recommendation(agent, la, UserMessage, msgs, action, operand):
               "if no option clearly qualifies or info is missing)?\n"
               "User said:\n- %s\n\nOption details (from lookups):\n%s\n"
               'Reply JSON only: {"applies": true/false, "%s": "<value or none>"}'
+              # 간결 지시 (2026-08-31 사용자 지시 "200자 이내로 간결히 대답하라"):
+              #   사고를 끄지 않고 줄인다 - 끄면 답이 틀린다(사고OFF -> "none" 오답).
+              #   실측(8141): 무제약 gen 1,135~2,048토큰/51~125s -> 200자 gen 675/42.8s, 답 동일.
+              #   100자로 조이면 답이 바뀐다(과압박). 서버 thinking_token_budget 도 듣지만
+              #   486토큰에서 답이 바뀐다 -> 프롬프트 경로가 답을 지키면서 같은 절감을 낸다.
+              " Reason in at most 200 characters, then answer."
               % (action, operand, "\n- ".join(u[:400] for u in users[-8:]),
                  "\n".join(c[:600] for c in ctx[-8:]), operand))
     try:

@@ -1,0 +1,133 @@
+{
+ "_doc": "A2 최상위 키 71개의 A1/A2/A3 재배치 판정 (2026-08-29). 정본 설계 = A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md §9(이 판정으로 갱신). 증거 = x595_a2_key_role.py.",
+ "_criterion_user_verbatim": "airline retail 로 확장할 때, A2 를 새로운 항목으로 저작하지 않고, 값 세팅만 할 수 있냐가 관건이다. 그 기준으로 분류하라 (사용자 2026-08-29)",
+ "_criterion_operational": {
+  "A1": "도메인 값이 아예 필요 없다 — 전 도메인 바이트 동일이거나 문면이 온전히 템플릿(도메인 낱말 0). 새 도메인 비용 0 ⇒ 엔진/L1 기본값으로.",
+  "A2": "airline/retail 이 **그 도메인의 env 레지스트리·도구 스키마·KB 색인에서 값을 읽어 채우면** 끝난다. 스키마·문면은 그대로 재사용.",
+  "A3": "새 도메인에서 **문장·규칙·표를 새로 써야** 한다. 값 교체로는 안 된다.",
+  "DEAD": "엔진 폐포(48파일)의 읽기 지점이 0곳.",
+  "DISCARD": "우리 [[23]] 출처 감사가 이미 '정책 근거 미확립 ⇒ 제거 대상'으로 판정해 둔 키. 분류가 아니라 처리 대기."
+ },
+ "_caveats": [
+  "판정 단위는 **최상위 키**다 — 로더가 그 단위로 병합하고 엔진 접촉면이 a2.get(K) 직독이기 때문. 중첩 필드명 1,134개는 값 내부 구조이지 배치 단위가 아니다.",
+  "⛔A2 키가 작다는 뜻이 아니다. A2 안에도 저작된 산문이 있다(scaffold_get_tools 를 A3 로 뺀 뒤에도 A2 산문 바이트가 남는다). 저작비의 정직한 척도는 **산문 바이트**이지 키 수가 아니다.",
+  "⛔반증 조건: A2 로 판정한 키를 airline 에 실제로 채워 보아 **문장을 새로 써야** 했다면 그 판정은 거짓이다. 지금 이것은 문서·값 검사에 근거한 예측이지 실측이 아니다([[62]]).",
+  "prose 판정선은 잎 문자열 길이 60자 또는 공백 7개 이상. 임계는 도메인 무관이며 gold 를 보지 않았다([[23]])."
+ ],
+ "A1": {
+  "_why": "도메인별 값이 필요 없다. 새 도메인 비용 0.",
+  "declaration": "L1 shared. 선언 스키마 자체.",
+  "claim_audit": "L1 shared. 무결성 검사 산문 — 도메인 결합은 claim_bindings 가 따로 진다.",
+  "axis_notes": "L1 shared. 축 설명 산문.",
+  "repeat_governor": "L1 shared. 반복 억제 규칙."
+ },
+ "A2": {
+  "_why": "값 세팅만으로 airline/retail 이 선다. 값의 출처 = 그 도메인의 env 레지스트리·도구 스키마·KB 색인.",
+  "_proven_by_transfer": [
+   "gates",
+   "eplan",
+   "producers",
+   "operands",
+   "action_tools",
+   "identifying_arg_types"
+  ],
+  "gates": "3도메인 실증. 값 = 도구명·satisfier 도구명. predicate 문면은 도메인 간 재사용(‘authenticated user identity’ 가 airline·retail 에 같은 문자열로 있다).",
+  "eplan": "3도메인 실증. list_enumerator·detail_reader·entity_key·items_key = 전부 도구/필드 이름.",
+  "producers": "3도메인 실증. {tool, args_from} 스키마.",
+  "operands": "banking+retail 실증. per-operand 해소 스펙.",
+  "action_tools": "banking+retail 실증. env 도구 목록의 부분집합.",
+  "identifying_arg_types": "banking+airline 실증. 식별-인자 종류 낱말.",
+  "ledger_metrics": "{trigger_tool,row_keys,date_field,group_field} = 도구·필드 이름. window_history_text 는 {crowded}{max} 자리표를 가진 템플릿이라 재사용된다.",
+  "write_evidence_specs": "{applies_to,applies_when,id_key,require_tokens,feedback}. require_tokens 는 KB 상태 enum 값이고 feedback 은 {id} 템플릿.",
+  "write_arg_enum": "{arg,group_arg,group_map}. group_map 은 KB 문서 계열 접두사에서 나온다(env 사실).",
+  "write_arg_grounding": "feedback 이 '{val}/{arg} 가 어느 도구 출력에도 없다' — 도메인 낱말 0 의 완전 템플릿. 나머지는 인자 이름.",
+  "relations": "주석 축자: 다른 A2 선언에서 **기계 도출**. 값 저작 0.",
+  "follow_up_chains": "{after,requires,decision_tools} = 도구명. feedback 은 템플릿.",
+  "catalog_arg_docs": "그 도메인 KB 문서 **제목 색인**. 새 도메인은 자기 KB 를 색인하면 된다.",
+  "withdrawn_row_check": "{settle_tool,submit_tool,feedback} — 도구명 둘.",
+  "param_cap_check": "{param,record_key_field,limit_field,pct_by.map} — 정책 수치표. 문장 저작 아님.",
+  "ref_verify": "{id_key,record_field,feedback} — 필드명 + 템플릿.",
+  "require_doc_before": "{tools,feedback} — 도구명 목록.",
+  "claim_bindings": "주석 축자: *새 도메인은 이 4개만 채우면 같은 무결성 검사를 얻는다(산문 복사 불요)*.",
+  "choice_grounding": "{tool,arg,feedback}.",
+  "dispatcher_role_check": "{name_args,give_tool,user_call} — 전부 env 도구/인자 이름.",
+  "function_agents": "함수-에이전트 도구 목록.",
+  "arg_source_reads": "인자→읽기 도구 맵. 잎 전부 식별자.",
+  "transcription_check": "전사 대조 필드명. 잎 전부 식별자.",
+  "derived": "파생-사실 DAG 단계 0. 주석 축자: *값은 전부 ledger_metrics 에서 왔고 신규 도메인 지식 0*.",
+  "reference_filter": "참조 필터 필드명.",
+  "ref_iso": "격리 프로브 결속 — 도구/인자 이름.",
+  "write_once_keys": "유일성 키 이름.",
+  "view_field_annotations": "뷰 필드 주기.",
+  "analysis_producers": "{data_source,producer,subject} — 도구명 둘 + 한 줄.",
+  "assertion_operands": "발화구 → 도구 맵.",
+  "arg_producers": "인자 → 생산 도구 맵.",
+  "tool_signatures": "도구 → 인자명 목록. 출처 = 정책이 명시한 서명.",
+  "policy_facts_file": "파일명 포인터 하나.",
+  "failure_markers": "도구 출력의 실패 표지 문자열.",
+  "compute_ops": "banking 은 비어 있다({}). 슬롯만 있고 값 0.",
+  "regen_resolver_specs": "retail. {arg,resolver_path,applies_to} — 전부 인자/도구 이름.",
+  "default_specs": "retail. 동형.",
+  "present_specs": "retail. 주석 축자: *airline swap=다른 specs(flights/passengers)*.",
+  "calc_specs": "retail. 주석 축자: *airline swap=다른 calc_specs*.",
+  "variant_spec": "retail. {trigger_tool,nested_field,id_field,anchor_operand,tie_break}.",
+  "variant_operand": "retail. 인자명 하나.",
+  "disamb_sub_args": "retail. 토큰 하나.",
+  "calc_tool": "retail. 계산 도구명 하나.",
+  "placeholders": "retail. id 자리표 포맷 하나.",
+  "tool_error_specs": "retail. {match,class,hint} — match 는 그 도메인 도구가 실제로 내는 에러 문자열(env 표면)."
+ },
+ "A3": {
+  "_why": "새 도메인에서 문장·규칙·표를 **새로 써야** 한다.",
+  "scaffold_get_tools": "★자동 규칙(주석 STRC)을 뒤집었다. 이 도구들은 env 가 준 것이 아니라 **우리가 만든 scaffold GET 도구**이고, 값의 대부분이 우리가 쓴 도구 설명이다(산문 54,088B). airline 은 자기 scaffold 도구를 새로 저작해야 한다.",
+  "policy_ontology": "정책 상수의 런타임 원천. 행 = (주어,축,값,인용). airline 은 자기 정책 문서를 읽어 축을 정의하고 행을 만들어야 한다. 생성기 x140 이 있으나 **자동 도출은 미확립**이다(설계 §6-2: 생성기가 저장값을 재현할 때만 '자동' 주장). 산문 47,735B.",
+  "procedures": "절차 DAG. 노드마다 정책 축자 인용(_source·_quote_order)을 달아 저작했다. airline 절차는 airline 정책에서 새로 써야 한다.",
+  "arbitration": "중재 규칙 산문 3덩이. 잎 전부 산문.",
+  "discoverable_name_check": "발견형 도구 이름 규율 — 산문 7/11.",
+  "write_rules": "쓰기 규칙 산문.",
+  "write_initiation": "쓰기 착수 규칙 산문.",
+  "suppression_authority": "억제 권한 규칙 산문.",
+  "name_rules": "상품명 동일성 판정 규칙 — banking 상품 형태어(Account/Checking/…)에 매인 산문 한 덩이. 엔진은 프롬프트에 이어 붙이기만 한다.",
+  "search_exhaust_escalation": "검색 소진 시 에스컬레이션 문장.",
+  "nonlisted_tool_feedback": "목록 밖 도구 호출 안내 문장.",
+  "tool_unlock_hint": "잠금 해제 안내 문장.",
+  "unavailable_tools": "환경에 없는 백엔드 대체 안내 문장.",
+  "transfer_reason_policy": "이관 사유 tier·signal 해석표 — 정책 독해의 산물."
+ },
+ "DEAD": {
+  "_why": "엔진 폐포 48파일에서 읽기 지점 0곳. 합계 7,779B.",
+  "catalog_attrs": "4,248B. 카탈로그 속성표.",
+  "enum_priority": "2,536B. enum 우선순위.",
+  "field_ops": "820B. field→operator 분류.",
+  "catalog_arg_families": "175B. 인자→문서 계열."
+ },
+ "DISCARD": {
+  "_why": "2026-07-31 [[23]] 출처 감사가 '정책 근거 미확립 + x6b DISCARD ⇒ 제거 대상'이라 적었는데 한 달 뒤에도 파일에 있다. 분류가 아니라 미처리 항목이다.",
+  "have_value_reask": "주석 축자: *정책 근거 미확립 + x6b DISCARD 분류(프록시 술어) ⇒ 제거 대상*.",
+  "value_acquisition": "주석 축자: *정책 근거 미확립 + DISCARD ⇒ 제거 대상(have_value_reask 동족)*.",
+  "prescription_redirect": "주석 축자: *정책 근거 미확립 + DISCARD 분류(사례-표적 의심)*.",
+  "recommendation_verify": "주석 축자: *정책 근거 미확립 + x6b DISCARD 분류 ⇒ 제거 대상*."
+ },
+ "_authoring_2026_08_29": {
+  "_instruction": "사용자 2026-08-29: A2. A3 저작 완료하라",
+  "_engine_lines_changed": 0,
+  "_battery": "25/25 초록 · x18 --verify 등가 3도메인 ✅ · load_domain_a2 병합 확인",
+  "authored": {
+   "airline.action_tools": "변이 도구 6 (env MUTATES_STATE_ATTR 실측 + 정책 축자 \"actions that update the booking database\")",
+   "airline.failure_markers": "[\"Error:\"] — env 축자 environment.py:452 resp = f\"Error: {e}\"",
+   "airline.calc_tool": "\"calculate\" — env 레지스트리 실재 + 정책이 금액 계산을 요구",
+   "retail.action_tools": "★결손 수리 6 → 7. modify_user_address 누락(env mutates=True)",
+   "retail.failure_markers": "[\"Error:\"] — 위와 동일"
+  },
+  "not_authorable": {
+   "airline.gates.preconditions": "⛔대리 술어 오차단. 정책이 \"Basic economy flights cannot be modified\" 와 \"including basic economy, can change cabin\" 을 동시에 말하는데 두 행위를 update_reservation_flights 한 도구가 한다. 예약 cabin 으로 막으면 정당한 cabin 변경을 막는다. 구분하려면 항공편 실제 변경 비교 = 엔진 새 술어(capex).",
+   "airline.gates.constraints": "엔진 제약 op 가 disjoint·equal_len 둘뿐이라 max_len 이 없다. 탑승객 ≤5 · 증서 ≤1 · 신용카드 ≤1 · 기프트카드 ≤3 전부 표현 불가.",
+   "airline.operands": "해당 없음. retail 의 item_ids 같은 membership 피연산자가 airline 에 없고, 개체 해소는 eplan(entity_key=reservation_id)과 G3 소유 게이트가 이미 한다.",
+   "airline.tool_signatures": "필요 근거 없음. banking 은 인자가 떨어지는 디스패처 도구 때문에 선언했는데 airline 은 직접 호출이다.",
+   "airline.placeholders": "id 자리표 포맷을 정책·env 가 정하지 않는다(예약 id 예시 ZFA04Y 는 설명문일 뿐 포맷 선언이 아니다).",
+   "both.dispatcher_role_check/function_agents/catalog_arg_docs/policy_facts_file/require_doc_before": "해당 없음 — airline·retail 에는 디스패처 도구도 KB 검색 도구도 없다."
+  },
+  "_falsifier": "⛔t7390·t7391 은 이 저작을 검증하지 못한다 — 두 런은 저작 이전 sha(cccbf7dd·8dad2413)로 리모트에서 얼어 있고 로컬 편집은 거기 닿지 않는다. 검증에는 **새 런**이 필요하다. 판정: 저작한 5건 중 하나라도 라이브에서 발화하지 않으면 그 선언은 死배선이다. 확인 지점 = airline 의 행동/확인 분기가 6 도구에 뜨는가 · retail 이 modify_user_address 를 행동 도구로 취급하는가 · 두 도메인의 실패 표지가 Error: 를 잡는가.",
+  "_runs_note": "t7390(airline)·t7391(retail)은 특허 §8.4 1단계(신규 저작 0)이며 이 저작의 **대조군**이 된다 — 같은 엔진·저작 전 A2. 그래서 저작 효과는 같은 sha A/B 로 잴 수 있다([[70]])."
+ }
+}

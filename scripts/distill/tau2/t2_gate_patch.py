@@ -739,6 +739,135 @@ def _policy_rows_for(a2, arg_names):
     return None if len(txt) > cap else txt
 
 
+_A3_SUBJDOC_CACHE = {}
+
+
+def _a3_subject_docs(a2):
+    """주어 → **선언된 근거 문서 집합**. `policy_facts` + `policy_ontology.rows` 합본. 읽기만.
+
+    ★A3 의 **두 번째 소비자**를 위한 재료 (2026-08-30 · 사용자 지시 *"부족한데 멈추거나,
+      만족했는데 계속 찾는 경우를 없애는 최적의 방식을 지금 alltools 에 접목하라"*).
+      첫 소비자(`_arg_policy_join`)는 **write 인자 이름 == 축 이름** 으로만 걸려서, 063 처럼
+      결정이 **산문**인 자리(어느 저축+카드 조합이 이자를 최대화하나)에는 원리상 안 닿는다 —
+      `apy` 27행이 선언돼 있어도 `apy` 라는 이름의 write 인자가 없기 때문이다.
+
+    실측 규모(2026-08-30): 주어 **112** · 주어당 축 평균 17 · **주어당 문서 평균 5.9 · 중앙 7**.
+      축은 많아도 문서는 적으므로 검산 단위는 **문서**로 잡는다(발화가 1~3줄로 끝난다).
+
+    ⚠읽기만 한다 — 고르지도 순위 매기지도 않는다([[59]]·[[62]]). 값·인용은 전부 문서 축자이고
+      저작 근거는 `policy_facts` 의 `_note_` 에 있다(gold·tasks 미참조·[[23]]).
+    """
+    key = id(a2)
+    if key in _A3_SUBJDOC_CACHE:
+        return _A3_SUBJDOC_CACHE[key]
+    out = collections.defaultdict(set)
+    try:
+        for r in _policy_facts(a2):
+            s = r.get("subject")
+            for src in (r.get("sources") or []):
+                d = src.get("doc")
+                if s and d:
+                    out[s].add(d)
+        # ★주어 키 정규화 (2026-08-30 · 배선 차단 결함 수리). 두 저장소의 표기가 다르다 —
+        #   `policy_ontology` 는 **표시명**(`Business Silver Rewards Card`),
+        #   `policy_facts` 는 **군 접두 슬러그**(`business_credit_cards_business_silver_…`).
+        #   병합하지 않으면 같은 상품에 대해 *확보 완료* 와 *11개 미달* 을 **동시에** 말한다
+        #   ([[25]] 우리 출력 100% 정답 의무 위반).
+        #
+        #   ⚠규칙은 **이름 문자열로 추측하지 않는다**([[23]]) — *ontology 주어의 선언 문서가
+        #   어느 facts 주어의 문서 집합에 포함되는가* 로 정한다. 관측된 포함 관계다.
+        #   ⚠**포함하는 facts 주어가 유일할 때만** 병합한다. 둘 이상이면 어느 쪽인지 우리가
+        #   고르는 것이 되므로 그대로 둔다([[62]]④).
+        #   실측(`x641`/`x641b`): ontology 주어 41 중 **유일 35 · 모호 0 · 대응 없음 6**.
+        #   대응 없는 6 은 전부 상태값(APPLIED·COMPLETE·ERROR·IN_PROGRESS·NO_PROGRESS·REJECTED)
+        #   이라 제품 주어가 아니다 — 대응이 없는 것이 맞다.
+        #   하드코딩된 사상표를 두지 않으므로 선언이 바뀌면 규칙이 따라온다(도메인 리터럴 0).
+        _fnorm = {k: {_a3_norm_doc(d) for d in v} for k, v in out.items()}
+        for r in (((a2 or {}).get("policy_ontology") or {}).get("rows") or []):
+            s = r.get("subject")
+            d = (r.get("source") or {}).get("doc")
+            if not (s and d):
+                continue
+            if s not in out:
+                holders = [k for k, fd in _fnorm.items() if fd and _a3_norm_doc(d) in fd]
+                if len(holders) == 1:
+                    s = holders[0]
+            out[s].add(d)
+    except Exception:
+        pass
+    out = dict(out)
+    _A3_SUBJDOC_CACHE[key] = out
+    return out
+
+
+_A3_DOCPAT = re.compile(r"doc_[a-z0-9_()\-]{6,90}", re.I)
+
+
+def _a3_norm_doc(s):
+    """샌드박스 파일명 규약(`(general)` ↔ `__general__`)을 흡수해 맞댄다. 형상 하나·해석 0."""
+    s = str(s or "").lower().replace(".md", "").replace("(", "_").replace(")", "_")
+    return re.sub(r"_+", "_", s).strip("_")
+
+
+def _closure_note(agent, a2, content):
+    """★A3 **완결 검산** — 이 결과가 건드린 주어에 대해 *선언된 근거 문서 중 아직 없는 것*.
+
+    사용자 설계 축자: *"특정 기능이나 판단에 필요한 모든 문서가 **완결되었다는 걸 검산**하는 거다"*.
+    양 끝을 하나가 닫는다 — **부족한데 멈추는 것**(미달 목록이 뜬다) ·
+    **만족했는데 계속 찾는 것**(확보 완료가 뜬다).
+
+    술어는 전부 닫혔다([[22]]): 문서 id **원소 검사** + 집합 차. 엔진은 무엇이 정답인지 모르고
+    어느 문서가 더 중요한지도 모른다. 순서는 결정론(주어명 → 문서 id)이지 점수가 아니다.
+
+    ⚠**도구 무관** — bm25·dense·shell 어느 결과든 doc id 가 실리면 걸린다. 사용자 지적
+      *"수동적으로 shell 이 불릴 때만 하면 **빠져 나갈 구멍**이 생긴다. 100% 를 원한다."*
+    ⚠**reads 에만 붙는다** ⇒ replay-safe — DB 해시가 안 바뀌므로 reward 기전 불변([[69]]).
+    ⚠상한을 넘으면 **아무것도 주지 않는다**(자르면 무엇을 뺐는지 우리가 고른 것이 된다·[[62]]④).
+      같은 규약이 `_arg_policy_join` 에 이미 있다([[67]] 사본 금지).
+    ⚠INDEX.md 전량 덤프(문서 60개 이상)는 *본 것* 으로 세지 않는다 — 목록을 본 것이지 내용이 아니다.
+    """
+    if os.environ.get("T2_SEARCH_CLOSURE") != "1" or a2 is None:
+        return None
+    subj_docs = _a3_subject_docs(a2)
+    if not subj_docs:
+        return None
+    hits = {_a3_norm_doc(h) for h in _A3_DOCPAT.findall(str(content or ""))}
+    if not hits or len(hits) >= 60:
+        return None
+    seen = getattr(agent, "_t2_a3_seen_docs", None)
+    if seen is None:
+        seen = set()
+    seen |= hits
+    try:
+        agent._t2_a3_seen_docs = seen
+    except Exception:
+        pass
+    lines = []
+    for s in sorted(subj_docs):
+        decl = {_a3_norm_doc(d) for d in subj_docs[s]}
+        if not (decl & hits):                 # 이번 결과가 건드린 주어만
+            continue
+        miss = sorted(decl - seen)
+        # ★id 목록을 싣지 않는다 (2026-08-30 계측이 잡은 내 위반). 구판은 `miss[:4]` 로 **넷을
+        #   골라** 적었는데, 그건 이 함수가 지키려던 규약 자체를 어긴 것이다 - *자르면 무엇을
+        #   뺐는지 우리가 고른 것이 된다*([[62]]④). 그리고 긴 id 가 줄당 200 B 를 먹어
+        #   **도구 메시지 19개 중 18개가 상한(1200 B)에 걸려 침묵**했다(실측 2,500~3,700 B).
+        #   개수만 말하면 줄이 ~60 B 라 8주어도 500 B 안에 들어가고, 모델은 이름만 알면
+        #   `ls | grep` 으로 파일을 스스로 찾는다(x617 task_003·055 실측).
+        if miss:
+            lines.append("- %s: %d of %d declared source documents not yet seen"
+                         % (s, len(miss), len(decl)))
+        else:
+            lines.append("- %s: all %d declared source documents are in hand"
+                         % (s, len(decl)))
+    if not lines:
+        return None
+    txt = (chr(10) + "[Declared sources for the subjects in this result. "
+           "This accounting is complete.]" + chr(10) + chr(10).join(lines))
+    cap = int(os.environ.get("T2_SEARCH_CLOSURE_CAP", "1200"))
+    return None if len(txt) > cap else txt
+
+
 def _looks_placeholder(s):
     """값이 **자리표시자 모양**인가 — 연속(0123…) 또는 동일(1111) 자릿수 4개 이상을 담았나.
 
@@ -13543,7 +13672,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_VERDICT_SURFACE] error (no-op): %r" % (_v2e,),
                       file=_sys.stderr, flush=True)
 
-        if (os.environ.get("T2_SEARCH_EXHAUST_NUDGE") == "1" and _resign
+        # ★2026-08-31 수리③ (`T2_SEARCH_EXHAUST_MID=1`·기본 OFF): 종전에는 `_resign`
+        #   (모델이 **마무리하려는 순간**)에만 걸렸다. 실측 x686: 넛지가 **093(통과)에서만**
+        #   발화하고 **094(실패)에서는 0회** — 094 는 28번 검색하는 **도중**이라 resign 이
+        #   아니었고, 그 42 메시지 동안 아무 개입이 없었다.
+        #   ⛔반복이 아니다: 고유 명령 27/28 · 완전동일 최대 2회 → `T2_REPEAT_CAP` 은 정상 무발화.
+        #   결손은 **탐색 종료 판정**이다. dry(새 문서 id 0) 가 임계를 넘으면 resign 전에도 말한다.
+        #   ⛔거동 변경 · [[70]] 부호표 대상. cap 은 아래 `_t2_srchex` 가 이미 1회로 묶는다.
+        _srchex_mid = os.environ.get("T2_SEARCH_EXHAUST_MID") == "1"
+        if (os.environ.get("T2_SEARCH_EXHAUST_NUDGE") == "1" and (_resign or _srchex_mid)
                 and not getattr(self, "_t2_srchex", 0)):
             _stubs = sum(1 for _m6 in state.messages
                          if getattr(_m6, "role", None) == "tool"
@@ -13875,11 +14012,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           file=_sys.stderr, flush=True)
                 print("[T2_WRITEPROV] window hit (no effective write in ledger) declared_completion=%s"
                       % (_claims,), file=_sys.stderr, flush=True)
+                # ★2026-08-30 수리(§L-8 · x659 실측): **예산은 질의 자체가 소모한다.**
+                #   종전에는 이 증가가 `if _claims:` 안에 있어, 답이 파싱되지 않으면(_claims=None)
+                #   상한이 영원히 0 으로 남아 매 resign 턴마다 8192-토큰 서브콜을 다시 태웠다.
+                #   실측: `WRITEPROV window hit` 가 **x659 31회 · x668 6회**(설계는 sim 당 1회).
+                #   Q2.5 는 간결한 한 줄 JSON 을 내어 파싱되고 1회로 끝났고, 장황한 Q3.8 만 무한
+                #   재발화했다 — **모델 의존 결함**이지 도메인 문제가 아니다([[05]] 안전).
+                #   ⛔거동 변경: 파싱 실패 시 이 게이트는 이제 sim 당 1회만 시도한다([[70]] 부호표).
+                self._t2_writeprov = getattr(self, "_t2_writeprov", 0) + 1
                 if _claims:
                     _lbeat("T2_WRITE_PROV", orch=self, target="write",
                            fact="completion was declared but no effective write is in the ledger",
                            order=str(_cg["feedback"]))
-                    self._t2_writeprov = getattr(self, "_t2_writeprov", 0) + 1
                     _new1 = _ap_regen(_cg["feedback"], "writeprov")
                     if _new1 is not None:
                         am = _new1

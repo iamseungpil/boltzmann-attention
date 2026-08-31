@@ -331,6 +331,426 @@ def main():
     #   user-sim(원격 추론 모델)은 reasoning 토큰이 있어 캡 금지. opt-in env·미설정=거동 불변.
     if os.environ.get("T2_AGENT_MAX_TOKENS"):
         llm_args_agent["max_tokens"] = int(os.environ["T2_AGENT_MAX_TOKENS"])
+    # ★T2_GEN_TRACE (2026-08-30·§L-5 수리) — 생성 깔때기의 **우회 불가 계기**.
+    #   `T2_PROMPT_DUMP` 는 `t2_gate_patch._gen` 두 곳(6547·7990)에 달려 있는데 x659 에서 **레코드 0**
+    #   이었다 — 라이브(`apply_unified_regen`->`unified`)가 그 경로를 안 탄다. 자국 없는 계기는
+    #   계기가 아니다. 여기서 tau2 의 `generate` **모듈 전역**을 감싸면 어느 호출 형태든 지난다.
+    #   재는 것: 요청의 max_tokens/tool_choice · 응답의 content 길이 · tool_calls 수.
+    #   ⛔판단 0 · 거동 변경 0(원함수를 그대로 부르고 로그만 남긴다) · opt-in.
+    if any(os.environ.get(_k) == "1" for _k in
+           ("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS"))             or os.environ.get("T2_FAILDUMP"):
+        import sys as _sys_tr
+        import tau2.agent.llm_agent as _la_tr
+        _orig_gen_t2 = _la_tr.generate
+
+        _t2_notc = os.environ.get("T2_NO_FORCE_TOOLCHOICE") == "1"
+        # ★T2_PROBE_TERSE (2026-08-30·§L-11·사용자 지적 "1줄만 뱉게 해야 하지 않나")
+        #   선언-프로브 서브콜(`agent_writeprov` 등)은 **한 줄 JSON** 한 개를 기대한다. 그런데
+        #   Q3.8 은 reasoning 모델이라 8192 토큰(=32KB)을 꽉 채우고 그 안에 JSON 이 없다 →
+        #   `_claims=None` → 게이트 무발화 → **5.8분을 태우고 아무것도 못 얻는다**.
+        #   ⇒ ⑴ 그 호출에만 `enable_thinking=False`(vLLM chat_template_kwargs) ⑵ max_tokens 축소.
+        #   질문 자체가 예/아니오이므로 사고를 끄는 것이 **정확도 손실이 아니다**.
+        #   call_name 은 엔진 내부 이름이라 도메인 리터럴이 아니다([[05]] 안전).
+        _t2_probe_terse = os.environ.get("T2_PROBE_TERSE") == "1"
+        # ⒜ **사실확인 프로브** — 자기 발화를 읽고 예/아니오. 추론 불필요 → 사고 OFF·짧게.
+        _t2_probe_calls = {c.strip() for c in (os.environ.get("T2_PROBE_CALLS") or
+                           "agent_writeprov,agent_claimprov,agent_selfdecl").split(",") if c.strip()}
+        _t2_probe_mt = int(os.environ.get("T2_PROBE_MAX_TOKENS", "256") or 0)
+        # ⒝ **판단 프로브** — 도구/값을 고른다. 사고를 끄면 답이 바뀐다(실측: 사고ON 'none' ↔
+        #    사고OFF 'get_current_time'). → **사고는 두고 형식만** guided JSON 으로 보장한다.
+        #    실측(8141): guided+사고ON 은 1,247 토큰에서 답이 나오고 파싱 OK. 상한 800 은 부족했고
+        #    guided 없이 같은 사고를 하면 `tool_name='none'`(따옴표 형식 붕괴)로 **파싱 실패**한다.
+        #    ⛔스키마는 **형태만** 잡는다 — 이름 유효성은 호출부가 이미 검사한다
+        #      (`t2_resolve.py` `cand in action_tools`). 도메인 리터럴 0([[05]] 안전).
+        # 실측(8141): guided+사고ON 이 **1,247 생성토큰**에 답을 냈다(content 38B).
+        #   ⇒ 사고 여지를 남기되 **최소로** 조인다(사용자 지시 2026-08-31:
+        #   "thinking 을 사용한 경우라도 guided JSON 으로 결과만 정확하게 최소 max 로 요청하라").
+        #   1536 = 1,247 + 23% 여유. 절단은 계기의 TRUNC 표시로 감시한다.
+        _t2_judge_mt = int(os.environ.get("T2_JUDGE_MAX_TOKENS", "4096") or 4096)
+        #   ★2048 -> 4096 (2026-08-31): 라이브에서 `intent_operator_formalize` 가 2048 에서
+        #   **TRUNC 2회**. 절단은 `finish=length · content 0B` = **답 전손**이라 상한은 넉넉해야
+        #   한다. 절감은 상한이 아니라 **프롬프트의 "200자 이내" 지시**가 낸다(실측 33~66%).
+        #   격리 최대 1,625 였으나 라이브 문맥이 더 길어 넘겼다 — 격리치를 상한으로 쓰지 마라.
+        _t2_judge_schemas = {
+            "intent_operator_formalize": {
+                "type": "object", "properties": {"tool": {"type": "string"}},
+                "required": ["tool"], "additionalProperties": False},
+            # operand 키가 동적이라 `applies` 만 보장하고 나머지는 열어 둔다.
+            "recommend_formalize": {
+                "type": "object", "properties": {"applies": {"type": "boolean"}},
+                "required": ["applies"], "additionalProperties": True},
+            # ★2026-08-31 추가: 인벤토리에서 **미등록**으로 발견돼 전역 8192 를 받고 있었다
+            #   (`t2_scaffold_get.py:2839`). 계약은 {"<동적 arg>": ..., "quote": "..."} 이므로
+            #   `quote` 만 보장하고 나머지는 연다.
+            "sg_arg_docs": {
+                "type": "object", "properties": {"quote": {"type": "string"}},
+                "required": ["quote"], "additionalProperties": True},
+        }
+        for _drop in (os.environ.get("T2_JUDGE_DISABLE") or "").split(","):
+            _t2_judge_schemas.pop(_drop.strip(), None)
+
+        import re as _re_tr
+        import json as _json_tr
+        _t2_salvage = os.environ.get("T2_TC_SALVAGE") == "1"
+        _t2_salvage_gj = os.environ.get("T2_TC_SALVAGE_GUIDED") == "1"
+        _t2_faildump = os.environ.get("T2_FAILDUMP") or None
+        # ★T2_TOOL_OBS (2026-08-31·사용자 지시 "진행중 도구 응답 보게 수리하라")
+        #   왜: 도구 응답은 궤적(results.json)에만 남고 **sim 이 끝나야** 기록된다. 사이드카에는
+        #   우리 주입만 있고, stderr 배너는 호출 여부를 말하지 않는다 ⇒ 진행 중 판정이 불가능했다.
+        #   여기(생성 깔때기)로 오는 `messages` 에는 **직전 도구 응답이 이미 들어 있다.**
+        #   새 것만 한 번씩 찍으면 실시간 기록이 된다. 판단 0 · 거동 0(읽기만).
+        _t2_toolobs = os.environ.get("T2_TOOL_OBS") == "1"
+        _t2_toolobs_cap = int(os.environ.get("T2_TOOL_OBS_MAX", "600") or 600)
+        _t2_seen_tool = set()
+        _t2_p2 = os.environ.get("T2_P2_REGEN") == "1"
+        _t2_p2_cap = int(os.environ.get("T2_P2_CAP", "3") or 3)
+        _t2_p2_used = [0]
+        # ★T2_STOP_FIRST_TOOLCALL (2026-08-30·§L-14) — **첫 tool_call 에서 생성을 끊는다.**
+        #   faildump 실측으로 사슬 확정: 모델이 같은 호출을 **142회 반복** 생성하다 max_tokens=8192 를
+        #   소진하고 **마지막 블록이 절단**되며, 그 절단 블록 때문에 파서가 통째로 버려 content 로 떨어진다.
+        #   프롬프트로는 못 막는다 — 같은 문맥을 재생하면 219토큰에 정상 종료(**비결정적 폭주**).
+        #   정지어는 그 폭주를 **구조적으로 불가능**하게 만든다.
+        #   실측(8141): 정지어 없음 gen108/tool_calls=2 · **정지어 gen92/tool_calls=1 · 파싱정상**.
+        #   ⛔[[70]] 부호표: **병렬 발사를 판다**(2→1 · [[80]] 이 기록한 Q3.8 의 강점).
+        #     사는 것 = 절단 0 · 파싱 100% · 한 턴 8192토큰(5.8분) -> 92토큰.
+        #   ⛔프로브에는 안 건다(그쪽은 도구를 안 부른다).
+        _t2_stopfirst = os.environ.get("T2_STOP_FIRST_TOOLCALL") == "1"
+        try:
+            from tau2.data_model.message import ToolCall as _TC_tr
+        except Exception:
+            _TC_tr = None
+        _TC_RE = _re_tr.compile(r"<tool_call>\s*(\{.*?\})\s*</tool_call>", _re_tr.S)
+
+        def _t2_salvage_calls(_r, _kw):
+            """★T2_TC_SALVAGE (2026-08-30·§L-12) — vLLM 파서가 **통째로 버린** 유효 블록 되살리기.
+
+            근거(우리 코드 주석 `t2_gate_patch.py:13355`): *"닫힌 tool_call 블록 7/7 JSON 유효 ·
+            깨진 곳은 미종결 8번째뿐 => hermes 파서가 all-or-nothing 이라 유효 7개가 통째로 폐기"*.
+            ⇒ 추가 LLM 호출 0 · **판단 0**(고르지 않는다·있는 것을 형식만 복구) · 도메인 리터럴 0.
+            """
+            if _TC_tr is None:
+                return None
+            _c = str(getattr(_r, "content", None) or "")
+            if "<tool_call>" not in _c:
+                return None
+            _made = []
+            for _i, _b in enumerate(_TC_RE.findall(_c)):
+                try:
+                    _j = _json_tr.loads(_b)
+                except Exception:
+                    continue                     # 미종결/깨진 블록은 버린다(원래 파서와 같은 판정)
+                _nm = _j.get("name")
+                if not _nm:
+                    continue
+                _ar = _j.get("arguments")
+                try:
+                    _made.append(_TC_tr(id="salv_%d" % _i, name=str(_nm),
+                                        arguments=_ar if isinstance(_ar, dict) else (_ar or {})))
+                except Exception:
+                    continue
+            # ★첫 블록만 (2026-08-31 수리 · 7월 설계서 §2-1 축자를 내가 안 읽고 어겼다):
+            #   *"본문에서 **첫 번째 완결 블록**만 파싱해 그 호출로 진행한다. **복제분은 버린다**
+            #     (중복 실행 금지). ... 93개 복제를 전부 실행하면 **over-action 재앙**이다."*
+            #   실측 피해: x675 에서 `SALVAGED=34/35/68` — 한 턴에 도구 68개를 내보냈다.
+            #   복제는 **정지 실패의 산물이지 의도가 아니다**([[10]] 선택은 모델이 이미 했다 —
+            #   그 선택은 **첫 블록 하나**다).
+            #   `T2_SALVAGE_ALL=1` 이면 종전대로 전부(대조팔 전용).
+            if _made and os.environ.get("T2_SALVAGE_ALL") != "1":
+                _dropped = len(_made) - 1
+                _made = _made[:1]
+                if _dropped:
+                    print("[T2_SALVAGE] first-block only: dropped %d duplicate block(s)"
+                          % _dropped, file=_sys_tr.stderr, flush=True)
+            if not _made:
+                return None
+            try:
+                _r.tool_calls = _made
+                _r.content = _TC_RE.sub("", _c).strip() or None
+            except Exception:
+                return None
+            return _made
+
+        def _t2_traced_generate(*_a, **_kw):
+            # ★T2_NO_FORCE_TOOLCHOICE (2026-08-30·사용자 지시 "tool choice required 는 off 하라")
+            #   `tool_choice="required"` 는 코드 **6곳**에 흩어져 있다(8547·12557·13207·13300·13390 등).
+            #   여기 깔때기 한 곳에서 벗기면 어느 경로로 오든 걸린다([[62]] 최소 개입·우회 불가).
+            #   근거: x667 계기 실측 — `agent_response` 가 tool_calls=0 을 반복하자 우리가 매번
+            #   `agent_response_unified_regen tool_choice=required` 로 강제했고, 그렇게 짜낸 도구가
+            #   x659 에서 KB_search_bm25 같은 **엉뚱한 것**이었다(필요한 log_verification 은 0회).
+            #   ⛔거동 변경이다 — [[70]] 부호표 대상. 무엇을 사고 무엇을 파는지 런으로 재야 한다.
+            # ★2026-08-31 — **열거 대신 규칙**([[58]] 일반 규칙만).
+            #   호출 이름을 하나씩 등록하다 `sg_arg_docs` → `sg_docs_class` → `sg_fetch_iso` 로
+            #   **세 번 놓쳤다**. 코드의 `sub_generate` call_name 은 수십 개이고 계속 는다.
+            #   ⇒ 닫힌 규칙: **`agent_response*` 만 본 응답**이고 나머지 서브콜은 **전부 프로브**다.
+            #     본 응답만 전역 상한(폭주 통제 대상)을 받고, 프로브는 프로브 상한을 받는다.
+            #   실측 근거: `sg_docs_class` 가 전역 3072 를 꽉 채우고 `content=0B`(답 없음)로 잘렸다.
+            _cn = str(_kw.get("call_name") or "")
+            _is_probe = bool(_cn) and not _cn.startswith("agent_response")
+            if _t2_probe_terse and _is_probe and _cn not in _t2_probe_calls:
+                _kw = dict(_kw)
+                _jmt2 = _t2_judge_mt
+                _cur2 = _kw.get("max_tokens")
+                _kw["max_tokens"] = max(int(_cur2 or 0), _jmt2) if _jmt2 else _cur2
+                # ★2026-08-31 — **사고 예산만 제한**(사용자 지시 "2로 가라").
+                #   왜: 생성 순서가 [사고 …] → [답] 이라, 상한이 사고 도중에 걸리면 **답이 통째로
+                #   사라진다**. 실측: TRUNC 89건 중 31건(35%)이 `content=0B · tool_calls=0` 이고,
+                #   판단 프로브는 **전부** 그 유형이었다(`intent_operator_formalize gen=4096 content=0B`).
+                #   ⇒ 상한을 올리는 대신 **사고에만 예산**을 걸어 답 자리를 반드시 남긴다.
+                #   `thinking_token_budget` 은 vLLM 이 Qwen3 계열에 지원한다(실측: 최상위 인자로 유효).
+                #   기본 = 전체 상한의 절반 → 답 자리 절반 확보.
+                _tb = os.environ.get("T2_PROBE_THINK_BUDGET")
+                _tb = int(_tb) if _tb else max(256, (_kw.get("max_tokens") or _jmt2 or 4096) // 2)
+                if _tb:
+                    _kw["thinking_token_budget"] = _tb
+                _sch2 = _t2_judge_schemas.get(_cn)
+                if _sch2:
+                    _kw["response_format"] = {"type": "json_schema",
+                                              "json_schema": {"name": "t2probe", "schema": _sch2}}
+                _kw["_t2_terse"] = "PROBE"
+            elif _t2_probe_terse and _kw.get("call_name") in _t2_judge_schemas:
+                # ★답만 받는다 (2026-08-31·사용자 지시: "쓸데없는 중간과정은 모두 제외하고 답만
+                #   받아라. 그래야 JSON 폭주를 멈출 수 있다. 답 요구 방식을 바꾸라.")
+                #   기전: **응답 형태가 산문을 허용하면 모델이 그걸 채운다.** 스키마로 출력면을
+                #   답 하나로 좁히고 사고를 끄면 **채울 여지 자체가 사라진다.**
+                #   실측(8141·같은 프로브): guided+사고ON 1,247토큰/52.7s ↔
+                #   **guided+사고OFF 22토큰/1.0s** — 둘 다 파싱 OK. 상한도 사실확인과 같은 값으로 둔다.
+                #   ⛔[[70]] 부호표: **사고를 판다** — 도구 선택이 갈릴 수 있다
+                #     (실측: 사고ON "none" ↔ 사고OFF "get_current_time").
+                #     `T2_PROBE_KEEP_THINK=1` 이 그 대조팔이다(사고 유지 + 상한 _t2_judge_mt).
+                _kw = dict(_kw)
+                # ★2026-08-31 되돌림 (사용자 권고: "사고를 유지하되, 답 형식만 제한하는 걸 추천한다")
+                #   실측이 그 권고를 지지한다 — **사고를 끄면 답이 틀린다**:
+                #     사고ON  -> {"tool": "verify_identity"}   (무제약·budget·간결 세 팔 모두 일관)
+                #     사고OFF -> {"tool": "none"}              **오답**
+                #   그리고 사고는 **끊을 수도 없다**: `thinking_budget=64` 는 무시되고(1,579 vs 1,625토큰),
+                #   `max_tokens=200` 으로 조이면 finish=length·content 0B 로 **답이 아예 안 나온다**.
+                #   ⛔`reasoning_content` 는 전 팔 **0 B** — `--reasoning-parser qwen3` 가 붙어 있어도
+                #     분리되지 않아 **파서로도 통제 불가**다.
+                #   ⇒ 남는 통제면은 **출력 형식(guided JSON)** 하나뿐이고, 그것으로 충분하다.
+                #   비용: 판단 프로브당 1,096~1,625 생성토큰(90~132s). 프롬프트에 "간결히"를 넣으면
+                #     33% 준다(별건 · `t2_resolve.py` 프롬프트 수정 필요).
+                _keep = os.environ.get("T2_PROBE_NOTHINK") != "1"   # 기본 = 사고 유지
+                _jmt = _t2_judge_mt if _keep else _t2_probe_mt
+                _cur = _kw.get("max_tokens")
+                # ★2026-08-31 수리②: 종전 `min` 이라 **전역 상한이 판단 프로브를 깎았다**
+                #   (전역 3072 vs 판단 4096 -> min=3072). 실측 x687: `intent_operator_formalize`
+                #   13회에 **20,768토큰**(평균 1,597·최대 3072=상한 도달) — 상한에 닿으면
+                #   `finish=length·content 0B` 로 **답 전손**이다.
+                #   판단 프로브는 사고 여지가 **더** 필요하다. 전역은 `agent_response` 폭주용이고
+                #   판단 프로브는 스키마로 출력이 묶여 있어 폭주 위험이 없다 ⇒ `max` 로 바꾼다.
+                _kw["max_tokens"] = max(int(_cur or 0), _jmt) if _jmt else _cur
+                _kw["response_format"] = {
+                    "type": "json_schema",
+                    "json_schema": {"name": "t2probe",
+                                    "schema": _t2_judge_schemas[_kw["call_name"]]}}
+                if not _keep:
+                    _eb3 = dict(_kw.get("extra_body") or {})
+                    _ctk3 = dict(_eb3.get("chat_template_kwargs") or {})
+                    _ctk3["enable_thinking"] = False
+                    _eb3["chat_template_kwargs"] = _ctk3
+                    _kw["extra_body"] = _eb3
+                _kw["_t2_terse"] = "JUDGE"
+            elif _t2_probe_terse and _kw.get("call_name") in _t2_probe_calls:
+                _kw = dict(_kw)
+                # 사고를 유지하는 팔은 사고 토큰이 들어갈 자리가 있어야 하므로 상한을 넉넉히 둔다.
+                _mt_cap = (int(os.environ.get("T2_PROBE_KEEP_THINK_MAX", "2048") or 2048)
+                           if os.environ.get("T2_PROBE_KEEP_THINK") == "1" else _t2_probe_mt)
+                if _mt_cap:
+                    _cur = _kw.get("max_tokens")
+                    _kw["max_tokens"] = min(int(_cur), _mt_cap) if _cur else _mt_cap
+                # ★사고를 끌지 말지 (2026-08-30·사용자 지적 "thinking 은 하되 표시만 안 하게").
+                #   ⚠"표시"는 이미 분리돼 있다 — 엔진에 `--reasoning-parser qwen3` 가 붙어
+                #     reasoning 은 `reasoning_content` 로 온다. **비용은 표시가 아니라 생성**이다.
+                #   실측(8141·같은 프로브): 사고ON 178토큰/10.2s · 사고OFF **7토큰/0.4s** ·
+                #     사고ON+guided_json 177토큰/10.1s — **세 팔 답이 동일**(false).
+                #   기본은 사고 OFF(이 프로브는 *자기 발화를 읽는 사실 확인*이라 추론이 필요 없다).
+                #   `T2_PROBE_KEEP_THINK=1` 이면 사고를 유지하고 **길이만** 묶는다([[70]] 부호표용 대조팔).
+                if os.environ.get("T2_PROBE_KEEP_THINK") != "1":
+                    _eb = dict(_kw.get("extra_body") or {})
+                    _ctk = dict(_eb.get("chat_template_kwargs") or {})
+                    _ctk["enable_thinking"] = False
+                    _eb["chat_template_kwargs"] = _ctk
+                    _kw["extra_body"] = _eb
+                _kw["_t2_terse"] = "TERSE"
+            if (_t2_stopfirst and _kw.get("call_name") not in _t2_probe_calls
+                    and _kw.get("call_name") not in _t2_judge_schemas):
+                _kw = dict(_kw)
+                _st = list(_kw.get("stop") or [])
+                if "</tool_call>" not in _st:
+                    _st.append("</tool_call>")
+                _kw["stop"] = _st
+                _eb2 = dict(_kw.get("extra_body") or {})
+                _eb2["include_stop_str_in_output"] = True
+                _kw["extra_body"] = _eb2
+            _terse = _kw.pop("_t2_terse", False)
+            if _t2_notc and _kw.get("tool_choice") == "required":
+                _kw = dict(_kw)
+                _kw.pop("tool_choice", None)
+                _kw["_t2_stripped_tc"] = True
+            _stripped = bool(_kw.pop("_t2_stripped_tc", False))
+            if _t2_toolobs:
+                try:
+                    _ms0 = _a[1] if len(_a) > 1 else _kw.get("messages")
+                    for _m0 in reversed(list(_ms0 or [])):
+                        if str(getattr(_m0, "role", "")) != "tool":
+                            continue
+                        _k0 = str(getattr(_m0, "id", None) or id(_m0))
+                        if _k0 in _t2_seen_tool:
+                            break
+                        _t2_seen_tool.add(_k0)
+                        _c0t = " ".join(str(getattr(_m0, "content", "") or "").split())
+                        print("[T2_TOOL_OBS] id=%s err=%s -> %s"
+                              % (_k0[:14], bool(getattr(_m0, "error", False)),
+                                 _c0t[:_t2_toolobs_cap]),
+                              file=_sys_tr.stderr, flush=True)
+                        break
+                except Exception as _oe:
+                    print("[T2_TOOL_OBS] skipped: %r" % (_oe,), file=_sys_tr.stderr, flush=True)
+            _r = _orig_gen_t2(*_a, **_kw)
+            # ★P2 탐지 후 재생성 (2026-08-31·7월 설계서 §2-2 그대로 구현)
+            #   사용자 지시: *"시간은 줄일 필요가 없다. **JSON 폭주하는 것만 막으면 된다.**"*
+            #   트리거(닫힌 술어): tool_calls 가 비었고 ∧ 본문에 여는 태그가 닫는 태그보다 많다
+            #     (= 정지 실패로 마지막 블록이 절단됐다).
+            #   동작: 같은 문맥으로 **`stop=["</tool_call>"]` 켜서 1회만** 재생성.
+            #   ⇒ **전역 stop 이 아니라 병리 턴에만** 걸므로 정상 턴의 다중 호출은 보존된다
+            #     (7월 §1-4 실측: 다중호출 2.3%턴 · **19% sim** — 전역 stop 은 이걸 판다).
+            #   cap: sim 당 `T2_P2_CAP`(기본 3) — 무한 재생성 금지.
+            _p2 = None
+            if (_t2_p2 and not (getattr(_r, "tool_calls", None) or None)
+                    and _t2_p2_used[0] < _t2_p2_cap):
+                _c2 = str(getattr(_r, "content", None) or "")
+                _o2 = _c2.count("<tool_call>"); _cl2 = _c2.count("</tool_call>")
+                if _o2 > _cl2:
+                    _t2_p2_used[0] += 1
+                    # ★2026-08-31 오프라인 재생으로 `stop` 을 뺐다 (faildump 29건 · 6건 재생):
+                    #     회복률 **stop OFF 5/6 == stop ON 5/6** — stop 은 기여 0.
+                    #     그리고 한 건에서 **tc=4 -> tc=1** 로 **다중호출을 3개 팔았다**.
+                    #   ⇒ 끊김은 **비결정적**이고, 필요한 것은 **재샘플링 하나**다.
+                    #     `T2_P2_STOP=1` 이면 종전대로 stop 을 켠다(대조팔 전용).
+                    _kw2 = dict(_kw)
+                    if os.environ.get("T2_P2_STOP") == "1":
+                        _st2 = list(_kw2.get("stop") or [])
+                        if "</tool_call>" not in _st2:
+                            _st2.append("</tool_call>")
+                        _kw2["stop"] = _st2
+                        _eb4 = dict(_kw2.get("extra_body") or {})
+                        _eb4["include_stop_str_in_output"] = True
+                        _kw2["extra_body"] = _eb4
+                    print("[T2_P2] truncated tool_call detected (opens=%d closes=%d) -> resample (%d/%d)"
+                          % (_o2, _cl2, _t2_p2_used[0], _t2_p2_cap),
+                          file=_sys_tr.stderr, flush=True)
+                    try:
+                        _r2 = _orig_gen_t2(*_a, **_kw2)
+                        if getattr(_r2, "tool_calls", None):
+                            print("[T2_P2] regen recovered tool_calls=%d"
+                                  % len(_r2.tool_calls), file=_sys_tr.stderr, flush=True)
+                            _r = _r2; _p2 = True
+                        else:
+                            # ★2차 계단 (2026-08-31·사용자 제안 "tool_call 실패한 경우에만
+                            #   tool_call 강제하거나 요청할 방법은 없나"):
+                            #   전역 `required` 는 엉뚱한 도구를 낸다(x659: KB_search_bm25 로 때움).
+                            #   그러나 **실패 경로에서만** 쓰면 그 부작용이 그 턴에 갇히고,
+                            #   대안은 "행동 0 = reward 0" 이므로 밑질 것이 없다.
+                            #   ⛔`T2_P2_NOFORCE=1` 이면 이 계단을 끈다(대조팔).
+                            if os.environ.get("T2_P2_NOFORCE") != "1":
+                                _kw3 = dict(_kw2)
+                                _kw3["tool_choice"] = "required"
+                                try:
+                                    _r3 = _orig_gen_t2(*_a, **_kw3)
+                                    if getattr(_r3, "tool_calls", None):
+                                        print("[T2_P2] tier2 required recovered tool_calls=%d"
+                                              % len(_r3.tool_calls),
+                                              file=_sys_tr.stderr, flush=True)
+                                        _r = _r3; _p2 = "tier2"
+                                    else:
+                                        print("[T2_P2] tier2 required still empty -> salvage",
+                                              file=_sys_tr.stderr, flush=True)
+                                except Exception as _pe3:
+                                    print("[T2_P2] tier2 failed (no-op): %r" % (_pe3,),
+                                          file=_sys_tr.stderr, flush=True)
+                            else:
+                                print("[T2_P2] regen still no tool_calls - falling through to salvage",
+                                      file=_sys_tr.stderr, flush=True)
+                    except Exception as _pe2:
+                        print("[T2_P2] regen failed (no-op): %r" % (_pe2,),
+                              file=_sys_tr.stderr, flush=True)
+            _salv = None
+            if _t2_salvage and not (getattr(_r, "tool_calls", None) or None):
+                _salv = _t2_salvage_calls(_r, _kw)
+            # ★T2_FAILDUMP (2026-08-30·§L-13) — **실패한 그 호출의 요청을 통째로** 떨군다.
+            #   왜: 궤적(results.json)에 기록된 문맥으로 재생하면 **정상 파싱된다**(실측).
+            #   ⇒ 런이 모델에 보낸 것은 궤적과 다르다 — 우리 스택이 `work` 에 얹는 주입은
+            #     궤적에 안 남는다. 그 차이가 유일한 미지수다.
+            #   `T2_PROMPT_DUMP` 는 `_gen` 두 곳에 달려 라이브 경로를 못 잡았다(§L-10).
+            #   여기는 **모든 생성이 지나는 자리**이고, **실패 시에만** 쓰므로 비용이 0에 가깝다.
+            if _t2_faildump and (_salv or not (getattr(_r, "tool_calls", None) or None)):
+                _c0 = str(getattr(_r, "content", None) or "")
+                if "<tool_call>" in _c0:
+                    try:
+                        _msgs = _a[1] if len(_a) > 1 else _kw.get("messages")
+                        _rec = {"call_name": _kw.get("call_name"),
+                                "max_tokens": _kw.get("max_tokens"),
+                                # ★2026-08-31: 끊김의 원인을 가르려면 이 둘이 있어야 한다 —
+                                #   finish=length 면 예산 소진, stop 이면 모델이 스스로 멈춘 것.
+                                #   reasoning 이 길면 "사고가 예산을 먹어 tool_call 이 잘렸다"가 확정된다.
+                                "usage": (getattr(_r, "usage", None) or {}),
+                                "reasoning_len": len(_rsn),
+                                "tool_choice": _kw.get("tool_choice"),
+                                "n_tools": len(_kw.get("tools") or _a[2] if len(_a) > 2 else
+                                               (_kw.get("tools") or [])),
+                                "content": _c0[:4000],
+                                "messages": [{"role": str(getattr(_m, "role", "?")),
+                                              "content": str(getattr(_m, "content", "") or "")[:2500],
+                                              "tool_calls": [str(getattr(_t, "name", "?"))
+                                                             for _t in (getattr(_m, "tool_calls", None) or [])]}
+                                             for _m in (_msgs or [])]}
+                        with open(_t2_faildump, "a", encoding="utf-8") as _fh:
+                            _fh.write(_json_tr.dumps(_rec, ensure_ascii=False) + chr(10))
+                        print("[T2_FAILDUMP] wrote (call=%s msgs=%d)"
+                              % (_kw.get("call_name"), len(_msgs or [])),
+                              file=_sys_tr.stderr, flush=True)
+                    except Exception as _fe:
+                        print("[T2_FAILDUMP] skipped: %r" % (_fe,), file=_sys_tr.stderr, flush=True)
+            try:
+                _c = str(getattr(_r, "content", None) or "")
+                _tcs = getattr(_r, "tool_calls", None) or []
+                # ★생성 토큰 (2026-08-31·사용자 지시 "계기 넣고") — **content 길이 != 생성 토큰**이다.
+                #   사고 ON 호출은 reasoning 이 토큰을 먹는데 content 에는 안 잡힌다(실측: content 38B ·
+                #   생성 1,247토큰). 형식별 상한을 정하려면 이 수가 있어야 한다.
+                #   `tau2` 가 `usage`(completion_tokens/prompt_tokens)를 메시지에 실어 준다
+                #   (`llm_utils.py:134 get_response_usage` · `message.py:426 usage`).
+                # ★`reasoning` 이 정식 필드다 (2026-08-31 정정) — 내가 `reasoning_content` 를 읽어
+                #   계속 0B 로 보였고 그 근거로 "파서가 분리를 안 한다"고 오진했다. 실제 응답 키는
+                #   ['annotations','audio','content','function_call','**reasoning**','refusal','role']
+                #   이고 reasoning 1,761B / content 27B 로 **정상 분리**되고 있었다.
+                #   ⚠vLLM #35221: 절단되면(끝 토큰 부재) 파서가 경계를 못 찾아 **전부를 한쪽으로 쏟는다**.
+                #     그때 content 에 담긴 <tool_call> 은 **사고 중 검토물**일 수 있다 -> salvage 위험.
+                _rsn = ""
+                for _k in ("reasoning", "reasoning_content"):
+                    _v = getattr(_r, _k, None)
+                    if _v:
+                        _rsn = str(_v); break
+                _u = getattr(_r, "usage", None) or {}
+                _ct = _u.get("completion_tokens") if isinstance(_u, dict) else None
+                _pt = _u.get("prompt_tokens") if isinstance(_u, dict) else None
+                _mtq = _kw.get("max_tokens")
+                _trunc = bool(_ct and _mtq and int(_ct) >= int(_mtq))
+                print("[T2_GEN_TRACE] call=%s max_tokens=%s tool_choice=%s%s -> gen=%s prompt=%s%s reason=%dB content=%dB tool_calls=%d"
+                      % (_kw.get("call_name"), _kw.get("max_tokens"), _kw.get("tool_choice"),
+                         ("%s%s" % (" (required STRIPPED)" if _stripped else "",
+                                    (" [%s]" % _terse) if _terse else "")
+                                   + (" SALVAGED=%d" % len(_salv) if _salv else "")),
+                         _ct, _pt, " **TRUNC**" if _trunc else "",
+                         len(_rsn), len(_c), len(_tcs)), file=_sys_tr.stderr, flush=True)
+            except Exception:
+                pass
+            return _r
+
+        _la_tr.generate = _t2_traced_generate
+        print("[t2_run] GEN_TRACE ON (생성 깔때기 계기·§L-5)%s"
+              % ((" · NO_FORCE_TOOLCHOICE" if _t2_notc else "")
+                 + (" · PROBE_TERSE(no-think·mt=%d)" % _t2_probe_mt if _t2_probe_terse else "")),
+              file=_sys_tr.stderr, flush=True)
     # ★LLM 요청 timeout/재시도 (2026-07-20·097 stall 진단): completion()에 timeout이 없어 hang 요청이
     #   litellm 기본(~600s)×num_retries(config 3)=~40분 조용한 stall(097 실측·conc=1 블록). **opt-in env**로만
     #   주입(미설정=공유 드라이버 기본거동 불변). T2_LLM_TIMEOUT=초(요청당 상한)·T2_LLM_RETRIES=재시도수.
@@ -380,6 +800,81 @@ def main():
               f"pass1={sum(r >= 1 for r in rewards)}/{len(rewards)}")
     else:
         print(f"[t2_run RESULT] gate={a.gate} no rewards parsed — check save file")
+
+    # ★provenance 사이드카 (2026-08-29 · 계기 결함 수리).
+    #
+    # 왜: `results.json` 의 `info.git_commit` 은 **cwd 의 sha** 이고, go_stack 이 `cd $GO_TAU2`
+    #     한 뒤 실행하므로 그것은 **벤치마크 sha 이지 우리 엔진 sha 가 아니다**. 그래서 과거 런을
+    #     엔진 버전에 묶을 수 없었다 — 2026-08-29 retail 회귀를 [[70]] 의 같은-sha A/B 로 귀속하려다
+    #     7월 런의 엔진 버전을 복원할 수 없어 막혔다(로그는 로테이션으로 소실).
+    # 무엇을: 엔진 sha + **런을 재현하는 데 필요한 조건 전부**를 결과 옆에 남긴다. 조건이 결과와
+    #     같은 자리에 없으면 다음 사람이 다시 추측한다(오늘 `max_model_len` 44,672 가 그랬다 —
+    #     Qwen2.5 의 YaRN 잔재였는데 아무 기록이 없어 Qwen3.8 런을 9회 ContextWindowExceeded 로
+    #     태웠다).
+    # 실패해도 본 결과에 영향 없음.
+    try:
+        import io as _io2
+        import json as _js
+        import subprocess as _sp
+        import urllib.request as _ur
+
+        def _sha(path):
+            try:
+                return _sp.check_output(["git", "-C", path, "rev-parse", "--short", "HEAD"],
+                                        stderr=_sp.DEVNULL).decode().strip()
+            except Exception:
+                return None
+
+        def _dirty(path):
+            try:
+                return bool(_sp.check_output(["git", "-C", path, "status", "--porcelain"],
+                                             stderr=_sp.DEVNULL).decode().strip())
+            except Exception:
+                return None
+
+        _eng_dir = os.path.dirname(os.path.abspath(__file__))
+        _prov = {
+            "engine_sha": _sha(_eng_dir),
+            "engine_dirty": _dirty(_eng_dir),
+            "bench_sha_cwd": _sha(os.getcwd()),
+            "cwd": os.getcwd(),
+            "domain": a.domain,
+            "gate": a.gate,
+            "agent_model": a.agent_model,
+            "agent_base": a.agent_base,
+            "user_llm": a.user_llm,
+            "user_reasoning_effort": a.user_reasoning_effort,
+            "retrieval_config": a.retrieval_config,
+            "num_trials": a.num_trials,
+            "max_concurrency": a.max_concurrency,
+            "max_steps": a.max_steps,
+            "task_ids": a.task_ids,
+            "llm_timeout": os.environ.get("T2_LLM_TIMEOUT"),
+            "llm_retries": os.environ.get("T2_LLM_RETRIES"),
+            "levers_on": sorted(k for k, v in os.environ.items()
+                                if k.startswith("T2_") and v not in ("", "0")),
+        }
+        # 에이전트 서버가 실제로 무엇을 서빙하는지 — 컨텍스트 한계가 조건이다.
+        try:
+            _base = (a.agent_base or "").rstrip("/")
+            with _ur.urlopen(_base + "/models", timeout=5) as _r:
+                _m = _js.load(_r)
+            _d0 = (_m.get("data") or [{}])[0]
+            _prov["served_model"] = _d0.get("id")
+            _prov["served_max_model_len"] = _d0.get("max_model_len")
+        except Exception as _e:
+            _prov["served_probe_error"] = repr(_e)[:120]
+
+        _sim_dir = os.path.join("data", "simulations", a.save_to)
+        _out = (os.path.join(_sim_dir, "provenance.json")
+                if os.path.isdir(_sim_dir) else (a.save_to + ".provenance.json"))
+        with _io2.open(_out, "w", encoding="utf-8", newline="\n") as _f:
+            _f.write(_js.dumps(_prov, ensure_ascii=False, indent=1))
+        print("[t2_run] provenance -> %s (engine_sha=%s dirty=%s ctx=%s)"
+              % (_out, _prov["engine_sha"], _prov["engine_dirty"],
+                 _prov.get("served_max_model_len")))
+    except Exception as e:
+        print("[t2_run] provenance sidecar failed: %s: %s" % (type(e).__name__, e))
 
     # eval-후크: compliant-pass(F4b) 자동 산출 — 저장된 results.json 위 replay,
     # compliance.json 사이드카. 실패해도 본 결과에 영향 없음.

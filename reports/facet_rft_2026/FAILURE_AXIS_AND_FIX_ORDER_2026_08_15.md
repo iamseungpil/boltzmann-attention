@@ -756,3 +756,746 @@ gold 는 **정확히 1장**을 원한다. 네 시행 중 **하나도 그 수에 
 
 ⚠그래도 [[62]] 순서는 지킨다: **격리 먼저**. 문서를 주면 모델이 스스로 $250,000 을 보고
 제외하는가? 되면 레버는 **전달**이고, 안 되면 그때 비교기를 논한다.
+
+---
+
+# ★Qwen3.8-27B **base** 실패 7건 per-step 정본 (2026-08-30 · `x617` 격리 · 유료 0 포렌식)
+
+> 상위 프레임 = [[79]](Qwen3.8 base 3도메인 기준). 이 절은 **모델이 바뀌면 결손 종류가 바뀐다**는
+> 것을 실측으로 박는다 — 우리 레버는 Qwen2.5-32B 에 맞춰 조정돼 왔다.
+
+## §A ⛔먼저 내가 틀린 것 — **retrieval 로 오진했다**
+
+7건을 `retrieval 우세 3 / 실행 2 / 혼합 2` 로 분류했다가 **전부 틀렸다.** 확정 반증:
+
+| 검사 | 결과 |
+|---|---|
+| 벤치가 명시한 `required_documents` ↔ 실제 수령 | **미달 0~3** · 016·033·040·063 은 **미달 0** |
+| 통과한 `task_055` | **미달 1 인데 통과** ⇒ 미달 자체가 실패 원인이 아니다 |
+| *"조기 중단"* `033` | 검색 2회로 **요구 1문서의 18배**를 이미 받음 |
+| *"과도 검색"* `063` | 175문서 받고 요구 13 **전부 포함** |
+
+**오진 경로**(히스토리 검사): ⑴세션이 검색 논의로 흐르는 **프레임 관성** ⑵내 표에 `writes>0` 이
+7/7 로 있었는데 **반증을 적어 놓고 결론을 안 바꿈** ⑶`x573/x574`(**Qwen2.5-32B 궤적**)의 결론을
+Qwen3.8 에 이식 ⑷**채점 정의를 안 읽음** — `results.json` 의 `tasks[].evaluation_criteria` 가
+**20/20 전부** 있었고 그 파일을 열 번 넘게 열면서 `simulations` 만 봤다.
+
+⇒ 어긴 규칙: [[69]](채점 단위 먼저) · [[08]](집계로 원인 말하기 금지) · [[77]]④(선행 확인) · [[74]].
+★**하드 규칙**: *실패 원인을 말하기 전에 `evaluation_criteria.actions` 와 `reward_basis` 를 먼저 읽는다.*
+검색 횟수·연 문서 수·봉투 크기는 **대리지표**다.
+
+## §B 채점 단위 (evaluator_env.py:118-129 축자 확인)
+
+```
+gold_env      = evaluation_criteria.actions 재실행
+predicted_env = 에이전트 궤적 재실행
+db_reward = 1.0  iff  agent DB 해시 **와** user DB 해시가 둘 다 일치
+```
+⇒ 행동 **목록**이 아니라 **최종 상태**다. `task_079` 는 이름 단위 MISSING 20 인데 **통과**한다
+(빠진 것이 DB 를 안 바꾸는 호출이기 때문). WRITE 데코레이터 8종만 세야 한다:
+`apply_for_credit_card · call_discoverable_agent_tool · call_discoverable_user_tool ·
+change_user_email · log_verification · request_human_agent_transfer · submit_referral · submit_transaction`
+
+## §C 실패 7건 — **다섯 유형** (retrieval 0)
+
+| 유형 | 태스크 | 실체 | 기지 레버 |
+|---|---|---|---|
+| **A user 도구 미전달** | **016 · 063** | 손님이 실행해야 할 변이를 안 건넴 | `T2_GIVE_RELEVANCE_NUDGE`·`T2_GIVE_EXEC_NUDGE` |
+| **B 체인 미완주** | **033** | `_1822` 뒤 `_0218` 미호출 (**이름은 받은 문서에 있었다**) | `follow_up_chains`·`T2_ACTIONREQ` |
+| **C 근거 이탈** | **093** | 취득값 144,000 을 버리고 **근거에 없는 143,520** 사용 | `write_arg_grounding`·`T2_PROV` |
+| **C′ 규약 오선택** | **094** | `÷12` 대신 `×31/365` (원장 408.0 이 `÷12` 를 증명) | `t2_compute`·`calc_specs` |
+| **D 잉여 변이** | **085** | gold 9 전부 수행 + **잉여**(`get_debit_dispute_status_7483`) | `T2_DUP_WRITE`·`write_once_keys` |
+| **E 배분·건수** | **040** | 분쟁을 어느 카드에 몇 건 · `get_card_last_4_digits` 를 틀린 인자로 먼저 호출(ERR) | `param_cap_check`·`write_arg_enum` |
+
+## §D ★093·094 산수 — **뺄셈은 두 번 다 맞았다**
+
+사용자 가설(*"빼기를 못하는 것 아닌가"*)은 **반증**된다.
+
+```
+093 산문 축자: "On your ~$143,520 October balance, 4.275% should have produced about $511.17,
+                so you were underpaid by roughly $31.17"
+   뺄셈 511.17 − 480.00 = 31.17  ✅   틀린 것은 **피감수**(잔액 143,520)
+   gold  144,000 × 4.275% ÷ 12 = 513.00 → 513.00 − 480.00 = **33.00**
+   ⚠같은 메시지 앞에 자기가 "**$144,000** balance" 라고 적어 놓고 몇 줄 뒤 바꿨다.
+
+094 산문 축자: "At the correct 6.85% APY on your $96,000 balance (daily accrual over the
+                31-day October cycle), you should have received $558.51"
+   검산 96,000 × 6.85% × **31/365** = 558.51 (정확 일치) · 558.51 − 408.00 = 150.51 ✅
+   gold  96,000 × 6.85% ÷ **12** = 548.00 → 548.00 − 408.00 = **140.00**
+   ⚠원장 실제이자 **408.0 = 96,000 × 5.1% ÷ 12** 가 `÷12` 규약을 증명하는데 무시했다.
+```
+
+★**도메인 판단은 둘 다 완벽했다** — 093 은 `4.0 + 0.25 + 0.025 = 4.275%` 를 옳게 조립했고,
+094 는 정책 *"카드 보너스는 스택 안 됨 · 최고 하나만"* 까지 옳게 적용해 EcoCard +0.60% 를 골랐다.
+⇒ 고칠 것은 **operand 둘**뿐이다: ⑴잔액을 도구 출력에 **핀 고정** ⑵기간 규약을 **원장에서 역산**.
+`calculate` 도구가 있는데 **두 궤적 다 0회 호출**했다(암산).
+
+## §E 모델 대조 — **Qwen2.5-32B 와 다른 실패다**
+
+`x624 A_alltools`(32B · 같은 20태스크 · 같은 격리) = **0/20**. Q38 이 통과한 12개에서:
+```
+task_017  gold변이 3 · Q38 3 · **32B 0**
+task_072  gold 6 · Q38 6 · **32B 1**
+task_073  gold 8 · Q38 8 · **32B 1**
+```
+⇒ **32B = 행동 부재 · Q38 = 행동은 하되 값/건수/전달이 어긋남.** 우리 레버가 32B 에 맞춰
+조정돼 온 만큼 **Q38 에서는 표적이 다르다.**
+
+## §F ⛔§D 정정 — **문서 모순도 규약 문제도 아니었다** (2026-08-30 · 사용자 지적)
+
+§D 에서 나는 *"094 = 문서 혼잡(Gold 문서가 규약에 침묵)"* · *"093 = 근거 이탈(잔액)"* 이라고 썼다.
+**둘 다 틀렸다.** 사용자가 *"모순이면 벤치 오류 아닌가 · 정밀 확인하라"* 로 밀어 확인한 결과:
+
+**⑴ Gold 문서도 규약을 말한다** — 내가 `_001` 만 봤다:
+```
+doc_savings_accounts_gold_account_003:  "| Interest compounding | daily |"
+doc_savings_accounts_gold_account_010:  "your daily accrual will adjust ... due to daily compounding"
+```
+
+**⑵ 그런데 규약을 몰라도 gold 가 나온다** — 관측 이자를 **비례 스케일**하면 된다:
+```
+093   480.0 x (4.275/4.0) = 513.00  ->  513.00 - 480.00 = 33.00   = gold 정확 일치
+094   408.0 x (6.85 /5.1) = 548.00  ->  548.00 - 408.00 = 140.00  = gold 정확 일치
+```
+정책 절차 문서(`general_043`)가 그 경로를 축자로 지시한다 — *"**confirm the interest amount
+credited** … determine the **difference between expected and actual** interest"*.
+⇒ **문서 ↔ 원장 모순 없음 · 벤치마크 오류 아님.** *"compounded daily"* 는 **적립 서술**이고
+보정액은 **비례**로 구한다.
+
+**⑶ 진짜 결손은 하나다 — 관측값을 기준 삼지 않고 처음부터 재계산했다**
+```
+모델:  093  143,520 x 4.275% / 12   = 511.17   (잔액 틀림 + 규약 필요)
+       094   96,000 x 6.85% x 31/365 = 558.51   (규약 틀림)
+정답:  관측 이자에 비례 스케일 — **잔액도 규약도 불필요**
+```
+재계산 경로는 **operand 두 개(잔액·기간규약)를 추가로 요구**하고 모델은 각각 하나씩 틀렸다.
+
+## §G ★수리는 **저작이 아니라 배선**이다 — 도구가 이미 있다
+
+`a2/banking_knowledge.gate.json` `scaffold_get_tools` (10종)에 **이미 있다**:
+
+| 도구 | 하는 일 |
+|---|---|
+| `get_correct_savings_apy` | 스태킹 정책 적용(checking 최고 1 · card 최고 1 · relationship/tier 는 가산) |
+| **`get_interest_correction`** | 축자: *"correction = **principal x (expected_apy - actual_apy)/100 / 12**"* · `actual_apy` 는 *"**Derive it from the latest MONTHLY INTEREST CREDIT**: monthly credit x 12 / principal x 100"* |
+
+검산: 093 `actual=480x12/144000x100=4.0` -> `144000x(4.275-4.0)/100/12=` **33.00** ✓ ·
+094 `actual=408x12/96000x100=5.1` -> `96000x(6.85-5.1)/100/12=` **140.00** ✓ **둘 다 gold 정확 일치**.
+
+⇒ `x617` 은 **base** 라 이 도구가 안 붙었다. 표적 실험 = **Qwen3.8 + `scaffold_get_tools` 배선**.
+정본 설계 = `ACCOUNT_APY_OFFLOAD_DESIGN_2026_07_19` §2b(*"보정액·093~097 표적"*).
+
+## §H x644(나머지 78태스크) 초기 실패 3건 — **새 유형 둘** (2026-08-30)
+
+x644 = Qwen3.8 **base** · x617 이 돈 19 를 뺀 78태스크 · nt=1 · concurrency 1 · timeout 7200 ·
+서빙 최적화(CUDA graph + prefix caching · 태스크당 중앙 **4.0분**).
+
+### task_008 · task_012 — `transfer_to_human_agents` 의 **`reason` enum 오선택** (새 유형)
+
+```
+008  gold reason = customer_demands_after_unavailable_offer_refusal
+     실제        = unconfirmed_external_communication      (둘 다 **유효 코드**)
+     action_match false · compare_args=["reason"] · **db_match true**
+012  gold reason = kb_search_unsuccessful_customer_requests_transfer · db_match true
+```
+enum 은 **닫힌 19개**(`tools.py:48 TransferReasonLiteral`)이고 도구 독스트링이 축자로
+*"The proper transfer reason enum can be found in the **knowledge base**: search it before calling"*.
+정의 문서 = `doc_bank_accounts_bank_accounts_(general)_042` "Internal: Human Agent Transfer Reason Codes"
+(4단 tier 표 · *"always select from the highest tier that applies"*).
+
+★**둘이 정확히 반대다 — 닫힌 검사로 갈린다**(gold 코드가 문맥에 도착했나):
+| | gold 코드 도착 | 문맥의 코드 수 | 귀속 |
+|---|---|---|---|
+| **008** | **예** | **19개 전부**(문서 `_042` 를 받음) | **LLM 몫** — 다 받고 틀린 것을 골랐다([[22]] 열린 술어) |
+| **012** | **아니오** | **`other` 하나** | **우리 몫** — 표를 못 받아 고를 기회가 없었다 |
+
+⇒ A3 후보: `action_index` 에 `_042 -> transfer_to_human_agents` **한 줄**.
+실측으로 그 자리가 비어 있다 — `action_index` 43개가 `_001~_044` 를 촘촘히 덮는데 **`_042` 만 빠졌고**
+`transfer_to_human_agents` 를 선언한 항목이 **0개**였다. 출처는 문서 제목·본문 + 도구 독스트링(gold 무참조).
+⛔**단 이건 base 분석이다** — A3 를 넣는다고 base 가 고쳐지지 않는다. **우리 스택에서 격리 실험 후**
+배선한다([[78]]·[[76]]). 저작분은 로컬에만 두고 미배포.
+
+### task_010 — **잉여 도구 전달로 DB 오염**
+
+```
+gold:  [assi] log_verification  +  [user] submit_referral      <- 인자·요구자 모두 일치 ✅
+실제:  그 둘 + [assi] give_discoverable_user_tool(**get_referral_link**)   <- gold 에 없음
+db_match false
+```
+`give_discoverable_user_tool` 은 `@is_tool(ToolType.GENERIC, **mutates_state=True**)` 이고
+DB 스키마에 **`user_discoverable_tools: DatabaseTable`** 이 있다 ⇒ **건네는 것 자체가 DB 행을 남긴다.**
+정책이 축자로 경고한다: *"**Do not unlock tools that you do not plan on giving to the user and
+actually using: this causes issues in database logging.**"*
+⇒ 085 의 EXTRA 와 같은 계열(잉여 변이)이지만 **원인이 더 명확하다** — 정책이 금지한 행위다.
+
+### §H-1 누적 유형표 (x617 7건 + x644 3건 = 10건)
+
+| 유형 | 태스크 | 귀속 |
+|---|---|---|
+| user 도구 미전달 | 016 · 063 | 우리 |
+| 체인 미완주 | 033 | 우리 |
+| 관측값 미사용(재계산) | 093 · 094 | 우리(`get_interest_correction` 배선) |
+| 잉여 변이 | 085 · **010** | 우리(정책이 명시 금지) |
+| 배분·건수 | 040 | 우리 |
+| **enum 오선택(재료 도착)** | **008** | **LLM** |
+| **enum 표 미도착** | **012** | 우리(A3 `action_index`) |
+
+⇒ 10건 중 **LLM 몫은 008 하나**다. 나머지 9는 전달·억제·계산 배선이다.
+
+---
+
+## §I. 093/094 포렌식 — **우리 스택이 tool-call 을 텍스트로 만든다** (2026-08-30 · x659 vs x617)
+
+사용자 지시: *"093 094 포렌식하라"*. [[69]] 순서대로 ①채점단위부터 읽었다.
+
+### ①채점 단위 — 산수가 아니었다
+
+`reward_basis = ['DB']` · gold actions **9개**. 그 9개는 전부 **행동**이다:
+
+    log_verification(...)
+    unlock_discoverable_agent_tool  x4
+    call_discoverable_agent_tool    x4   <- 093: amount 33.00 / 094: amount 140.00
+
+⛔내가 8/30 오전에 *"093/094 는 산수 실패이고 `get_interest_correction` 을 배선하면 닫힌다"* 고 했다.
+**틀렸다.** 채점은 DB 해시이고, 금액은 9개 행동 중 **한 인자**일 뿐이다.
+
+### ②변이 집합 — base 는 완주, 우리는 붕괴
+
+| | 변이 | 내용 | 결과 |
+|---|---|---|---|
+| **base 093** | 5건 | log_verification ✓ · credit(31.17) · report(31.17) | 흐름 완주 · **금액만 틀림**(gold 33.00) |
+| **base 094** | 5건 | log_verification ✓ · credit(150.51) · report(150.51) | 흐름 완주 · **금액만 틀림**(gold 140.00) |
+| **ours 093** | 2건 | credit(**arguments 없음**) · verify_identity | 흐름 붕괴 |
+| **ours 094** | 1건 | request_human_agent_transfer({}) | 흐름 붕괴 · 사람에게 도피 |
+
+`MISSING` = gold 9개 **전부**(ours). base 는 log_verification 을 맞혔고 나머지도 이름·인자를 냈다.
+
+### ③기전 — 궤적 실측 (권위 계기 = results.json)
+
+|  | 메시지 | **실제 도구호출** | **content 에 텍스트로** | arguments 누락 |
+|---|---|---|---|---|
+| ours 093 | 54 | **7** | **18** | 3 |
+| ours 094 | 72 | **7** | **28** | 0 |
+| base 093 | 45 | **24** | **0** | 4 |
+| base 094 | 37 | **18** | **0** | 4 |
+
+★**base 는 0회. 우리는 18/28회.** 우리 스택을 켜면 모델이 `<tool_call>{...}</tool_call>` 를
+**본문 content 에 쓴다.** 실제 도구 호출이 **24→7 · 18→7 로 1/3 토막**났다.
+
+모델 자신이 그 사실을 알아챈 축자 발화(ours 093 마지막 어시스턴트 메시지):
+
+> *"This is invalid JSON format for a tool call — I wrote it as a JSON object with "name" and
+>  "arguments" keys, which isn't the proper function_calls format. That's why no results came back!
+>  The tool calls were malformed."*
+
+그리고 base 는 같은 자리에서 **자가 교정**했다: `[36]` 인자 없이 호출 → `[39]` 인자 붙여 재호출.
+우리는 교정하지 못하고 `transfer_to_human` 으로 빠졌다.
+
+### ④아직 모르는 것 (⛔여기서 원인을 단정하지 않는다 · [[77]])
+
+- **어느 레버가** 이걸 만드는지 미확정. `T2_PROMPT_DUMP=1` 을 켰으나 로그에 덤프가 **0건**이라
+  모델이 실제로 본 문면을 아직 못 봤다. 덤프 경로부터 고쳐야 한다.
+- **일반화 범위** 미확정. n=2 이고 093/094 는 discoverable-chain 이 긴 이례적 태스크다.
+  x662(10개)가 같은 증상인지는 **완료 sim 이 나와야** 잰다(진행 중 로그로는 판정 불가 —
+  로그에 본문이 없다).
+
+### 처방 순서
+
+1. `T2_PROMPT_DUMP` 덤프 경로 수리 → **모델이 본 문면 회수**
+2. 그 문면에서 tool-call 형식을 흔드는 요소 특정(격리 · [[78]])
+3. x662 첫 sim 착지 즉시 같은 표(실제호출 vs content텍스트) 재측정 → 일반화 여부 판정
+4. ⛔[[70]] : 이건 **레버가 판 것**이다. 무엇을 사고 무엇을 팔았는지 부호표에 올려야 한다.
+
+### 자기 감사
+
+이 결손은 [[78]] 을 어겨서 생겼다. `get_interest_correction` 을 **격리에서 확인하지 않고**
+바로 배선했고, 그 결과 base 보다 나빠진 것을 4시간 런을 태우고서야 알았다.
+그리고 [[69]] ①채점단위를 또 늦게 읽었다 — 먼저 읽었다면 *"산수"* 라고 말하지 않았을 것이다.
+
+---
+
+## §J. base 093/094 정밀 포렌식 — **기준 불일치 하나** (2026-08-30 · x617)
+
+> ⛔**이 절의 산수 결론은 §F 가 이미 확정한 것을 내가 다시 유도한 것이다**([[40]] 위반).
+> §F: *관측 이자를 비례 스케일하면 gold 정확 일치 · 잔액도 규약도 불필요*. §J 의 *"기준 불일치"*는
+> 같은 사실의 다른 표현일 뿐 새 발견이 아니다. **남는 값은 `action_checks` 행동별 판정표뿐**
+> (base 093 5/9 · 094 7/9 ↔ ours 3/9 · 0/9)와 per-step 대조다. 산수는 §F 를 인용하라.
+
+사용자 지시: *"93 94 의 base 에서의 실패 원인을 정밀하게 포렌식하고 우리 것에서와 per step 비교하라"*
+
+### 벤치가 내린 행동별 판정 (권위 = `reward_info.action_checks`)
+
+| | base | ours |
+|---|---|---|
+| task_093 | **5/9** 일치 | 3/9 |
+| task_094 | **7/9** 일치 | **0/9** |
+
+⛔내 §I 의 MISSING/EXTRA 표는 결함이 있었다 — gold 는 `call_discoverable_agent_tool` 로 적혀 있는데
+내가 내부 이름으로 뽑아 비교했다. `action_checks` 가 권위다.
+
+### base 가 실제로 보낸 인자 vs gold — **오직 `amount` 하나만 다르다**
+
+    093  amount  31.17  vs gold  33.00
+    094  amount 150.51  vs gold 140.00
+    account_id · credit_type · user_id · expected_apy(4.275/6.85) · actual_apy(4.0/5.1)  **전부 일치**
+
+APY 는 맞혔다. 검색·정책 해석·도구 배선 전부 맞혔다. **파생 금액 하나**가 틀렸다.
+
+### 산법 축자 — 기전은 **기대액과 실지급액의 기준 불일치**
+
+**093** (base 발화 축자):
+> *"On your ~$143,520 October balance, 4.275% should have produced about **$511.17**,
+>  so you were underpaid by roughly **$31.17**"*
+
+    실지급액 480.00  =  **144,000** x 4.0%/12      <- 은행이 쓴 원금은 144,000 (정확히 나눠떨어진다)
+    base 기대액      =  **143,520** x 4.275%/12    <- 원금을 143,520 으로 미끄러뜨렸다
+    -> 31.17
+    같은 원금으로 계산하면: 144,000 x 4.275%/12 = 513.00 - 480.00 = **33.00 = gold**
+
+**094** (base 발화 축자):
+> *"At the correct 6.85% APY on your $96,000 balance (**daily accrual over the 31-day October cycle**),
+>  you should have received **$558.51**"*
+
+    실지급액 408.00  =  96,000 x 5.1%**/12**        <- 원장은 **월(/12) 규약**
+    base 기대액      =  96,000 x 6.85%**x31/365**   <- 기대액만 **일(daily) 규약**으로 계산
+    -> 150.51
+    같은 규약으로 계산하면: 96,000 x 6.85%/12 = 548.00 - 408.00 = **140.00 = gold**
+
+★**두 실패가 같은 죄다**: *실지급액을 관측해 놓고, 기대액을 **다른 기준**으로 계산했다.*
+093 은 **원금**이 미끄러졌고 094 는 **기간 규약**이 미끄러졌다.
+
+### 닫힌 불변식 (도메인 일반 · [[22]] 닫힌 술어)
+
+> **관측된 실지급액에서 원금·기간규약을 역산하고, 기대액을 반드시 그 동일한 원금·규약으로 계산하라.**
+
+    093:  480 = P x 4.0%/12  ->  P = 144,000  (그 P 를 기대액에도)
+    094:  408 = 96,000 x 5.1%/X  ->  X = 12   (그 규약을 기대액에도)
+
+이 불변식은 **gold 를 안 보고** 원장만으로 검산된다([[23]] 통과). 그리고 A2 `get_interest_correction`
+이 이미 *"actual 은 원장의 MONTHLY INTEREST CREDIT 에서 역산"* 이라고 적고 있다 — **도구는 옳았다.**
+
+### per-step 대조 — ours 가 왜 이 자리에 못 갔나
+
+    BASE                                  OURS
+    [ 2] 검색(bm25/dense/shell)           [ 2] 검색
+    [ 8] get_user_information_by_name     [ 4] unlock*  <- **검증 전에 즉시 unlock**
+    [10] get_current_time                 [ 6] unlock*
+    [12] **log_verification** OK          [10] unlock*
+    [14] unlock*                          [14] get_user_information_by_name
+    [16] call*  OK                        [16] **!!TEXT_TOOLCALL!!**
+    [18~34] 검색 반복                     [18] verify_identity
+    [36] unlock* x2                       [20~52] **TEXT_TOOLCALL x19 연속**
+    [39] call*>apply_credit(31.17)
+    [41] call*>submit_report(31.17)
+
+ours 는 `call_discoverable_agent_tool` 을 **한 번도 못 냈다**(x666 실측 0건).
+[16] 이후 **19턴 연속** 도구호출을 본문 텍스트로만 뱉었다.
+
+### 결론 — 두 층이 분리된다
+
+| 층 | base | ours |
+|---|---|---|
+| 검색·정책·배선 | **통과** | 통과 |
+| 산수(기준 일치) | **실패** ← 여기가 base 의 유일한 결손 | 도달 못함 |
+| tool-call 채널 | 정상(0회 텍스트) | **붕괴**(18/28회 텍스트) |
+
+⇒ base 를 닫으려면 **기준-일치 불변식** 하나면 된다.
+⇒ 그러나 우리 스택은 그 앞의 **채널**을 깨뜨렸다. 산수를 고쳐도 채널이 깨져 있으면 무의미하다.
+   **수리 순서 = 채널 먼저, 산수 나중.**
+
+
+---
+
+## §K. ⛔x659 는 §G 의 처방이 아니었다 (2026-08-30 · 사용자 지적)
+
+§G 가 지정한 표적 실험은 **`Qwen3.8 + scaffold_get_tools 배선`** — 즉 **계산 도구만** 얹는 것이다.
+그런데 내가 발사한 x659 는 `go_stack.sh` 를 source 해 **182 레버 전부**를 켰다.
+
+```
+§G 처방 :  Qwen3.8 + scaffold_get_tools        (최소 개입)
+x659 실행:  Qwen3.8 + go_stack 182레버 전부     (전 스택)
+```
+
+결과: tool-call 채널이 깨져(텍스트 발화 18/28회 · §I) **계산이 실행될 자리에 도달하지 못했다.**
+`call_discoverable_agent_tool` 호출이 093·094 모두 **0건**이다.
+
+⇒ **`계산 도구만` 조건은 Qwen3.8 에서 아직 한 번도 돌지 않았다.** §I 의 *"우리 스택이 채널을 깼다"*는
+사실이지만, 그 스택은 §G 가 시킨 것이 아니다. [[62]] *레버는 최소한* 을 내가 어겼다.
+
+### 아직 유효한 처방 (변경 없음)
+
+    Qwen3.8 base + **T2_SCAFFOLD_GET 만** (go_stack 미사용) · 093/094
+    대조군 = x617 base (093 amount 31.17 · 094 150.51 · 텍스트 tool-call 0회)
+    닫힌 술어 = amount 가 33.00 / 140.00 인가 · 텍스트 tool-call 이 0 인가
+
+---
+
+## §L. ★최신 스택의 결함 — **봉투 파싱 실패 × 가드 CAP 부족** (2026-08-30 · x659 실측)
+
+사용자 지시: *"최신 우리스택의 문제점 분석하라"*.
+
+### L-1. 이 현상은 우리 코드가 **이미 알고 있다**
+
+`t2_gate_patch.py:13355` 주석 축자(2026-07-27 · C207/A2·A4):
+> *"닫힌 tool_call 블록 7/7 **JSON 유효**·깨진 곳은 미종결 8번째뿐 ⇒ 형식 위반이 아니라 **정지 실패**.
+>  vLLM hermes 파서가 all-or-nothing이라 유효 7개가 통째로 폐기되고 33k가 content로."*
+
+`T2_ENVELOPE_GUARD`(+`T2_ENVELOPE_TAG` 기본 `<tool_call>`)가 그 가드다. **새 현상이 아니다.**
+
+### L-2. Q3.8 에서 가드가 무너진다 (실측)
+
+```
+봉투 파싱 실패 발생   093 **18회** · 094 **28회**   = 46회
+ENVGUARD 탐지          5회
+ENVGUARD regen         **3회**       <- `T2_ENVELOPE_CAP=2` 로 sim 당 2회 소진
+                                      **커버리지 6.5%**
+```
+
+### L-3. 가드가 발동해도 **엉뚱한 도구**를 낸다
+
+```
+regen tool_calls=['KB_search_bm25']               x2
+regen tool_calls=['get_user_information_by_name'] x1
+```
+regen 이 `tool_choice="required"` 를 쓴다(13383). 강제하니 모델이 **아무 도구나** 낸다 —
+필요한 `log_verification`·`call_discoverable_agent_tool` 은 **0회**.
+사용자 지적 *"tool_choice 는 역효과만 있다"* 가 여기서 실증된다.
+
+### L-4. **1 MB 폭주 응답** — 시간을 다 먹은 정체
+
+```
+envelope unparsed (len=**1,005,940**)  x2
+                  (len=22,761) (len=18,845)
+finish_reason=length  3회
+```
+23.6 tok/s 기준 **한 응답에 약 90분**. 093 이 145.7분, 094 가 126.9분 걸린 정체가 이것이다.
+**산수를 못 한 게 아니라 한 턴에서 폭주하다 시간을 다 썼다.**
+
+### L-5. ⛔미확인 모순 — `T2_AGENT_MAX_TOKENS` 가 안 걸렸다
+
+`go_stack.sh` 에 `T2_AGENT_MAX_TOKENS=8192` 가 있고 배선도 있다(`t2_run_gated.py:332-333`
+`llm_args_agent["max_tokens"] = int(...)`). 8192 토큰이면 최대 3만 자 남짓인데 **1,005,940 자**가 나왔다.
+⇒ **상한이 요청에 안 실렸거나 다른 경로로 누적된 것**이다. **수리의 첫 자리**.
+
+### L-6. 인과 사슬
+
+```
+우리 주입으로 문맥이 커짐
+  -> Q3.8 정지 실패(폭주) · max_tokens 상한 미작동
+  -> 1MB 응답에 <tool_call> 블록 다수 · 마지막 미종결
+  -> vLLM all-or-nothing 파서가 **전부 폐기** -> content 로 떨어짐
+  -> ENVELOPE_GUARD 가 잡아야 하나 CAP=2 로 46회 중 3회만
+  -> 그 3회도 tool_choice=required 라 엉뚱한 도구
+  -> 흐름 붕괴 -> transfer_to_human 도피
+```
+base(x617)는 이 사슬의 **첫 칸이 없어서**(봉투 실패 0회) 멀쩡했다.
+
+### L-7. 수리 순서
+
+1. **L-5 모순부터** — `max_tokens` 가 실제 요청에 실리는지 확인·수리. 이게 사슬의 뿌리다.
+2. `T2_ENVELOPE_CAP` 재설정 — 2 는 Q2.5 시절(드문 폭주) 값이다.
+3. regen 의 `tool_choice="required"` 재검토([[70]] 부호표 대상).
+⛔1 이 고쳐지면 2·3 이 필요 없을 수 있다. **순서를 지킨다**([[62]] 최소 개입).
+
+## §L-8. ★수리 1 — `T2_WRITE_PROV` 상한이 **파싱 실패 시 무력화**된다 (2026-08-30 · 수리 완료)
+
+### 무엇인가
+`agent_writeprov` = **완료-주장 대조 게이트**. 모델이 마무리하려는데(`_resign`) 원장에 실제 write 가
+없으면, A2 `completion_guard.claim_question` 을 던져 *"완료했다고 주장하나"* 를 묻고
+`{"claims_completion": true}` 면 되돌린다(`t2_gate_patch.py:13978~`).
+
+### 결함
+```python
+if _claims:                                   # <- 파싱 성공해야만
+    self._t2_writeprov = ... + 1              # <- 상한 카운터가 여기 있었다
+```
+답을 **한 줄 JSON** 으로 기대하는데, 장황한 모델이 다른 형태로 답하면 `_claims=None` 이 되고
+카운터가 안 올라 **상한(sim 당 1회)이 영원히 0** 이다 ⇒ 매 resign 턴마다 8192-토큰 서브콜 재발화.
+
+### 실측
+```
+WRITEPROV window hit    x659 **31회** · x668 6회       (설계 = sim 당 1회)
+WRITEPROV regen(성공)   x659   2회   · x668 **0회**
+x668 서브콜 생성량:  unified_regen 53,353B · **writeprov 32,456B** · agent_response(본 응답) 24,970B
+                     ⇒ **부속 호출이 본 응답의 4배**를 태운다
+```
+`agent_writeprov` 한 호출이 8192 토큰 상한을 꽉 채우면 23.6 tok/s 에서 **5.8분**이다.
+⇒ **093 이 145분 걸린 것은 계산 때문이 아니라 이 재발화 때문이다.**
+
+★Q2.5 는 간결한 한 줄 JSON 을 내어 파싱되고 1회로 끝났다. **장황한 Q3.8 에서만 무한 재발화** —
+모델 의존 결함이지 도메인 문제가 아니다([[05]] 안전).
+
+### 수리
+카운터 증가를 `if _claims:` **밖**으로 옮겼다 — **예산은 질의 자체가 소모한다.**
+로컬·리모트 적용 완료(리모트 백업 `t2_gate_patch.py.bak_L8`).
+⛔거동 변경이다 — [[70]] 부호표 대상. 런으로 ± 를 재야 한다.
+
+### 남은 후보
+`agent_claimprov` 도 x668 에서 **5회** 나왔다(`T2_CLAIMPROV_CAP=3`). 같은 계열인지 미확인.
+
+## §L-9. 수리 2 — `tool_choice="required"` 벗기기 (2026-08-30 · 사용자 지시)
+
+사용자 지시: *"tool choice required 는 off 하라"*. 근거(x667 계기 실측):
+```
+call=agent_response               tool_choice=None     -> tool_calls **0**
+call=agent_response_unified_regen tool_choice=required -> tool_calls 1, 2   <- 억지로 짜냄
+```
+그렇게 짜낸 도구가 x659 에서 `KB_search_bm25` 같은 **엉뚱한 것**이었다(필요한 `log_verification` 0회).
+
+`tool_choice="required"` 는 코드 **6곳**(8547·12557·13207·13300·13390 등)에 흩어져 있어,
+`t2_run_gated.py` 의 **생성 깔때기 한 곳**에서 벗긴다(`T2_NO_FORCE_TOOLCHOICE=1`). 우회 불가·최소 개입.
+
+## §L-10. 부수 수리 — `T2_GEN_TRACE` (우회 불가 계기)
+
+`T2_PROMPT_DUMP` 는 `_gen` 두 곳(6547·7990)에 달려 있는데 라이브(`apply_unified_regen`→`unified`)가
+그 경로를 안 타서 **레코드 0** 이었다. `tau2.agent.llm_agent.generate` **모듈 전역**을 감싸
+어느 경로로 오든 잡는다. 재는 것 = 요청의 max_tokens/tool_choice · 응답 content 길이 · tool_calls 수.
+
+★이 계기로 **§L-5 모순이 해소**됐다: `max_tokens=8192` 는 **모든 호출에 정상 적용**된다.
+1MB 는 단일 생성이 아니라 누적이다.
+
+## §L-11. ★수리 3 — 선언 프로브를 **한 줄로** (2026-08-30 · 사용자 지시 "사고를 끄라")
+
+### 사용자 지적
+*"한 줄 JSON 을 기대하는데 Q3.8 은 32KB 를 뱉었고, 이게 잘못된 거 아닌가? 1줄만 뱉게 해야 하지 않나?"*
+→ 맞다. §L-8(상한 수리)은 **증상 완화**였고, 뿌리는 프로브가 한 줄을 안 내는 것이다.
+
+### "표시만 끄기"는 이미 돼 있다
+엔진에 `--reasoning-parser qwen3` 가 붙어 reasoning 은 `reasoning_content` 로 **분리**된다.
+화면에 안 보이는데도 32KB 가 든 이유는 **그 토큰을 실제로 생성**하기 때문 —
+**비용은 표시가 아니라 생성이다**(23.6 tok/s 에서 8192 토큰 = 5.8분).
+
+### 세 팔 실측 (8141 · 같은 프로브 질문)
+```
+A  사고ON 무제약           178 토큰 · 10.2s · content 30B
+B  사고OFF                   7 토큰 ·  **0.4s** · content 28B     <- 25배
+C  사고ON + guided_json    177 토큰 · 10.1s · content 28B
+                            **세 팔 답 동일**({"claims_completion": false})
+```
+C(사고 유지 + 형식 강제)는 파싱 결함을 없애지만 **시간은 A와 같다**. 속도를 벌지 못한다.
+
+### 채택 — `T2_PROBE_TERSE=1` (사용자 지시: 사고를 끈다)
+해당 서브콜에만 ⑴ `chat_template_kwargs.enable_thinking=False` ⑵ `max_tokens` 축소(기본 256).
+대상 `call_name`(엔진 내부 이름 · 도메인 리터럴 아님 · [[05]] 안전):
+`agent_writeprov · agent_claimprov · agent_selfdecl · intent_operator_formalize · recommend_formalize`
+(env `T2_PROBE_CALLS` 로 교체 가능)
+
+근거: 이 프로브들은 *"당신이 완료했다고 주장했나"* 처럼 **자기 발화를 읽는 사실 확인**이지 추론이 아니다.
+
+### 라이브 효과 (x670 실측)
+```
+agent_writeprov   **28B**   (수리 전 평균 5,409B · 최대 32,306B)  -> **1,150배**
+agent_claimprov     29B    (수리 전 평균 2,149B)
+```
+
+### 대조팔 (⛔[[70]] 부호표 의무)
+`T2_PROBE_KEEP_THINK=1` (+`T2_PROBE_KEEP_THINK_MAX`, 기본 2048) 이면 사고를 유지하고 길이만 묶는다.
+정확도 손실 여부는 **이 팔과 짝비교로 재야** 확정된다 — 위 n=1 은 근거가 약하다.
+
+### 확정된 순서 (사용자 지시 2026-08-30)
+> *"thinking 을 끄고, 문제가 생기면 guided JSON 으로 가자"*
+
+    1차   `T2_PROBE_TERSE=1`            사고 OFF · mt=256      <- **현재 채택**
+    2차   문제 시 guided_json 으로 전환  사고 유지 · 답 형식 강제(schema)
+          = 정확도를 안 팔고 파싱만 보장. 단 **시간은 안 벌린다**(A와 동일·위 실측).
+    ⛔전환 트리거 = 프로브 답이 틀리거나(오판정) `_claims` 파싱이 다시 실패하는 것.
+      단순 실패율이 아니라 **짝비교(KEEP_THINK 대조팔)** 로 판정한다([[70]]).
+
+---
+
+## §M. ⛔"재발"이 아니다 — **고쳐 놓고 켠 적이 없다** (2026-08-31 · 사용자 지시 "git 히스토리 참조하라")
+
+### M-1. 이력 (전부 repo 에 있다 · 재유도 금지)
+
+```
+2026-07-31  RUNAWAY_DEMOTION_REMEDIATION_DESIGN  — 제목이 우리 문제 그대로:
+            "정지 실패 -> 파서 강등 -> '미실행' 위장"
+            §1-3  폭주형 **38/38 전건 첫 블록 완결·유효 JSON** · (opens,closes) 전부 closes+1=opens
+            §1-5  **`stop` 실측(8141·같은 요청)** — stop 없음 2호출 / stop 1호출 / include_stop 무관
+            §2    P3 살리기(salvage) **채택** · P2 탐지후재생성 **채택** · P1 전역stop 폴백 · P4 보류
+            234966aa "Wire P3 salvage at both generation choke points, **off by default**"
+            t2_salvage.py 생성
+2026-08-0x  d7ff880e "**P3 verified end to end**"
+────────────────────────────────────────────────────────────────────────────
+            `git log -S T2_SALVAGE -- go_stack.sh` = **0건**  <- ★정본 런처에 넣은 적이 없다
+2026-08-19  LEVER_ROSTER_CANONICAL:166 축자 — "`T2_SALVAGE` | **전 .sh grep 0건. 기본 OFF**"
+            :463 축자 — "`T2_ENVELOPE_GUARD` ↔ `T2_SALVAGE` 는 **술어가 바이트 수준으로 같다**.
+                        SALVAGE 표적 인구 = ENVELOPE_GUARD 가 이미 **223회 발화한 그 자리**."
+2026-08-20  61e364eb "268개 엔진-읽기 플래그 중 **130개가 정본 런처에 없다**" — 래칫 설치
+2026-08-31  그대로
+```
+
+**⇒ 원인 ①: 설계·구현·검증까지 끝내고 "기본 OFF" 로 두었고, 켜는 커밋이 없었다.** [[07]] 의 정확한 사례.
+**⇒ 원인 ②: 켰어도 안 탄다.** salvage 호출 지점이 `_gen` 두 곳(6577·8014)인데 라이브
+(`apply_unified_regen`→`unified`)는 그 경로를 안 탄다 — `T2_PROMPT_DUMP` 가 같은 자리에서
+**0건**을 찍어 실증됐다(§L-10).
+**⇒ 원인 ③: 래칫은 증가만 막는다.** 130개 결손을 baseline 으로 고정했을 뿐 줄이지 않는다.
+
+⛔**내 죄**: §L-8~L-14 에서 내가 밤새 재유도한 것(정지 실패 진단 · `stop` 실측 ·
+`include_stop_str_in_output` 무관 · 첫 블록 유효 · salvage 설계)이 **7월 31일 문서에 전부 있었다.**
+[[74]] 첫 수는 `ls reports/…` + grep · [[40]] 확정 사실은 인용만. 둘 다 어겼다.
+
+### M-2. 그러면 Q2.5 는 093/094 를 어떻게 통과했나 (사용자 질문)
+
+**⑴ Q2.5 도 같은 문제를 겪었다** — 강등률 실측:
+
+| 모델 | sims | assistant | 강등 | **강등률** |
+|---|---|---|---|---|
+| Qwen2.5-32B (sim_results 90파일) | 5,512 | 92,765 | 878 | **0.95%** |
+| QwQ-32B-AWQ | 1,026 | 13,556 | 3 | 0.02% |
+| **Qwen3.8-27B** (x6xx 전체) | — | 3,444 | 76 | **2.21%** |
+
+Q3.8 이 **2.3배** 잦다. 그러나 Q2.5 도 0 이 아니었다.
+
+**⑵ Q2.5 의 해결책은 `max_tokens` 상한이었다** — git 축자:
+
+```
+62a419a5  "② `T2_AGENT_MAX_TOKENS` **는 설정하지 않는다** = 최대 프롬프트 창"      <- 한 번 뺐다
+45f9f0d7  "**Restore the generation cap after the runaway reproduced on the first launch**"
+          +export T2_AGENT_MAX_TOKENS=8192   # ★폭주 상한(C271 실측으로 복원)
+          +"한 번 빼봤다가 **첫 런에서 폭주가 재현돼 되돌린 값**이다(C271)"
+```
+⇒ **상한이 곧 폭주 처방이었다.** 그래서 Q2.5 의 093 궤적에는 강등이 **0회**였다(텍스트 tool-call 0 ·
+실제호출 19 · reward 1.0).
+
+**⑶ 그런데 8192 는 Q2.5 기준이다** — 주석의 근거가 *"정당 최장 응답(**77-행 거래 JSON 에코 ~8k tok**)"*.
+Q3.8 실측은 전혀 다르다:
+
+| | n | 중앙 | p90 | **p99** | 최대 |
+|---|---|---|---|---|---|
+| **정상 호출 응답** | 2,228 | 332 B | 751 B | **1,542 B (≈385 토큰)** | 10,138 B (≈2,535 토큰) |
+| **강등 응답** | 86 | 193 B | 1,101 B | **35,859 B** | 35,859 B |
+
+★**정상 응답 p99 가 385 토큰인데 상한은 8,192 = 21배**다. 그리고 강등 응답의 p99 는
+**상한(32,768 B)을 그대로 채운 값**이다 — *"길게 줘서 채우느라 폭주한다"* 는 사용자 가설의 직접 증거.
+
+### M-3. 처방 (사용자 가설 기반 · 순서 고정)
+
+1. **`T2_AGENT_MAX_TOKENS` 를 Q3.8 실측에 맞춘다.** 정상 최대 2,535 토큰을 덮는 **3072** 가 후보.
+   - 사는 것: 폭주 상한이 8192→3072 로 **2.7배 축소**(한 턴 5.8분 → 2.1분)
+   - 파는 것: 2,535~3,072 토큰 사이 정상 응답(관측 0건)
+   - ⛔[[70]] 부호표 대상 — 짝비교로 재고 결정한다.
+2. **`T2_SALVAGE` 를 정본에 올린다** — 단 호출 지점을 **라이브 깔때기**로 옮긴다(현재 죽은 경로).
+   내가 §L-12 로 만든 깔때기 판이 실제로 발화한다(x674 **SALVAGED 15회**). 둘을 하나로 합친다.
+3. **P2(탐지 후 재생성)** 는 7월 설계 그대로 — 폭주 턴에만 `stop`. 전역 stop 은 다중호출을
+   상실시킨다(§1-4: 다중호출 2.3%턴 · **19% sim**).
+
+## §N. 처방 1·2 시행 — 상한을 실측에 맞추고 **답만 받는다** (2026-08-31)
+
+### N-1. 호출 종류별 실측 (GEN_TRACE n=195)
+
+| call_name | n | 중앙 | p90 | **p99** | 최대 |
+|---|---|---|---|---|---|
+| intent_operator_formalize | 65 | 40 B | 51 B | 51 B | 51 B |
+| **agent_response** | 44 | 171 B | 573 B | **24,237 B** | **24,237 B** |
+| agent_selfdecl | 23 | 154 B | 158 B | 158 B | 158 B |
+| agent_claimprov | 22 | 132 B | 361 B | 362 B | 362 B |
+| agent_response_unified_regen | 19 | 80 B | 441 B | 455 B | 455 B |
+| recommend_formalize | 10 | 39 B | 39 B | 39 B | 39 B |
+
+★**부속 호출은 전부 최대 455 B(약 114토큰)**. 큰 것은 `agent_response` 하나이고 그 24,237 B 가 폭주다.
+
+⚠**단 content 길이 ≠ 생성 토큰**이다. 사고 ON 호출은 reasoning 이 토큰을 먹는데 content 에 안 잡힌다
+(실측: content 38 B · **생성 1,247 토큰**). 그래서 계기에 `usage.completion_tokens` 를 추가했다
+(`llm_utils.py:134` → `message.py:426`). 상한 도달 시 **`TRUNC`** 로 표시한다.
+
+### N-2. Q2.5 는 턴별 구분이 없었다 (사용자 질문)
+
+```
+go_stack          T2_AGENT_MAX_TOKENS=8192   <- **전역 하나**
+T2_DYN_MT         CWE 발생 후 축소 재시도 (형식별이 아니라 사후 대응)
+_FORCE_MIN_TOKENS tool_choice=required 일 때 **하한** 1024 보장
+```
+⇒ 턴별/형식별 상한은 **이번이 처음**이다.
+
+### N-3. 답 요구 방식을 바꾼다 (사용자 지시)
+
+> *"쓸데없는 중간과정은 모두 제외하고 답만 받아라. 그래야 JSON 폭주를 멈출 수 있다."*
+
+**기전: 응답 형태가 산문을 허용하면 모델이 그걸 채운다.** 출력면을 답 하나로 좁히면 채울 여지가 없다.
+
+    사실확인 프로브  사고OFF + max 256                     (기존)
+    판단 프로브     **guided JSON + 사고OFF + max 256**    (변경 — 종전 사고ON+1536)
+    agent_response  전역 상한 (x675 에서 8192 vs 3072 짝비교 중)
+
+실측 근거(8141·같은 프로브): guided+사고ON **1,247토큰/52.7s** ↔ guided+사고OFF **22토큰/1.0s** —
+둘 다 파싱 OK.
+⛔[[70]] 부호표: **사고를 판다.** 도구 선택이 갈릴 수 있다(사고ON `none` ↔ 사고OFF `get_current_time`).
+대조팔 = `T2_PROBE_KEEP_THINK=1`(사고 유지 + 상한 `T2_JUDGE_MAX_TOKENS`).
+
+### N-4. 실험 순서 (1변수 유지)
+
+    x674  A: mt=8192 · 판단프로브 사고ON      <- 완료 (reward 0.0 · 162.5분 · 실제호출 193)
+    x675  B: **mt=3072** · 나머지 A와 동일     <- 진행 중
+    x676  C: B + **판단프로브 답만(사고OFF)**  <- x675 착지 후
+
+### N-5. ⛔N-3 정정 — **사고를 끄면 답이 틀린다** (사용자 권고로 되돌림)
+
+사용자 권고: *"사고를 유지하되, **답 형식만 제한**하는 걸 추천한다."* 실측이 이를 지지한다.
+
+| # | 팔 | 소요 | 생성토큰 | `reasoning_content` | 답 |
+|---|---|---|---|---|---|
+| ① | 사고ON 무제약 | 132.4s | 1,625 | **0 B** | `{"tool": "verify_identity"}` |
+| ② | 사고ON + `thinking_budget=64` | 130.3s | 1,579 | 0 B | 동일 — **budget 무시됨** |
+| ③ | 사고ON + 프롬프트 *"간결히"* | **90.0s** | **1,096** | 0 B | 동일 — **33% 절감** |
+| ④ | 사고ON + `max_tokens=200` | 16.8s | 200 | 0 B | **content 0B · finish=length** — 답 없음 |
+| ⑤ | 사고OFF | **1.0s** | **7** | 0 B | `{"tool": "**none**"}` ← **오답** |
+
+★손님이 *"이자가 낮다"* 고 했으면 첫 수는 **신원 확인**이다. ⑤의 `none` 은 틀렸다.
+⇒ **내 N-3 의 "사고를 판다"는 값이 예상보다 비쌌다.** `claims_completion` 프로브에서 세 팔 답이
+같았던 것을 **판단 프로브에 일반화한 것이 오류**였다.
+
+**세 통제면의 가부**
+- **사고 토큰 제한**: `thinking_budget` **미지원**(1,579 vs 1,625). `max_tokens` 로 조이면 답이 사라진다(④).
+- **파서 통제**: `reasoning_content` 가 **전 팔 0 B** — `--reasoning-parser qwen3` 가 붙어도 분리되지
+  않는다(guided JSON 사용 시). **파서로는 통제 불가.**
+- **출력 형식(guided JSON)**: ⭕ 유일하게 듣는 면. 그리고 **이것으로 충분하다** —
+  형식이 답 하나로 좁혀지면 산문 폭주가 들어갈 자리가 없다.
+
+**채택(현행)**
+```
+사실확인 프로브  사고OFF + max 256                      (자기 발화 읽기 · 추론 불필요)
+판단 프로브     **사고ON + guided JSON + max 2048**     (실측 최대 1,625 + 26% 여유)
+                `T2_PROBE_NOTHINK=1` 이 대조팔
+```
+**남은 절감 카드**: 판단 프로브 프롬프트에 *"간결히"* 를 넣으면 33%(별건 · `t2_resolve.py` 수정).
+
+## §O. 수리 3종 + Q2.5 소급 오염 계량 (2026-08-31)
+
+### O-1. 인벤토리로 찾은 미등록 서브콜
+호출 전수(x6xx 로그)에서 **`sg_arg_docs`** 가 분류 없이 **전역 8192** 를 받고 있었다
+(`t2_scaffold_get.py:2839` · 계약 `{"<동적 arg>": ..., "quote": "..."}`).
+⇒ 판단 프로브로 등록(스키마는 `quote` 만 보장·나머지 개방).
+
+### O-2. 판단 프로브 상한 2048 → 4096
+라이브에서 `intent_operator_formalize` 가 **2048 에서 TRUNC 2회**. 절단은 `finish=length · content 0B`
+= **답 전손**이다. ⇒ 상한은 넉넉히 두고, **절감은 프롬프트 "200자 이내"가 낸다**(실측 33~66%).
+★**격리치를 상한으로 쓰지 마라** — 격리 최대 1,625 였는데 라이브 문맥이 더 길어 넘겼다.
+
+### O-3. 간결 지시 배치 (3+1곳)
+`t2_resolve.py` 3곳(intent_operator_formalize · recommend_formalize ×2) +
+`t2_scaffold_get.py` 1곳(sg_arg_docs). 축자 = *"Reason in at most 200 characters, then answer."*
+실측: 무제약 1,135~2,048토큰/51~125s → **200자 675토큰/42.8s**, 답 동일(`verify_identity`).
+100자는 답이 바뀐다(과압박) ⇒ **200자가 임계점**.
+
+⚠**`thinking_token_budget` 은 채택하지 않았다.** 듣기는 하나(1,135→486토큰) **486에서 답이 바뀐다**
+(`verify_identity` → `KB_search_bm25`). 프롬프트 경로가 같은 절감(675 vs 676)을 내면서 답을 지킨다.
+
+### O-4. ★Q2.5 소급 — **이 축이 과거 실패 진단을 오염시켰다** (사용자 지적)
+
+| Qwen2.5-32B (sim 11,031) | pass | fail | 합계 | **pass율** |
+|---|---|---|---|---|
+| 강등 없음 | 4,731 | 6,012 | 10,743 | **44.04%** |
+| **강등 있음** | 86 | 202 | 288 | **29.86%** |
+
+```
+강등 발생 sim  288 / 11,031 = **2.61%**
+pass율 격차                    **-14.18%p**
+⇒ 실패 **202건**이 오염 후보
+```
+⚠상관이지 인과가 아니다(어려운 태스크에서 더 잦을 수 있다). 집계 영향은
+`14.18%p x 2.61% ~= 0.37%p` 로 작다. **진짜 비용은 개별 진단 오염**이다 —
+그 sim 들은 "행동 없음"으로 기록되지만 실제로는 **모델이 호출을 냈고 파서가 버린 것**이다.
+
+**⇒ 상설 검사(무료·닫힌 술어)**: 실패 원인을 말하기 전에
+*"assistant 메시지 본문에 `<tool_call>` 이 남아 있나"* 를 먼저 돌린다. 메모리 [[81]] 에 박제.

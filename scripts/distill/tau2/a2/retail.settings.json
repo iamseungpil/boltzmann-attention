@@ -278,10 +278,11 @@
  },
  "action_tools": [
   "cancel_pending_order",
-  "modify_pending_order_items",
-  "modify_pending_order_address",
-  "modify_pending_order_payment",
   "exchange_delivered_order_items",
+  "modify_pending_order_address",
+  "modify_pending_order_items",
+  "modify_pending_order_payment",
+  "modify_user_address",
   "return_delivered_order_items"
  ],
  "_meta": {
@@ -291,5 +292,10 @@
  },
  "_note_eplan": "E-PLAN(E_PLAN_LIVE_WIRING_DESIGN v1.2·t2_eplan_patch) 도메인 사실: list-enumerator/detail-reader/entity_key/items_key만 ABox — 엔진=도메인일반(SCOPE_TOKEN 어휘·수량 소사전만 엔진 보유). items_key=write 호출의 품목-id 인자명(qty-conflation 가드 qty_item_covered 재료·2026-07-11 t27 교정 — 기존 엔진 리터럴 item_ids의 ABox 이관). flag=T2_EPLAN. | v3.2: items_id_path=[container,id_field] (L10 멤버십·T2_CONSISTENCY)",
  "_note_operands": "UNIFIED_OPERAND_A2 §1: per-operand 해소 spec(도메인정보). 엔진=t2_resolve.resolve_write(T2_RESOLVE).",
- "_note_layer": "L2 settings — 구조는 3층 공통, 값만 이 도메인. 정본=A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md"
+ "_note_layer": "L2 settings — 구조는 3층 공통, 값만 이 도메인. 정본=A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md",
+ "_note_action_tools": "★2026-08-29 수리: `modify_user_address` 가 빠져 있었다. 출처 = env 레지스트리 실측(`MUTATES_STATE_ATTR`) — retail 변이 도구는 **7개**인데 선언은 6개였다. 빠진 도구는 행동 도구로 취급되지 않아 확인-게이트·손님/에이전트 실행 분기가 그 도구에 대해 조용했다. banking `_note_action_tools` 가 같은 종류의 누락(`call_discoverable_user_tool`)을 이미 박제했고 그때 1,618회가 3원소로 고정돼 있었다. gold 무참조.",
+ "failure_markers": [
+  "Error:"
+ ],
+ "_note_failure_markers": "출처 = env 축자. `tau2-bench/src/tau2/environment/environment.py:452` 가 도구 예외를 `resp = f\"Error: {e}\"` 로 감싼다 — 이 도메인의 도구 실패는 **전부** 이 접두사로 나온다(airline/retail `tools.py` 의 ValueError 23종 전수 확인). banking 이 표지를 넷 더 가진 것은 예외를 안 쓰고 문자열로 실패를 알리는 경로가 따로 있기 때문이고, 여기에는 그 경로가 없다. 미선언이면 실패한 호출이 '실행됨'으로 잡혀 게이트가 거짓 충족된다(`t2_gate_patch.py:3537` 독스트링). gold 무참조."
 }

@@ -33,6 +33,7 @@ import sys
 import t2_subcall as SC   # 단발-격리 서브 정본(2026-08-14 리팩토링)
 
 __all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material",
+           "as_roster", "roster_for",
            "docs_for", "declared_windows", "index_coverage", "material_for",
            "corpus_from_env", "action_index_note", "formalize_groups", "decide_from_docs", "to_iso"]
 
@@ -320,6 +321,77 @@ def material_for(a2, group, doc_dir=None, now=None, per_doc=400, windowed="gener
     return as_material(keep, dropped, per_doc=per_doc), {
         "linked": len(ids), "read": len(read), "missing": missing,
         "kept": len(keep), "dropped": [d for d, _f, _t in dropped]}
+
+
+def as_roster(idx_group, kept_ids, dropped, seen=(), disp=None, with_ids=True):
+    """결정점에 실을 **명단** — 문서 본문 대신 *어느 계열이 있고 무엇을 아직 안 봤나*.
+
+    `as_material` 의 형제다. 같은 체인(색인 -> 읽기 -> 만료 제거)을 지나고 **마지막 칸만** 다르다.
+
+    ## 왜 (2026-08-30 · 사용자 지시 *"alltools 의 shell 방식과 잘 조합될 수 있게 재편성하라"*)
+
+    `material_for` 는 shell 이 없던 시절 설계다 - 엔진이 문서를 **읽어서 본문을 배달**한다.
+    그런데 `alltools` 의 모델은 스스로 잘 읽는다(x617 실측: 어휘 적중률 95% · shell 103회 ·
+    `ls | grep -i diamond` -> `cat ..._001.md ..._002.md`). 본문을 또 실으면 같은 일을 두 번
+    하고 문맥만 무거워진다([[65]]).
+
+    벤치가 주는 `INDEX.md`(698 문서)는 **평면 목록**이라 *"이 결정의 축에 속한 것은 이것들뿐"*
+    을 못 말한다. A3 `doc_index` 는 같은 698 을 **11군 x 71계열**로 묶는다(겹침 698/698) -
+    겹치지 않는 유일한 자산이 그 **경계**다. 그래서 엔진은 경계만 대고 읽기는 모델에게 준다.
+
+    ## 무엇을 싣나 (전부 선언에서 읽은 이름 - 도메인 리터럴 0 · 내용 해석 0)
+
+      · 그 군의 **계열 전수**(닫힌 집합 = `doc_index[군]` 키)와 각 계열의 문서 id
+      · 이미 본 계열 표시(`seen`) - `_served_subjects` 부기에서 온다
+      · **뺀 것은 이유와 함께**(C327 - 조용히 빼지 않는다). 만료 제거는 유지한다:
+        x243 S4(유효창 없이 문서만) = **0/8** 이라 그 칸이 본체다.
+
+    ⚠엔진은 무엇이 정답인지 모른다 - 이름을 세고 뺄 뿐이다([[22]] 닫힌 술어 · [[62]] 최소).
+    ⚠**미측정**: x243 의 8/8 은 전부 **본문을 준** 팔이다(S1 축별 문장 · S2 전문 · S3 400자).
+      **명단만** 준 팔은 잰 적이 없다. 배선 전 격리 100% 가 의무다([[78]]).
+    """
+    seen = set(seen or ())
+    keep = set(kept_ids or ())
+    lines = []
+    for s_key in sorted(idx_group or {}):
+        ids = [d for d in (idx_group.get(s_key) or ()) if d in keep]
+        if not ids:
+            continue
+        name = (disp or {}).get(s_key, s_key)
+        mark = "already read" if s_key in seen else "not yet read"
+        # ★두 형태 (2026-08-30): `with_ids=True` 는 문서 id 를 다 적고, False 는 **계열명 + 개수**만
+        #   적는다. 모델이 이름만 보고 `ls | grep -i <name>` 로 파일을 스스로 찾는 것이 실측돼 있어
+        #   (x617 task_003·055) 얇은 쪽으로도 닿을 수 있다. 어느 쪽인지는 격리가 정한다([[78]]).
+        if with_ids:
+            lines.append("- %s (%s): %s" % (name, mark, ", ".join(sorted(ids))))
+        else:
+            lines.append("- %s (%s, %d documents)" % (name, mark, len(ids)))
+    out = []
+    if lines:
+        out.append("These are all the document sets on this axis (the list is complete):")
+        out.extend(lines)
+    if dropped:
+        out.append("Excluded as out of date (their stated period does not include today): "
+                   + "; ".join("%s (%s-%s)" % (d, f or "?", t or "?") for d, f, t in dropped))
+    return chr(10).join(out)
+
+
+def roster_for(a2, group, doc_dir=None, now=None, corpus=None, subjects=None,
+               general=True, seen=(), disp=None, with_ids=True):
+    """`material_for` 의 형제 - **명단** 판. 체인은 같고 마지막 칸만 `as_roster` 다.
+
+    반환은 `(명단 문자열, 진단 dict)` 로 `material_for` 와 **같은 모양**이라 호출부가 바뀌지 않는다.
+    """
+    ids = list(docs_for(a2, group, subjects=subjects, general=general))
+    read, missing = read_docs(ids, doc_dir, corpus)
+    keep, dropped = drop_expired(read, declared_windows(a2, read), now)
+    idx_group = (_ontology(a2).get("doc_index") or {}).get(group) or {}
+    return as_roster(idx_group, list(keep), dropped, seen=seen, disp=disp,
+                     with_ids=with_ids), {
+        "linked": len(ids), "read": len(read), "missing": missing,
+        "kept": len(keep), "dropped": [d for d, _f, _t in dropped],
+        "series": len([k for k in idx_group if k != "_general_"]),
+        "seen": len(set(seen or ()))}
 
 
 def eligibility_line(agent, la, UserMessage, spec, text):

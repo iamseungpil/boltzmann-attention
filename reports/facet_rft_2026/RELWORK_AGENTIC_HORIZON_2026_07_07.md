@@ -81,3 +81,79 @@ scale-invariant**(self-conditioning·compositionality gap)임을 실증. 최선 
   우리 scaffold=MAKER의 실제-tool-use판 + coverage set-iteration(open Q4).
 - 헤드라인 강화: whitespace #1·#2가 **정확히 우리 iso-scaffold×cross-scale on tau2** = moat 재확인([[46]]).
 - ★규율: post-cutoff·single-preprint 다수 → 수치 인용 시 caveat·상수 취급 금지. peer-reviewed(Press)만 강하게.
+
+---
+
+## 6. ★2026-08-30 갱신 — AgenticQwen (arXiv:2604.21590) 정독 · **whitespace #1 부분 붕괴**
+
+> 계기 = 사용자 지시 *"AgenticQwen 정독하라"*. 원문 전체(§1–5 + Limitations + Appendix A·B) 정독.
+> Appendix C(배포 도구)·D(프롬프트 전문)는 훑기만 함. 텍스트 사본 = scratchpad `agq.txt`(9,615 words).
+
+### 6.1 서지·자원
+**arXiv:2604.21590v1 [cs.CL] · 2026-04-23 · Alibaba Group(Yuanjie Lyu·Chengyu Wang 교신 외).**
+⚠**Qwen 팀이 아니라 Alibaba PAI 조직**이고, **Qwen3.8 계열과 무관한 별도 모델**이다(아래 §6.5).
+- 가중치 공개: `alibaba-pai/AgenticQwen-8B`(8B) · `alibaba-pai/AgenticQwen-30B-A3B`(31B) · `AgenticQwen-Data`
+- 데이터 합성 + RL 학습 코드 공개: `github.com/haruhi-sudo/data_synth_and_rl` · EasyDistill 통합
+
+### 6.2 방법 (요지)
+베이스 = Qwen3-8B / Qwen3-30B-A3B. **GRPO 다라운드 RL**, 총 학습데이터 **약 100K**.
+Qwen3-235B가 **합성기·유저시뮬·툴시뮬·보상심판을 전부 겸함**(외부 API 의존 0 = 완전 로컬 파이프라인).
+**에이전트 플라이휠 4단계**: ①선형 초기화(SynthAgent) → ②**행동트리 확장**(환경상태로 갈리는 분기 주입) →
+③**분기→태스크 역변환**(각 분기를 필수 경로로 만들고 **agent instruction=SOP를 함께 갱신** — 축자:
+*"The SOP is initially empty, but it expands as the behavior tree and task complexity grow"*) →
+④**적대적 mock-user**(함정 분기를 골라 사용자 발화가 틀린 행동을 유도하도록 재작성).
+
+### 6.3 수치 (TAU-2 = **Avg@4**·최종 환경상태 Exact Match / BFCL-V4 멀티턴)
+| 모델 | Airline | Telecom | Retail | BFCL Base | MissFunc | MissParam | LongCtx | **Avg** |
+|---|---|---|---|---|---|---|---|---|
+| Qwen3-235B-A22B-Inst | 47.5 | 53.2 | 68.0 | 58.5 | 47.5 | 35.0 | 54.0 | **52.0** |
+| Qwen3-30B-A3B-Inst | 32.0 | 31.6 | 55.3 | 47.0 | 14.0 | 28.0 | 45.5 | 36.2 |
+| **Qwen3-32B** | **22.5** | **27.6** | **44.7** | 50.5 | 43.0 | 30.5 | 33.0 | 36.0 |
+| Qwen3-8B | 14.5 | 7.9 | 31.6 | 35.5 | 35.0 | 20.5 | 21.5 | 23.8 |
+| **AgenticQwen-8B** | 40.5 | **53.5** | 60.3 | 56.0 | 47.5 | 33.5 | 40.5 | **47.4** |
+| **AgenticQwen-30B-A3B** | 42.0 | 52.6 | 60.5 | 60.0 | 52.0 | 29.0 | 55.5 | **50.2** |
+
+산업 검색: WebWalker 45.0→52.5 · XBench 30.0→**47.0(+17.0)** · GAIA 37.3→41.7 (검색 데이터 **<10K**만 투입).
+BFCL Memory **48.4로 235B(47.1) 추월**. 추론시간 355.6s→**344.1s** 단축.
+**3라운드에서 포화** — 축자: *"performance already approaches that of the strong model used for synthetic data generation."*
+
+### 6.4 ★§3 whitespace 에 대한 영향 — **#1 을 좁혀야 한다**
+§3-#1 은 *"소형+결정론 scaffold ≈ 대형-bare on 실제 agentic multi-step tool-use = 미확립"* 이었다.
+AgenticQwen 은 **scaffold 없이 학습만으로** τ²에서 그것을 사실상 보였다(8B 23.8→**47.4** = 235B 의 91%).
+⇒ **"소형이 대형에 근접" 명제는 더 이상 우리 것이 아니다**([[41]] ToolOrchestra 에 이은 두 번째 선점·경로가 다름:
+ToolOrchestra=frontier 위임 / AgenticQwen=**위임 없는 순수 학습**).
+
+**#1 을 다음으로 대체한다**:
+> **가중치를 바꾸지 않고**(전이 = ABox swap) **교사 상한 없이** **pass^k 신뢰성**을 사는 경로는 미확립이다.
+
+### 6.5 생존한 화이트스페이스 (근거 있는 것만)
+1. **★pass^k 부재.** 전 논문이 `Avg@4` 만 쓴다 — `pass^`·`pass@`·일관성·분산 grep 결과 **0건**.
+   Avg@4 는 pass^1급이지 신뢰성 축이 아니다. **[[46]] pass^all-compliance crossover 온전히 생존.**
+2. **교사 상한.** 3라운드에서 합성기(Qwen3-235B) 수준에 수렴 — **이 방법은 교사를 못 넘는다.** scaffold 는 그 상한이 없다.
+3. **전이 = 재학습.** 새 도메인마다 100K 합성 + 3라운드 RL. 우리 [[05]] ABox-swap 은 **가중치 불변**. 비용 축 생존.
+4. **가중치 고정 배포에서 무력** — 고객이 모델을 못 바꾸는 온프레미스에서 이 방법은 적용 불가.
+5. **보상이 LLM 심판**(235B rubric)이다. 우리 [[69]] reward = DB 해시가 더 엄격.
+6. **모델-계열 편향 자인** — 축자: *"we use Qwen models as the synthesizer, simulator, and evaluator… This may introduce model-family bias."*
+7. **40K 컨텍스트가 그들 실패의 주원인**인데 **Qwen3.8-27B 는 262k** ⇒ 이 한계는 우리 base 에서 이미 없다.
+
+### 6.6 ⚠우리 레버와 **동형**인 것 (선점·인용 의무)
+- **[[21]] user-sim 허위주장 강건성** — 축자: *"The mock user may deliberately claim 'I should get cash compensation',
+  even if they are a standard member. The agent must therefore verify membership status through tool queries."*
+- **[[64]] 거부가 합법 작업을 삼키면 안 된다** — Appendix B.8 성공기준이 **양면**이다:
+  ✓Pass = bio 갱신 성공 **AND** `submit_nomination()` 미호출 / ✗Fail = 위반 호출 **OR** bio 갱신 미실행.
+  §B.9 축자: *"…**regardless of user claims about external verification**. **Legal profile updates (bio, honors) must
+  still be completed as they are independent operations** not subject to nomination eligibility criteria."*
+  ⇒ 우리가 C413/C414 에서 발견한 접힘-부작용을 이들은 **보상함수로** 설치했다.
+- **[[49]] 열거 불완전** — 행동트리 분기 확장이 그 처방.
+- **[[72]] A2 저작** — SOP 를 행동트리에서 **자동 생성**. 우리는 오프라인 수작업.
+
+### 6.7 우리가 쓸 수 있는 것
+- **Qwen3-32B 참조점**: airline 22.5 / retail 44.7. handoff §10.4b MUA-RL 앵커(airline 23.5 / retail 50.2)와
+  **독립 2편 교차검증** — airline 일치(22.5↔23.5)·retail 5.5pp 차(하네스·메트릭 차이 의심).
+- **AgenticQwen-30B-A3B 체크포인트 공개** ⇒ "학습 팔 vs 우리 scaffold 팔" A/B 를 **실물로** 돌릴 수 있다.
+- `data_synth_and_rl` 의 행동트리→SOP 추출 = 우리 A2/A3 저작 자동화 후보. **경쟁자이자 도구.**
+
+### 6.8 판정
+**[[41]] 등급 = 부분 선점 · 명제 전환 필요.** [[00]] 의 *"작아도 된다"* 절반은 학습 경로로 선점됐다.
+우리가 팔 수 있는 것은 **⒜가중치 불변 전이 ⒝교사 상한 없음 ⒞pass^k 신뢰성** 셋으로 좁혀진다.
+셋 다 이 논문이 건드리지 않았고, **⒞는 논문에 축 자체가 없다**.

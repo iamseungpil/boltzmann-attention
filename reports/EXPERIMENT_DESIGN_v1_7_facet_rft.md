@@ -2766,7 +2766,7 @@ Option D (간결):
 ## 11. 리소스 및 환경
 
 ```
-서버:       woori@61.33.35.153 (mais1234)
+서버:       woori@61.33.35.153 (<REDACTED-see-local-notes>)
 GPU:        cuda:0
 Python:     /home/woori/venvs/seka_env/bin/python3.12
 Repo:       ~/workspace_common/boltzmann-attention-pi

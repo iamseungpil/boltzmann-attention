@@ -1,0 +1,5123 @@
+{
+ "declaration": {
+  "key": "declaration",
+  "in": {
+   "_shared": {
+    "t": "dict",
+    "n": 3,
+    "sample": [
+     "_note_guide_rev2",
+     "schema",
+     "guide"
+    ]
+   }
+  },
+  "file_layer": {
+   "_shared": "L1"
+  },
+  "sites": [
+   [
+    "t2_declfirst.py",
+    20,
+    "\"declaration\": {\"schema\": {...JSON Schema...}, \"guide\": \"<시스템 프롬프트 말미 문구>\"}"
+   ],
+   [
+    "t2_declfirst.py",
+    52,
+    "dec = (a2 or {}).get(\"declaration\")"
+   ],
+   [
+    "t2_declfirst.py",
+    218,
+    "A2 = {\"declaration\": {\"schema\": SCHEMA, \"guide\": \"Emit an envelope.\"}}"
+   ],
+   [
+    "t2_declfirst.py",
+    221,
+    "assert declaration_of({\"declaration\": {\"schema\": SCHEMA}}) is None, \"guide 없으면 skip\""
+   ]
+  ],
+  "n_sites": 4,
+  "site_files": [
+   "t2_declfirst.py"
+  ],
+  "domains": [],
+  "n_domains": 0,
+  "bytes_total": 0,
+  "n_fields": 18,
+  "n_fields_known": 13,
+  "fields_unknown": [
+   "enum",
+   "items",
+   "reason",
+   "resolves",
+   "slot"
+  ],
+  "schema_ratio": 0.722,
+  "n_slots": 3,
+  "n_slots_known": 3,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 15,
+  "leaves": {
+   "ident": 26,
+   "prose": 1,
+   "short": 5,
+   "num": 0,
+   "prose_bytes": 938
+  },
+  "n_leaves": 32,
+  "prose_share": 0.031,
+  "prose_bytes": 938
+ },
+ "claim_audit": {
+  "key": "claim_audit",
+  "in": {
+   "_shared": {
+    "t": "dict",
+    "n": 11,
+    "sample": [
+     "question",
+     "feedback",
+     "feedback_pending",
+     "feedback_unavailable_locked",
+     "_note_feedback_unavailable_locked",
+     "feedback_unavailable"
+    ]
+   }
+  },
+  "file_layer": {
+   "_shared": "L1"
+  },
+  "sites": [
+   [
+    "gate_interpreter.py",
+    179,
+    "ca, cb = merged.get(\"claim_audit\"), merged.get(\"claim_bindings\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    14010,
+    "_cvspec = {\"verify_question\": ((_a2_of(self) or {}).get(\"claim_audit\")"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "gate_interpreter.py",
+   "t2_gate_patch.py"
+  ],
+  "domains": [],
+  "n_domains": 0,
+  "bytes_total": 0,
+  "n_fields": 9,
+  "n_fields_known": 9,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 9,
+  "leaves": {
+   "ident": 0,
+   "prose": 9,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 4892
+  },
+  "n_leaves": 9,
+  "prose_share": 1.0,
+  "prose_bytes": 4892
+ },
+ "axis_notes": {
+  "key": "axis_notes",
+  "in": {
+   "_shared": {
+    "t": "dict",
+    "n": 25,
+    "sample": [
+     "is_scaffold",
+     "is_user_tool",
+     "is_agent_tool",
+     "not_unlocked",
+     "mentioned_agent",
+     "mentioned_user"
+    ]
+   }
+  },
+  "file_layer": {
+   "_shared": "L1"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    116,
+    "if \"axis_notes\" not in a2:"
+   ],
+   [
+    "t2_gate_patch.py",
+    121,
+    "a2[\"axis_notes\"] = (json.load(_bf) or {}).get(\"axis_notes\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    123,
+    "a2[\"axis_notes\"] = {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    1362,
+    "notes_cfg = a2.get(\"axis_notes\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    9866,
+    "_tpl_a = (((a2 or {}).get(\"axis_notes\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    13557,
+    "_idm = str((((a2 or {}).get(\"axis_notes\") or {}).get(\"doc_id_marker\") or \"\")).strip()"
+   ],
+   [
+    "t2_gate_patch.py",
+    14219,
+    "_nc13 = (a2 or {}).get(\"axis_notes\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    14289,
+    "_ax_u = (a2 or {}).get(\"axis_notes\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    14317,
+    "_tpl5 = ((a2 or {}).get(\"axis_notes\") or {}).get(\"user_tool_channel\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    14351,
+    "_tplh = ((a2 or {}).get(\"axis_notes\") or {}).get(\"handoff_missing\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    14386,
+    "_an2 = (a2 or {}).get(\"axis_notes\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    14445,
+    "_an1 = (a2 or {}).get(\"axis_notes\") or {}"
+   ]
+  ],
+  "n_sites": 12,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [],
+  "n_domains": 0,
+  "bytes_total": 0,
+  "n_fields": 22,
+  "n_fields_known": 12,
+  "fields_unknown": [
+   "multi_plain",
+   "not_unlocked",
+   "no_diff",
+   "is_agent_tool",
+   "mentioned_user",
+   "is_scaffold",
+   "scalar_array",
+   "already_asked",
+   "is_user_tool",
+   "mentioned_agent"
+  ],
+  "schema_ratio": 0.545,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 22,
+  "leaves": {
+   "ident": 1,
+   "prose": 17,
+   "short": 3,
+   "num": 1,
+   "prose_bytes": 3748
+  },
+  "n_leaves": 22,
+  "prose_share": 0.773,
+  "prose_bytes": 3748
+ },
+ "repeat_governor": {
+  "key": "repeat_governor",
+  "in": {
+   "_shared": {
+    "t": "dict",
+    "n": 5,
+    "sample": [
+     "stub",
+     "stub_digested",
+     "redirect",
+     "escalate",
+     "cap"
+    ]
+   }
+  },
+  "file_layer": {
+   "_shared": "L1"
+  },
+  "sites": [
+   [
+    "t2_repeat_gov.py",
+    56,
+    "cfg = (json.load(f) or {}).get(\"repeat_governor\") or {}"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_repeat_gov.py"
+  ],
+  "domains": [],
+  "n_domains": 0,
+  "bytes_total": 0,
+  "n_fields": 5,
+  "n_fields_known": 5,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 5,
+  "leaves": {
+   "ident": 0,
+   "prose": 5,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 1346
+  },
+  "n_leaves": 5,
+  "prose_share": 1.0,
+  "prose_bytes": 1346
+ },
+ "gates": {
+  "key": "gates",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 3,
+    "elem": "dict",
+    "sample": [
+     "id",
+     "kind",
+     "predicate",
+     "satisfiers",
+     "applies_to",
+     "applies_when"
+    ],
+    "bytes": 9849
+   },
+   "retail": {
+    "t": "list",
+    "n": 8,
+    "elem": "dict",
+    "sample": [
+     "id",
+     "kind",
+     "predicate",
+     "satisfiers",
+     "applies_to",
+     "note"
+    ],
+    "bytes": 6185
+   },
+   "airline": {
+    "t": "list",
+    "n": 3,
+    "elem": "dict",
+    "sample": [
+     "id",
+     "kind",
+     "predicate",
+     "satisfiers",
+     "satisfied_by",
+     "applies_to"
+    ],
+    "bytes": 1288
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2",
+   "retail": "L2",
+   "airline": "L2"
+  },
+  "sites": [
+   [
+    "t2_compliance.py",
+    29,
+    "gates = (load_domain_a2(domain) or {\"gates\": []})[\"gates\"]"
+   ],
+   [
+    "t2_dominance.py",
+    102,
+    "for g in ((a2 or {}).get(\"gates\") or []):"
+   ],
+   [
+    "t2_dominance.py",
+    257,
+    "for g in ((a2 or {}).get(\"gates\") or []):"
+   ],
+   [
+    "t2_dominance.py",
+    409,
+    "A2 = {\"gates\": [{\"id\": \"G\", \"predicate\": \"identity verified\","
+   ],
+   [
+    "t2_dominance.py",
+    419,
+    "assert dominating_gate({\"gates\": [{\"id\": \"G2\", \"applies_to\": [\"t\"]}]},"
+   ],
+   [
+    "t2_dominance.py",
+    429,
+    "A2M = {\"gates\": ["
+   ],
+   [
+    "t2_dominance.py",
+    450,
+    "E = prereq_map({\"gates\": [{\"satisfier_requires\": {\"c\": [\"b\"]}}],"
+   ],
+   [
+    "t2_dominance.py",
+    464,
+    "A2P = {\"gates\": [{\"id\": \"G1\", \"predicate\": \"identity verified\","
+   ],
+   [
+    "t2_eplan_patch.py",
+    789,
+    "notices = [g for g in (a2.get(\"gates\") or [])"
+   ],
+   [
+    "t2_eplan_patch.py",
+    853,
+    "for g in (a2.get(\"gates\") or []):"
+   ],
+   [
+    "t2_eplan_patch.py",
+    1048,
+    "return {t for g in (a2.get(\"gates\") or []) if g.get(\"kind\") == \"confirm\""
+   ],
+   [
+    "t2_gate_patch.py",
+    93,
+    "return observe_tools(getattr(gate, 'gates', []) or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    105,
+    "a2[\"_auth_tools\"] = auth_satisfier_tools(a2[\"gates\"])"
+   ],
+   [
+    "t2_gate_patch.py",
+    106,
+    "a2[\"_observe_tools\"] = observe_tools(a2[\"gates\"])"
+   ],
+   [
+    "t2_gate_patch.py",
+    113,
+    "(g.get(\"notice_text\") for g in a2[\"gates\"] if g.get(\"kind\") == \"notice\"), \"\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    1081,
+    "_gate_list = a2[\"gates\"]"
+   ],
+   [
+    "t2_gate_patch.py",
+    1084,
+    "_gate_list = [g for g in a2[\"gates\"] if g.get(\"kind\") in _allow]"
+   ],
+   [
+    "t2_gate_patch.py",
+    1097,
+    "g6 = next((g for g in a2[\"gates\"] if g.get(\"kind\") == \"select_confirm\"), None) if present_on else None"
+   ],
+   [
+    "t2_gate_patch.py",
+    2962,
+    "for g in (a2.get(\"gates\") or []):"
+   ],
+   [
+    "t2_gate_patch.py",
+    3124,
+    "for g in (a2 or {}).get(\"gates\", []) or []:"
+   ],
+   [
+    "t2_gate_patch.py",
+    6179,
+    "for g in (a2 or {}).get(\"gates\", []) or []:"
+   ],
+   [
+    "t2_gate_patch.py",
+    7346,
+    "g6 = next((g for g in a2[\"gates\"] if g.get(\"kind\") == \"select_confirm\"), None) if present_on else None"
+   ],
+   [
+    "t2_gate_patch.py",
+    7502,
+    "gl = a2[\"gates\"]"
+   ],
+   [
+    "t2_gate_patch.py",
+    7505,
+    "gl = [g for g in a2[\"gates\"] if g.get(\"kind\") in allow]"
+   ],
+   [
+    "t2_gate_patch.py",
+    7778,
+    "gl = a2[\"gates\"]"
+   ],
+   [
+    "t2_gate_patch.py",
+    7781,
+    "gl = [g for g in a2[\"gates\"] if g.get(\"kind\") in allow]"
+   ],
+   [
+    "t2_gate_patch.py",
+    13902,
+    "_ngate = next((g for g in ((a2 or {}).get(\"gates\") or [])"
+   ],
+   [
+    "t2_phase.py",
+    35,
+    "return [g for g in ((a2 or {}).get(\"gates\") or []) if g.get(\"kind\") == \"auth\"]"
+   ],
+   [
+    "t2_precedence.py",
+    56,
+    "for g in ((a2 or {}).get(\"gates\") or []):"
+   ],
+   [
+    "t2_precedence.py",
+    148,
+    "for g in ((a2 or {}).get(\"gates\") or []):"
+   ],
+   [
+    "t2_prekb_patch.py",
+    295,
+    "for g in (a2 or {}).get(\"gates\") or []:"
+   ],
+   [
+    "t2_resolve.py",
+    755,
+    "for g in ((a2 or {}).get(\"gates\") or []):"
+   ]
+  ],
+  "n_sites": 32,
+  "site_files": [
+   "t2_compliance.py",
+   "t2_dominance.py",
+   "t2_eplan_patch.py",
+   "t2_gate_patch.py",
+   "t2_phase.py",
+   "t2_precedence.py",
+   "t2_prekb_patch.py",
+   "t2_resolve.py"
+  ],
+  "domains": [
+   "airline",
+   "banking_knowledge",
+   "retail"
+  ],
+  "n_domains": 3,
+  "bytes_total": 17322,
+  "n_fields": 38,
+  "n_fields_known": 19,
+  "fields_unknown": [
+   "ask",
+   "fields",
+   "allow",
+   "owner_field",
+   "steer",
+   "steer_by_status_class",
+   "detail_producer",
+   "satisfied_by",
+   "entity_source",
+   "present_fields",
+   "present_label",
+   "delivered"
+  ],
+  "schema_ratio": 0.5,
+  "n_slots": 7,
+  "n_slots_known": 6,
+  "slots_unknown": [
+   "ask"
+  ],
+  "slot_ratio": 0.857,
+  "n_content_only": 31,
+  "leaves": {
+   "ident": 141,
+   "prose": 27,
+   "short": 19,
+   "num": 0,
+   "prose_bytes": 4594
+  },
+  "n_leaves": 187,
+  "prose_share": 0.144,
+  "prose_bytes": 4594
+ },
+ "producers": {
+  "key": "producers",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 0,
+    "sample": [],
+    "bytes": 2
+   },
+   "retail": {
+    "t": "dict",
+    "n": 1,
+    "sample": [
+     "authenticated_user_record"
+    ],
+    "bytes": 99
+   },
+   "airline": {
+    "t": "dict",
+    "n": 1,
+    "sample": [
+     "authenticated_user_record"
+    ],
+    "bytes": 99
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2",
+   "retail": "L2",
+   "airline": "L2"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    109,
+    "a2[\"_producer\"] = (a2.get(\"producers\") or {}).get(\"authenticated_user_record\")"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "airline",
+   "banking_knowledge",
+   "retail"
+  ],
+  "n_domains": 3,
+  "bytes_total": 200,
+  "n_fields": 4,
+  "n_fields_known": 4,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 4,
+  "leaves": {
+   "ident": 2,
+   "prose": 0,
+   "short": 2,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 4,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "identifying_arg_types": {
+  "key": "identifying_arg_types",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "str",
+    "sample": "[\"time\"]",
+    "bytes": 8
+   },
+   "airline": {
+    "t": "list",
+    "n": 4,
+    "elem": "str",
+    "sample": "[\"flight\", \"passenger\", \"certificate\"]",
+    "bytes": 52
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2",
+   "airline": "L2"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    107,
+    "a2[\"_hints\"] = tuple(set(DEFAULT_ARG_HINTS) | set(a2.get(\"identifying_arg_types\") or ()))"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "airline",
+   "banking_knowledge"
+  ],
+  "n_domains": 2,
+  "bytes_total": 60,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 5,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 5,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "eplan": {
+  "key": "eplan",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 15,
+    "sample": [
+     "list_enumerator",
+     "detail_reader",
+     "entity_key",
+     "list_from_reads",
+     "dispatch_tool",
+     "dispatch_name_key"
+    ],
+    "bytes": 4106
+   },
+   "retail": {
+    "t": "dict",
+    "n": 5,
+    "sample": [
+     "list_enumerator",
+     "detail_reader",
+     "entity_key",
+     "items_key",
+     "items_id_path"
+    ],
+    "bytes": 167
+   },
+   "airline": {
+    "t": "dict",
+    "n": 3,
+    "sample": [
+     "list_enumerator",
+     "detail_reader",
+     "entity_key"
+    ],
+    "bytes": 115
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2",
+   "retail": "L2",
+   "airline": "L2"
+  },
+  "sites": [
+   [
+    "t2_eplan_patch.py",
+    16,
+    "`a2/<domain>.gate.json`의 \"eplan\" 키(ABox)서 로드. SCOPE_TOKEN 어휘·수량 소사전은"
+   ],
+   [
+    "t2_eplan_patch.py",
+    41,
+    "\"\"\"a2/<domain>.gate.json의 \"eplan\" 키 로드. 없으면 None(=E-PLAN 비활성). 캐시."
+   ],
+   [
+    "t2_eplan_patch.py",
+    50,
+    "spec = json.load(f).get(\"eplan\")"
+   ],
+   [
+    "t2_eplan_patch.py",
+    213,
+    "self.spec = spec or {}          # A2 \"eplan\" 키 (도구명·entity_key = ABox)"
+   ],
+   [
+    "t2_gate_patch.py",
+    3461,
+    "ep = (a2.get(\"eplan\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    5422,
+    "_u = ((a2 or {}).get(\"eplan\") or {}).get(\"unlock_tool\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    8119,
+    "if os.environ.get(\"T2_EPLAN\") == \"1\" and a2 is not None and a2.get(\"eplan\"):"
+   ],
+   [
+    "t2_gate_patch.py",
+    8122,
+    "ep_spec = a2.get(\"eplan\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    8277,
+    "a2.get(\"eplan\") if a2 else None, a2)"
+   ],
+   [
+    "t2_gate_patch.py",
+    8305,
+    "a2.get(\"eplan\") if a2 else None, a2)"
+   ],
+   [
+    "t2_gate_patch.py",
+    8372,
+    "_dispatch = ((a2.get(\"eplan\") or {}).get(\"dispatch_tool\") or \"\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    8609,
+    "_cspec = a2.get(\"eplan\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    8660,
+    "(a2.get(\"eplan\") or {}).get(\"detail_reader\")),"
+   ],
+   [
+    "t2_gate_patch.py",
+    8782,
+    "_pchain = [(\"gate\", do_gate), (\"prov\", do_prov), (\"eplan\", ep_fb),"
+   ],
+   [
+    "t2_gate_patch.py",
+    9370,
+    "else \"eplan\" if ep_fb is not None"
+   ],
+   [
+    "t2_gate_patch.py",
+    9523,
+    "n for n, v in ((\"gate\", do_gate), (\"prov\", do_prov), (\"eplan\", ep_fb),"
+   ],
+   [
+    "t2_gate_patch.py",
+    10903,
+    "_chain = [(\"gate\", do_gate), (\"prov\", do_prov), (\"eplan\", ep_fb), (\"cons\", cons_fb),"
+   ],
+   [
+    "t2_gate_patch.py",
+    11572,
+    "((a2 or {}).get(\"eplan\") or {}).get(\"write_tools\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    12001,
+    "_u2 = ((a2 or {}).get(\"eplan\") or {}).get(\"unlock_tool\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    12052,
+    "_SRC8 = ((\"eplan\", ep_fb), (\"discovery\", dd_fb), (\"cons\", cons_fb),"
+   ],
+   [
+    "t2_gate_patch.py",
+    12563,
+    "_wtools = _confirm_write_tools(a2) | set(((a2 or {}).get(\"eplan\") or {}).get(\"write_tools\") or [])"
+   ],
+   [
+    "t2_pin_read.py",
+    238,
+    "unlock = ((a2 or {}).get(\"eplan\") or {}).get(\"unlock_tool\")"
+   ],
+   [
+    "t2_pin_read.py",
+    345,
+    "a2 = {\"eplan\": {\"unlock_tool\": \"unlock_discoverable_agent_tool\"}}"
+   ],
+   [
+    "t2_prekb_patch.py",
+    62,
+    "for w in ((a2 or {}).get(\"eplan\") or {}).get(\"finalize_writes\") or []:"
+   ],
+   [
+    "t2_prekb_patch.py",
+    150,
+    "ep = ((a2 or {}).get(\"eplan\") or {})"
+   ],
+   [
+    "t2_prekb_patch.py",
+    484,
+    "_ep_rb = ((a2 or {}).get(\"eplan\") or {})"
+   ],
+   [
+    "t2_prekb_patch.py",
+    703,
+    "a2 = {\"eplan\": {\"finalize_writes\": [\"close_credit_card_account\"],"
+   ],
+   [
+    "t2_resolve.py",
+    469,
+    "_ep3 = ((a2 or {}).get(\"eplan\") or {})"
+   ],
+   [
+    "t2_resolve.py",
+    659,
+    "d = ((a2 or {}).get(\"eplan\") or {}).get(\"dispatch_tool\")"
+   ],
+   [
+    "t2_resolve.py",
+    741,
+    "d = ((a2 or {}).get(\"eplan\") or {}).get(\"dispatch_tool\")"
+   ],
+   [
+    "t2_resolve.py",
+    1193,
+    "_ep = ((a2 or {}).get(\"eplan\") or {})"
+   ],
+   [
+    "t2_scaffold_get.py",
+    2483,
+    "_ep_r = ((a2 or {}).get(\"eplan\") or {})"
+   ]
+  ],
+  "n_sites": 32,
+  "site_files": [
+   "t2_eplan_patch.py",
+   "t2_gate_patch.py",
+   "t2_pin_read.py",
+   "t2_prekb_patch.py",
+   "t2_resolve.py",
+   "t2_scaffold_get.py"
+  ],
+  "domains": [
+   "airline",
+   "banking_knowledge",
+   "retail"
+  ],
+  "n_domains": 3,
+  "bytes_total": 4388,
+  "n_fields": 20,
+  "n_fields_known": 20,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 3,
+  "n_slots_known": 3,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 17,
+  "leaves": {
+   "ident": 32,
+   "prose": 3,
+   "short": 15,
+   "num": 1,
+   "prose_bytes": 957
+  },
+  "n_leaves": 51,
+  "prose_share": 0.059,
+  "prose_bytes": 957
+ },
+ "operands": {
+  "key": "operands",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 2,
+    "sample": [
+     "unlock_discoverable_agent_tool",
+     "call_discoverable_agent_tool"
+    ],
+    "bytes": 452
+   },
+   "retail": {
+    "t": "dict",
+    "n": 3,
+    "sample": [
+     "modify_pending_order_items",
+     "exchange_delivered_order_items",
+     "modify_pending_order_address"
+    ],
+    "bytes": 808
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2",
+   "retail": "L2"
+  },
+  "sites": [
+   [
+    "t2_resolve.py",
+    7,
+    "- A2 = a2[\"operands\"][tool][arg] = {kind, ...} 선언(도메인 정보만)."
+   ],
+   [
+    "t2_resolve.py",
+    398,
+    "for tool, ops in ((a2 or {}).get(\"operands\") or {}).items():"
+   ],
+   [
+    "t2_resolve.py",
+    1288,
+    "ops = ((a2 or {}).get(\"operands\") or {}).get(tool) or {}"
+   ],
+   [
+    "t2_scaffold_get.py",
+    835,
+    "\"n_ids\": len(ids), \"n_operand\": len(got), \"operands\": got})"
+   ],
+   [
+    "t2_scaffold_get.py",
+    1475,
+    "\"discarded\": \"src0_fabrication_guard\", \"operands\": got})"
+   ],
+   [
+    "t2_scaffold_get.py",
+    1483,
+    "\"operands\": got})"
+   ],
+   [
+    "t2_scaffold_get.py",
+    1673,
+    "\"n_chunks\": len(chunks), \"range_retry\": g_retry, \"operands\": g_got})"
+   ]
+  ],
+  "n_sites": 7,
+  "site_files": [
+   "t2_resolve.py",
+   "t2_scaffold_get.py"
+  ],
+  "domains": [
+   "banking_knowledge",
+   "retail"
+  ],
+  "n_domains": 2,
+  "bytes_total": 1260,
+  "n_fields": 25,
+  "n_fields_known": 14,
+  "fields_unknown": [
+   "item_ids",
+   "trigger_tool",
+   "nested_field",
+   "new_item_ids",
+   "tie_break",
+   "call_discoverable_agent_tool",
+   "modify_pending_order_items",
+   "modify_pending_order_address",
+   "unlock_discoverable_agent_tool",
+   "address1",
+   "exchange_delivered_order_items"
+  ],
+  "schema_ratio": 0.56,
+  "n_slots": 1,
+  "n_slots_known": 1,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 24,
+  "leaves": {
+   "ident": 30,
+   "prose": 0,
+   "short": 4,
+   "num": 2,
+   "prose_bytes": 0
+  },
+  "n_leaves": 36,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "action_tools": {
+  "key": "action_tools",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 8,
+    "elem": "str",
+    "sample": "[\"apply_for_credit_card\", \"submit_referral\", \"change_user_email\"]",
+    "bytes": 215
+   },
+   "retail": {
+    "t": "list",
+    "n": 6,
+    "elem": "str",
+    "sample": "[\"cancel_pending_order\", \"modify_pending_order_items\", \"modify_pending_order_address\"]",
+    "bytes": 184
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2",
+   "retail": "L2"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8371,
+    "_act = set((a2.get(\"action_tools\") or []))"
+   ],
+   [
+    "t2_gate_patch.py",
+    9670,
+    "_acts = {t for t in ((a2 or {}).get(\"action_tools\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    9678,
+    "_uacts = {t for t in ((a2 or {}).get(\"action_tools\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    10424,
+    "{\"action_tools\": list(_acts)}, am, state.messages, a2,"
+   ],
+   [
+    "t2_resolve.py",
+    423,
+    "action_tools = set(opspec.get(\"action_tools\") or (a2 or {}).get(\"action_tools\") or [])"
+   ]
+  ],
+  "n_sites": 5,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "domains": [
+   "banking_knowledge",
+   "retail"
+  ],
+  "n_domains": 2,
+  "bytes_total": 399,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 14,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 14,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "claim_bindings": {
+  "key": "claim_bindings",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 5,
+    "sample": [
+     "kinds",
+     "event_map",
+     "reserve_kinds",
+     "user_execution_tool",
+     "kind_guidance"
+    ],
+    "bytes": 972
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2"
+  },
+  "sites": [
+   [
+    "gate_interpreter.py",
+    179,
+    "ca, cb = merged.get(\"claim_audit\"), merged.get(\"claim_bindings\")"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "gate_interpreter.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 972,
+  "n_fields": 12,
+  "n_fields_known": 5,
+  "fields_unknown": [
+   "transfer",
+   "search",
+   "record_update",
+   "verify",
+   "write",
+   "give",
+   "dispute_file"
+  ],
+  "schema_ratio": 0.417,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 12,
+  "leaves": {
+   "ident": 36,
+   "prose": 2,
+   "short": 3,
+   "num": 0,
+   "prose_bytes": 169
+  },
+  "n_leaves": 41,
+  "prose_share": 0.049,
+  "prose_bytes": 169
+ },
+ "failure_markers": {
+  "key": "failure_markers",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 5,
+    "elem": "str",
+    "sample": "[\"Error:\", \"Failed to\", \"NOT_VERIFIED\"]",
+    "bytes": 90
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3537,
+    "marks = tuple((a2 or {}).get(\"failure_markers\") or ())"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 90,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 0,
+   "prose": 0,
+   "short": 5,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 5,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "derived": {
+  "key": "derived",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 17,
+    "elem": "dict",
+    "sample": [
+     "out",
+     "inputs",
+     "op",
+     "shape",
+     "prompt",
+     "params"
+    ],
+    "bytes": 2140
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2"
+  },
+  "sites": [
+   [
+    "gate_interpreter.py",
+    117,
+    "for n in (merged.get(\"derived\") or []):"
+   ],
+   [
+    "t2_factdag.py",
+    63,
+    "nodes = list(((a2 or {}).get(\"derived\") or []))"
+   ],
+   [
+    "t2_gate_patch.py",
+    4964,
+    "for _n3 in ((a2 or {}).get(\"derived\") or ()):"
+   ]
+  ],
+  "n_sites": 3,
+  "site_files": [
+   "gate_interpreter.py",
+   "t2_factdag.py",
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 2140,
+  "n_fields": 14,
+  "n_fields_known": 14,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 7,
+  "n_slots_known": 7,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 7,
+  "leaves": {
+   "ident": 72,
+   "prose": 0,
+   "short": 13,
+   "num": 2,
+   "prose_bytes": 0
+  },
+  "n_leaves": 87,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "name_rules": {
+  "key": "name_rules",
+  "in": {
+   "banking_knowledge": {
+    "t": "str",
+    "n": 705,
+    "sample": "How to decide whether two names are the same product: the identity is the leading name phrase. Trailing product-form words - Account, Business Checking, International Checking, Checking - describe the",
+    "bytes": 707
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2"
+  },
+  "sites": [
+   [
+    "gate_interpreter.py",
+    114,
+    "rules = merged.get(\"name_rules\")"
+   ],
+   [
+    "gate_interpreter.py",
+    121,
+    "p.setdefault(\"name_rules\", rules)"
+   ],
+   [
+    "t2_factdag.py",
+    456,
+    "if p.get(\"name_rules\"):"
+   ],
+   [
+    "t2_factdag.py",
+    457,
+    "_txt += \"\\n\\n\" + str(p[\"name_rules\"])"
+   ],
+   [
+    "t2_factdag.py",
+    477,
+    "if p.get(\"name_rules\"):"
+   ],
+   [
+    "t2_factdag.py",
+    478,
+    "_txt += \"\\n\\n\" + str(p[\"name_rules\"])"
+   ]
+  ],
+  "n_sites": 6,
+  "site_files": [
+   "gate_interpreter.py",
+   "t2_factdag.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 707,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 0,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 705
+  },
+  "n_leaves": 1,
+  "prose_share": 1.0,
+  "prose_bytes": 705
+ },
+ "ledger_metrics": {
+  "key": "ledger_metrics",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 2,
+    "elem": "dict",
+    "sample": [
+     "trigger_tool",
+     "row_keys",
+     "date_field",
+     "group_field",
+     "window_history_text",
+     "_note_window_history"
+    ],
+    "bytes": 37581
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L2"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    4296,
+    "_nspec = next((s for s in (a2.get(\"ledger_metrics\") or ()) if s.get(\"now_prompt\")), None)"
+   ],
+   [
+    "t2_gate_patch.py",
+    7359,
+    "len((a2 or {}).get(\"ledger_metrics\") or []),"
+   ],
+   [
+    "t2_ledger.py",
+    114,
+    "return [s for s in ((a2 or {}).get(\"ledger_metrics\") or [])"
+   ]
+  ],
+  "n_sites": 3,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_ledger.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 37581,
+  "n_fields": 47,
+  "n_fields_known": 46,
+  "fields_unknown": [
+   "focus_prompt"
+  ],
+  "schema_ratio": 0.979,
+  "n_slots": 3,
+  "n_slots_known": 3,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 44,
+  "leaves": {
+   "ident": 35,
+   "prose": 31,
+   "short": 4,
+   "num": 2,
+   "prose_bytes": 9678
+  },
+  "n_leaves": 72,
+  "prose_share": 0.431,
+  "prose_bytes": 9678
+ },
+ "policy_facts_file": {
+  "key": "policy_facts_file",
+  "in": {
+   "banking_knowledge": {
+    "t": "str",
+    "n": 35,
+    "sample": "banking_knowledge.policy_facts.json",
+    "bytes": 37
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    692,
+    "fn = str((a2 or {}).get(\"policy_facts_file\") or \"\")"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 37,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 0,
+   "prose": 0,
+   "short": 1,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 1,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "reference_filter": {
+  "key": "reference_filter",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 2,
+    "elem": "dict",
+    "sample": [
+     "dispatch_tool",
+     "tool_prefix",
+     "param",
+     "key_field",
+     "require",
+     "criteria_fields"
+    ],
+    "bytes": 1207
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8701,
+    "and (a2 or {}).get(\"reference_filter\")"
+   ],
+   [
+    "t2_resolve.py",
+    1116,
+    "_rfspec = (a2 or {}).get(\"reference_filter\")"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1207,
+  "n_fields": 10,
+  "n_fields_known": 10,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 2,
+  "n_slots_known": 2,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 8,
+  "leaves": {
+   "ident": 26,
+   "prose": 0,
+   "short": 6,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 32,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "compute_ops": {
+  "key": "compute_ops",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 0,
+    "sample": [],
+    "bytes": 2
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8743,
+    "if (a2 or {}).get(\"compute_ops\"):"
+   ],
+   [
+    "t2_gate_patch.py",
+    8745,
+    "% len((a2 or {}).get(\"compute_ops\") or {}), file=_sys.stderr, flush=True)"
+   ],
+   [
+    "t2_resolve.py",
+    1184,
+    "ops = (a2 or {}).get(\"compute_ops\")"
+   ]
+  ],
+  "n_sites": 3,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 2,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 0,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 0,
+  "prose_share": null,
+  "prose_bytes": 0
+ },
+ "recommendation_verify": {
+  "key": "recommendation_verify",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 6,
+    "sample": [
+     "offer_tool",
+     "action_tool",
+     "operand",
+     "research_tool",
+     "offer_name_key",
+     "_note_offer_name_key"
+    ],
+    "bytes": 533
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3200,
+    "_rv = a2.get(\"recommendation_verify\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    11587,
+    "_rv = (a2 or {}).get(\"recommendation_verify\") or {}"
+   ],
+   [
+    "t2_resolve.py",
+    1012,
+    "spec = (a2 or {}).get(\"recommendation_verify\")"
+   ]
+  ],
+  "n_sites": 3,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 533,
+  "n_fields": 5,
+  "n_fields_known": 5,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 5,
+  "leaves": {
+   "ident": 4,
+   "prose": 0,
+   "short": 1,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 5,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "field_ops": {
+  "key": "field_ops",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 5,
+    "sample": [
+     "_note",
+     "compute",
+     "judgment",
+     "id_ref",
+     "enum"
+    ],
+    "bytes": 820
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [],
+  "n_sites": 0,
+  "site_files": [],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 820,
+  "n_fields": 4,
+  "n_fields_known": 0,
+  "fields_unknown": [
+   "compute",
+   "judgment",
+   "id_ref",
+   "enum"
+  ],
+  "schema_ratio": 0.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 4,
+  "leaves": {
+   "ident": 31,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 31,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "function_agents": {
+  "key": "function_agents",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "name",
+     "mode",
+     "wraps",
+     "getter_tools",
+     "instructions",
+     "return_contract"
+    ],
+    "bytes": 2587
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_scaffold_get.py",
+    2413,
+    "for _fa in ((a2 or {}).get(\"function_agents\") or []):"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_scaffold_get.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 2587,
+  "n_fields": 12,
+  "n_fields_known": 12,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 12,
+  "leaves": {
+   "ident": 3,
+   "prose": 2,
+   "short": 6,
+   "num": 5,
+   "prose_bytes": 728
+  },
+  "n_leaves": 16,
+  "prose_share": 0.125,
+  "prose_bytes": 728
+ },
+ "write_evidence_specs": {
+  "key": "write_evidence_specs",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 13,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "applies_when",
+     "id_key",
+     "require_tokens",
+     "feedback",
+     "_note"
+    ],
+    "bytes": 20084
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    1141,
+    "wev_specs = (a2.get(\"write_evidence_specs\") or []) \\"
+   ],
+   [
+    "t2_gate_patch.py",
+    8158,
+    "wev_specs = (a2.get(\"write_evidence_specs\") or []) \\"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 20084,
+  "n_fields": 9,
+  "n_fields_known": 9,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 7,
+  "n_slots_known": 7,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 2,
+  "leaves": {
+   "ident": 57,
+   "prose": 13,
+   "short": 11,
+   "num": 0,
+   "prose_bytes": 8211
+  },
+  "n_leaves": 81,
+  "prose_share": 0.16,
+  "prose_bytes": 8211
+ },
+ "scaffold_get_tools": {
+  "key": "scaffold_get_tools",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 10,
+    "elem": "dict",
+    "sample": [
+     "name",
+     "description",
+     "params",
+     "return_template",
+     "return_template_empty",
+     "_note_return_template_empty"
+    ],
+    "bytes": 155414
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_axis_levers.py",
+    23,
+    "_SCAFFOLD_HINT = (\"scaffold_get_tools\",)          # A2에서 스캐폴드 도구 이름을 읽는다(리터럴 0)"
+   ],
+   [
+    "t2_axis_levers.py",
+    84,
+    "for t in (a2.get(\"scaffold_get_tools\") or []):"
+   ],
+   [
+    "t2_dominance.py",
+    452,
+    "\"scaffold_get_tools\": [{\"tool\": \"a\", \"requires_reads\": [\"root\"]}]})"
+   ],
+   [
+    "t2_gate_patch.py",
+    3470,
+    "for t in (a2.get(\"scaffold_get_tools\") or []):"
+   ],
+   [
+    "t2_gate_patch.py",
+    13624,
+    "for _d0 in ((a2 or {}).get(\"scaffold_get_tools\") or []):"
+   ],
+   [
+    "t2_gate_patch.py",
+    13844,
+    "for _d1 in ((a2 or {}).get(\"scaffold_get_tools\") or []):"
+   ],
+   [
+    "t2_precedence.py",
+    63,
+    "sgt = (a2 or {}).get(\"scaffold_get_tools\")"
+   ],
+   [
+    "t2_prekb_patch.py",
+    215,
+    "for t in (a2 or {}).get(\"scaffold_get_tools\") or []:"
+   ],
+   [
+    "t2_prekb_patch.py",
+    410,
+    "sg = {str(t.get(\"name\")) for t in (a2 or {}).get(\"scaffold_get_tools\") or []"
+   ],
+   [
+    "t2_prekb_patch.py",
+    750,
+    "a2sg = {\"scaffold_get_tools\": [{\"name\": \"get_reward_discrepancies\"},"
+   ],
+   [
+    "t2_prekb_patch.py",
+    772,
+    "a2fu[\"scaffold_get_tools\"] = ["
+   ],
+   [
+    "t2_prekb_patch.py",
+    815,
+    "a2g={\"scaffold_get_tools\":[{\"name\":\"x\",\"follow_up\":{\"tool\":\"give_discoverable_user_tool\"}}]}"
+   ],
+   [
+    "t2_scaffold_get.py",
+    2359,
+    "decls = [_variant(d) for d in (a2.get(\"scaffold_get_tools\") or [])]"
+   ],
+   [
+    "t2_scaffold_get.py",
+    2406,
+    "(_variant(x) for x in ((a2 or {}).get(\"scaffold_get_tools\") or []))}"
+   ],
+   [
+    "t2_scaffold_get.py",
+    3298,
+    "_dn = {d.get(\"name\") for d in (_a2e.get(\"scaffold_get_tools\") or [])}"
+   ]
+  ],
+  "n_sites": 15,
+  "site_files": [
+   "t2_axis_levers.py",
+   "t2_dominance.py",
+   "t2_gate_patch.py",
+   "t2_precedence.py",
+   "t2_prekb_patch.py",
+   "t2_scaffold_get.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 155414,
+  "n_fields": 387,
+  "n_fields_known": 129,
+  "fields_unknown": [
+   "basis",
+   "cmp",
+   "key",
+   "fx_fee",
+   "cases",
+   "default",
+   "thr",
+   "annual_fee",
+   "account_class",
+   "min_score",
+   "else",
+   "base_cashback"
+  ],
+  "schema_ratio": 0.333,
+  "n_slots": 95,
+  "n_slots_known": 42,
+  "slots_unknown": [
+   "basis",
+   "cmp",
+   "key",
+   "fx_fee",
+   "thr",
+   "annual_fee",
+   "cases",
+   "default",
+   "account_class",
+   "base_cashback",
+   "cond",
+   "then"
+  ],
+  "slot_ratio": 0.442,
+  "n_content_only": 292,
+  "leaves": {
+   "ident": 626,
+   "prose": 228,
+   "short": 286,
+   "num": 711,
+   "prose_bytes": 54088
+  },
+  "n_leaves": 1851,
+  "prose_share": 0.123,
+  "prose_bytes": 54088
+ },
+ "analysis_producers": {
+  "key": "analysis_producers",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "data_source",
+     "producer",
+     "subject"
+    ],
+    "bytes": 211
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    14159,
+    "if (os.environ.get(\"T2_DISCOVERY_REQUIRED\") == \"1\" and (a2 or {}).get(\"analysis_producers\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    14162,
+    "for _sp in (a2.get(\"analysis_producers\") or []):"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 211,
+  "n_fields": 3,
+  "n_fields_known": 3,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 3,
+  "leaves": {
+   "ident": 2,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 99
+  },
+  "n_leaves": 3,
+  "prose_share": 0.333,
+  "prose_bytes": 99
+ },
+ "assertion_operands": {
+  "key": "assertion_operands",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 2,
+    "sample": [
+     "reward discrepancies",
+     "expected reward for a transaction"
+    ],
+    "bytes": 117
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    14177,
+    "elif (os.environ.get(\"T2_SELF_DECLARATION\") == \"1\" and (a2 or {}).get(\"assertion_operands\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    14179,
+    "_ao = a2.get(\"assertion_operands\") or {}"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 117,
+  "n_fields": 2,
+  "n_fields_known": 0,
+  "fields_unknown": [
+   "reward discrepancies",
+   "expected reward for a transaction"
+  ],
+  "schema_ratio": 0.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 2,
+  "leaves": {
+   "ident": 2,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 2,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "follow_up_chains": {
+  "key": "follow_up_chains",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 4,
+    "elem": "dict",
+    "sample": [
+     "after",
+     "requires",
+     "decision_tools",
+     "decision_feedback",
+     "feedback",
+     "_note"
+    ],
+    "bytes": 9848
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    12878,
+    "for _fc in (a2.get(\"follow_up_chains\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    13508,
+    "_dec2 = [d for _fc2 in ((a2 or {}).get(\"follow_up_chains\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    13512,
+    "_chk2 = sorted({t for _fc2 in ((a2 or {}).get(\"follow_up_chains\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    13663,
+    "for _fc in ((a2 or {}).get(\"follow_up_chains\") or []))"
+   ],
+   [
+    "t2_gate_patch.py",
+    13675,
+    "for _fc in ((a2 or {}).get(\"follow_up_chains\") or []):"
+   ],
+   [
+    "t2_resolve.py",
+    1232,
+    "for _fc in ((a2 or {}).get(\"follow_up_chains\") or []):"
+   ]
+  ],
+  "n_sites": 6,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 9848,
+  "n_fields": 7,
+  "n_fields_known": 7,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 3,
+  "n_slots_known": 3,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 4,
+  "leaves": {
+   "ident": 24,
+   "prose": 6,
+   "short": 0,
+   "num": 3,
+   "prose_bytes": 4511
+  },
+  "n_leaves": 33,
+  "prose_share": 0.182,
+  "prose_bytes": 4511
+ },
+ "write_arg_grounding": {
+  "key": "write_arg_grounding",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 7,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "applies_when",
+     "grounded_args",
+     "feedback",
+     "_note"
+    ],
+    "bytes": 7133
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8161,
+    "wag_specs = (a2.get(\"write_arg_grounding\") or []) \\"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 7133,
+  "n_fields": 10,
+  "n_fields_known": 8,
+  "fields_unknown": [
+   "card_name",
+   "time_verified"
+  ],
+  "schema_ratio": 0.8,
+  "n_slots": 6,
+  "n_slots_known": 6,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 4,
+  "leaves": {
+   "ident": 34,
+   "prose": 7,
+   "short": 1,
+   "num": 0,
+   "prose_bytes": 2797
+  },
+  "n_leaves": 42,
+  "prose_share": 0.167,
+  "prose_bytes": 2797
+ },
+ "write_arg_enum": {
+  "key": "write_arg_enum",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 9,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "applies_when",
+     "arg",
+     "group_arg",
+     "group_map",
+     "_note_axis"
+    ],
+    "bytes": 15700
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3178,
+    "for sp in (a2.get(\"write_arg_enum\") or []):"
+   ],
+   [
+    "t2_gate_patch.py",
+    11263,
+    "_ens = (a2 or {}).get(\"write_arg_enum\") or []"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 15700,
+  "n_fields": 15,
+  "n_fields_known": 12,
+  "fields_unknown": [
+   "savings",
+   "business_savings",
+   "business_checking"
+  ],
+  "schema_ratio": 0.8,
+  "n_slots": 6,
+  "n_slots_known": 6,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 9,
+  "leaves": {
+   "ident": 82,
+   "prose": 11,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 1721
+  },
+  "n_leaves": 93,
+  "prose_share": 0.118,
+  "prose_bytes": 1721
+ },
+ "have_value_reask": {
+  "key": "have_value_reask",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "write",
+     "producer",
+     "producer_marker",
+     "arg",
+     "value_pattern",
+     "reask_signals"
+    ],
+    "bytes": 1569
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8173,
+    "hv_specs = (a2.get(\"have_value_reask\") or []) \\"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1569,
+  "n_fields": 7,
+  "n_fields_known": 7,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 7,
+  "leaves": {
+   "ident": 3,
+   "prose": 1,
+   "short": 8,
+   "num": 0,
+   "prose_bytes": 432
+  },
+  "n_leaves": 12,
+  "prose_share": 0.083,
+  "prose_bytes": 432
+ },
+ "value_acquisition": {
+  "key": "value_acquisition",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "write",
+     "arg",
+     "acquire_tool",
+     "give_tool",
+     "producer_marker",
+     "reask_signals"
+    ],
+    "bytes": 1392
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3476,
+    "for v in (a2.get(\"value_acquisition\") or []):"
+   ],
+   [
+    "t2_gate_patch.py",
+    8176,
+    "va_specs = (a2.get(\"value_acquisition\") or []) \\"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1392,
+  "n_fields": 7,
+  "n_fields_known": 7,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 7,
+  "leaves": {
+   "ident": 4,
+   "prose": 1,
+   "short": 7,
+   "num": 0,
+   "prose_bytes": 444
+  },
+  "n_leaves": 12,
+  "prose_share": 0.083,
+  "prose_bytes": 444
+ },
+ "view_field_annotations": {
+  "key": "view_field_annotations",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "contains",
+     "note",
+     "_note"
+    ],
+    "bytes": 1243
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8205,
+    "_vas = a2.get(\"view_field_annotations\") or []"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1243,
+  "n_fields": 2,
+  "n_fields_known": 2,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 2,
+  "leaves": {
+   "ident": 0,
+   "prose": 1,
+   "short": 2,
+   "num": 0,
+   "prose_bytes": 571
+  },
+  "n_leaves": 3,
+  "prose_share": 0.333,
+  "prose_bytes": 571
+ },
+ "unavailable_tools": {
+  "key": "unavailable_tools",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 1,
+    "sample": [
+     "KB_search_dense"
+    ],
+    "bytes": 213
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_scaffold_get.py",
+    3245,
+    "and getattr(tc, \"name\", None) in ((a2 or {}).get(\"unavailable_tools\") or {})"
+   ],
+   [
+    "t2_scaffold_get.py",
+    3251,
+    "_msg = a2[\"unavailable_tools\"][getattr(tc, \"name\")]"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_scaffold_get.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 213,
+  "n_fields": 1,
+  "n_fields_known": 0,
+  "fields_unknown": [
+   "KB_search_dense"
+  ],
+  "schema_ratio": 0.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 1,
+  "leaves": {
+   "ident": 0,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 190
+  },
+  "n_leaves": 1,
+  "prose_share": 1.0,
+  "prose_bytes": 190
+ },
+ "nonlisted_tool_feedback": {
+  "key": "nonlisted_tool_feedback",
+  "in": {
+   "banking_knowledge": {
+    "t": "str",
+    "n": 280,
+    "sample": "Discoverable agent tools must first be unlocked with unlock_discoverable_agent_tool(agent_tool_name=...) and then invoked through call_discoverable_agent_tool(agent_tool_name=..., arguments=...); disc",
+    "bytes": 282
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    10748,
+    "_extra = str((a2 or {}).get(\"nonlisted_tool_feedback\") or \"\").strip()"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 282,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 0,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 280
+  },
+  "n_leaves": 1,
+  "prose_share": 1.0,
+  "prose_bytes": 280
+ },
+ "discoverable_name_check": {
+  "key": "discoverable_name_check",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 17,
+    "sample": [
+     "feedback_wrong_suffix",
+     "_note_feedback_wrong_suffix",
+     "feedback_not_discoverable",
+     "feedback_registry_listing",
+     "_note_feedback_registry_listing",
+     "_note_not_discoverable"
+    ],
+    "bytes": 8300
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8800,
+    "pattern=((a2 or {}).get(\"discoverable_name_check\") or {}).get(\"pattern\"))"
+   ],
+   [
+    "t2_gate_patch.py",
+    8873,
+    "_pat = ((a2 or {}).get(\"discoverable_name_check\") or {}).get(\"pattern\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    10936,
+    "_unspec = (a2 or {}).get(\"discoverable_name_check\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    11841,
+    "_dnc = (a2 or {}).get(\"discoverable_name_check\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    13040,
+    "pattern=((a2 or {}).get(\"discoverable_name_check\") or {}).get(\"pattern\"))"
+   ],
+   [
+    "t2_gate_patch.py",
+    13104,
+    "_ns = (a2 or {}).get(\"discoverable_name_check\") or {}"
+   ]
+  ],
+  "n_sites": 6,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 8300,
+  "n_fields": 11,
+  "n_fields_known": 10,
+  "fields_unknown": [
+   "feedback_resolved"
+  ],
+  "schema_ratio": 0.909,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 11,
+  "leaves": {
+   "ident": 3,
+   "prose": 7,
+   "short": 1,
+   "num": 0,
+   "prose_bytes": 2048
+  },
+  "n_leaves": 11,
+  "prose_share": 0.636,
+  "prose_bytes": 2048
+ },
+ "dispatcher_role_check": {
+  "key": "dispatcher_role_check",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 12,
+    "sample": [
+     "unlock_tool",
+     "agent_call",
+     "give_tool",
+     "user_call",
+     "name_args",
+     "give_agent_tool_feedback"
+    ],
+    "bytes": 3496
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3723,
+    "spec = ((a2 or {}).get(\"dispatcher_role_check\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    4583,
+    "spec = ((a2 or {}).get(\"dispatcher_role_check\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    10799,
+    "_drs = (a2 or {}).get(\"dispatcher_role_check\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    11034,
+    "_na3 = dict(((a2 or {}).get(\"dispatcher_role_check\") or {}).get(\"name_args\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    13298,
+    "_gtn2 = ((a2 or {}).get(\"dispatcher_role_check\") or {}).get(\"give_tool\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    13369,
+    "_gtn = ((a2 or {}).get(\"dispatcher_role_check\") or {}).get(\"give_tool\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    13446,
+    "_gtn3 = ((a2 or {}).get(\"dispatcher_role_check\") or {}).get(\"give_tool\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    13447,
+    "_ucall = ((a2 or {}).get(\"dispatcher_role_check\") or {}).get(\"user_call\")"
+   ],
+   [
+    "t2_prekb_patch.py",
+    618,
+    "_drc = ((a2 or {}).get(\"dispatcher_role_check\") or {})"
+   ],
+   [
+    "t2_source.py",
+    59,
+    "drc = ((a2 or {}).get(\"dispatcher_role_check\") or {})"
+   ],
+   [
+    "t2_source.py",
+    364,
+    "A2 = {\"dispatcher_role_check\": {\"name_args\": {\"give_discoverable_user_tool\": \"discoverable_tool_name\"}}}"
+   ]
+  ],
+  "n_sites": 11,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_prekb_patch.py",
+   "t2_source.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 3496,
+  "n_fields": 15,
+  "n_fields_known": 15,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 15,
+  "leaves": {
+   "ident": 8,
+   "prose": 6,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 1669
+  },
+  "n_leaves": 14,
+  "prose_share": 0.429,
+  "prose_bytes": 1669
+ },
+ "param_cap_check": {
+  "key": "param_cap_check",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "applies_when",
+     "param",
+     "record_key_field",
+     "record_require",
+     "limit_field"
+    ],
+    "bytes": 1542
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    9480,
+    "_pcs = (a2 or {}).get(\"param_cap_check\") or []"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1542,
+  "n_fields": 24,
+  "n_fields_known": 12,
+  "fields_unknown": [
+   "Silver Zoom Card",
+   "Business Bronze Rewards Card",
+   "Diamond Elite Card",
+   "Green Rewards Card",
+   "Business Gold Rewards Card",
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card",
+   "Business Silver Rewards Card",
+   "Business Platinum Rewards Card",
+   "EcoCard",
+   "Bronze Rewards Card"
+  ],
+  "schema_ratio": 0.5,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 24,
+  "leaves": {
+   "ident": 9,
+   "prose": 1,
+   "short": 0,
+   "num": 12,
+   "prose_bytes": 364
+  },
+  "n_leaves": 22,
+  "prose_share": 0.045,
+  "prose_bytes": 364
+ },
+ "prescription_redirect": {
+  "key": "prescription_redirect",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "arg",
+     "prefix",
+     "signals",
+     "requires_absent_tool",
+     "feedback"
+    ],
+    "bytes": 1918
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    10771,
+    "_prs = (a2 or {}).get(\"prescription_redirect\") or []"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1918,
+  "n_fields": 6,
+  "n_fields_known": 6,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 6,
+  "leaves": {
+   "ident": 7,
+   "prose": 1,
+   "short": 8,
+   "num": 0,
+   "prose_bytes": 604
+  },
+  "n_leaves": 16,
+  "prose_share": 0.062,
+  "prose_bytes": 604
+ },
+ "ref_iso": {
+  "key": "ref_iso",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "applies_when",
+     "param",
+     "producer_tools",
+     "id_pattern",
+     "_note"
+    ],
+    "bytes": 858
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8749,
+    "and (a2 or {}).get(\"ref_iso\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    8752,
+    "_ref_iso_repair(self, la, UserMessage, state.messages, am, (a2 or {}).get(\"ref_iso\"))"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 858,
+  "n_fields": 8,
+  "n_fields_known": 8,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 8,
+  "leaves": {
+   "ident": 5,
+   "prose": 0,
+   "short": 2,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 7,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "ref_verify": {
+  "key": "ref_verify",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "applies_when",
+     "id_key",
+     "record_field",
+     "feedback",
+     "_note"
+    ],
+    "bytes": 1270
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8169,
+    "rv_specs = (a2.get(\"ref_verify\") or []) \\"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1270,
+  "n_fields": 7,
+  "n_fields_known": 7,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 7,
+  "leaves": {
+   "ident": 5,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 409
+  },
+  "n_leaves": 6,
+  "prose_share": 0.167,
+  "prose_bytes": 409
+ },
+ "arg_producers": {
+  "key": "arg_producers",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 1,
+    "sample": [
+     "card_last_4_digits"
+    ],
+    "bytes": 63
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_prekb_patch.py",
+    277,
+    "ap = (a2 or {}).get(\"arg_producers\") or {}"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_prekb_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 63,
+  "n_fields": 2,
+  "n_fields_known": 1,
+  "fields_unknown": [
+   "card_last_4_digits"
+  ],
+  "schema_ratio": 0.5,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 2,
+  "leaves": {
+   "ident": 1,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 1,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "tool_signatures": {
+  "key": "tool_signatures",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 1,
+    "sample": [
+     "give_discoverable_user_tool"
+    ],
+    "bytes": 59
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_signature.py",
+    19,
+    "\"tool_signatures\": {\"give_discoverable_user_tool\": [\"discoverable_tool_name\"]}"
+   ],
+   [
+    "t2_signature.py",
+    32,
+    "sig = ((a2 or {}).get(\"tool_signatures\") or {}).get(tool_name)"
+   ],
+   [
+    "t2_signature.py",
+    55,
+    "A2 = {\"tool_signatures\": {\"give_discoverable_user_tool\": [\"discoverable_tool_name\"]}}"
+   ]
+  ],
+  "n_sites": 3,
+  "site_files": [
+   "t2_signature.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 59,
+  "n_fields": 1,
+  "n_fields_known": 1,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 1,
+  "leaves": {
+   "ident": 1,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 1,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "transfer_reason_policy": {
+  "key": "transfer_reason_policy",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 6,
+    "sample": [
+     "applies_to",
+     "reason_arg",
+     "tiers",
+     "signals",
+     "note",
+     "_note"
+    ],
+    "bytes": 1778
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    14487,
+    "_tp = (a2 or {}).get(\"transfer_reason_policy\") or {}"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1778,
+  "n_fields": 27,
+  "n_fields_known": 9,
+  "fields_unknown": [
+   "customer_requests_human_no_specific_reason",
+   "customer_frustrated_demands_human",
+   "kb_search_unsuccessful_customer_requests_transfer",
+   "abusive_customer_behavior",
+   "third_party_inquiry",
+   "account_ownership_dispute",
+   "supervisor_request_service_complaint",
+   "customer_demands_after_unavailable_offer_refusal",
+   "fraud_or_security_concern",
+   "request_completed_customer_wants_human_followup",
+   "specialized_department_required",
+   "accessibility_or_special_needs"
+  ],
+  "schema_ratio": 0.333,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 27,
+  "leaves": {
+   "ident": 3,
+   "prose": 1,
+   "short": 3,
+   "num": 19,
+   "prose_bytes": 380
+  },
+  "n_leaves": 26,
+  "prose_share": 0.038,
+  "prose_bytes": 380
+ },
+ "transcription_check": {
+  "key": "transcription_check",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 5,
+    "sample": [
+     "get_reward_discrepancies",
+     "_note",
+     "_feedback_source",
+     "_feedback_unknown",
+     "_feedback"
+    ],
+    "bytes": 2787
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8952,
+    "_trs = (a2 or {}).get(\"transcription_check\") or {}"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 2787,
+  "n_fields": 8,
+  "n_fields_known": 6,
+  "fields_unknown": [
+   "field_sources",
+   "account_open"
+  ],
+  "schema_ratio": 0.75,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 8,
+  "leaves": {
+   "ident": 12,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 12,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "search_exhaust_escalation": {
+  "key": "search_exhaust_escalation",
+  "in": {
+   "banking_knowledge": {
+    "t": "str",
+    "n": 523,
+    "sample": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description",
+    "bytes": 525
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    13610,
+    "% (_stubs, (a2 or {}).get(\"search_exhaust_escalation\") or \"\"),"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 525,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 0,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 523
+  },
+  "n_leaves": 1,
+  "prose_share": 1.0,
+  "prose_bytes": 523
+ },
+ "tool_unlock_hint": {
+  "key": "tool_unlock_hint",
+  "in": {
+   "banking_knowledge": {
+    "t": "str",
+    "n": 233,
+    "sample": "The tool(s) for that step are {tools} and they have not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly those names first. Do not search the knowledge base for th",
+    "bytes": 235
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    13695,
+    "_uh = (a2 or {}).get(\"tool_unlock_hint\")"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 235,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 0,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 233
+  },
+  "n_leaves": 1,
+  "prose_share": 1.0,
+  "prose_bytes": 233
+ },
+ "require_doc_before": {
+  "key": "require_doc_before",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 3,
+    "sample": [
+     "tools",
+     "feedback",
+     "_note"
+    ],
+    "bytes": 1157
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3915,
+    "pdc = (a2 or {}).get(\"require_doc_before\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    9091,
+    "_pdc = (a2 or {}).get(\"require_doc_before\") or {}"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1157,
+  "n_fields": 2,
+  "n_fields_known": 2,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 2,
+  "leaves": {
+   "ident": 4,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 434
+  },
+  "n_leaves": 5,
+  "prose_share": 0.2,
+  "prose_bytes": 434
+ },
+ "withdrawn_row_check": {
+  "key": "withdrawn_row_check",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 4,
+    "sample": [
+     "settle_tool",
+     "submit_tool",
+     "feedback",
+     "_note"
+    ],
+    "bytes": 1579
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    9039,
+    "_wds = (a2 or {}).get(\"withdrawn_row_check\") or {}"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1579,
+  "n_fields": 3,
+  "n_fields_known": 3,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 3,
+  "leaves": {
+   "ident": 2,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 356
+  },
+  "n_leaves": 3,
+  "prose_share": 0.333,
+  "prose_bytes": 356
+ },
+ "procedures": {
+  "key": "procedures",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 6,
+    "elem": "dict",
+    "sample": [
+     "id",
+     "_source",
+     "_quote_order",
+     "enforce",
+     "_note_enforce",
+     "enter_when"
+    ],
+    "bytes": 22875
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3695,
+    "procs = (a2 or {}).get(\"procedures\") or []"
+   ],
+   [
+    "t2_gate_patch.py",
+    8779,
+    "_procs = ((a2 or {}).get(\"procedures\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    13045,
+    "_procsR = ((a2 or {}).get(\"procedures\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    13798,
+    "_procs = (a2 or {}).get(\"procedures\") or []"
+   ],
+   [
+    "t2_resolve.py",
+    1236,
+    "for _pr in ((a2 or {}).get(\"procedures\") or []):"
+   ],
+   [
+    "t2_speak.py",
+    41,
+    "return (a2 or {}).get(\"procedures\") or []"
+   ]
+  ],
+  "n_sites": 6,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py",
+   "t2_speak.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 22875,
+  "n_fields": 42,
+  "n_fields_known": 12,
+  "fields_unknown": [
+   "tool_any",
+   "entry",
+   "mid",
+   "premium",
+   "enter_when",
+   "unmet",
+   "absent_many",
+   "absent",
+   "unlock_hint",
+   "enforce",
+   "tables",
+   "arg_table_unknown_key"
+  ],
+  "schema_ratio": 0.286,
+  "n_slots": 14,
+  "n_slots_known": 4,
+  "slots_unknown": [
+   "tool_any",
+   "mid",
+   "entry",
+   "premium",
+   "enter_when",
+   "unlock_hint",
+   "enforce",
+   "absent_many",
+   "absent",
+   "unmet"
+  ],
+  "slot_ratio": 0.286,
+  "n_content_only": 28,
+  "leaves": {
+   "ident": 92,
+   "prose": 27,
+   "short": 0,
+   "num": 30,
+   "prose_bytes": 5450
+  },
+  "n_leaves": 149,
+  "prose_share": 0.181,
+  "prose_bytes": 5450
+ },
+ "choice_grounding": {
+  "key": "choice_grounding",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "tool",
+     "arg",
+     "feedback"
+    ],
+    "bytes": 418
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3193,
+    "for cg in (a2.get(\"choice_grounding\") or []):"
+   ],
+   [
+    "t2_gate_patch.py",
+    11585,
+    "_wrset |= {c.get(\"tool\") for c in ((a2 or {}).get(\"choice_grounding\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    14255,
+    "_cg = (a2 or {}).get(\"choice_grounding\") or []"
+   ]
+  ],
+  "n_sites": 3,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 418,
+  "n_fields": 3,
+  "n_fields_known": 3,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 3,
+  "leaves": {
+   "ident": 2,
+   "prose": 1,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 342
+  },
+  "n_leaves": 3,
+  "prose_share": 0.333,
+  "prose_bytes": 342
+ },
+ "arbitration": {
+  "key": "arbitration",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 6,
+    "sample": [
+     "dominated_push_feedback",
+     "merged_requirement_feedback",
+     "_note_merged",
+     "_note",
+     "unsourced_claim_feedback",
+     "_note_unsourced"
+    ],
+    "bytes": 4988
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_dominance.py",
+    118,
+    "tpl = str((((a2 or {}).get(\"arbitration\") or {}).get(\"dominated_push_feedback\"))"
+   ],
+   [
+    "t2_dominance.py",
+    359,
+    "tpl = str((((a2 or {}).get(\"arbitration\") or {}).get(\"cleared_feedback\"))"
+   ],
+   [
+    "t2_dominance.py",
+    374,
+    "tpl = str((((a2 or {}).get(\"arbitration\") or {}).get(\"dominated_push_feedback\"))"
+   ],
+   [
+    "t2_dominance.py",
+    390,
+    "tpl = str((((a2 or {}).get(\"arbitration\") or {}).get(\"merged_requirement_feedback\"))"
+   ],
+   [
+    "t2_gate_patch.py",
+    10028,
+    "_tpl2 = (((a2 or {}).get(\"arbitration\") or {})"
+   ],
+   [
+    "t2_source.py",
+    335,
+    "tpl = str((((a2 or {}).get(\"arbitration\") or {}).get(\"unsourced_claim_feedback\"))"
+   ]
+  ],
+  "n_sites": 6,
+  "site_files": [
+   "t2_dominance.py",
+   "t2_gate_patch.py",
+   "t2_source.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 4988,
+  "n_fields": 3,
+  "n_fields_known": 3,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 3,
+  "leaves": {
+   "ident": 0,
+   "prose": 3,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 1142
+  },
+  "n_leaves": 3,
+  "prose_share": 1.0,
+  "prose_bytes": 1142
+ },
+ "suppression_authority": {
+  "key": "suppression_authority",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 3,
+    "sample": [
+     "phase_owner",
+     "speak_prohibit",
+     "_note"
+    ],
+    "bytes": 1519
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_authority.py",
+    40,
+    "spec = ((a2 or {}).get(\"suppression_authority\") or {}).get(key)"
+   ],
+   [
+    "t2_authority.py",
+    71,
+    "A2 = {\"suppression_authority\": {"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_authority.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1519,
+  "n_fields": 5,
+  "n_fields_known": 2,
+  "fields_unknown": [
+   "silences",
+   "phase_owner",
+   "speak_prohibit"
+  ],
+  "schema_ratio": 0.4,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 5,
+  "leaves": {
+   "ident": 2,
+   "prose": 3,
+   "short": 1,
+   "num": 0,
+   "prose_bytes": 447
+  },
+  "n_leaves": 6,
+  "prose_share": 0.5,
+  "prose_bytes": 447
+ },
+ "relations": {
+  "key": "relations",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 5,
+    "sample": [
+     "_note",
+     "declarations",
+     "edges",
+     "by_tool",
+     "_note_requires_reads_2026_08_21"
+    ],
+    "bytes": 10515
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    2617,
+    "rel = ((a2 or {}).get(\"relations\") or {}).get(\"by_tool\") or {}"
+   ],
+   [
+    "t2_precedence.py",
+    80,
+    "decls = (((a2 or {}).get(\"relations\") or {}).get(\"declarations\")) or _raw_declarations(a2)"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_precedence.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 10515,
+  "n_fields": 29,
+  "n_fields_known": 10,
+  "fields_unknown": [
+   "gate_satisfiers",
+   "pay_credit_card_from_checking",
+   "log_verification",
+   "apply_savings_account_credit",
+   "file_debit_card_transaction_dispute",
+   "get_interest_correction",
+   "open_bank_account",
+   "get_correct_savings_apy",
+   "submit_interest_discrepancy_report",
+   "apply_checking_account_credit",
+   "check_cli_eligibility",
+   "get_atm_fee_discrepancies"
+  ],
+  "schema_ratio": 0.345,
+  "n_slots": 6,
+  "n_slots_known": 5,
+  "slots_unknown": [
+   "gate_satisfiers"
+  ],
+  "slot_ratio": 0.833,
+  "n_content_only": 23,
+  "leaves": {
+   "ident": 104,
+   "prose": 7,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 4334
+  },
+  "n_leaves": 111,
+  "prose_share": 0.063,
+  "prose_bytes": 4334
+ },
+ "policy_ontology": {
+  "key": "policy_ontology",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 32,
+    "sample": [
+     "axes",
+     "_note_axes_stated",
+     "axes_stated",
+     "rows",
+     "targeted_contains",
+     "doc_index"
+    ],
+    "bytes": 155982
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "gate_interpreter.py",
+    138,
+    "onto = merged.get(\"policy_ontology\") or {}"
+   ],
+   [
+    "gate_interpreter.py",
+    160,
+    "if k == \"policy_ontology\":"
+   ],
+   [
+    "t2_gate_patch.py",
+    217,
+    "_po = (a2 or {}).get(\"policy_ontology\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    4190,
+    "_po = (a2.get(\"policy_ontology\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    4955,
+    "a3=((a2 or {}).get(\"policy_ontology\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    5052,
+    "_a3r = ((a2 or {}).get(\"policy_ontology\") or {}).get(\"rows\") or ()"
+   ],
+   [
+    "t2_gate_patch.py",
+    5083,
+    "_po9 = (a2 or {}).get(\"policy_ontology\") or {}"
+   ],
+   [
+    "t2_gate_patch.py",
+    5143,
+    "_po2 = ((a2 or {}).get(\"policy_ontology\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    5241,
+    "_axall = (((a2 or {}).get(\"policy_ontology\") or {}).get(\"axes\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    9547,
+    "_lax = len([_g9 for _g9 in (((a2 or {}).get(\"policy_ontology\") or {})"
+   ],
+   [
+    "t2_gate_patch.py",
+    11272,
+    "_di = ((a2 or {}).get(\"policy_ontology\") or {}).get(\"doc_index\") or {}"
+   ],
+   [
+    "t2_search.py",
+    43,
+    "return ((a2 or {}).get(\"policy_ontology\") or {}).get(\"rows\") or []"
+   ],
+   [
+    "t2_search.py",
+    61,
+    "return ((a2 or {}).get(\"policy_ontology\") or {})"
+   ]
+  ],
+  "n_sites": 13,
+  "site_files": [
+   "gate_interpreter.py",
+   "t2_gate_patch.py",
+   "t2_search.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 155982,
+  "n_fields": 131,
+  "n_fields_known": 32,
+  "fields_unknown": [
+   "when",
+   "against",
+   "compare",
+   "consumers",
+   "quote_match",
+   "basis",
+   "scope",
+   "operand_arg",
+   "company_max_age_years",
+   "everyone_pay",
+   "virtual_card_management",
+   "qualifying_deposit_usd"
+  ],
+  "schema_ratio": 0.244,
+  "n_slots": 20,
+  "n_slots_known": 12,
+  "slots_unknown": [
+   "consumers",
+   "quote_match",
+   "basis",
+   "compare",
+   "against",
+   "when",
+   "scope",
+   "operand_arg"
+  ],
+  "slot_ratio": 0.6,
+  "n_content_only": 111,
+  "leaves": {
+   "ident": 1579,
+   "prose": 341,
+   "short": 389,
+   "num": 148,
+   "prose_bytes": 47735
+  },
+  "n_leaves": 2457,
+  "prose_share": 0.139,
+  "prose_bytes": 47735
+ },
+ "write_initiation": {
+  "key": "write_initiation",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 7,
+    "sample": [
+     "instructions",
+     "answer_format",
+     "delivery_template",
+     "basis_max_chars",
+     "temperature",
+     "_note"
+    ],
+    "bytes": 1771
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    8361,
+    "((a2.get(\"write_initiation\") or {})"
+   ],
+   [
+    "t2_resolve.py",
+    691,
+    "spec = (a2 or {}).get(\"write_initiation\") or {}"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 1771,
+  "n_fields": 6,
+  "n_fields_known": 6,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 6,
+  "leaves": {
+   "ident": 1,
+   "prose": 3,
+   "short": 0,
+   "num": 2,
+   "prose_bytes": 784
+  },
+  "n_leaves": 6,
+  "prose_share": 0.5,
+  "prose_bytes": 784
+ },
+ "catalog_attrs": {
+  "key": "catalog_attrs",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 16,
+    "sample": [
+     "monthly_maintenance_fee",
+     "waiver_min_daily_balance",
+     "overdraft_fee",
+     "overdraft_protection_transfer_fee",
+     "oon_atm_fee",
+     "free_oon_atm_per_month"
+    ],
+    "bytes": 4248
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [],
+  "n_sites": 0,
+  "site_files": [],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 4248,
+  "n_fields": 28,
+  "n_fields_known": 0,
+  "fields_unknown": [
+   "type",
+   "value",
+   "example",
+   "class",
+   "n_documented",
+   "quote",
+   "aliases",
+   "unit_votes",
+   "USD",
+   "count",
+   "percent",
+   "text"
+  ],
+  "schema_ratio": 0.0,
+  "n_slots": 12,
+  "n_slots_known": 0,
+  "slots_unknown": [
+   "quote",
+   "type",
+   "aliases",
+   "example",
+   "value",
+   "class",
+   "n_documented",
+   "unit_votes",
+   "USD",
+   "count",
+   "percent",
+   "text"
+  ],
+  "slot_ratio": 0.0,
+  "n_content_only": 16,
+  "leaves": {
+   "ident": 27,
+   "prose": 10,
+   "short": 59,
+   "num": 36,
+   "prose_bytes": 584
+  },
+  "n_leaves": 132,
+  "prose_share": 0.076,
+  "prose_bytes": 584
+ },
+ "catalog_arg_families": {
+  "key": "catalog_arg_families",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 2,
+    "sample": [
+     "account_class",
+     "card_type"
+    ],
+    "bytes": 175
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [],
+  "n_sites": 0,
+  "site_files": [],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 175,
+  "n_fields": 2,
+  "n_fields_known": 0,
+  "fields_unknown": [
+   "card_type",
+   "account_class"
+  ],
+  "schema_ratio": 0.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 2,
+  "leaves": {
+   "ident": 6,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 6,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "catalog_arg_docs": {
+  "key": "catalog_arg_docs",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 1,
+    "sample": [
+     "spend_category"
+    ],
+    "bytes": 2993
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_scaffold_get.py",
+    2773,
+    "_cad = (d.get(\"catalog_arg_docs\")"
+   ],
+   [
+    "t2_scaffold_get.py",
+    2774,
+    "or ((getattr(self, \"_t2_sg_a2\", None) or {}).get(\"catalog_arg_docs\"))"
+   ],
+   [
+    "t2_scaffold_get.py",
+    2874,
+    "_cidx = ((d.get(\"catalog_arg_docs\") or {}).get(\"spend_category\") or {})"
+   ],
+   [
+    "t2_scaffold_get.py",
+    2877,
+    "_cidx = (((getattr(self, \"_t2_sg_a2\", None) or {}).get(\"catalog_arg_docs\")"
+   ]
+  ],
+  "n_sites": 4,
+  "site_files": [
+   "t2_scaffold_get.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 2993,
+  "n_fields": 6,
+  "n_fields_known": 1,
+  "fields_unknown": [
+   "media_advertising",
+   "green",
+   "software",
+   "operations",
+   "travel"
+  ],
+  "schema_ratio": 0.167,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 6,
+  "leaves": {
+   "ident": 8,
+   "prose": 2,
+   "short": 10,
+   "num": 0,
+   "prose_bytes": 120
+  },
+  "n_leaves": 20,
+  "prose_share": 0.1,
+  "prose_bytes": 120
+ },
+ "arg_source_reads": {
+  "key": "arg_source_reads",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 20,
+    "sample": [
+     "_note",
+     "account_id",
+     "_note_account_id",
+     "checking_account_id",
+     "source_account_id",
+     "destination_account_id"
+    ],
+    "bytes": 3956
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    1015,
+    "asr = {k: v for k, v in ((a2 or {}).get(\"arg_source_reads\") or {}).items()"
+   ],
+   [
+    "t2_gate_patch.py",
+    2616,
+    "amap = (a2 or {}).get(\"arg_source_reads\") or {}"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 3956,
+  "n_fields": 13,
+  "n_fields_known": 7,
+  "fields_unknown": [
+   "shipping_address",
+   "card_id",
+   "source_account_id",
+   "credit_card_account_id",
+   "transaction_id",
+   "destination_account_id"
+  ],
+  "schema_ratio": 0.538,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 13,
+  "leaves": {
+   "ident": 21,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 21,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "enum_priority": {
+  "key": "enum_priority",
+  "in": {
+   "banking_knowledge": {
+    "t": "dict",
+    "n": 6,
+    "sample": [
+     "applies_to",
+     "general",
+     "_source_general",
+     "with_examples",
+     "_source_with_examples",
+     "_note_"
+    ],
+    "bytes": 2536
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [],
+  "n_sites": 0,
+  "site_files": [],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 2536,
+  "n_fields": 3,
+  "n_fields_known": 0,
+  "fields_unknown": [
+   "general",
+   "applies_to",
+   "with_examples"
+  ],
+  "schema_ratio": 0.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 3,
+  "leaves": {
+   "ident": 4,
+   "prose": 2,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 716
+  },
+  "n_leaves": 6,
+  "prose_share": 0.333,
+  "prose_bytes": 716
+ },
+ "write_rules": {
+  "key": "write_rules",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 3,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "text",
+     "_note_",
+     "_note_source_"
+    ],
+    "bytes": 3861
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    3321,
+    "for sp in ((a2 or {}).get(\"write_rules\") or []):"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 3861,
+  "n_fields": 2,
+  "n_fields_known": 2,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 2,
+  "n_slots_known": 2,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 3,
+   "prose": 3,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 370
+  },
+  "n_leaves": 6,
+  "prose_share": 0.5,
+  "prose_bytes": 370
+ },
+ "write_once_keys": {
+  "key": "write_once_keys",
+  "in": {
+   "banking_knowledge": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "applies_when",
+     "keys",
+     "_note_",
+     "_note_source_"
+    ],
+    "bytes": 776
+   }
+  },
+  "file_layer": {
+   "banking_knowledge": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    5501,
+    "specs = (a2 or {}).get(\"write_once_keys\") or []"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "banking_knowledge"
+  ],
+  "n_domains": 1,
+  "bytes_total": 776,
+  "n_fields": 5,
+  "n_fields_known": 5,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 5,
+  "leaves": {
+   "ident": 5,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 5,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "placeholders": {
+  "key": "placeholders",
+  "in": {
+   "retail": {
+    "t": "list",
+    "n": 1,
+    "elem": "str",
+    "sample": "[\"#W0000000\"]",
+    "bytes": 13
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    108,
+    "a2[\"_placeholders\"] = set(a2.get(\"placeholders\") or ()) | DEFAULT_PLACEHOLDERS"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 13,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 0,
+   "prose": 0,
+   "short": 1,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 1,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "variant_operand": {
+  "key": "variant_operand",
+  "in": {
+   "retail": {
+    "t": "list",
+    "n": 1,
+    "elem": "str",
+    "sample": "[\"new_item_ids\"]",
+    "bytes": 16
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    12607,
+    "_v_ops = set((a2 or {}).get(\"variant_operand\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    12770,
+    "v_ops = set((a2 or {}).get(\"variant_operand\") or [])"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 16,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 1,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 1,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "variant_spec": {
+  "key": "variant_spec",
+  "in": {
+   "retail": {
+    "t": "dict",
+    "n": 5,
+    "sample": [
+     "trigger_tool",
+     "nested_field",
+     "id_field",
+     "anchor_operand",
+     "tie_break"
+    ],
+    "bytes": 146
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    12771,
+    "v_spec = (a2 or {}).get(\"variant_spec\")"
+   ],
+   [
+    "t2_resolve.py",
+    1267,
+    "v_spec = opspec.get(\"variant_spec\") or (a2 or {}).get(\"variant_spec\")"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 146,
+  "n_fields": 5,
+  "n_fields_known": 2,
+  "fields_unknown": [
+   "id_field",
+   "tie_break",
+   "nested_field"
+  ],
+  "schema_ratio": 0.4,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 5,
+  "leaves": {
+   "ident": 5,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 5,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "present_specs": {
+  "key": "present_specs",
+  "in": {
+   "retail": {
+    "t": "list",
+    "n": 2,
+    "elem": "dict",
+    "sample": [
+     "trigger_tool",
+     "nested_field",
+     "id_field",
+     "fields",
+     "label"
+    ],
+    "bytes": 353
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    1100,
+    "nested_specs = (a2.get(\"present_specs\") or []) if os.environ.get(\"T2_PRESENT_NESTED\") == \"1\" else []"
+   ],
+   [
+    "t2_gate_patch.py",
+    7347,
+    "nested_specs = (a2.get(\"present_specs\") or []) if os.environ.get(\"T2_PRESENT_NESTED\") == \"1\" else []"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 353,
+  "n_fields": 5,
+  "n_fields_known": 1,
+  "fields_unknown": [
+   "id_field",
+   "fields",
+   "label",
+   "nested_field"
+  ],
+  "schema_ratio": 0.2,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 5,
+  "leaves": {
+   "ident": 12,
+   "prose": 0,
+   "short": 2,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 14,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "calc_specs": {
+  "key": "calc_specs",
+  "in": {
+   "retail": {
+    "t": "list",
+    "n": 4,
+    "elem": "dict",
+    "sample": [
+     "trigger_tool",
+     "op",
+     "nested_field",
+     "cond_field",
+     "cond_value",
+     "label"
+    ],
+    "bytes": 815
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    1103,
+    "calc_specs = (a2.get(\"calc_specs\") or []) if os.environ.get(\"T2_CALC\") == \"1\" else []"
+   ],
+   [
+    "t2_gate_patch.py",
+    7348,
+    "calc_specs = (a2.get(\"calc_specs\") or []) if os.environ.get(\"T2_CALC\") == \"1\" else []"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 815,
+  "n_fields": 8,
+  "n_fields_known": 1,
+  "fields_unknown": [
+   "nested_field",
+   "label",
+   "cond_field",
+   "cond_value",
+   "rank_field",
+   "id_field",
+   "item_field"
+  ],
+  "schema_ratio": 0.125,
+  "n_slots": 5,
+  "n_slots_known": 1,
+  "slots_unknown": [
+   "label",
+   "nested_field",
+   "cond_field",
+   "cond_value"
+  ],
+  "slot_ratio": 0.2,
+  "n_content_only": 3,
+  "leaves": {
+   "ident": 20,
+   "prose": 2,
+   "short": 2,
+   "num": 3,
+   "prose_bytes": 100
+  },
+  "n_leaves": 27,
+  "prose_share": 0.074,
+  "prose_bytes": 100
+ },
+ "disamb_sub_args": {
+  "key": "disamb_sub_args",
+  "in": {
+   "retail": {
+    "t": "list",
+    "n": 1,
+    "elem": "str",
+    "sample": "[\"item\"]",
+    "bytes": 8
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    6389,
+    "sub_args = set((a2 or {}).get(\"disamb_sub_args\") or [])  # B2: 치환 화이트리스트는 A2 필드"
+   ],
+   [
+    "t2_gate_patch.py",
+    7764,
+    "sub_args = set((a2d or {}).get(\"disamb_sub_args\") or [])                 # T5-C P-B (B2)"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 8,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 1,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 1,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "default_specs": {
+  "key": "default_specs",
+  "in": {
+   "retail": {
+    "t": "list",
+    "n": 1,
+    "elem": "dict",
+    "sample": [
+     "arg",
+     "resolver_path",
+     "applies_to"
+    ],
+    "bytes": 247
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    2492,
+    "specs = list(a2.get(\"default_specs\") or []) + list(a2.get(\"regen_resolver_specs\") or [])"
+   ],
+   [
+    "t2_gate_patch.py",
+    6138,
+    "specs = (a2 or {}).get(\"default_specs\") or []"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 247,
+  "n_fields": 3,
+  "n_fields_known": 3,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 3,
+  "leaves": {
+   "ident": 8,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 8,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "regen_resolver_specs": {
+  "key": "regen_resolver_specs",
+  "in": {
+   "retail": {
+    "t": "list",
+    "n": 6,
+    "elem": "dict",
+    "sample": [
+     "arg",
+     "resolver_path",
+     "applies_to"
+    ],
+    "bytes": 772
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    2492,
+    "specs = list(a2.get(\"default_specs\") or []) + list(a2.get(\"regen_resolver_specs\") or [])"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 772,
+  "n_fields": 3,
+  "n_fields_known": 3,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 3,
+  "n_slots_known": 3,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 30,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 30,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "calc_tool": {
+  "key": "calc_tool",
+  "in": {
+   "retail": {
+    "t": "str",
+    "n": 9,
+    "sample": "calculate",
+    "bytes": 11
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    12844,
+    "if (os.environ.get(\"T2_NLNUM_PROV\") == \"1\" and (a2 or {}).get(\"calc_tool\")"
+   ],
+   [
+    "t2_gate_patch.py",
+    12851,
+    "fbtxt = NLNUM_FEEDBACK.format(amt=bad[0], tool=a2[\"calc_tool\"])"
+   ]
+  ],
+  "n_sites": 2,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 11,
+  "n_fields": 0,
+  "n_fields_known": 0,
+  "fields_unknown": [],
+  "schema_ratio": null,
+  "n_slots": 0,
+  "n_slots_known": 0,
+  "slots_unknown": [],
+  "slot_ratio": null,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 1,
+   "prose": 0,
+   "short": 0,
+   "num": 0,
+   "prose_bytes": 0
+  },
+  "n_leaves": 1,
+  "prose_share": 0.0,
+  "prose_bytes": 0
+ },
+ "tool_error_specs": {
+  "key": "tool_error_specs",
+  "in": {
+   "retail": {
+    "t": "list",
+    "n": 3,
+    "elem": "dict",
+    "sample": [
+     "applies_to",
+     "match",
+     "class",
+     "hint"
+    ],
+    "bytes": 726
+   }
+  },
+  "file_layer": {
+   "retail": "L3"
+  },
+  "sites": [
+   [
+    "t2_gate_patch.py",
+    2908,
+    "specs = (a2 or {}).get(\"tool_error_specs\") or []"
+   ]
+  ],
+  "n_sites": 1,
+  "site_files": [
+   "t2_gate_patch.py"
+  ],
+  "domains": [
+   "retail"
+  ],
+  "n_domains": 1,
+  "bytes_total": 726,
+  "n_fields": 4,
+  "n_fields_known": 4,
+  "fields_unknown": [],
+  "schema_ratio": 1.0,
+  "n_slots": 4,
+  "n_slots_known": 4,
+  "slots_unknown": [],
+  "slot_ratio": 1.0,
+  "n_content_only": 0,
+  "leaves": {
+   "ident": 8,
+   "prose": 4,
+   "short": 2,
+   "num": 0,
+   "prose_bytes": 370
+  },
+  "n_leaves": 14,
+  "prose_share": 0.286,
+  "prose_bytes": 370
+ }
+}

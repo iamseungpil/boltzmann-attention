@@ -1,0 +1,2653 @@
+{
+ "T2_A2_VARIANT": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ABSTAIN_FIELDS": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ACTIONREQ": {
+  "keys": [
+   "action_tools"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "action_tools"
+   ],
+   "retail": [
+    "action_tools"
+   ],
+   "airline": [
+    "action_tools"
+   ]
+  }
+ },
+ "T2_ACTION_HISTORY": {
+  "keys": [],
+  "files": [
+   "t2_resolve.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ACTION_INDEX": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ACTION_SUB": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ACT_DEMAND": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ARBITRATE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_lever_beat.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ARGSCHEMA": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ARG_AXIS": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ARG_DOC_SUB": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ARG_EMPTY": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ARG_POLICY_AT_WRITE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ARG_PRODUCERS": {
+  "keys": [
+   "dispatcher_role_check"
+  ],
+  "files": [
+   "t2_prekb_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "dispatcher_role_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ARG_REPEAT": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_AXIS": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_AXIS_CLOBBER": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_BLOCK_NOTE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_BRANCH_REGROUND": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CALLABLE_FRONTIER": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CALL_FORM": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CALL_FORM_FIX": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CARD_DOCS": {
+  "keys": [
+   "policy_ontology"
+  ],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_ledger.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "policy_ontology"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CATEGORY_CITE": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CHOICE_GROUND": {
+  "keys": [
+   "axis_notes"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CLAIMPROV": {
+  "keys": [
+   "analysis_producers"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "analysis_producers"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CLAIM_VERIFY": {
+  "keys": [
+   "claim_audit"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_COMPUTE": {
+  "keys": [],
+  "files": [
+   "t2_compute.py",
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CONS": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_COV": {
+  "keys": [
+   "eplan"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "eplan"
+   ],
+   "retail": [
+    "eplan"
+   ],
+   "airline": [
+    "eplan"
+   ]
+  }
+ },
+ "T2_COVERAGE_FU": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CP2_APPEND": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CP2_CLOBBER": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CP2_KEEP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_CP2_TRACK": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_D1C": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DAG": {
+  "keys": [],
+  "files": [
+   "t2_factdag.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DECIDE_ANY": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DECIDE_BEFORE_WRITE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DECISION_CARRY": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DECLFIRST": {
+  "keys": [],
+  "files": [
+   "t2_declfirst.py",
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DEFERRED": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DEGENERATE_AXIS": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DELIVER_PRECOMMIT": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DEMANDED_STEP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DIAG": {
+  "keys": [
+   "policy_ontology"
+  ],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_ledger.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "policy_ontology"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DISAMB": {
+  "keys": [
+   "variant_operand",
+   "variant_spec"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [
+    "variant_operand",
+    "variant_spec"
+   ],
+   "airline": []
+  }
+ },
+ "T2_DISCOVERY_DISPATCH": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DISCOVERY_NAMES": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DISCOVERY_STEP2": {
+  "keys": [],
+  "files": [
+   "t2_resolve.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DISCREQ": {
+  "keys": [
+   "analysis_producers",
+   "assertion_operands"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "analysis_producers",
+    "assertion_operands"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DISPATCH_LEDGER": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DISPATCH_ROLE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DOCDECIDE": {
+  "keys": [],
+  "files": [
+   "t2_search.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DOCGROUP": {
+  "keys": [],
+  "files": [
+   "t2_search.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DOC_DELIVERY": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DUP_WRITE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_DYN_MT": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ELIG": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_search.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ENVGUARD": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_EPLAN": {
+  "keys": [
+   "eplan",
+   "write_arg_grounding",
+   "write_evidence_specs"
+  ],
+  "files": [
+   "t2_eplan_patch.py",
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "eplan",
+    "write_arg_grounding",
+    "write_evidence_specs"
+   ],
+   "retail": [
+    "eplan"
+   ],
+   "airline": [
+    "eplan"
+   ]
+  }
+ },
+ "T2_EPLAN_LISTED_IS_READ": {
+  "keys": [
+   "write_evidence_specs"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "write_evidence_specs"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FAB_STRIP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FAILED_PERSIST": {
+  "keys": [],
+  "files": [
+   "t2_run_gated.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FB_SIDECAR": {
+  "keys": [],
+  "files": [
+   "t2_fbsidecar.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FB_VIEW": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FEXEC": {
+  "keys": [],
+  "files": [
+   "t2_formalize_exec.py",
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FIELD_SOURCE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FN_ISOLATE": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FOLLOWUP": {
+  "keys": [
+   "tool_unlock_hint"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "tool_unlock_hint"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FORCE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FORCE_ACTION": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_FSUB": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_GATE_REGEN": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_GIVE_EXEC": {
+  "keys": [
+   "dispatcher_role_check"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "dispatcher_role_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_GIVE_QUOTE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_GIVE_RELEVANCE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_GIVE_REQUIRED": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_GROUND": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_GROUPORDER": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_GUIDED": {
+  "keys": [],
+  "files": [
+   "t2_guided_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_HANDOFF": {
+  "keys": [
+   "axis_notes"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_HAVE_VALUE": {
+  "keys": [
+   "eplan"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "eplan"
+   ],
+   "retail": [
+    "eplan"
+   ],
+   "airline": [
+    "eplan"
+   ]
+  }
+ },
+ "T2_KB_NOHIT_SURFACE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_KIND": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_ledger.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_L4": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_LEDGER": {
+  "keys": [
+   "calc_specs",
+   "gates",
+   "ledger_metrics",
+   "present_specs"
+  ],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_ledger.py",
+   "t2_lever_beat.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "gates",
+    "ledger_metrics"
+   ],
+   "retail": [
+    "calc_specs",
+    "gates",
+    "present_specs"
+   ],
+   "airline": [
+    "gates"
+   ]
+  }
+ },
+ "T2_LEVER": {
+  "keys": [],
+  "files": [
+   "t2_lever_beat.py",
+   "t2_run_gated.py",
+   "t2_surface_bus.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_LEVER_HEALTH": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_LIMIT_REDUCE": {
+  "keys": [
+   "derived",
+   "policy_ontology"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "derived",
+    "policy_ontology"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_LLM_DIAG": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_MAIN_ANSWERS_ONLY": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_MATCH_COUNT": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_match_count.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_MATERIAL_BYPASS": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_MATERIAL_GATE": {
+  "keys": [
+   "policy_ontology"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "policy_ontology"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_NLNUM": {
+  "keys": [
+   "calc_tool"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [
+    "calc_tool"
+   ],
+   "airline": [
+    "calc_tool"
+   ]
+  }
+ },
+ "T2_NOTICEREP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_NOW_SELFCALL": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_OBJ_AXIS": {
+  "keys": [],
+  "files": [
+   "t2_ledger.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_OPERATOR_DIRECT": {
+  "keys": [],
+  "files": [
+   "t2_resolve.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_OUR_NAMES": {
+  "keys": [],
+  "files": [
+   "t2_resolve.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_OVERFLOW_GUARD": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_OWNERSHIP_FIX": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PAIRCHECK": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PAIRDUMP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PAIRFIX": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PARAM_CAP": {
+  "keys": [
+   "param_cap_check"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "param_cap_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PENDING_DISC": {
+  "keys": [
+   "action_tools"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "action_tools"
+   ],
+   "retail": [
+    "action_tools"
+   ],
+   "airline": [
+    "action_tools"
+   ]
+  }
+ },
+ "T2_PHASE_OWNER": {
+  "keys": [
+   "action_tools"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "action_tools"
+   ],
+   "retail": [
+    "action_tools"
+   ],
+   "airline": [
+    "action_tools"
+   ]
+  }
+ },
+ "T2_PHASE_PRECEDE": {
+  "keys": [
+   "action_tools"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "action_tools"
+   ],
+   "retail": [
+    "action_tools"
+   ],
+   "airline": [
+    "action_tools"
+   ]
+  }
+ },
+ "T2_PIN_READ": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PIN_READ_STEPS": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PREKB": {
+  "keys": [],
+  "files": [
+   "t2_lever_beat.py",
+   "t2_prekb_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PRESCRIPTION": {
+  "keys": [
+   "dispatcher_role_check"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "dispatcher_role_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PRINCIPLE_DEFAULT": {
+  "keys": [
+   "gates"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "gates"
+   ],
+   "retail": [
+    "gates"
+   ],
+   "airline": [
+    "gates"
+   ]
+  }
+ },
+ "T2_PROCEDURE": {
+  "keys": [
+   "discoverable_name_check",
+   "procedures"
+  ],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_procedure.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "discoverable_name_check",
+    "procedures"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PROCEDURE_LEFT": {
+  "keys": [
+   "scaffold_get_tools"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "scaffold_get_tools"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PROC_ABSENT": {
+  "keys": [
+   "transcription_check"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "transcription_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PROD_BIND": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PROMPT_DUMP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_PROV": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_R8": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_R8B": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_READALL": {
+  "keys": [
+   "eplan"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "eplan"
+   ],
+   "retail": [
+    "eplan"
+   ],
+   "airline": [
+    "eplan"
+   ]
+  }
+ },
+ "T2_READ_DEDUP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_READ_NEARDUP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_READ_PER_ENTITY": {
+  "keys": [],
+  "files": [
+   "t2_dominance.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_READ_ROUTINE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_REDERIVE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_ledger.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_REF_ISO": {
+  "keys": [
+   "compute_ops",
+   "ref_iso"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "compute_ops",
+    "ref_iso"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_REQUIRE_DOC": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_REQUIRE_DOC_DELIVER": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_RESOLVE": {
+  "keys": [
+   "compute_ops",
+   "ref_iso"
+  ],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_lever_beat.py",
+   "t2_resolve.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "compute_ops",
+    "ref_iso"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_RESOLVE_CAP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_ROUTE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_RULE_AT_WRITE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SALVAGE": {
+  "keys": [],
+  "files": [
+   "t2_salvage.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SCAFFOLD_GET": {
+  "keys": [
+   "scaffold_get_tools"
+  ],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "scaffold_get_tools"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SCHEMA_ENUM": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SEARCH_AGENT": {
+  "keys": [
+   "ledger_metrics",
+   "policy_ontology"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "ledger_metrics",
+    "policy_ontology"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SEARCH_EXHAUST": {
+  "keys": [
+   "search_exhaust_escalation"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "search_exhaust_escalation"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SEARCH_ON_PROCEED": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SEARCH_REARM": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SELFDECL": {
+  "keys": [
+   "assertion_operands"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "assertion_operands"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_ARGS": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_BYREF": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_DEDUP": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_DOCS": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_GROUND": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_ISOLATE": {
+  "keys": [
+   "operands"
+  ],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "operands"
+   ],
+   "retail": [
+    "operands"
+   ],
+   "airline": []
+  }
+ },
+ "T2_SG_PROMPT_V2": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_RECORD_ORDER": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_REFRAW": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_REQREADS": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_RESULT_RANGE": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_ROUND": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_ROW_COUNT": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_SCHEMA": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_TRACE": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_TRUTH": {
+  "keys": [
+   "unavailable_tools"
+  ],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "unavailable_tools"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SG_WINDOW_ABSTAIN": {
+  "keys": [],
+  "files": [
+   "t2_compute.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SOURCE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SPEAK_PROHIBIT": {
+  "keys": [],
+  "files": [
+   "t2_speak.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SPEC_ARG_FACTS": {
+  "keys": [
+   "policy_ontology",
+   "write_arg_enum"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "policy_ontology",
+    "write_arg_enum"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SPEC_AT_WRITE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SPEC_DIST": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_STACK": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_stack.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_STALE_STRIP": {
+  "keys": [
+   "variant_operand"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [
+    "variant_operand"
+   ],
+   "airline": []
+  }
+ },
+ "T2_SUBCALL": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_subcall.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SUBJ_ALIGN": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_ledger.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SUBWIN": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SUB_RECORDS": {
+  "keys": [],
+  "files": [
+   "t2_search.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SUB_REQUIREMENT": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_search.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SUPPRESS_AUTH": {
+  "keys": [
+   "suppression_authority"
+  ],
+  "files": [
+   "t2_authority.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "suppression_authority"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_SURFACE_BUS": {
+  "keys": [],
+  "files": [
+   "t2_surface_bus.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TOOLERR": {
+  "keys": [
+   "reference_filter"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "reference_filter"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TOOLGATE": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TOOLLIST": {
+  "keys": [
+   "nonlisted_tool_feedback"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "nonlisted_tool_feedback"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TOOL_CHANNEL": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TOOL_NAMES": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_search.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TOOL_SIGNATURE": {
+  "keys": [
+   "discoverable_name_check"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "discoverable_name_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TRANSCRIBE": {
+  "keys": [
+   "withdrawn_row_check"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "withdrawn_row_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TRANSFER_LEAVES_STEPS": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TRANSFER_TIER": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_TRUNCGUARD": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNAVAIL": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNCALLED_UNLOCK": {
+  "keys": [
+   "follow_up_chains"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "follow_up_chains"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNIFIED": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNINSTRUCTABLE": {
+  "keys": [
+   "axis_notes"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNKNOWN_NAME_BL": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNKNOWN_REPEAT": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNLOCK_NAME": {
+  "keys": [
+   "discoverable_name_check"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "discoverable_name_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNLOCK_PROV": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNLOCK_QUIET": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_UNVERIFIED_FU": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_USER_TOOL_NOTE": {
+  "keys": [
+   "axis_notes"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_VALUE_ACQUIRE": {
+  "keys": [
+   "param_cap_check"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "param_cap_check"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_VALUE_FORMULA": {
+  "keys": [],
+  "files": [
+   "t2_scaffold_get.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_VERDICT": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_search.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_VERDICT_GATE": {
+  "keys": [
+   "policy_ontology"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "policy_ontology"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_VERDICT_SURFACE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_VIEW_ANNOTATE": {
+  "keys": [
+   "view_field_annotations"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "view_field_annotations"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_VIEW_COMPACT": {
+  "keys": [
+   "view_field_annotations"
+  ],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "view_field_annotations"
+   ],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WAG_DECOUPLED": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WINDOW": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WITHDRAWN_ROW": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WRITEPROV": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WRITE_ARG_ENUM": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WRITE_ARG_FAB": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WRITE_ARG_TYPE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WRITE_CAP": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WRITE_EVIDENCE": {
+  "keys": [],
+  "files": [
+   "t2_gate_patch.py"
+  ],
+  "declared": {
+   "banking_knowledge": [],
+   "retail": [],
+   "airline": []
+  }
+ },
+ "T2_WRITE_SUB": {
+  "keys": [
+   "eplan"
+  ],
+  "files": [
+   "t2_gate_patch.py",
+   "t2_resolve.py"
+  ],
+  "declared": {
+   "banking_knowledge": [
+    "eplan"
+   ],
+   "retail": [
+    "eplan"
+   ],
+   "airline": [
+    "eplan"
+   ]
+  }
+ }
+}
