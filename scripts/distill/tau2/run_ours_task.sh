@@ -47,6 +47,7 @@ export T2_SG_REQREADS=1 T2_SG_REQREADS_CANON=1
 export T2_SEARCH_EXHAUST_MID=1
 export T2_TOOL_OBS=1
 export T2_GEN_TRACE=1 T2_NO_FORCE_TOOLCHOICE=1 T2_PROBE_TERSE=1 T2_TC_SALVAGE=1 T2_P2_REGEN=1
+export T2_GUIDED_VERBOSE=1   # 어느 표면형으로 문법이 걸렸는지 로그에 남긴다([[81]] 발화 확인)
 export T2_FAILDUMP=$LOG/faildump_${TAG}.jsonl
 export T2_FB_SIDECAR=$LOG/fb_${TAG}.jsonl T2_FB_SIDECAR_TEXT=1
 export T2_TRACE=$LOG/trace_${TAG}.jsonl
