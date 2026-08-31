@@ -1509,7 +1509,10 @@ pass율 격차                    **-14.18%p**
 > **피연산자가 아니다**. 선언 실물 op = `multiply(multiply(principal, multiply(diff(expected_apy,
 > actual_apy), 0.01)), const 1/12)` — 피연산자 3개는 `principal`·`expected_apy`·`actual_apy` 이고
 > `return_template` 에 `period` 문자열이 **없다**(방금 재확인: `'period' in return_template → False`).
-> abstain 게이트는 `t2_scaffold_get.py:381 res is None` 하나뿐이다(리뷰의 `:312` 는 오기·실질 동일).
+> abstain 렌더는 `_render_scalar`(def `:308`)의 **`:314-315`** 다 — `sm["result"] = (res if res
+> is not None else d.get("missing_hint", …))`. ⚠**내가 앞서 `:381` 이라 정정한 것이 틀렸다**:
+> `:381` 은 `_groups_used_note`(def `:358`) 안의 note 억제기이고, 둘 다 `res is None` 을 봐서
+> 헷갈린다. 실질은 동일하되 **인용 자리는 `_render_scalar` 다**(재리뷰 D).
 > ⇒ §P 가 인용한 로그의 abstain 은 **같이 드롭된 `expected_apy=6.875`** 가 만든 것이다
 > (`76fe4144` producer-pin 이 정상 작동한 결과). **날짜 드롭은 방관자였다.**
 > 실물 반증이 이미 우리 문서에 있었다 — `tasks__20260822/TASK_094.md §2.7 [61]`: 두 날짜가 다
@@ -1688,11 +1691,21 @@ P-2·P-3 을 세웠다. 실제 원인축은 **`actual_apy` 접지**이고, 그 �
 이 축이 아무것도 안 산다(그때는 종전대로 드롭) — 그래서 `T2_SG_REQREADS_CANON` 과 짝이다"* ·
 단위검정 `test_derived_grounding.py:162` 도 같은 말을 박아 뒀다. ⇒ **이미 출시됐지만 짝이 없어
 죽어 있는 레버를 켜는 것**이고([[81]]), 유일하게 **채점축(`actual_apy=5.1`)에 닿는다**.
+**⚠남은 작업의 재정의(2026-09-01 라이브 회수)** 플래그는 **이미 1** 이다(위 ⓪). ⇒ P′-1 에서
+남은 것은 **A2 정본 모순 해소 하나**이고, 그 모순이 있는 한 플래그가 켜져 있어도 이 도구는
+**빈 `requires_reads`** 를 읽는다 — *"켜 놓고 효과가 없다"* 의 정확한 기전이다([[81]]).
 **어떻게** ⛔소비자측 플래그로 덮지 마라. [[24]] 대로 **정본 층에서 모순을 해소한다** —
 도구 선언의 `requires_reads` 를 A3 인덱스와 일치시키고, 편집 후 `load_domain_a2` 확인 +
 `test_a2_three_layer.py`. 플래그(`T2_SG_REQREADS_CANON`)는 그 다음이다.
 **[[05]]** A2 선언 수정 = 변경층. 엔진 변경 **0**.
 **[[70]] 파는 것** 거래 read 전에 계산기를 부르던 궤적에서 **턴 1회**(선행 read 요구).
+**⚠순서 안전성 — P′-1 은 P′-2 에 의존하지 않는다 (재리뷰 C · 방금 축자 확인)**
+걱정할 만한 자리였다: `actual_apy` 파생접지의 코퍼스는 `ledger_tools` 인데 거래 read 는 **디스패처
+경유**(`get_bank_account_transactions_9173`)다. `ledger_tools` 가 **생산자 이름으로 걸렀다면**
+OL-A(§P′-2) 때문에 P′-1 이 아무것도 못 사고 순서가 ②→① 로 뒤집혀야 했다. 그러나 `:250` 은
+이름을 보지 않는다 —
+`texts += [_strip_own_feedback(t) for t in (ev.get("__tool_outputs") or {}).values()]` — `.values()`
+라 **키 무관**이다. ⇒ §P′-6 의 ①→② 순서는 안전하다. *(다음 사람이 같은 걱정을 다시 하지 않게 박아 둔다.)*
 **게이트** ⓪(아래) 통과 후 **단독 런** — 반경이 도구 1개라 단독 귀속이 가능하다.
 
 ### §P′-2 (신설 · 리뷰 R-6). 0822 OL-A — 생산자 키 정규화를 큐로 되살린다
@@ -1701,13 +1714,22 @@ P-2·P-3 을 세웠다. 실제 원인축은 **`actual_apy` 접지**이고, 그 �
 동시에 닫는다."* 그런데 §P 는 언급조차 안 했다.
 **축자(미반영 증거·방금 재확인)** `t2_scaffold_get.py:2309`
 `id2name[getattr(tc, "id", None)] = getattr(tc, "name", None)` — **바깥 이름만** 적는다.
-디스패처 경유 호출(`call_discoverable_agent_tool`)이면 생산자 키가 디스패처 이름이 되어
-`tool:<name>` 생산자 고정과 `_evidence_ctx` 가 **서로 다른 이름 공간**을 본다.
+
+**⚠정당화 채널 교체 (재리뷰 B · [[77]])** 처음에 나는 이 수리를 *"`tool:<name>` 생산자 고정이
+깨진다"* 로 정당화했다. 기전은 참이다 — `_fam_name`(`:220-223`)은 `_\d+$` 만 뗄 뿐 `call_` 을 안
+풀고, 핀 대조(`:259-264`)는 `_fam_name(_k) == _fam_name(_nm)` 이므로 생산자가 디스패처 경유면
+핀이 깨진다. **그러나 그 채널은 오늘 관측되지 않는다**: 현존 핀은 `tool:get_correct_savings_apy`
+**하나**이고 그것은 우리 스캐폴드 도구라 디스패처를 안 탄다(094 궤적 `[22] CALL
+get_correct_savings_apy` = 직접 호출). ⇒ **잠재적이지 실측이 아니다.**
+**살아 있는 피해는 0822 가 원래 지목한 쪽**이다 — `producer_contains`/`ref_from_outputs` 가
+디스패처 경유 env read(`get_all_user_accounts_by_user_id_3847`)를 **못 본다**. 정당화는 여기로 둔다.
+**반증조건(갱신 트리거)** `corpus:["tool:<X>"]` 를 가진 필드에서 X 가 discoverable/디스패처 경유가
+되는 순간 그 채널도 살아난다 — **그때 이 문단을 갱신하라.**
 **수리** `_eff_tool_name` 으로 정규화(정본 함수 재사용 · [[67]]). 엔진 국소 1줄.
 **게이트** 단위검정: 디스패처 경유 호출의 생산자 키가 **내부 도구명**으로 기록되는가 ·
 비-디스패처 호출은 바이트 동일.
 
-### §P′-3 (2순위). `fail_feedback` 저작 — 엔진 변경 0 ([[72]] 1회 오프라인 저작)
+### §P′-3 (2순위). `fail_feedback` 저작 — **A층은 엔진 변경 0** ([[72]] 1회 오프라인 저작)
 
 **정정된 사실** 엔진은 드롭 문면을 **이미 A2 에서 읽는다**(`t2_scaffold_get.py:745`
 `scf.get("fail_feedback") or "not found in the records — re-read the exact value"`).
@@ -1719,11 +1741,21 @@ P-2·P-3 을 세웠다. 실제 원인축은 **`actual_apy` 접지**이고, 그 �
 | 층 | 대상 | 개수 | 문면 계약 |
 |---|---|---|---|
 | **A(이번)** | `period_start`·`period_end`·`account_opening_date`·`as_of_date`(kind=date) · `principal`·`current_balance`·`monthly_threshold`·`outstanding_balance`(kind=number) | **8** | *"어느 레코드에서 이 값을 읽어야 하는가"* — 읽을 도구/필드를 이름댄다([[64]]) |
-| **B(측정 후)** | `max_annual_fee`·`max_fx_fee`·`max_min_payment_pct`·`min_cashback`·`credit_score`·`min_credit_limit`·`components`(corpus=`user`/`kb`·kind 없음) | **7** | 드롭 뜻이 다르다 — *"손님이 말한 적 없다"* ⇒ **되물어라**. A 의 문면을 그대로 쓰면 오도한다 |
+| **B-array(엔진 선행)** | `components`(`corpus:['kb']`) | **1** | 문면이 **엔진 하드코딩**(`:700-701` *"source not found in the knowledge base"* / *"the value is not present in the source you cited"*) |
+| **B-intent(엔진 선행)** | `max_annual_fee`·`max_fx_fee`·`max_min_payment_pct`·`min_cashback`·`credit_score`·`min_credit_limit` | **6** | 문면이 **엔진 하드코딩**(`:767-770` *"the customer never mentioned this kind of requirement…"*) · 드롭 뜻도 다르다(**되물어라**) |
+
+**⚠B층은 "측정 후"가 아니라 "A2 저작으로는 불가"다 (재리뷰 A · 방금 축자 확인).**
+`fail_feedback` 을 **읽는 코드는 전 파일에 단 한 곳**(`t2_scaffold_get.py:747`, scalar 경로)뿐이다.
+array·intent 버킷은 문면을 하드코딩하므로, 지금 B층 7개에 `fail_feedback` 을 저작하면 **조용히
+무시된다** — 켠 적 없는 선언이 하나 더 느는 것이고 정확히 [[81]] 이다.
+⇒ **B층에는 각 버킷에 조회 3줄(엔진 변경)이 선행**해야 한다. 그 전에는 저작하지 마라.
+**분모 명시** A층의 분모는 17이 아니라 **scalar 10 중 `fail_feedback` 없는 8**이다
+(전체 17 = scalar 10 + array 1 + intent 6 · 보유 2는 둘 다 scalar).
 
 ⚠B 를 A 와 같은 문장으로 채우지 마라. B 는 **손님에게 되묻는 것**이 해소법이고, A 는 **레코드를
 다시 읽는 것**이 해소법이다. 두 계약을 한 문자열로 묶으면 [[64]] 를 형식만 만족한다.
-**[[05]]** A2 문자열만. 엔진 변경 0 · 새 술어 0.
+**[[05]]** A층은 A2 문자열만 — **엔진 변경 0 · 새 술어 0**(이 진술은 **A층 8개에 한해** 참이다).
+B층은 엔진 조회 3줄이 선행하므로 "엔진 변경 0" 이 **아니다**.
 **게이트** 부호표 불필요(거부 문면은 거동을 안 바꾼다 — **거부 자체는 이미 일어나고 있다**).
 단위검정: 8개 각각에 대해 드롭 시 문면에 **그 필드명 + 해소 행위**가 들어가는지 문자열 대조.
 
@@ -1739,8 +1771,18 @@ P-2·P-3 을 세웠다. 실제 원인축은 **`actual_apy` 접지**이고, 그 �
 
 ### §P′-5. 게이트 ⓪ (착수 전 반드시 · 리뷰 R-7b·R-8)
 
-1. **런처 플래그 일치** — `go_stack.sh` 는 `T2_SG_REQREADS_CANON=0`, `run_ours_task.sh:99` 는
-   `=1` 이다. **어느 런처로 돌았느냐에 따라 P′-1 이 이미 켜져 있었다.** 부호표를 뜨기 전에 맞춘다.
+1. **런처 플래그 일치** — 실측으로 확정했다(2026-09-01).
+   **갈림 지도**: `go_stack.sh:768` 기본 **0**(2026-08-26 선언) ↔ **현역 런처 3개**
+   (`run_ours_task.sh:99` · `run_t7390_airline.sh` · `run_t7391_retail.sh`)가 **1** 로 덮는다.
+   나머지 레거시 런처 ~120개는 0을 상속한다.
+   **라이브 회수(`/proc/<pid>/environ` · [[30]] 계기는 회수돼야 존재)**: 야간런 두 프로세스
+   (1713834 · 1713914) 모두 **`T2_SG_REQREADS_CANON=1`** · `T2_FREE_TEXT_ARG=1` ·
+   `T2_TOOL_SURFACE=qwen3_xml` · `T2_ACTION_CANDSET=1` · **`T2_DECIDE_ANY` 부재**.
+   ⇒ **x712/x713 은 CANON=1 로 돌았다.** P′-1 의 *"짝 켜기"* 절반은 **이미 켜져 있었다**.
+   **해소 방침(선택)** `go_stack.sh` 의 기본값 0 을 **뒤집지 않는다** — 레거시 런처 ~120개가 그
+   값으로 자기 조건을 재현해야 하기 때문이다([[54]] 비교가능성). 대신 ⓐ 현역 런처가 그 값을
+   **발사 로그에 기록**하고 ⓑ `go_stack.sh:757` 주석에 *"현역 런처는 1로 덮는다"* 를 명시해
+   **조용한 갈림을 없앤다**. 부호표는 **CANON=1 을 기준선으로** 뜬다(0 대조가 필요하면 별도 팔).
 2. **증거 persist** — `bank_x713_nightB_20260901` 은 repo 어디에도 없다(`git grep x713` 히트는
    문서 자신뿐 · `sim_results/` 최신은 x644(08-30) · persist 커밋 0). [[30]]: 계기는 회수돼야
    존재한다. **x712/x713 착지 후 persist 하거나, 재현 런을 지정**해야 §P′-0 의 집계가 인용 가능하다.
@@ -1969,6 +2011,10 @@ must wait for all transactions to settle before the card can be closed."*
           T2_NOW_SELFCALL · T2_SEARCH_ON_PROCEED
 ```
 `T2_SEARCH_AGENT=1` 은 부모(`T2_DECIDE_ANY`) 부재로 **죽은 배선**이다.
+**라이브 확증(2026-09-01)** 런처 grep 이 아니라 **도는 프로세스의 env** 로 확인했다 —
+`/proc/1713834/environ` · `/proc/1713914/environ` 에 **`T2_DECIDE_ANY` 가 없다**(같은 회수에서
+`T2_FREE_TEXT_ARG=1`·`T2_SG_REQREADS_CANON=1`·`T2_ACTION_CANDSET=1` 은 **있다**). ⇒ 선언 누락이
+아니라 **실제로 안 켜진 채 돌았다**.
 **반증조건** 10칸을 켠 팔에서 `[T2_LEVER]` 계열 발화가 **0 이면** 배선이 또 틀린 것이다([[81]]).
 **확인경로** 대조표 스크립트 · `git log -S T2_DECIDE_ANY` · `LEVER_ROSTER_CANONICAL`.
 **설계** ⛔§S-1~S-6 과 **같은 런에 넣지 마라** — 10칸 동시 복원은 변수 10개를 한 번에 바꾸는 것이라
@@ -2035,7 +2081,10 @@ must wait for all transactions to settle before the card can be closed."*
 태스크 = Q2 표적 8(060 061 062 065 066 067 068 069) + Q3 착지 5(036 046 048 078 080) +
 Q3 미착지 3(092 099 101) + 재시작 3(039 040 095).
 **판정** ⓐ `[T2_FREE_TEXT_ARG]` arm-FIX **≥8** · arm-CTL **0**(0이면 배선이 또 틀렸다)
-ⓑ 062·065 가 arm-FIX **1.0** · arm-CTL **0.0**(아니면 진단 철회) ⓒ `[T2_P2]` 전손 사유 ≥1 ·
+ⓑ **진단 판정**: 062·065 의 `reason` **WRONGARG 가 arm-FIX 에서 사라진다**(아니면 진단 철회).
+⛔*"reward 1.0"* 을 진단 판정으로 쓰지 마라 — 반사실 재채점의 `DB 2칸→0` 은 **다른 칸이 안 변한다**는
+가정 위에 있고 `nt=2` 재샘플이면 궤적이 달라진다. 배선이 옳아도 재샘플 분산이 **옳은 진단을 철회**시킨다
+(재리뷰 E). **reward 1.0 은 기대치로만 남긴다** — §S-11-10 과 이렇게 정합한다. ⓒ `[T2_P2]` 전손 사유 ≥1 ·
 `Retry` 감소 ⓓ 착지 sim 수 arm-FIX > arm-CTL.
 
 ### §S-11. ⛔하지 말아야 할 것 (실측으로 박제)
