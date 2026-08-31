@@ -3629,6 +3629,63 @@ def _eff_tool_name(tc):
     return re.sub(r"_\d+$", "", nm)
 
 
+def free_text_drop(tool_calls, corpus_text, a2, log=None):
+    """★자유서술 기본값 인자를 **근거 없으면 뺀다** (호출부: `unified()` · 단일 구현 [[67]]).
+
+    · 표적은 A2 선언 `free_text_defaults = {도구: [인자]}` 뿐이다 — 엔진 리터럴 0([[05]]).
+    · 거동: **호출은 그대로 두고 그 인자만 뺀다**(env 기본값이 정본). 값을 고르지 않는다([[10]]).
+    · 코퍼스는 호출자가 만들어 넘긴다 — 자기-그라운딩 금지(우리가 방금 보낸 값이 도구 응답에
+      메아리쳐 돌아오면 그 다음 호출부터 무조건 "실재"가 된다·003 실측).
+    · 반환: 제거한 (도구, 인자) 목록. 부작용은 tool_call 인자 수정뿐이다.
+
+    ⚠2026-09-01: 이 자리는 `_json` 미바인딩(NameError)을 안쪽 except 가 삼켜 **8/8 무발화**였다.
+      소스-문자열 검정은 그것을 통과시켰다 ⇒ 실행 검정(`test_free_text_arg.py`)이 정본이다.
+    """
+    dropped = []
+    ftd = (a2 or {}).get("free_text_defaults") or {}
+    if not ftd:
+        return dropped
+    corp = (corpus_text or "").lower()
+    for tc in (tool_calls or []):
+        ar = _args_dict(tc) or {}
+        inner = _exact_tool_name(tc) or ""
+        sub = ar.get("arguments")
+        if isinstance(sub, str):
+            try:
+                sub = json.loads(sub)
+            except Exception:
+                sub = None
+        targets = ftd.get(str(inner)) or ftd.get(str(getattr(tc, "name", "")))
+        if not targets:
+            continue
+        bag = sub if isinstance(sub, dict) else ar
+        for k in targets:
+            v = bag.get(k)
+            if not isinstance(v, str) or not v.strip():
+                continue
+            if v.strip().lower() in corp:
+                continue
+            bag.pop(k, None)
+            if isinstance(sub, dict) and bag is sub:
+                ar["arguments"] = json.dumps(sub, ensure_ascii=False)
+            try:
+                tc.arguments = ar
+            except Exception:
+                pass
+            dropped.append((inner or getattr(tc, "name", "?"), k, v))
+            if log:
+                log("[T2_FREE_TEXT_ARG] %s.%s 제거 — 발화·문서·직전 원장 어디에도 없다: %r"
+                    % (inner or getattr(tc, "name", "?"), k, v[:60]))
+    return dropped
+
+
+def _t2_msg_empty(_m):
+    """tau2 자신의 유효성 법(`data_model/message.py:311-318` · `utils/llm_utils.py:234`) —
+    본문도 도구호출도 없으면 그 메시지는 **존재할 수 없다**(§S-2)."""
+    return not (str(getattr(_m, "content", None) or "").strip()
+                or (getattr(_m, "tool_calls", None) or []))
+
+
 def _exact_tool_name(tc):
     """The environment's own name for what this call executes — no spelling rules.
 
@@ -7817,7 +7874,10 @@ def apply_gate_regen(max_regen=1):
                 break
             _budget_tick(self)
             dids = {id(tc): (gid, why) for tc, gid, why in denied}
-            fb = [am]
+            # ★§S-2 3층 (2026-09-01): **빈 am 은 재생성 프롬프트에 싣지 않는다.**
+            #   실측(095·모드 B): 빈 어시스턴트 메시지가 이 버퍼에 실려 나가
+            #   `llm_utils.py:234 assert has_content_or_tool_calls` 로 죽고 태스크가 재시작됐다.
+            fb = [] if _t2_msg_empty(am) else [am]
             for c in (am.tool_calls or []):
                 if id(c) in dids:
                     gid, why = dids[id(c)]
@@ -12355,7 +12415,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             for _n8, _v8 in _SRC8:
                 if _v8 is not None and _v8[0] is not None:
                     _fbtag.setdefault(id(_v8[0]), _n8)
-            fb = [am]
+            # ★§S-2 3층 (2026-09-01): **빈 am 은 재생성 프롬프트에 싣지 않는다.**
+            #   실측(095·모드 B): 빈 어시스턴트 메시지가 이 버퍼에 실려 나가
+            #   `llm_utils.py:234 assert has_content_or_tool_calls` 로 죽고 태스크가 재시작됐다.
+            fb = [] if _t2_msg_empty(am) else [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
                     gid, why = denied_by_objid[id(c)]
@@ -12821,52 +12884,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         if (os.environ.get("T2_FREE_TEXT_ARG") == "1" and getattr(am, "tool_calls", None)
                 and ((a2 or {}).get("free_text_defaults"))):
             try:
-                _ftd = (a2 or {}).get("free_text_defaults") or {}
-                _corp = []
+                _corp9 = []
                 for _m9 in (state.messages or []):
-                    _r9 = getattr(_m9, "role", None)
-                    if _r9 in ("user", "tool"):
-                        _corp.append(str(getattr(_m9, "content", "") or "").lower())
-                try:                       # KB 도 코퍼스에 넣는다(회수 여부와 무관하게 문서 축자면 정당)
+                    if getattr(_m9, "role", None) in ("user", "tool"):
+                        _corp9.append(str(getattr(_m9, "content", "") or "").lower())
+                try:                   # KB 도 코퍼스에 넣는다(회수 여부와 무관하게 문서 축자면 정당)
                     import t2_scaffold_get as _sg9
                     _dom9 = getattr(getattr(self, "_t2_orch", None), "environment", None)
                     _dom9 = getattr(_dom9, "domain_name", None)
                     if _dom9:
-                        _corp += [str(_d9.get("content") or "").lower()
-                                  for _d9 in (_sg9._load_domain_docs(_dom9) or [])]
+                        _corp9 += [str(_d9.get("content") or "").lower()
+                                   for _d9 in (_sg9._load_domain_docs(_dom9) or [])]
                 except Exception:
                     pass
-                _corp = " ".join(_corp)
-                for _tc9 in (am.tool_calls or []):
-                    _ar9 = _args_dict(_tc9) or {}
-                    _in9 = (_ar9.get("agent_tool_name") or _ar9.get("user_tool_name")
-                            or _ar9.get("discoverable_tool_name") or "")
-                    _sub9 = _ar9.get("arguments")
-                    if isinstance(_sub9, str):
-                        try:
-                            _sub9 = _json.loads(_sub9)
-                        except Exception:
-                            _sub9 = None
-                    _tgt9 = _ftd.get(str(_in9)) or _ftd.get(str(getattr(_tc9, "name", "")))
-                    if not _tgt9:
-                        continue
-                    _bag9 = _sub9 if isinstance(_sub9, dict) else _ar9
-                    for _k9 in _tgt9:
-                        _v9 = _bag9.get(_k9)
-                        if not isinstance(_v9, str) or not _v9.strip():
-                            continue
-                        if _v9.strip().lower() in _corp:
-                            continue
-                        _bag9.pop(_k9, None)
-                        if isinstance(_sub9, dict) and _bag9 is _sub9:
-                            _ar9["arguments"] = _json.dumps(_sub9, ensure_ascii=False)
-                        try:
-                            _tc9.arguments = _ar9
-                        except Exception:
-                            pass
-                        print("[T2_FREE_TEXT_ARG] %s.%s 제거 — 발화·문서·직전 원장 어디에도 없다: %r"
-                              % (_in9 or getattr(_tc9, "name", "?"), _k9, _v9[:60]),
-                              file=_sys.stderr, flush=True)
+                free_text_drop(am.tool_calls, " ".join(_corp9), a2,
+                               log=lambda m: print(m, file=_sys.stderr, flush=True))
             except Exception as _fe9:
                 print("[T2_FREE_TEXT_ARG] skip: %r" % (_fe9,), file=_sys.stderr, flush=True)
 
@@ -13552,6 +13584,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             _am2 = _am3
                         break
             _regen_budget_spend(self)
+            # ★§S-2 3층 (2026-09-01): **빈 재생성은 원본을 덮지 않는다**. `_ap_regen` 은 이미
+            #   8곳에서 `return None = 원본 유지` 계약을 쓰므로 새 계약이 아니고, 호출부 29곳은
+            #   손대지 않는다. 근거: 밤샘런 전손 5건이 전부 태스크 **전체 재시작**으로 끝났고
+            #   (`Retry` 5 · 폐기 16,746초), 그중 모드 B(095)는 빈 메시지가 **재생성 프롬프트에
+            #   실려** `llm_utils.py:234 assert has_content_or_tool_calls` 로 죽었다.
+            if _t2_msg_empty(_am2):
+                print("[T2_GATE_REGEN] empty regen (keeping original) tag=%s" % (tag,),
+                      file=_sys.stderr, flush=True)
+                return None
             return _am2
 
         # (a0) follow-up required — **완료 날조(fabricated completion) 차단** (2026-07-16 §14.3).

@@ -58,6 +58,25 @@ def _json_array(text):
     return []
 
 
+def iso_split_injection(ctx, sub, fill_only=True):
+    """★호출자 우선 — 격리 서브의 산출 중 **ctx 에 비어 있는 키만** 채운다(§T-1a·2026-09-01).
+
+    반환 `(kept, skipped)` — `kept` 만 ctx 에 반영하고 `skipped` 는 로그에 이름을 남긴다.
+    정본 계약: **메인이 formalize · 엔진은 계산**([[10]]/[[52]]). 서브의 재-formalize 가
+    메인의 operand 를 덮으면 같은 인자에 다른 답이 나오고, 호출자는 그것을 *고장* 으로 읽는다
+    (093 실측: 8.975 → 2.775 → 8.975 → human 이관 → **1.0 → 0.0**).
+    `fill_only=False` 는 종전 거동(전면 덮어쓰기) — 대조군 전용이다([[54]]).
+    """
+    kept, skipped = {}, []
+    for k, v in (sub or {}).items():
+        have = (ctx or {}).get(k)
+        if fill_only and have not in (None, "", [], {}):
+            skipped.append(k)
+        else:
+            kept[k] = v
+    return kept, skipped
+
+
 def _isolate_spec(d):
     """A2가 선언한 격리-formalize 스펙(미선언이면 None=거동 변화 0)."""
     return (d.get("isolate") or None) if isinstance(d, dict) else None
@@ -2681,9 +2700,24 @@ def apply():
                         #   → 전체 operand dict를 top-level 주입. 에이전트는 참조만 넘겨 레코드 read 0(turn-free).
                         _sub = _sub_fetch_formalize(self, d, _iso, _ctx, _run)
                         if isinstance(_sub, dict) and _sub:
-                            _ctx.update(_sub)          # top-level operand(서브가 fetch+formalize)
-                            print("[T2_SG_ISOLATE] %s: fetch-formalize operand 주입 keys=%s"
-                                  % (getattr(tc, "name"), list(_sub)), file=_sys.stderr, flush=True)
+                            # ★호출자 우선 (2026-09-01·§T-1a·`T2_SG_ISO_FILL_ONLY` 기본 ON).
+                            #   정본 계약은 **메인이 formalize·엔진은 계산**이다([[10]]/[[52]]).
+                            #   그런데 이 자리는 서브의 산출로 **메인이 준 operand 를 덮었다**.
+                            #   실측 093(nightA): 메인이 세 번 다 같은 성분(base 4.0·checking 0.25·
+                            #   relationship 0.025 = **gold 의 4.275**)을 보냈는데 서브가 회차마다
+                            #   다른 행을 물어와 8.975 → 2.775 → 8.975 가 나왔고, 에이전트는 이를
+                            #   *"tool malfunction"* 으로 판정해 human 이관 → gold 변이 2행 MISSING
+                            #   ⇒ **1.0 → 0.0 회귀**. 서브는 격리가 100%일 때만 권위다([[76]]).
+                            #   ⇒ 서브는 **비어 있는 키만 채운다**. 값을 고르지 않는다.
+                            _kept, _skipped = iso_split_injection(
+                                _ctx, _sub,
+                                fill_only=os.environ.get("T2_SG_ISO_FILL_ONLY", "1") == "1")
+                            if _kept:
+                                _ctx.update(_kept)
+                            print("[T2_SG_ISOLATE] %s: fetch-formalize operand 주입 keys=%s%s"
+                                  % (getattr(tc, "name"), list(_kept),
+                                     (" · 호출자 우선으로 보존=%s" % _skipped) if _skipped else ""),
+                                  file=_sys.stderr, flush=True)
                     else:
                         _sub = _sub_formalize(self, d, _iso, _ctx, _run)
                         if _sub:

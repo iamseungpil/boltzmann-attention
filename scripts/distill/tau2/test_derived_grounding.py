@@ -166,7 +166,10 @@ def main():
     _sf2, tool2 = _scf()
     others = [x.get("param") for x in ((tool2.get("ground") or {}).get("scalar_fields") or [])
               if x.get("param") != "actual_apy"]
-    chk(others == ["principal", "period_start", "period_end"], "나머지 필드 목록 불변", others)
+    # ★2026-09-01: `76fe4144`(생산자 핀)이 `expected_apy` 를 **의도적으로** 추가했는데 이 로스터를
+    #   같이 안 고쳐 그날부터 빨간불이었다. 기대값을 현재 선언에 맞춘다(선언이 정본·[[24]]).
+    chk(others == ["principal", "period_start", "period_end", "expected_apy"],
+        "나머지 필드 목록 불변", others)
     chk(all("derived_from" not in x
             for x in ((tool2.get("ground") or {}).get("scalar_fields") or [])
             if x.get("param") != "actual_apy"), "파생 선언은 그 한 필드에만 붙었다")

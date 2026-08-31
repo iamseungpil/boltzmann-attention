@@ -1,66 +1,91 @@
 # -*- coding: utf-8 -*-
-"""회귀 — 자유서술 기본값 인자는 **근거 없으면 안 넘긴다** (`T2_FREE_TEXT_ARG`·R-A1).
+"""★`T2_FREE_TEXT_ARG` **실행** 검정 (2026-09-01 재작성).
 
-★선언 출처는 **env 시그니처**다(gold 근거 0):
-    tools.py:2508  close_bank_account_7392(..., reason: str = "Customer requested closure", ...)
-    독스트링       "reason (string, optional)"
-★정책 축자(`prompts/components/policy_header.md:8`):
-    "Do not make up policies, information or actions that you can take on behalf of the user."
-★결손(base 전수): gold 는 이 인자를 **안 넘겨** 행이 기본값으로 남는데 모델은 매번 자기 문장을
-  채운다 — 060 065 066 067 068 069, 전부 `gold=None ↔ act='Customer …'`.
-★부호표(base 98 sim · **자기-그라운딩 제거**): ⊕실패 sim 발화 6 · ⊖**통과 sim 발화 0** · 무발화 92.
-⚠호출은 그대로 실행하고 **그 인자만** 뺀다 — 엔진 기본값이 정본이고, 우리가 값을 고르지 않는다.
+⛔이 파일의 이전 판은 `SRC = open(...).read()` 로 **소스 문자열만** 봤다. 그래서 정본에
+  `_json` 미바인딩(NameError)이 있는 채로 **통과**했고, 라이브에서 그 술어는 **기회 8회 전부
+  도달하고도 발화 0** 이었다(밤샘런 x712/x713). 계기가 아니라 **거동**을 검정한다([[07]]).
 """
-import json, os, re, sys
+import json
+import os
+import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = open(os.path.join(HERE, "t2_gate_patch.py"), encoding="utf-8").read()
-A2 = json.load(open(os.path.join(HERE, "a2/banking_knowledge.gate.json"), encoding="utf-8"))
-
-
-def test_declaration_exists_in_all_three_layers():
-    for f in ("a2/banking_knowledge.gate.json", "a2/banking_knowledge.specific.json",
-              "a2/split/banking_knowledge.core.json"):
-        d = json.load(open(os.path.join(HERE, f), encoding="utf-8"))
-        assert d.get("free_text_defaults") == {"close_bank_account_7392": ["reason"]}, f
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import t2_gate_patch as G
 
 
-def test_declaration_matches_the_env_signature():
-    """선언은 env 시그니처에서 왔다 — 디스패처 페이로드(`arguments`)는 **대상이 아니다**."""
-    d = A2["free_text_defaults"]
-    assert list(d) == ["close_bank_account_7392"]
-    for wrapper in ("call_discoverable_agent_tool", "give_discoverable_user_tool",
-                    "call_discoverable_user_tool"):
-        assert wrapper not in d, "디스패처 페이로드를 지우면 호출이 깨진다"
+class TC(object):
+    """tau2 ToolCall 의 최소 대역 — 우리가 읽는 세 칸만 가진다."""
+
+    def __init__(self, name, arguments):
+        self.name = name
+        self.arguments = arguments
+        self.id = "tc_1"
 
 
-def test_note_carries_the_sign_table():
-    n = A2.get("_note_free_text_defaults") or ""
-    assert "부호표" in n and "통과 sim 발화" in n, "부호표 없이 켠 레버는 안 된다([[70]])"
-    assert "policy_header" in n and "tools.py" in n, "출처(정책·환경)가 안 적혀 있다"
+A2 = {"free_text_defaults": {"close_bank_account_7392": ["reason"]}}
 
 
-def test_engine_drops_only_the_argument_not_the_call():
-    seg = SRC.split("[T2_FREE_TEXT_ARG]")[1][:4000]
-    assert "_bag9.pop(_k9, None)" in seg, "인자를 빼야 한다"
-    for forbidden in ("tool_calls = []", "return None", "am.tool_calls.remove"):
-        assert forbidden not in seg, "호출 자체를 없애면 안 된다: " + forbidden
+def _dispatch_call(reason="Customer requested closure"):
+    """065 실물 모양: 디스패처 경유 + 내부 도구 + 인자 봉투(문자열 JSON)."""
+    inner = {"account_id": "chk_9f2", "reason": reason}
+    return TC("call_discoverable_agent_tool",
+              {"agent_tool_name": "close_bank_account_7392",
+               "arguments": json.dumps(inner, ensure_ascii=False)})
 
 
-def test_corpus_is_prior_context_only():
-    """자기-그라운딩 금지 — 우리가 방금 보낸 값이 메아리쳐 오면 다음 호출부터 늘 '실재'가 된다."""
-    seg = SRC.split("[T2_FREE_TEXT_ARG]")[1][:4000]
-    assert "state.messages" in seg
-    assert "am.tool_calls" not in seg.split("_corp = \" \".join")[0], "현재 턴 출력이 코퍼스에 들어갔다"
+def t_drops_when_ungrounded():
+    tc = _dispatch_call()
+    out = G.free_text_drop([tc], "손님은 계좌를 닫고 싶다고만 말했다", A2)
+    bag = json.loads(tc.arguments["arguments"])
+    assert out and out[0][1] == "reason", out
+    assert "reason" not in bag, bag
+    assert bag.get("account_id") == "chk_9f2", "대상 id 는 건드리지 않는다"
 
 
-def test_flag_off_is_byte_identical():
-    seg = SRC.split("[T2_FREE_TEXT_ARG] 자유서술")[1][:1500]
-    assert 'os.environ.get("T2_FREE_TEXT_ARG") == "1"' in SRC.split("[T2_FREE_TEXT_ARG] 자유서술")[1][:2000]
+def t_keeps_when_grounded():
+    tc = _dispatch_call("moving abroad")
+    out = G.free_text_drop([tc], "I am MOVING ABROAD next month", A2)
+    bag = json.loads(tc.arguments["arguments"])
+    assert not out and bag.get("reason") == "moving abroad", (out, bag)
+
+
+def t_untargeted_tool_untouched():
+    tc = TC("close_other_account", {"reason": "whatever"})
+    out = G.free_text_drop([tc], "", A2)
+    assert not out and tc.arguments.get("reason") == "whatever"
+
+
+def t_direct_call_shape():
+    """디스패처를 안 타는 직접 호출도 같은 선언으로 잡힌다."""
+    tc = TC("close_bank_account_7392", {"account_id": "chk_1", "reason": "made up"})
+    out = G.free_text_drop([tc], "관련 없는 문맥", A2)
+    assert out and "reason" not in tc.arguments
+
+
+def t_no_declaration_is_noop():
+    tc = _dispatch_call()
+    before = json.dumps(tc.arguments, sort_keys=True)
+    assert G.free_text_drop([tc], "", {}) == []
+    assert json.dumps(tc.arguments, sort_keys=True) == before, "선언 없으면 바이트 동일"
+
+
+def t_kb_corpus_arm():
+    """⚠§S-9-4: KB 문서를 코퍼스에 넣어도 모델 작문은 접지되지 않아야 한다."""
+    tc = _dispatch_call("Customer requested closure")
+    kb = "Accounts may be closed at the customer's request. Fees are refunded."
+    out = G.free_text_drop([tc], kb, A2)
+    assert out, "KB 에 그 문장이 축자로 없으면 여전히 제거된다"
+
+
+def t_empty_and_blank_values():
+    for v in ("", "   "):
+        tc = _dispatch_call(v)
+        assert G.free_text_drop([tc], "", A2) == [], "빈 값은 건드리지 않는다"
 
 
 if __name__ == "__main__":
-    for n, f in sorted(globals().items()):
-        if n.startswith("test_"):
-            f(); print("ok", n)
-    print("ALL PASS")
+    fns = [v for k, v in sorted(globals().items()) if k.startswith("t_")]
+    for f in fns:
+        f()
+        print("ok %s" % f.__name__)
+    print("PASS %d/%d" % (len(fns), len(fns)))

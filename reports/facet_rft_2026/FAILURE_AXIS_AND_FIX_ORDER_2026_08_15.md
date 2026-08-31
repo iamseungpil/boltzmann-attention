@@ -2140,3 +2140,93 @@ Q3 미착지 3(092 099 101) + 재시작 3(039 040 095).
 11. **`test_free_text_arg.py` 를 고쳐서 통과시키지 마라** — 소스 문자열 검사만 하는 파일이다.
     **실행 검정을 새로 짓는 것**이 수리다.
 12. **새 문서를 만들지 마라**([[74]]/[[31]]) — 결함×레버 표는 `t2_levers.py` 정본을 갱신한다.
+
+---
+
+## §T. 신규 착지 실패 포렌식 (2026-09-01 · 착지 30 sim 전수)
+
+> 근거 = 체크포인트 `data/simulations/<태그>/results.json` 30 sim(전부 trial-0) + 정본
+> `t2_forensic.mutation_diff` + 라이브 로그. **판정단위는 `reward`·변이집합**([[69]]).
+
+### §T-0. 착지 30 sim 전수 (pass 5)
+
+| 결과 | sim |
+|---|---|
+| **pass 1.0** | 080 · 095(A) · 020 · 027 · **094**(B) |
+| `max_steps` **6** | 063 · 068(A) · 036 · 067 · 069 · 082(B) — **gold 평가 자체가 단락**(gold=0행) |
+| 거의 무행동 | 039(gold10·done1) · 040(gold9·done1) — **전손 재시작 계열**(§S-2) |
+| 부분 수행 | 093(3·1) · 010(2·1) · 060(3·2) · 099(2·2) · 084 · 085 · 026 · 029 · 061 · 066 · 083 |
+| 잉여 | 046(EXTRA2) · 083(EXTRA1) |
+
+⚠**`max_steps` 6/30 = 20%** 다(§S-3 이 3/8 로 추정한 것보다 크다). 이 6건은 `db_check=null` ·
+gold 0행이라 **변이집합으로 원인을 말할 수 없다** — 스텝을 되찾기 전에는 진단 불가다.
+
+### §T-1 (★최우선 · CONFIRMED 우리층). 093 회귀 1.0 → 0.0 — **격리 서브가 맞는 답을 덮었다**
+
+**주장** `get_correct_savings_apy` 가 **같은 호출 인자**에 대해 **8.975 → 2.775 → 8.975** 를 냈고,
+에이전트가 이를 *"tool malfunction"* 으로 판정해 **human 이관**했다. gold 변이 3행 중 2행
+(`apply_savings_account_credit_6831{33}` · `submit_interest_discrepancy_report_7294{4/33/4.275}`)이
+**MISSING**. **우리 레버가 없었으면 통과였다** — 모델이 준 성분의 합이 정확히 gold 의 4.275 다.
+
+**축자** 궤적(task_093 · nightA)
+```
+msg53/57/59 호출 인자 = 세 번 모두 동일: base 4.0 · checking 0.25 · relationship 0.025 (합 4.275)
+msg54 → 8.975   [components] … includes only: base, card, checking, relationship
+msg58 → 2.775   [components] … includes only: base, checking, relationship
+msg60 → 8.975
+msg61 assistant "The APY tool is returning inconsistent results across identical runs
+                 (8.975%, then 2.775%, then 8.975% again), which is a tool malfunction"
+msg71 CALL transfer_to_human_agents{reason: 'technical_system_error'}
+```
+로그(같은 sim)
+```
+[T2_SG_ISOLATE] operand-size …components: sub=10 rows · kind=base:2,card:6,checking:1,relationship:1
+[T2_SG_ISOLATE] fetch …: 1라운드·getter 0회·operand keys=['components']
+[T2_SG_ISOLATE] …: fetch-formalize operand 주입 keys=['components']
+[T2_SG_ISOLATE] operand-size …components: sub=3 rows · kind=base:1,checking:1,relationship:1
+```
+A2 선언: `isolate = {"mode":"fetch_formalize","operand_keys":["components"],"max_rounds":5,
+"getter_tools":["KB_search_bm25"]}` · `op.reducers = {"base":"sum","checking":"max1","card":"max1",…}`
+
+**기전(3중 결함)**
+- **D1 덮어쓰기** — 격리 서브(LLM·KB검색)가 **호출자가 준 operand 를 대체**한다. 서브는
+  결정론이 아니므로 *"결정론 계산기"* 로 제시된 도구가 호출마다 다른 답을 낸다([[10]]/[[25]] 위반).
+  [[76]]: **서브는 격리가 100%일 때만 권위**다 — 여기선 아니다.
+- **D2 base 합산** — 서브가 `base` 를 **2행**(티어 두 줄) 내놓았고 `reducers.base="sum"` 이라
+  **4.0+2.5=6.5** 로 이중계상됐다(8.975 = 6.5 + card max 2.2 + 0.25 + 0.025). 정책상 base 티어는
+  **하나**다.
+- **D3 문면이 사실과 다르다** — 노트는 서브의 성분집합을 **호출자의 것처럼** 말한다
+  (*"No component was supplied for: card"* ↔ 호출자는 card 를 준 적이 없고, 반대로 card 가
+  **포함됐다**고 적힌 회차도 있다). 호출자는 이 문장을 **자기 입력과 대조할 수 없다** ⇒ 오직
+  *"도구가 고장났다"* 만 남는다.
+
+**반증조건** 같은 sha 로 `isolate` 를 끄고 093 을 재시행했을 때 계산기가 **여전히** 호출마다 다른
+값을 내면 D1 은 원인이 아니다.
+**확인경로** `t2_forensic.sims` 궤적 msg53~61 · 로그 `[T2_SG_ISOLATE]` 4행 · A2 `isolate`/`op` 선언 ·
+`mutation_diff` gold3/done1.
+
+**수리(설계 · 리뷰 대상)**
+| # | 무엇을 | 층 | 게이트 |
+|---|---|---|---|
+| **T-1a** | **호출자 우선** — 격리 서브는 **비어 있는 operand 키만 채운다**(`T2_SG_ISO_FILL_ONLY`). 계약 복원이지 새 레버가 아니다([[76]]) | 엔진 국소 | 단위검정: 호출자 값 존재 → 서브 주입 0 · 부재 → 종전대로 |
+| **T-1b** | **치환 표면화** — 주입이 일어나면 반환문에 *"이 수치는 당신이 보낸 성분이 아니라 …에서 다시 뽑은 성분으로 계산됐다"* 를 명시([[64]]) | 엔진 국소 | 단위검정: 주입 시 문면에 그 문장, 아니면 바이트 동일 |
+| **T-1c** | `base` **다중 행** 처리 — `sum` 이면 티어 두 줄이 이중계상된다. `max1` 로 바꾸든, 다중 base 를 **거부**하든 **선언에서 정한다**(A2·변경층) | A2 | ⛔부호표 선행: 전 코퍼스에서 base 다중행 빈도와 그때의 정답률 |
+
+**⛔[[70]] 무엇을 파나** `isolate` 가 사는 것(모델이 성분을 모를 때 KB 에서 뽑아 줌)을 **T-1a 가
+절반 판다**. 그래서 **부호표가 필요하다**: 전 코퍼스에서 ⓐ 호출자가 operand 를 준 호출 수 ⓑ 그중
+서브 주입이 답을 **바꾼** 수 ⓒ 바뀐 답이 gold 에 **가까워졌는지 멀어졌는지**. 093 은 ⓒ 가 "멀어짐"의
+실물 1건이다.
+
+### §T-2. 010 — 후보집합 수리 첫 시험: **행동 없이 검색만**
+
+gold 2행 중 `submit_referral{account_type:"Platinum Rewards Card", user_id:…}` **MISSING**,
+`log_verification` 만 수행. msg20~50 이 전부 KB 재검색이고 그 사이 **write 0건**, 손님이 종료(78 msgs).
+⇒ 후보집합(`T2_ACTION_CANDSET`)이 **행동을 만들지 못했다**. 이것은 §S-3(무진전 검색 상한)과 같은 축이다.
+**부수 관측** msg20 에서 shell 인자가 `cat doc_…_(general)_001.md` 라 **괄호 때문에 bash 문법 오류**가
+났다(`예기치 않은 토큰 '(' 근처`). 파일명에 괄호가 있는 도메인에서 반복될 마찰이다 — 계기로만 남긴다.
+
+### §T-3. 이번 포렌식이 §S 를 바꾸는 곳
+
+1. **§S-3 의 규모 상향** — `max_steps` 는 3/8 이 아니라 **6/30**이고, 그 6건은 **채점 자체가 안 된다**.
+2. **§S-10 판정에 093 을 넣어라** — 회귀 감시가 실제로 회귀를 잡았다(1.0 → 0.0). 원인은 우리 층이다.
+3. **§T-1 이 §S-1 보다 크다** — §S-1(`_json`)은 WRONGARG 1칸이지만 §T-1 은 **태스크 통째**다.

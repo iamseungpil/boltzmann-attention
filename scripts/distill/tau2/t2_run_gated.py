@@ -355,7 +355,11 @@ def main():
         # ⒜ **사실확인 프로브** — 자기 발화를 읽고 예/아니오. 추론 불필요 → 사고 OFF·짧게.
         _t2_probe_calls = {c.strip() for c in (os.environ.get("T2_PROBE_CALLS") or
                            "agent_writeprov,agent_claimprov,agent_selfdecl").split(",") if c.strip()}
-        _t2_probe_mt = int(os.environ.get("T2_PROBE_MAX_TOKENS", "256") or 0)
+        # ★§S-6 (2026-09-01): 256 은 **사고 예산과 같아** 답 자리가 0 이었다 — 사고 예산 레일이
+        #   `max(256, cap//2)` 라 cap=256 이면 예산도 256 이다. 밤샘런 TRUNC **85건 전량**이
+        #   `call=agent_claimprov max_tokens=256` 이었다. 1:2 규칙(예산 256 : 상한 512)으로 올린다.
+        #   격리 선례 x705: 예산 256 · mt 512 → 전손 0/2(content 1,046B). env 로 덮을 수 있다.
+        _t2_probe_mt = int(os.environ.get("T2_PROBE_MAX_TOKENS", "512") or 0)
         # ⒝ **판단 프로브** — 도구/값을 고른다. 사고를 끄면 답이 바뀐다(실측: 사고ON 'none' ↔
         #    사고OFF 'get_current_time'). → **사고는 두고 형식만** guided JSON 으로 보장한다.
         #    실측(8141): guided+사고ON 은 1,247 토큰에서 답이 나오고 파싱 OK. 상한 800 은 부족했고
@@ -455,6 +459,23 @@ def main():
                       % (_who, _b, _cap, _fixed), file=_sys_tr.stderr, flush=True)
                 _b = _fixed
             return _b
+
+        def _t2_msg_empty(_m):
+            """tau2 **자신의 유효성 법**을 그대로 읽는다 (`data_model/message.py:311-318` ·
+            `utils/llm_utils.py:234`): 본문도 도구호출도 없으면 그 메시지는 **존재할 수 없다**.
+
+            ★왜 (2026-09-01·§S-2): 재생성 사다리의 트리거가 `여는태그 > 닫는태그` 뿐이라
+              `content==''` 이면 `0>0=False` — **가장 비싼 실패(전손)에 사다리가 한 번도 안 걸렸다**.
+              밤샘런 실측: 전손 5건 = `Retry` 5건 = 태스크 전체 재시작 · 폐기 벽시계 16,746초.
+              같은 파일의 faildump 술어는 이미 `or not _c0.strip()` 으로 넓혀져 있었다 —
+              계기에만 이식하고 수리에는 안 한 것이다([[81]]).
+            ⚠`.strip()` 필수 — task_092 실물이 `'
+
+        '` 이라 길이 기준은 놓친다.
+            """
+            return not (str(getattr(_m, "content", None) or "").strip()
+                        or (getattr(_m, "tool_calls", None) or []))
+
 
         def _reasoning_of(_r):
             """응답의 reasoning 원문 — 타입 표면에 없으면 `raw_data` 에서 꺼낸다(읽기만)."""
@@ -695,7 +716,11 @@ def main():
                     and _t2_p2_used[0] < _t2_p2_cap):
                 _c2 = str(getattr(_r, "content", None) or "")
                 _o2 = _c2.count("<tool_call>"); _cl2 = _c2.count("</tool_call>")
-                if _o2 > _cl2:
+                # ★전손(content 0 ∧ tool_calls 0)도 같은 사다리로 보낸다 (§S-2 1층·기본 ON).
+                #   이 갈래는 **1차 재샘플까지만** — 아래 `tool_choice="required"` 계단은 건너뛴다
+                #   (산문 턴에 도구를 강제로 사는 것을 막는다·[[70]]).
+                _empty2 = (os.environ.get("T2_P2_EMPTY", "1") == "1" and _t2_msg_empty(_r))
+                if _o2 > _cl2 or _empty2:
                     _t2_p2_used[0] += 1
                     # ★2026-08-31 오프라인 재생으로 `stop` 을 뺐다 (faildump 29건 · 6건 재생):
                     #     회복률 **stop OFF 5/6 == stop ON 5/6** — stop 은 기여 0.
@@ -775,6 +800,15 @@ def main():
                         _msgs = _a[1] if len(_a) > 1 else _kw.get("messages")
                         _rec = {"call_name": _kw.get("call_name"),
                                 "max_tokens": _kw.get("max_tokens"),
+                                # ★2026-09-01 §S-0′: **이 키가 없었다**(주석은 요구하는데 코드가
+                                #   안 넣었다) — 그래서 전손 5건에서 `stop`/`length` 를 못 갈랐다.
+                                "finish_reason": (
+                                    getattr(_r, "finish_reason", None)
+                                    or (((getattr(_r, "raw_data", None) or {}).get("choices")
+                                         or [{}])[0] or {}).get("finish_reason")),
+                                "thinking_budget": ((_kw.get("extra_body") or {})
+                                                    .get("thinking_token_budget")
+                                                    or _kw.get("thinking_token_budget")),
                                 # ★2026-08-31: 끊김의 원인을 가르려면 이 둘이 있어야 한다 —
                                 #   finish=length 면 예산 소진, stop 이면 모델이 스스로 멈춘 것.
                                 #   reasoning 이 길면 "사고가 예산을 먹어 tool_call 이 잘렸다"가 확정된다.
@@ -816,8 +850,12 @@ def main():
                 _pt = _u.get("prompt_tokens") if isinstance(_u, dict) else None
                 _mtq = _kw.get("max_tokens")
                 _trunc = bool(_ct and _mtq and int(_ct) >= int(_mtq))
-                print("[T2_GEN_TRACE] call=%s max_tokens=%s tool_choice=%s%s -> gen=%s prompt=%s%s reason=%dB content=%dB tool_calls=%d"
-                      % (_kw.get("call_name"), _kw.get("max_tokens"), _kw.get("tool_choice"),
+                # ★§S-0′ (2026-09-01): 사고 예산을 한 칸 남긴다 — 없으면 다음번에도
+                #   "예산이 상한을 먹었나"를 못 가른다(전손 5건에서 실제로 못 갈랐다).
+                _tb_tr = ((_kw.get("extra_body") or {}).get("thinking_token_budget")
+                          or _kw.get("thinking_token_budget"))
+                print("[T2_GEN_TRACE] call=%s max_tokens=%s tb=%s tool_choice=%s%s -> gen=%s prompt=%s%s reason=%dB content=%dB tool_calls=%d"
+                      % (_kw.get("call_name"), _kw.get("max_tokens"), _tb_tr, _kw.get("tool_choice"),
                          ("%s%s" % (" (required STRIPPED)" if _stripped else "",
                                     (" [%s]" % _terse) if _terse else "")
                                    + (" SALVAGED=%d" % len(_salv) if _salv else "")),
