@@ -217,6 +217,12 @@ def _strip_own_feedback(text):
     return "".join(out)
 
 
+def _fam_name(n):
+    """접미사(`_1234`)를 뗀 base 이름 — 선언은 base 로 적히고 호출은 접미사가 붙는다."""
+    import re as _re_f
+    return _re_f.sub(r"_\d+$", "", str(n or ""))
+
+
 def _corpus_texts(orch, which):
     """grounding 대조 코퍼스 (A2 선언 `corpus`: 'kb'|'ledger'). 도메인 리터럴 0·기존 소스 재사용.
     kb=도메인 KB 문서 전량 · ledger=지금까지 원장(에이전트 도구 출력)+사용자 발화. 엔진은 텍스트만 본다."""
@@ -242,6 +248,21 @@ def _corpus_texts(orch, which):
         #     `ledger` 는 그대로 둔다(다른 필드가 쓰고 있고 거동을 안 바꾼다).
         ev = _evidence_ctx(orch)
         texts += [_strip_own_feedback(t) for t in (ev.get("__tool_outputs") or {}).values()]
+    # ★`tool:<이름>` — **그 도구가 낸 출력만** (2026-08-31·사용자 지시 *"우리 계산도구 결과는
+    #   반드시 사용하게 만들라"*). `ledger_tools` 는 도구 출력 **전량**이라, 어느 KB 검색 결과에
+    #   우연히 같은 수가 있으면 통과한다. 생산자를 지목하면 그 구멍이 닫힌다.
+    #   실물(x696 착자·reward 0.0): `get_correct_savings_apy` 가 **6.85** 를 냈는데 모델이
+    #   `get_interest_correction(expected_apy=**6.625**)` 를 손으로 넣어 122.0 을 커밋했다
+    #   (gold 140.0). A2 는 그 인자를 *"from get_correct_savings_apy"* 라고 **선언만** 하고 있었다.
+    #   ⚠값을 바꾸고 싶으면 **그 도구를 다시 부르면 된다** — 계산은 엔진, 선택은 모델([[10]]).
+    #   ⚠엔진은 이름 대조와 substring 뿐이다(도메인 리터럴 0·해석 0·[[59]]).
+    _tool_pins = [str(w)[5:] for w in (which or []) if str(w).startswith("tool:")]
+    if _tool_pins:
+        outs = (_evidence_ctx(orch).get("__tool_outputs") or {})
+        for _nm in _tool_pins:
+            for _k, _v in outs.items():
+                if _fam_name(_k) == _fam_name(_nm):
+                    texts.append(_strip_own_feedback(_v))
     if "user" in which:
         # ★C203: **손님 발화만**(도구 출력 제외). 'ledger'는 도구 출력을 포함해 **자기-그라운딩**이
         #   생긴다 — 도구가 한 번 뱉은 값은 그 다음 호출부터 무조건 '실재'가 된다(003 실측: 2번째

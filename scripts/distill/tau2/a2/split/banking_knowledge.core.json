@@ -2684,6 +2684,16 @@
       ],
       "kind": "date",
       "on_fail": "drop"
+     },
+     {
+      "param": "expected_apy",
+      "corpus": [
+       "tool:get_correct_savings_apy"
+      ],
+      "kind": "number",
+      "on_fail": "drop",
+      "_note_corpus": "생산자 고정 — 이 도구가 낸 출력에 실재하는 값만 통과한다.",
+      "fail_feedback": "is not the value that get_correct_savings_apy returned in this conversation. Use that result verbatim as expected_apy. If you believe it is wrong, call get_correct_savings_apy again with corrected components and use the value it returns — do not compute the stacked APY yourself."
      }
     ]
    },
@@ -2744,7 +2754,8 @@
     "_note_ref_from_outputs": "2026-08-22 R3 (x482 격리 확정·각 3회): 이 서브는 `account_id` 만 받고 **getter 로 직접 레코드를 읽으라**고 돼 있었는데, 그 경로가 격리에서 **아예 살지 않는다** — A_asis 답반환 0/3(principal=-1; actual_apy=-1 로 폐기) · N_neg 0/3(부정통제 동일) · **B_raw 3/3**(principal 144000 · actual_apy 4.0 둘 다 정확). 폐기 → 폴백 → 메인 추측 3.75 → grounding 드롭 → 도구 None → 자기계산 write → WEV deny 의 사슬이 거기서 시작됐다. ⇒ x481 과 **같은 처방**: 엔진이 도구 출력 원문을 REFERENCE 에 그대로 싣는다. 엔진은 도구 이름 대조 후 복사만 하고 파싱·선택·요약 0([[59]]) — principal 을 고르고 APY 를 계산하는 것은 여전히 서브다(A2 공식 그대로). 정답은 레코드에서 나왔다: current_holdings 144000 · MONTHLY INTEREST CREDIT 480 → 480x12/144000x100 = 4.0. gold 미참조([[23]]). 출력을 못 찾으면 종전 getter 경로로 폴백(fail-open)."
    },
    "result_round": 2,
-   "_note_result_round": "2026-08-22 (093 실시간 포렌식): op 의 1/12 근사(`0.08333333333333333`) 탓에 이 도구가 32.999999999999986 을 냈고, 모델이 통화로 옳게 33.0 으로 반올림해 write 하자 T2_WRITE_EVIDENCE 가 '33.0 은 도구 출력에 없다'며 10회 반려했다 — 우리 표현 오차가 우리 게이트를 막은 것이다([[25]]). 자릿수 2 = 달러 금액(센트)이고 근거는 크레딧 도구의 인자 계약('The positive dollar amount to credit')이다. gold 미참조([[23]])."
+   "_note_result_round": "2026-08-22 (093 실시간 포렌식): op 의 1/12 근사(`0.08333333333333333`) 탓에 이 도구가 32.999999999999986 을 냈고, 모델이 통화로 옳게 33.0 으로 반올림해 write 하자 T2_WRITE_EVIDENCE 가 '33.0 은 도구 출력에 없다'며 10회 반려했다 — 우리 표현 오차가 우리 게이트를 막은 것이다([[25]]). 자릿수 2 = 달러 금액(센트)이고 근거는 크레딧 도구의 인자 계약('The positive dollar amount to credit')이다. gold 미참조([[23]]).",
+   "_note_ground_expected_apy": "★2026-08-31 (사용자 지시 \"우리 계산도구 결과는 반드시 사용하게 만들라\" · x696 착지 실측): expected_apy 를 **생산자 고정**으로 근거대조한다. 구 주석은 *\"expected_apy는 미ground(get_correct_savings_apy 산출)\"* 였는데 **그 산출을 실제로 썼는지는 아무도 안 봤다**. x696 축자: msg84 get_correct_savings_apy → **6.85**, msg90 그 값으로 **140.0(=gold)**, 그러나 msg104 expected_apy=**5.625**(모델이 넘긴 자기 성분값 5.5+0.1+0.025) · msg115 **6.625** 를 **손으로** 넣어 **122.0 이 커밋**됐다(gold 140.0 · reward 0.0 · db_match False). 복사 실수가 아니라 도구 답의 **대체**다. corpus=[\"tool:get_correct_savings_apy\"] 는 그 도구가 낸 출력만 본다 — ledger_tools(도구 출력 전량)면 다른 검색 결과에 우연히 같은 수가 있을 때 통과한다. 값을 바꾸려면 **그 도구를 다시 부르면 된다**(계산=엔진·선택=모델·[[10]])."
   },
   {
    "name": "check_card_closure_eligibility",

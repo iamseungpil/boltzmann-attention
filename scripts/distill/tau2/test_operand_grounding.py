@@ -36,6 +36,11 @@ class _FakeOrch:
     environment = _FakeEnv()
 
 
+# 우리 계산기가 이 대화에서 낸 출력(실물 문면 축약) — 생산자 고정 대조의 유일한 근거다.
+CALC_OUT = ("Correct savings APY computed from the components supplied in this call: 6.85%. "
+            "The stacking policy is base + highest checking boost + highest card bonus.")
+
+
 def _install_corpus():
     """엔진 코퍼스 소스를 통제값으로 몽키패치(라이브 KB/원장 대신)."""
     sg._DOC_CACHE.clear()
@@ -44,7 +49,10 @@ def _install_corpus():
         {"title": "rebate", "content": KB_REBATE},
     ]
     sg._evidence_ctx = lambda orch: {
-        "__tool_outputs": {"ledger": LEDGER.lower()},
+        # ★생산자 고정(2026-08-31): `expected_apy` 는 **우리 계산기가 낸 출력**에만 근거한다.
+        #   그래서 원장을 도구별로 나눠 둔다 — 실물과 같은 형태다(`__tool_outputs` 는 도구명 키).
+        "__tool_outputs": {"ledger": LEDGER.lower(),
+                           "get_correct_savings_apy": CALC_OUT.lower()},
         "__user_text": "",
     }
 
@@ -108,6 +116,30 @@ def main():
     check("097: 추측 principal 드롭(→None)", ctx["principal"] is None)
     check("097: 정상 actual_apy 유지", ctx["actual_apy"] == 3.35)
     check("097: 정상 기간 유지", ctx["period_start"] == "01/01/2024")
+
+    # ── 생산자 고정 (2026-08-31·x696 착지·사용자 지시 "계산기 결과는 반드시 사용하게") ─────
+    #   x696 축자: `get_correct_savings_apy` 가 6.85 를 냈는데 모델이 expected_apy=6.625 를
+    #   **손으로** 넣어 122.0 이 커밋됐다(gold 140.0 · reward 0.0). 계산기 답을 안 쓰면 계산이
+    #   서지 않아야 한다.
+    print("[094 생산자] get_interest_correction — 계산기가 낸 6.85 는 통과")
+    ctx = {"expected_apy": 6.85, "actual_apy": 3.35, "principal": 100000,
+           "period_start": "01/01/2024", "period_end": "12/31/2024"}
+    flags = _run("get_interest_correction", ctx)
+    check("094: 계산기 출력값 6.85 유지", ctx["expected_apy"] == 6.85)
+
+    print("[094 손타이핑] get_interest_correction — 계산기가 낸 적 없는 6.625 는 드롭")
+    ctx = {"expected_apy": 6.625, "actual_apy": 3.35, "principal": 100000,
+           "period_start": "01/01/2024", "period_end": "12/31/2024"}
+    flags = _run("get_interest_correction", ctx)
+    check("094: 손타이핑 6.625 드롭(→None)", ctx["expected_apy"] is None)
+    check("094: 거부 문면이 무엇을 하면 풀리는지 말한다",
+          any("get_correct_savings_apy" in f for f in flags))
+
+    print("[094 타도구] get_interest_correction — 다른 도구 출력에만 있는 수는 통과 못 한다")
+    ctx = {"expected_apy": 3.35, "actual_apy": 3.35, "principal": 100000,
+           "period_start": "01/01/2024", "period_end": "12/31/2024"}
+    flags = _run("get_interest_correction", ctx)
+    check("094: 원장(다른 도구)에만 있는 값 드롭", ctx["expected_apy"] is None)
 
     print("[정상] get_interest_correction — principal 레코드값 100000(회귀)")
     ctx = {"expected_apy": 6.85, "actual_apy": 3.35, "principal": 100000,
