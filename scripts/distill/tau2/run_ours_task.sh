@@ -20,14 +20,19 @@ set -o pipefail
 #       --no-preflight            (표면형 선발사 검산 생략 — 권하지 않는다)
 PROFILE=""
 PREFLIGHT=1
+# 동시성 — [[83]] 실측: max_concurrency=4 가 총 처리량 2배(23.6→46.4 tok/s · KV 2%→26% · Waiting 0).
+#   기본 1 은 base 대조군 규격(x617·x644)과 맞추기 위한 값이다.
+CONC=1
 POS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --profile) PROFILE="$2"; shift 2 ;;
     --profile=*) PROFILE="${1#*=}"; shift ;;
     --no-preflight) PREFLIGHT=0; shift ;;
+    --concurrency) CONC="$2"; shift 2 ;;
+    --concurrency=*) CONC="${1#*=}"; shift ;;
     -h|--help)
-      echo "사용: run_ours_task.sh [--profile 이름|경로] [--no-preflight] <TAG> <PORT> <TASK_IDS>"
+      echo "사용: run_ours_task.sh [--profile 이름|경로] [--no-preflight] [--concurrency N] <TAG> <PORT> <TASK_IDS>"
       echo "  프로필 = model_profiles/<모델 id 의 / 를 __ 로 바꾼 이름>.env"
       ls -1 "$(dirname "$0")/model_profiles" 2>/dev/null | sed 's|^|  가용: |'
       exit 0 ;;
@@ -121,7 +126,7 @@ export PYTHONPATH=src:$REPO/scripts/distill/tau2
   --domain banking_knowledge --gate 1 --retrieval_config alltools \
   --agent_model "$EXPECT" --agent_base "http://localhost:$PORT/v1" \
   --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 --user_reasoning_effort low \
-  --task_ids "$TASKS" --num_trials 1 --max_concurrency 1 --max_steps 200 \
+  --task_ids "$TASKS" --num_trials 1 --max_concurrency "$CONC" --max_steps 200 \
   --save_to "$TAG" 2>&1 | tee "$LOG/$TAG.log"
 
 echo "=================================================================="
