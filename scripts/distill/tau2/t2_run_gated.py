@@ -498,7 +498,8 @@ def main():
                 _kw = dict(_kw)
                 _jmt2 = _t2_judge_mt
                 _cur2 = _kw.get("max_tokens")
-                _kw["max_tokens"] = max(int(_cur2 or 0), _jmt2) if _jmt2 else _cur2
+                # ★수리③ 동형(위 주석) — 프로브 상한은 자기 값이 정한다(전역 무관).
+                _kw["max_tokens"] = _jmt2 if _jmt2 else _cur2
                 # ★2026-08-31 — **사고 예산만 제한**(사용자 지시 "2로 가라").
                 #   왜: 생성 순서가 [사고 …] → [답] 이라, 상한이 사고 도중에 걸리면 **답이 통째로
                 #   사라진다**. 실측: TRUNC 89건 중 31건(35%)이 `content=0B · tool_calls=0` 이고,
@@ -546,7 +547,15 @@ def main():
                 #   `finish=length·content 0B` 로 **답 전손**이다.
                 #   판단 프로브는 사고 여지가 **더** 필요하다. 전역은 `agent_response` 폭주용이고
                 #   판단 프로브는 스키마로 출력이 묶여 있어 폭주 위험이 없다 ⇒ `max` 로 바꾼다.
-                _kw["max_tokens"] = max(int(_cur or 0), _jmt) if _jmt else _cur
+                # ★2026-08-31 수리③ — `max` 는 **전역이 커지면 프로브가 부푼다**.
+                #   ②의 병(전역 3072 이 프로브 4096 을 깎음)은 `max` 로 고쳤지만, 그날 저녁
+                #   전손 수리로 전역이 8192 로 복원되자 이번엔 프로브 상한이 **8192** 가 되고
+                #   사고 예산(상한의 절반)이 2048 → **4096** 으로 배가됐다. 라이브 실측:
+                #     x697 `intent_operator_formalize` 6회 = **24,560토큰 = 런 생성의 75%**
+                #     한 호출 지문: prompt 239 · gen 4,108 · reason **18,220B** · content **40B**
+                #   ⇒ 프로브 상한은 **자기 상한(judge cap)** 이 정한다. 전역과 무관해야 양쪽
+                #     사고(깎임·부풂)가 다 닫힌다. 전역이 더 작아도 프로브는 자기 값을 쓴다.
+                _kw["max_tokens"] = _jmt if _jmt else _cur
                 _kw["response_format"] = {
                     "type": "json_schema",
                     "json_schema": {"name": "t2probe",

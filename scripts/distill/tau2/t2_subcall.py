@@ -22,6 +22,8 @@
 계약이 다르다 — 그 가족은 이미 한 파일에 모여 있고 여기 정본은 **단발(tools=None)** 만 담당한다.
 `t2_gate_patch` 의 메인-루프 재생성(la.generate(tools=self.tools))도 서브가 아니므로 범위 밖.
 """
+import hashlib
+import os
 import json
 import re
 import sys
@@ -35,7 +37,7 @@ def make_user_message(UserMessage, content):
         return UserMessage(content=content)
 
 
-def _record_subcall(call_name, prompt, out, err=None):
+def _record_subcall(call_name, prompt, out, err=None, cached=False):
     """서브가 **무엇을 받았고 무엇을 냈나**를 사이드카에 남긴다 (2026-08-24 신설·기록만).
 
     ★왜 필요한가 — 없어서 하루를 태웠다:
@@ -61,6 +63,7 @@ def _record_subcall(call_name, prompt, out, err=None):
                    prompt_len=len(str(prompt or "")),
                    out_len=len(_o),
                    out_head=_o[:600],
+                   cached=bool(cached),   # 재사용인지 실제 호출인지 가른다([[25]])
                    err=(None if err is None else repr(err)[:200]))
     except Exception:
         pass                                     # 기록 실패가 런을 깨면 안 된다
@@ -83,9 +86,47 @@ def sub_generate(agent, la, UserMessage, prompt, call_name, temperature=None):
               if "tool" not in k}
         if temperature is not None:
             kw["temperature"] = temperature
+        # ★같은 물음을 두 번 묻지 않는다 (2026-08-31·`T2_SUBCALL_CACHE`·기본 ON).
+        #   실측(x697 라이브·바이트 동일 지문): `intent_operator_formalize` 6회 중 **5회가
+        #   프롬프트까지 동일**했다 — prompt 239 · gen 4,108 · reason 18,220B · content 40B.
+        #   그 중복만 **16,432토큰 = 그 런 전체 생성의 50%** 다. 창이 *손님 발화 마지막 6개*
+        #   라서, 손님이 말하지 않은 턴에는 프롬프트가 글자 하나 안 바뀐다.
+        #   ⚠**정보 손실 0인 조건에서만** 쓴다: `temperature==0` 일 때만 캐시한다(그때 응답은
+        #     결정론이고, 실제로 reason 바이트까지 동일했다). 온도가 있으면 재표집이 의미이므로
+        #     캐시하지 않는다 — 닫힌 술어 하나([[22]]).
+        #   ⚠범위는 **이 에이전트(=이 sim)** 다. 프로세스 전역이면 sim 간 오염이 된다.
+        #   ⚠사이드카에는 `cached=True` 로 남긴다 — 포렌식이 *부른 것*과 *재사용한 것*을
+        #     구별할 수 있어야 한다([[25]]).
+        _t = kw.get("temperature")
+        _key = None
+        if os.environ.get("T2_SUBCALL_CACHE", "1") == "1":
+            try:
+                if _t is not None and float(_t) == 0.0:
+                    _key = (str(call_name),
+                            hashlib.sha1(str(prompt).encode("utf-8", "replace")).hexdigest())
+            except Exception:
+                _key = None
+        if _key is not None:
+            _c = getattr(agent, "_t2_subcall_cache", None)
+            if _c is None:
+                _c = {}
+                try:
+                    setattr(agent, "_t2_subcall_cache", _c)
+                except Exception:
+                    _c = None
+            if _c is not None and _key in _c:
+                out = _c[_key]
+                print("[T2_SUBCALL] cache hit call=%s (같은 프롬프트 재질의 생략 · %d자)"
+                      % (call_name, len(prompt or "")), file=sys.stderr, flush=True)
+                _record_subcall(call_name, prompt, out, cached=True)
+                return out
         sub = la.generate(model=agent.llm, tools=None, messages=[um],
                           call_name=call_name, **kw)
         out = str(getattr(sub, "content", None) or "")
+        if _key is not None:
+            _c = getattr(agent, "_t2_subcall_cache", None)
+            if isinstance(_c, dict):
+                _c[_key] = out
         _record_subcall(call_name, prompt, out)
         return out
     except Exception as e:
