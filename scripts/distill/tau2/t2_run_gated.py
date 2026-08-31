@@ -420,6 +420,15 @@ def main():
         except Exception:
             _TC_tr = None
         _TC_RE = _re_tr.compile(r"<tool_call>\s*(\{.*?\})\s*</tool_call>", _re_tr.S)
+        # ★서버 표면형(qwen3_coder/qwen3_xml)도 줍는다 (2026-08-31·x703 격리).
+        #   구판은 **hermes 형만** 봤다. 그 형은 우리 문법이 강제할 때만 나오므로, 문법을 서버에
+        #   맞추자마자(`T2_TOOL_SURFACE=qwen3_xml`) 이 구제망은 **구조적으로 눈이 먼다** —
+        #   강등이 나면 본문은 `<tool_call><function=NAME><parameter=K>V</parameter></function>`
+        #   형이기 때문이다(vLLM `parser/qwen3.py:7-11` 축자 형식).
+        #   ⚠엔진은 **형식 복구만** 한다: 이름·인자는 모델이 쓴 문자열 그대로(선택·해석 0).
+        _XTC_RE = _re_tr.compile(r"<tool_call>\s*<function=(.*?)>(.*?)</function>\s*</tool_call>",
+                                 _re_tr.S)
+        _XPARAM_RE = _re_tr.compile(r"<parameter=(.*?)>(.*?)</parameter>", _re_tr.S)
 
         def _t2_salvage_calls(_r, _kw):
             """★T2_TC_SALVAGE (2026-08-30·§L-12) — vLLM 파서가 **통째로 버린** 유효 블록 되살리기.
@@ -434,7 +443,23 @@ def main():
             if "<tool_call>" not in _c:
                 return None
             _made = []
-            for _i, _b in enumerate(_TC_RE.findall(_c)):
+            for _i, _m in enumerate(_XTC_RE.finditer(_c)):        # ① 서버 표면형(XML)
+                _nm = (_m.group(1) or "").strip()
+                if not _nm:
+                    continue
+                _ar = {}
+                for _k, _v in _XPARAM_RE.findall(_m.group(2) or ""):
+                    _k = (_k or "").strip()
+                    _v = (_v or "").strip()
+                    try:                       # 숫자·불리언·객체는 파서와 같은 해석으로 복원
+                        _ar[_k] = _json_tr.loads(_v)
+                    except Exception:
+                        _ar[_k] = _v
+                try:
+                    _made.append(_TC_tr(id="salvx_%d" % _i, name=str(_nm), arguments=_ar))
+                except Exception:
+                    continue
+            for _i, _b in enumerate(_TC_RE.findall(_c)):          # ② hermes 형(구 문법 잔재)
                 try:
                     _j = _json_tr.loads(_b)
                 except Exception:
@@ -465,7 +490,7 @@ def main():
                 return None
             try:
                 _r.tool_calls = _made
-                _r.content = _TC_RE.sub("", _c).strip() or None
+                _r.content = _XTC_RE.sub("", _TC_RE.sub("", _c)).strip() or None
             except Exception:
                 return None
             return _made

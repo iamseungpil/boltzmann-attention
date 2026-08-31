@@ -68,8 +68,63 @@ ws ::= [ \t\n\r]*
 '''
 
 
+# ★서버 파서의 표면형 (2026-08-31·x702 격리로 확정). vLLM `parser/qwen3.py:7-11` 축자:
+#     <tool_call>
+#     <function=func_name>
+#     <parameter=key>value</parameter>
+#     </function>
+#     </tool_call>
+#   ⛔이 파일이 위(hermes)에 적어 둔 표면형은 **다른 파서의 것**이다. 표면형이 파서와 어긋나면
+#     문법은 문법대로 걸리고(음성대조: 존재하지 않는 이름을 강제하면 그대로 출력된다) 서버는
+#     **도구를 하나도 못 뽑는다** — x702 실측 n=3: base native 3/3 ↔ guided native **0/3**·
+#     content 에 태그 3/3. 라이브 x693 의 SALVAGED 83/85(98%)가 그 자국이다.
+_QWEN3XML_TMPL = r'''root ::= text | calls | text calls
+text ::= textchar+
+textchar ::= [^<] | "<" [^t]
+calls ::= call (ws call)*
+call ::= "<tool_call>" ws "<function=" name ">" ws params "</function>" ws "</tool_call>"
+params ::= (param ws)*
+param ::= "<parameter=" pname ">" pvalue "</parameter>"
+pname ::= pnchar+
+pnchar ::= [^>]
+pvalue ::= pvchar*
+pvchar ::= [^<]
+ws ::= [ \t\n\r]*
+name ::= %(alts)s
+'''
+
+SURFACE_HERMES = "hermes"
+SURFACE_QWEN3XML = "qwen3_xml"
+
+
+def surface():
+    """서버 도구 파서의 표면형 — **선언되지 않으면 None**(그러면 문법을 안 건다).
+
+    ★왜 기본값을 두지 않나 (2026-08-31): 종전 기본은 hermes 였고, 서버가 Q3.8 과 함께
+      `--tool-call-parser qwen3_coder` 로 바뀐 뒤에도 **아무도 안 바꿔서** 두 달치 런이
+      전량 강등된 채 돌았다(serve8142_32b_x624.log = hermes ↔ serve8143_pfx.log = qwen3_coder).
+      기본값이 있으면 같은 사고가 조용히 재발한다 — 런처가 **선언하게** 만든다([[07]] hard).
+    """
+    v = (os.environ.get("T2_TOOL_SURFACE") or "").strip().lower()
+    return v if v in (SURFACE_HERMES, SURFACE_QWEN3XML) else None
+
+
 def _esc_name(n):
     return n.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _esc_literal(n):
+    """XML 표면형에서는 이름이 따옴표 없이 리터럴로 들어간다."""
+    return str(n).replace("\\", "\\\\").replace('"', '\\"')
+
+
+def build_grammar_xml(names):
+    """허용 tool 이름 집합 → **qwen3_coder/qwen3_xml 표면형** EBNF (도메인 무관)."""
+    uniq = [n for n in dict.fromkeys(str(x) for x in names if x)]
+    if not uniq:
+        return None
+    alts = " | ".join('"%s"' % _esc_literal(n) for n in uniq)
+    return _QWEN3XML_TMPL % {"alts": alts}
 
 
 def build_grammar(names):
@@ -112,14 +167,28 @@ def _names_from_tools(tools):
 _CACHE = {}
 
 
+_WARNED = []
+
+
 def grammar_for_tools(tools):
+    """표면형 선언(`T2_TOOL_SURFACE`)에 맞는 문법. **미선언이면 None**(문법 미부착·fail-safe)."""
     names = _names_from_tools(tools)
     if not names:
         return None
-    key = tuple(sorted(names))
+    sf = surface()
+    if sf is None:
+        if not _WARNED:
+            _WARNED.append(1)
+            print("[T2_GUIDED] ⛔T2_TOOL_SURFACE 미선언 — 문법을 걸지 않는다. "
+                  "서버의 --tool-call-parser 에 맞춰 hermes | qwen3_xml 중 하나를 선언하라 "
+                  "(어긋나면 네이티브 도구 파싱이 전량 죽는다·x702)", file=sys.stderr, flush=True)
+        return None
+    key = (sf,) + tuple(sorted(names))
     if key not in _CACHE:
-        _CACHE[key] = build_grammar(names)
-        _mark("grammar built for %d tools: %s" % (len(names), ",".join(sorted(names)[:4]) + "..."))
+        _CACHE[key] = (build_grammar_xml(names) if sf == SURFACE_QWEN3XML
+                       else build_grammar(names))
+        _mark("grammar built [%s] for %d tools: %s"
+              % (sf, len(names), ",".join(sorted(names)[:4]) + "..."))
     return _CACHE[key]
 
 

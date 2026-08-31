@@ -825,3 +825,35 @@ export T2_KEEP_DENY_BODY=1
 export T2_DENY_HOWTO=0
 export T2_DENY_HOWTO_PARAMS=0
 export T2_DENY_HOWTO_CAP=900
+
+# ═══ 표면형 선언 (2026-08-31 · x702/x703 격리 · base 와 갈리던 그 칸) ═══════════
+# ⛔사고: `T2_GUIDED` 의 문법이 **hermes 표면형**(`<tool_call>{"name":…}</tool_call>`)인데
+#   서버 파서는 Q3.8 과 함께 `qwen3_coder`(XML)로 바뀌었다.
+#     serve8142_32b_x624.log 'tool_call_parser': 'hermes'      ← Qwen2.5-32B 시절(C162 검증)
+#     serve8143_pfx.log      'tool_call_parser': 'qwen3_coder' ← 지금
+#   모델 템플릿도 XML 을 시킨다(`chat_template.jinja` 축자: *"an inner `<function=...>` block
+#   must be nested within `<tool_call></tool_call>` XML tags"*). **어긋난 것은 우리 문법 하나다.**
+# 실측(x703 · 같은 서버·같은 프롬프트·n=3·전부 결정론):
+#     문법 없음        네이티브 파싱 3/3 · 병렬 2호출
+#     hermes 문법      네이티브 파싱 **0/3** · 본문 강등 3/3     ← 현행
+#     qwen3_xml 문법   네이티브 파싱 **3/3** · 병렬 2호출        ← 수리
+# 대조(런 전수): base x644/x617/x599 는 본문 hermes **0%**·네이티브 73.9/72.4/66.9% ↔
+#     ours x670/x659(salvage OFF)는 본문 hermes 91.3/74.2%·네이티브 0/21%.
+# ⇒ SALVAGED 98% 는 모델 성질이 아니라 **우리 문법이 만든 강등**이었다.
+# ⚠미선언이면 `t2_guided_patch.surface()` 가 문법을 **안 건다**(fail-safe) — 기본값을 두지
+#   않는 이유는 서버가 또 바뀌면 같은 사고가 조용히 재발하기 때문이다([[07]] hard).
+export T2_TOOL_SURFACE=qwen3_xml
+
+# ★강등 구제망 (`T2_TC_SALVAGE`) — 정본 등재(그동안 임시 런 스크립트에만 있었다·[[81]]).
+#   표면형을 맞춘 뒤에는 **그물이지 본로가 아니다**. 엔진은 형식 복구만 하고 이름·인자는
+#   모델이 쓴 문자열 그대로다. hermes·XML 두 표면형을 모두 줍는다(t2_run_gated `_XTC_RE`).
+export T2_TC_SALVAGE=1
+
+# ⛔`T2_STOP_FIRST_TOOLCALL` 되돌림 (2026-08-30 도입 → 2026-08-31 OFF).
+#   이 레버는 **오진 위에 쌓인 수리**다: 폭주·절단의 상류가 표면형 불일치였는데, 그 증상을
+#   `stop=["</tool_call>"]` 로 눌렀다. 값은 실측으로 확인된 손해가 있다 —
+#     x703: 병렬을 요구한 같은 프롬프트에서 stop 없음 **2호출** ↔ stop **1호출**(문법 유무 무관).
+#   [[80]] 이 Q3.8 의 강점으로 기록한 **병렬 발사**를 파는 것이고, 폭주의 상한은
+#   [[82]] 대로 **max_tokens** 가 이미 맡는다. 표면형 수리 후 폭주가 재발하는지 다음 런에서
+#   재고 그때 다시 판단한다(재도입 조건 = 폭주 재현 계기 + 부호표).
+export T2_STOP_FIRST_TOOLCALL=0
