@@ -38,7 +38,7 @@ def test_main_call_gets_a_budget():
 
 def test_budget_is_declared_first_derived_second():
     assert 'os.environ.get("T2_THINK_BUDGET")' in SRC
-    assert 'max(256, int(_capm) // 2)' in SRC, "선언이 없을 때의 폴백이 없다"
+    assert 'max(256, _cap // 2) if _cap else 4096' in SRC, "선언이 없을 때의 폴백이 없다"
 
 
 def test_probe_budget_is_separate():
@@ -66,6 +66,23 @@ def test_qwen25_profiles_do_not_declare_a_budget():
         txt = open(os.path.join(HERE, "model_profiles", n), encoding="utf-8").read()
         assert not re.search(r"^export T2_THINK_BUDGET=", txt, re.M), n
         assert "reasoning_parser" in txt, "왜 미선언인지가 안 적혀 있다"
+
+
+def test_engine_refuses_a_budget_that_leaves_no_answer_room():
+    """선언이 상한과 같거나 크면 보호가 꺼진다 — 엔진이 조인다(x706 실물)."""
+    assert 'def _think_budget(' in SRC
+    assert '_b >= _cap' in SRC and 'max(256, _cap // 2)' in SRC
+
+
+def test_probe_budget_is_below_its_cap_in_the_profile():
+    import re as _re
+    p = os.path.join(HERE, "model_profiles", "Qwen__Qwen3.8-27B-FP8.env")
+    txt = open(p, encoding="utf-8").read()
+    b = int(_re.search(r"^export T2_PROBE_THINK_BUDGET=(\d+)", txt, _re.M).group(1))
+    cap = int(_re.search(r"^export T2_JUDGE_MAX_TOKENS=(\d+)", txt, _re.M).group(1))
+    assert b < cap, "프로브 예산이 상한 이상이면 답 자리가 없다 (x706 실물)"
+    assert b > 486, "선행 실측: 486토큰에서 답이 바뀐다"
+    assert cap >= 2 * b, "사고가 절반 이하여야 답 자리가 남는다(사용자 규칙: 사고 4096 → 전체 8K)"
 
 
 if __name__ == "__main__":

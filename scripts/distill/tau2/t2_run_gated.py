@@ -425,6 +425,37 @@ def main():
         #   **눈이 먼 채로** 두 달을 돌았다([[84]]).
         import t2_salvage as _SALV
 
+
+        def _think_budget(_declared, _cap, _who):
+            """사고 예산은 **상한보다 작아야** 답 자리가 남는다 — 선언 실수를 엔진이 막는다.
+
+            ★2026-08-31 실물: 프로필에 프로브 예산을 상한과 **같은 4096** 으로 적었더니
+              보호가 그대로 꺼졌다. x706 축자:
+                `call=intent_operator_formalize max_tokens=4096 -> gen=4096 **TRUNC**
+                 reason=18,535B content=0B`
+              같은 런의 다른 프로브는 gen 2,171·3,965 로 **상한 바로 밑**을 오간다(x707 도 3,965)
+              ⇒ 예산이 상한과 같으면 답 전손은 시간 문제다.
+            ★격리 x705: 예산 < 상한이면 전손 0/2(mt 512·예산 256 → content 1,046B).
+            ⚠하한 256 은 종전 파생과 같다. 선행 실측 *"486토큰에서 답이 바뀐다"* 가 있으므로
+              이 자리는 **자동으로 조이지 않는다** — 선언값이 상한 미만이면 그대로 존중한다.
+            """
+            try:
+                _cap = int(_cap or 0)
+            except Exception:
+                _cap = 0
+            try:
+                _b = int(_declared) if _declared else 0
+            except Exception:
+                _b = 0
+            if not _b:
+                _b = max(256, _cap // 2) if _cap else 4096
+            elif _cap and _b >= _cap:
+                _fixed = max(256, _cap // 2)
+                print("[t2_run] ⛔사고 예산(%s) %d ≥ 상한 %d — 답 자리가 없다. %d 로 조인다"
+                      % (_who, _b, _cap, _fixed), file=_sys_tr.stderr, flush=True)
+                _b = _fixed
+            return _b
+
         def _reasoning_of(_r):
             """응답의 reasoning 원문 — 타입 표면에 없으면 `raw_data` 에서 꺼낸다(읽기만)."""
             for _k in ("reasoning", "reasoning_content"):
@@ -509,13 +540,9 @@ def main():
             #   ⚠[[70]] 무엇을 파나: 사고가 예산에서 끊긴다. 예산이 너무 작으면 답이 바뀐다
             #     (선행 실측: 486토큰에서 답이 바뀐다) — 그래서 모델 프로필에 값을 선언한다.
             if not _is_probe:
-                _tbm = os.environ.get("T2_THINK_BUDGET")
                 _capm = (_kw.get("max_tokens")
                          or os.environ.get("T2_AGENT_MAX_TOKENS") or 8192)
-                try:
-                    _tbm = int(_tbm) if _tbm else max(256, int(_capm) // 2)
-                except Exception:
-                    _tbm = max(256, int(_capm or 8192) // 2)
+                _tbm = _think_budget(os.environ.get("T2_THINK_BUDGET"), _capm, "본 응답")
                 if _tbm and not _kw.get("thinking_token_budget"):
                     _kw = dict(_kw)
                     _kw["thinking_token_budget"] = _tbm
@@ -538,8 +565,8 @@ def main():
                 #   ⇒ 상한을 올리는 대신 **사고에만 예산**을 걸어 답 자리를 반드시 남긴다.
                 #   `thinking_token_budget` 은 vLLM 이 Qwen3 계열에 지원한다(실측: 최상위 인자로 유효).
                 #   기본 = 전체 상한의 절반 → 답 자리 절반 확보.
-                _tb = os.environ.get("T2_PROBE_THINK_BUDGET")
-                _tb = int(_tb) if _tb else max(256, (_kw.get("max_tokens") or _jmt2 or 4096) // 2)
+                _tb = _think_budget(os.environ.get("T2_PROBE_THINK_BUDGET"),
+                                    _kw.get("max_tokens") or _jmt2 or 4096, "프로브")
                 if _tb:
                     _kw["thinking_token_budget"] = _tb
                 _sch2 = _t2_judge_schemas.get(_cn)
