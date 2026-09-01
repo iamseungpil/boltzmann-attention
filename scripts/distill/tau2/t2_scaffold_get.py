@@ -58,6 +58,20 @@ def _json_array(text):
     return []
 
 
+def iso_keys_satisfied(ctx, iso):
+    """서브를 **부를 필요가 있나** — 선언된 operand 키가 이미 전부 차 있으면 없다(§T-1a′).
+
+    `iso_split_injection` 이 호출자 우선으로 산출을 버리게 된 뒤에도 **호출 자체는 남아 있었다**.
+    그건 순수 낭비다 — 밤샘런 실측 task_074: `sg_fetch_iso` **34콜 · 69,416 생성토큰**
+    (그 sim 총 생성의 **27%**). 계산해서 버릴 바에 부르지 않는다.
+    ⚠키가 하나라도 비어 있으면 종전대로 부른다(그때가 이 레버가 사는 자리다).
+    """
+    keys = list((iso or {}).get("operand_keys") or [])
+    if not keys:
+        return False
+    return all((ctx or {}).get(k) not in (None, "", [], {}) for k in keys)
+
+
 def iso_split_injection(ctx, sub, fill_only=True):
     """★호출자 우선 — 격리 서브의 산출 중 **ctx 에 비어 있는 키만** 채운다(§T-1a·2026-09-01).
 
@@ -2695,7 +2709,15 @@ def apply():
                             return orig_exec(_self, tcs)
                         finally:
                             _self._t2_dedup_bypass = False
-                    if _iso.get("mode") == "fetch_formalize":
+                    if (_iso.get("mode") == "fetch_formalize"
+                            and os.environ.get("T2_SG_ISO_FILL_ONLY", "1") == "1"
+                            and iso_keys_satisfied(_ctx, _iso)):
+                        # ★§T-1a′ 절감: 호출자가 이미 전 키를 채웠으면 서브를 **부르지 않는다**.
+                        #   부르고 버리면 074 기준 생성의 27%가 순수 낭비다(34콜·69,416토큰).
+                        print("[T2_SG_ISOLATE] %s: 호출자가 operand 를 전부 채웠다 — 서브 생략 keys=%s"
+                              % (getattr(tc, "name"), list(_iso.get("operand_keys") or [])),
+                              file=_sys.stderr, flush=True)
+                    elif _iso.get("mode") == "fetch_formalize":
                         # ★fetch-first(2026-07-20 isolate-승격): 서브가 참조로 레코드를 off-ledger fetch
                         #   → 전체 operand dict를 top-level 주입. 에이전트는 참조만 넘겨 레코드 read 0(turn-free).
                         _sub = _sub_fetch_formalize(self, d, _iso, _ctx, _run)

@@ -52,6 +52,28 @@ def t_off_restores_old_behaviour():
     assert kept == {"components": SUB} and skipped == []
 
 
+
+def t_skip_when_all_keys_supplied():
+    """★§T-1a′ — 부르고 버리지 말고 **부르지 않는다**(074: 34콜·69,416토큰 = 그 sim 생성의 27%)."""
+    iso = {"mode": "fetch_formalize", "operand_keys": ["components"]}
+    assert SG.iso_keys_satisfied({"components": CALLER}, iso) is True
+
+
+def t_call_when_any_key_missing():
+    iso = {"mode": "fetch_formalize", "operand_keys": ["principal", "actual_apy"]}
+    assert SG.iso_keys_satisfied({"principal": 96000}, iso) is False
+    assert SG.iso_keys_satisfied({"principal": 96000, "actual_apy": 5.1}, iso) is True
+
+
+def t_no_declared_keys_never_skips():
+    assert SG.iso_keys_satisfied({"anything": 1}, {"mode": "fetch_formalize"}) is False
+
+
+def t_zero_counts_as_supplied():
+    iso = {"mode": "fetch_formalize", "operand_keys": ["principal"]}
+    assert SG.iso_keys_satisfied({"principal": 0}, iso) is True
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("t_")]
     for f in fns:
