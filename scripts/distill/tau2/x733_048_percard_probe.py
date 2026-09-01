@@ -106,6 +106,27 @@ def limits(model):
     return mt, tb
 
 
+def persist(name, payload):
+    """프로브 산출물을 JSON 으로 남긴다 (§T-21.10 · 리뷰 X-8).
+
+    왜: 프로브는 **LLM 호출이라 재현이 무료가 아니다**. 그런데 x734·x736 은 파일을 남기지 않아
+    설계서 동기 표가 **재도출 불가**였다. 런 증거에 이미 건 게이트와 같은 규율을 프로브에도 건다.
+    경로 = 환경변수 T2_PROBE_OUT (기본 /home/woori/scratch/probe_out).
+    """
+    out = os.environ.get("T2_PROBE_OUT") or "/home/woori/scratch/probe_out"
+    try:
+        if not os.path.isdir(out):
+            os.makedirs(out)
+        fn = os.path.join(out, name + ".json")
+        with io.open(fn, "w", encoding="utf-8") as f:
+            f.write(json.dumps(payload, ensure_ascii=False, indent=1, default=str))
+        print("  산출물 저장: %s" % fn)
+        return fn
+    except Exception as e:
+        print("  ⚠ 산출물 저장 실패: %s" % e)
+        return None
+
+
 def think_budget(cap):
     """사고 예산 = **상한의 절반**(하한 256 · 반드시 상한 미만).
 
@@ -243,6 +264,13 @@ def main():
             print("  %s rep%d 완료" % (arm, rep), flush=True)
         score[arm] = (hits, preds)
 
+    persist("x733_%s_%s" % (TASK, tag), {
+        "probe": "x733", "tag": tag, "task": TASK, "model": model,
+        "limits": {"max_tokens": MT, "thinking_token_budget": TB},
+        "gold": dict((i, sorted(gold[i])) for i in ids),
+        "materials": {"full": len(mat_full), "strip": len(mat_strip)},
+        "vocab": vocab, "trunc": TRUNC["n"],
+        "arms": dict((k, {"hits": score[k][0], "preds": score[k][1]}) for k in score)})
     print("\n=== 결과 (카드별 정확일치 / %d회) ===" % reps)
     for arm in ("A_EACH", "B_ALL", "C_STRIP"):
         hits, preds = score[arm]
