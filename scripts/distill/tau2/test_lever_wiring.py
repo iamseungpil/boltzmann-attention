@@ -22,6 +22,7 @@ LEVERS = [
     ("iso_split_injection", "t2_scaffold_get.py", "t2_scaffold_get.py"),
     ("iso_keys_satisfied", "t2_scaffold_get.py", "t2_scaffold_get.py"),
     ("view_thresholds", "t2_gate_patch.py", "t2_gate_patch.py"),
+    ("group_dup_value", "t2_gate_patch.py", "t2_gate_patch.py"),
 ]
 
 
@@ -42,7 +43,8 @@ def test_each_call_site_is_switched_by_an_env_flag():
     """호출부는 env 뒤에 있어야 같은 sha 로 대조군을 돌릴 수 있다([[54]])."""
     src = _src("t2_gate_patch.py")
     for fn, flag in (("sibling_paren_arg", "T2_SIBLING_PAREN"),
-                     ("distinct_args_violation", "T2_DISTINCT_ARGS")):
+                     ("distinct_args_violation", "T2_DISTINCT_ARGS"),
+                     ("group_dup_value", "T2_GROUP_DUP")):
         i = src.index(flag)
         seg = src[i:i + 900]
         assert fn + "(" in seg, "%s 호출부가 %s 스위치 안에 없다" % (fn, flag)

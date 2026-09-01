@@ -3676,6 +3676,55 @@ def sibling_paren_arg(tc):
     return None
 
 
+def group_dup_value(tc, a2):
+    """★§T-15 — 집계 대상 배열에서 **서로 다른 그룹에 같은 값**이 있는가(같은 혜택의 이중계상).
+
+    반환 `(도구, 값, [그룹…])` 또는 None. **값 동치 비교뿐**이라 패턴 매칭이 아니다([[59]]).
+    그룹 정의는 A2 가 이미 선언한 `op.group_by`/`op.over`/`op.value_field` 에서 읽는다 —
+    새 도메인 리터럴 0([[05]]).
+
+    근거(094·095 동일 기전): 모델이 `card 0.025`(Gold Rewards Card)와
+    `relationship 0.025`(같은 카드의 관계 보너스)를 **함께** 보낸다. `card` 는 `max1` 이라 0.025 가
+    0.6 에 밀려 버려지고, 같은 혜택이 `relationship`(sum)으로 다시 들어와 **6.85 → 6.875** 가 된다.
+    ⇒ 094 `amount 140→148` · 095 `98→100`.
+    ⊖ 부호표(영속 전 런 전수): **교차그룹 동일값 있음 → 정답 0 · 오답 15** · 없음 → 정답 18 · 오답 154.
+    ⇒ 정답을 하나도 막지 않는다.
+    ⚠엔진은 **어느 행을 뺄지 고르지 않는다** — 그건 혜택의 해석이라 LLM 몫이다([[10]]/[[66]]).
+    """
+    d = None
+    for t in ((a2 or {}).get("scaffold_get_tools") or []):
+        if str(t.get("name") or "") == (_exact_tool_name(tc) or getattr(tc, "name", "")):
+            d = t
+            break
+    op = (d or {}).get("op") or {}
+    over, gby = op.get("over"), op.get("group_by")
+    vf = op.get("value_field", "value")
+    if not over or not gby:
+        return None
+    ar = _args_dict(tc) or {}
+    rows = ar.get(over)
+    if isinstance(rows, str):
+        try:
+            rows = json.loads(rows)
+        except Exception:
+            return None
+    if not isinstance(rows, list):
+        return None
+    byval = {}
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        try:
+            v = float(r.get(vf))
+        except Exception:
+            continue
+        byval.setdefault(v, set()).add(str(r.get(gby)))
+    for v, groups in byval.items():
+        if len(groups) > 1:
+            return (_exact_tool_name(tc) or getattr(tc, "name", "?"), v, sorted(groups))
+    return None
+
+
 def distinct_args_violation(tc, a2, docs=None):
     """★§T-10 — A2 가 **서로 달라야 한다**고 선언한 인자 쌍이 같은 값인가.
 
@@ -13066,6 +13115,19 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               file=_sys.stderr, flush=True)
             except Exception as _spe:
                 print("[T2_SIBLING_PAREN] skip: %r" % (_spe,), file=_sys.stderr, flush=True)
+
+        # ★§T-15 배선 (2026-09-01·`T2_GROUP_DUP`) — 같은 값이 두 그룹에 들어온 이중계상.
+        #   094(140→148)·095(98→100)가 **같은 기전**이고, 부호표는 15/15 오답·정답 0이다.
+        if os.environ.get("T2_GROUP_DUP") in ("log", "deny") and getattr(am, "tool_calls", None):
+            try:
+                for _tcg in (am.tool_calls or []):
+                    _gd = group_dup_value(_tcg, a2)
+                    if _gd:
+                        print("[T2_GROUP_DUP] %s: 값 %s 가 그룹 %s 에 중복 — 같은 혜택을 두 번 "
+                              "세고 있지 않은지 확인하고 한 쪽을 빼고 다시 불러라"
+                              % (_gd[0], _gd[1], _gd[2]), file=_sys.stderr, flush=True)
+            except Exception as _gde:
+                print("[T2_GROUP_DUP] skip: %r" % (_gde,), file=_sys.stderr, flush=True)
 
         # ★§T-10 배선 (2026-09-01·`T2_DISTINCT_ARGS`) — A2 가 **서로 달라야 한다**고 선언한 인자
         #   쌍이 같은 값이면 알린다. `log`=계기만 · `deny`=반려(정책 문서 축자 배달 포함).
