@@ -41,11 +41,16 @@ LOGD=/home/woori/scratch/logs
 #     이 밤샘런이 담는다.
 #   ★22시 재조정(사용자 지시 "배치4 멈추고 배치4 포함하여 최신 스택으로"): 배치4 는 낡은 스택
 #     (claimprov 가드 사망 · 체인 문구 무조건 로깅)으로 돌고 있었다 ⇒ **중단하고 되돌린다**.
-#     총 **41**(061·080·066·083 복귀).
-G1_P1="task_061,task_095,task_060,task_046,task_094,task_085,task_065,task_071,task_008,task_056"
-G1_P2="task_087,task_086,task_022,task_033,task_083,task_097,task_027,task_068,task_074"
-G2_P1="task_092,task_078,task_093,task_041,task_062,task_048,task_010,task_049,task_034,task_037,task_077"
-G2_P2="task_075,task_090,task_016,task_091,task_099,task_020,task_080,task_066,task_067,task_063,task_096"
+#     총 41(061·080·066·083 복귀).
+#   ★22시 2차 조정(사용자 확인): 커버리지 감사에서 **040·082 누락**이 드러나 넣었다 ⇒ **43**.
+#     둘 다 장거리(040 10,770초 · 082 14,301초)라 **서로 다른 레인**으로 갈랐다.
+#     감사 결과: 큐41 ∪ 오늘39 = 57 손댐. 밤샘 밖 16 중 실질 누락은 이 둘뿐이고 나머지는
+#     ⓐt3prime 기측정(012·055·057·101·026·029·081·084·088) ⓑ제외 후보(053·102·069)
+#     ⓒ기록만 하기로 한 것(036·039·사용자 지시).
+G1_P1="task_061,task_078,task_093,task_041,task_062,task_085,task_065,task_016,task_033,task_037,task_071"
+G1_P2="task_077,task_087,task_091,task_083,task_097,task_020,task_066,task_040,task_063,task_074"
+G2_P1="task_092,task_095,task_060,task_046,task_094,task_048,task_010,task_049,task_008,task_022,task_034"
+G2_P2="task_056,task_075,task_086,task_090,task_099,task_027,task_080,task_067,task_068,task_096,task_082"
 
 run_one () {                      # $1=port $2=tag $3=tasks  (동기 실행)
   local port="$1" tag="$2" tasks="$3"
