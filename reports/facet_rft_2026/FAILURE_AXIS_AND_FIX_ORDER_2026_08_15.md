@@ -2744,3 +2744,39 @@ gold 쓰기에 대해 **자인 성공률**을 센다.
 §T-17 은 *"어디에도 근거가 없는 쓰기"* 에만 값이 있고, 그 사례는 아직 실측으로 확인된 것이 없다
 ⇒ **보류**(사용자 지시).
 
+## §T-19. 053 — **gold 결함**(도달 불가). 우리 실패가 아니다 · 분모 제외 후보
+
+**증상** reward 0.0 · `db_match=False` 인데 **MISSING 0 · WRONGARG 0 · EXTRA 0 · DUP 0**,
+gold 16액션 **전부 `action_match=True`**. `reward_basis=["DB"]`.
+
+**원인(정본 `dbdiff_task.py` 출력 축자)** — DB 차이가 **정확히 한 행**이다:
+```
+ONLY-PRED .user_discoverable_tool_calls.data.9a452d6c48d8d07e =
+ {'tool_name': 'get_card_last_4_digits',
+  'arguments': {'credit_card_account_id': 'cc_e9d195fe8e_silver'},
+  'called_at': '11/14/2025', 'status': 'CALLED'}
+```
+ONLY-GOLD 는 **0줄**이다. 즉 *"쓰기를 잘못했다"* 가 아니라 **읽기 도구가 호출된 기록**이 해시를
+깼다(`dbdiff_task.py` 독스트링이 이미 경고: *"`agent_discoverable_tools` … 가 해시에 포함돼
+**read-coverage 도 db_match 에 영향**한다"*).
+
+**행위자는 손님이다** — msg42 user 호출(미부여·오류) → **msg45 assistant `give_discoverable_user_tool`
+(= gold 액션·matched)** → msg48 user `{}`(오류) → **msg52 user `{account_id}` 성공** = 그 행.
+
+**세 사실이 겹쳐 도달을 막는다**
+1. 태스크 지시문이 **손님에게 호출을 시킨다**: *"(If the agent provides you with the
+   `get_card_last_4_digits` tool, **use it to retrieve the number**.)"*
+2. gold 는 **에이전트에게 그 도구를 주라고 요구한다**(주지 않으면 MISSING).
+3. 그런데 gold 액션 목록에 **`requestor=user` 항목이 0개**다 — gold 환경은 액션 목록만 재생하므로
+   그 행을 **가질 수 없다**.
+
+**형제 대조로 확증** gold 가 손님 도구를 주는 태스크 **21개 중 20개가 손님 호출을 담고 있고
+053 만 0개**다. 같은 도구를 쓰는 형제 6개(031·037·038·039·040·041)는 전부 1~4개.
+task_039 축자: `call_discoverable_user_tool{discoverable_tool_name: get_card_last_4_digits,
+arguments: {"credit_card_account_id": "cc_01f21c9970_gold"}}`.
+
+**코퍼스 확인** task_053 = **19 sim 전부 reward 0.0**(2026-07-18~2026-09-01 전 세대·전 태그).
+
+⇒ **수리 대상이 아니다.** [[68]] 분모 제외 후보로 올린다(현행 제외 = 102). ⚠제외는 [[54]] 비교
+규격에 영향을 주므로 리더보드 인용 시 **분모를 명시**한다.
+
