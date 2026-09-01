@@ -56,10 +56,15 @@ LOGD=/home/woori/scratch/logs
 #     감사 결과: 큐41 ∪ 오늘39 = 57 손댐. 밤샘 밖 16 중 실질 누락은 이 둘뿐이고 나머지는
 #     ⓐt3prime 기측정(012·055·057·101·026·029·081·084·088) ⓑ제외 후보(053·102·069)
 #     ⓒ기록만 하기로 한 것(036·039·사용자 지시).
-G1_P1="task_061,task_078,task_093,task_041,task_062,task_085,task_065,task_016,task_033,task_037,task_071"
-G1_P2="task_077,task_087,task_091,task_083,task_097,task_020,task_066,task_040,task_063,task_074"
-G2_P1="task_092,task_095,task_060,task_046,task_094,task_048,task_010,task_049,task_008,task_022,task_034"
-G2_P2="task_056,task_075,task_086,task_090,task_099,task_027,task_080,task_067,task_068,task_096,task_082"
+#   ★23시 3차 조정(사용자 지시 "t3prime 으로 pass 한 4개도 포함 · 수리된 태스크 pass 재평가"):
+#     **회귀 확인 4**(012·055·057·101 — 오늘 t3prime 통과분. 오늘 밤 다섯 변경이 이것들을 깨지
+#     않는지 봐야 한다) + **수리 대상 084**(뷰 임계) 추가 ⇒ **48**.
+#     ⇒ 이 런은 커버리지 + **회귀 게이트**를 겸한다: 012·055·057·101 중 하나라도 떨어지면
+#       오늘 스택은 되돌린다([[70]] 무엇을 팔았나를 그 자리에서 본다).
+G1_P1="task_012,task_061,task_078,task_093,task_041,task_062,task_048,task_010,task_049,task_016,task_033,task_037"
+G1_P2="task_071,task_077,task_087,task_091,task_083,task_099,task_057,task_020,task_066,task_040,task_063,task_074"
+G2_P1="task_092,task_095,task_060,task_046,task_094,task_055,task_085,task_065,task_101,task_008,task_022,task_034"
+G2_P2="task_056,task_075,task_086,task_090,task_084,task_097,task_027,task_080,task_067,task_068,task_096,task_082"
 
 run_one () {                      # $1=port $2=tag $3=tasks  (동기 실행)
   local port="$1" tag="$2" tasks="$3"
