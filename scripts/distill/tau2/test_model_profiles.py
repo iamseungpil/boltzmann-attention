@@ -14,7 +14,11 @@ import glob, os, re, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 DIR = os.path.join(HERE, "model_profiles")
-REQUIRED = ["T2_TOOL_SURFACE", "T2_MAX_MODEL_LEN", "T2_AGENT_MAX_TOKENS", "T2_STOP_FIRST_TOOLCALL"]
+# ★2026-09-01 추가: `T2_PROBE_MAX_TOKENS` 는 **모델에 매인 값**이다(사고를 쓰는 모델에서 256 은
+#   사고 예산과 같아 답 자리가 0 — 밤샘런 TRUNC 85건 전량이 그 호출이었다). 코드 기본값에 두면
+#   Q2.5 와 Q3.8 을 **동시에** 돌릴 때 한쪽 값이 다른 쪽으로 샌다 ⇒ 프로필 필수 키로 올린다.
+REQUIRED = ["T2_TOOL_SURFACE", "T2_MAX_MODEL_LEN", "T2_AGENT_MAX_TOKENS", "T2_STOP_FIRST_TOOLCALL",
+            "T2_PROBE_MAX_TOKENS"]
 KNOWN_SURFACES = {"hermes", "qwen3_xml"}
 
 
@@ -98,6 +102,35 @@ def test_launcher_refuses_without_a_profile():
     assert "x704_surface_preflight.py" in src, "표면형 선발사 검산이 빠졌다"
     assert "--profile" in src
 
+
+
+def test_thinking_profiles_leave_room_for_the_answer():
+    """사고를 쓰는 프로필은 프로브 상한이 예산 하한(256)의 **2배 이상**이어야 한다.
+    같으면 답이 들어갈 자리가 0 이고, 그것이 밤샘런 TRUNC 85건의 전부였다."""
+    for p in _profiles():
+        kv = _parse(p)
+        if "T2_THINK_BUDGET" not in kv:
+            continue
+        assert int(kv["T2_PROBE_MAX_TOKENS"]) >= 512, os.path.basename(p)
+
+
+def test_arms_are_single_axis_and_ctl_is_legacy():
+    """팔은 **하나의 축만** 바꾸고 `ctl` 은 종전 거동을 명시적으로 고정한다(기본값에 기대지 않는다)."""
+    d = os.path.join(os.path.dirname(os.path.abspath(__file__)), "arms")
+    ctl = open(os.path.join(d, "ctl.env"), encoding="utf-8").read()
+    vs = open(os.path.join(d, "viewscale.env"), encoding="utf-8").read()
+    assert "T2_VIEW_SCALE=off" in ctl and "T2_VIEW_COMPACT_MINTOTAL=60000" in ctl
+    assert "T2_VIEW_SCALE=auto" in vs
+    # viewscale 은 문턱을 **고정하지 않는다** — 모델을 바꾸면 파생식이 따라와야 하기 때문이다.
+    assert not any(l.strip().startswith("export T2_VIEW_COMPACT_MINTOTAL")
+                   for l in vs.splitlines())
+
+
+def test_launcher_accepts_an_arm():
+    src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "run_ours_task.sh"), encoding="utf-8").read()
+    assert "--arm" in src and "arms/$ARM.env" in src
+    assert "유효 config:" in src, "발사 로그에 유효값을 박아야 두 모델 동시 실행 시 새는 것이 보인다"
 
 if __name__ == "__main__":
     for n, f in sorted(globals().items()):

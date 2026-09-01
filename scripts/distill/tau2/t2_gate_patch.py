@@ -3679,6 +3679,35 @@ def free_text_drop(tool_calls, corpus_text, a2, log=None):
     return dropped
 
 
+def view_thresholds(cap_tokens=None, scale=None, mintotal=None, msgcap=None):
+    """★뷰-압축 문턱을 **모델 컨텍스트에서 유도**한다 (§T-6a·2026-09-01).
+
+    왜: 기존 상수 `min_total=60,000자 · msg_cap=8,000자` 는 컨텍스트 **44,672** 이던
+    Qwen2.5-32B 시절 값이다. Q3.8(131,072)에서 그것은 **컨텍스트의 11%** 에서 지우기 시작한다는
+    뜻이고, 실측 프롬프트는 p50 20,422 · **max 60,083** 이라 절반도 안 썼다. 남는 여유를 두고
+    지우면 모델이 **다시 읽고**, 그 재열람이 스텝 예산을 태운다(base 51~81 메시지 ↔ ours
+    209~293 · shell 0~13 ↔ 88~163 · `max_steps` 6/30). [[84]] 와 같은 종류의 사고다.
+
+    · `scale != "auto"` 면 **종전 상수 그대로**(대조군 보존·[[54]]).
+    · 명시 env(`T2_VIEW_COMPACT_MINTOTAL`·`T2_VIEW_MSG_CAP`)가 있으면 **그 값이 이긴다**(팔 고정용).
+    · 압축을 없애지 않는다 — 컨텍스트에 실제로 근접할 때의 안전망은 남긴다.
+    """
+    scale = (os.environ.get("T2_VIEW_SCALE", "off") if scale is None else scale)
+    cap = int(cap_tokens if cap_tokens is not None
+              else (os.environ.get("T2_MAX_MODEL_LEN") or 0) or 0)
+    mt, mc = 60000, 8000
+    if str(scale).lower() == "auto" and cap > 0:
+        mt = max(mt, int(cap * 0.5 * 3.5))   # 컨텍스트의 절반을 문자수로 (≈3.5 char/token)
+        mc = max(mc, int(cap * 0.25))
+    env_mt = os.environ.get("T2_VIEW_COMPACT_MINTOTAL") if mintotal is None else mintotal
+    env_mc = os.environ.get("T2_VIEW_MSG_CAP") if msgcap is None else msgcap
+    if env_mt:
+        mt = int(env_mt)
+    if env_mc:
+        mc = int(env_mc)
+    return mt, mc
+
+
 def _t2_msg_empty(_m):
     """tau2 자신의 유효성 법(`data_model/message.py:311-318` · `utils/llm_utils.py:234`) —
     본문도 도구호출도 없으면 그 메시지는 **존재할 수 없다**(§S-2)."""
@@ -8542,8 +8571,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 keep_recent=int(os.environ.get("T2_VIEW_COMPACT_KEEP", "6")),
                 min_len=int(os.environ.get("T2_VIEW_COMPACT_MINLEN", "800")),
                 # ★P5: 기본 60,000자(구 120,000=사망선 위·day5 6/32만 발동)·per-메시지 캡 8,000자.
-                min_total=int(os.environ.get("T2_VIEW_COMPACT_MINTOTAL", "60000")),
-                msg_cap=int(os.environ.get("T2_VIEW_MSG_CAP", "8000")))
+                min_total=view_thresholds()[0],
+                msg_cap=view_thresholds()[1])
             self._t2_view_digested = _dg
             # ★A-7⑶ (2026-08-23·016): 구판은 sim 당 1회라 실제 5개/4개가 로그 한 줄이 됐다.
             #   턴마다 다시 재되 **같은 집합이면 침묵**한다(부피는 안 늘고 변화는 남는다).

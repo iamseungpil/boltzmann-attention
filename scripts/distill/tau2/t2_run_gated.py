@@ -355,11 +355,11 @@ def main():
         # ⒜ **사실확인 프로브** — 자기 발화를 읽고 예/아니오. 추론 불필요 → 사고 OFF·짧게.
         _t2_probe_calls = {c.strip() for c in (os.environ.get("T2_PROBE_CALLS") or
                            "agent_writeprov,agent_claimprov,agent_selfdecl").split(",") if c.strip()}
-        # ★§S-6 (2026-09-01): 256 은 **사고 예산과 같아** 답 자리가 0 이었다 — 사고 예산 레일이
-        #   `max(256, cap//2)` 라 cap=256 이면 예산도 256 이다. 밤샘런 TRUNC **85건 전량**이
-        #   `call=agent_claimprov max_tokens=256` 이었다. 1:2 규칙(예산 256 : 상한 512)으로 올린다.
-        #   격리 선례 x705: 예산 256 · mt 512 → 전손 0/2(content 1,046B). env 로 덮을 수 있다.
-        _t2_probe_mt = int(os.environ.get("T2_PROBE_MAX_TOKENS", "512") or 0)
+        # ★§S-6 (2026-09-01): 이 상한은 **모델에 매인 값**이라 코드가 아니라 프로필이 갖는다
+        #   (`model_profiles/*.env` · 런처는 프로필 없으면 발사를 거부한다). 사고를 쓰는 모델에서
+        #   256 은 사고 예산(`max(256, cap//2)`)과 같아 **답 자리가 0** 이었고, 밤샘런 TRUNC
+        #   **85건 전량**이 `call=agent_claimprov max_tokens=256` 이었다. Q3.8 은 512(=예산 256의 2배).
+        _t2_probe_mt = int(os.environ.get("T2_PROBE_MAX_TOKENS", "256") or 0)
         # ⒝ **판단 프로브** — 도구/값을 고른다. 사고를 끄면 답이 바뀐다(실측: 사고ON 'none' ↔
         #    사고OFF 'get_current_time'). → **사고는 두고 형식만** guided JSON 으로 보장한다.
         #    실측(8141): guided+사고ON 은 1,247 토큰에서 답이 나오고 파싱 OK. 상한 800 은 부족했고

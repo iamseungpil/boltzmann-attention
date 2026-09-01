@@ -19,6 +19,7 @@ set -o pipefail
 # 옵션: --profile <이름|경로>  (미지정 = 서빙 중인 모델 id 로 자동 선택)
 #       --no-preflight            (표면형 선발사 검산 생략 — 권하지 않는다)
 PROFILE=""
+ARM=""
 PREFLIGHT=1
 # 동시성 — [[83]] 실측: max_concurrency=4 가 총 처리량 2배(23.6→46.4 tok/s · KV 2%→26% · Waiting 0).
 #   기본 1 은 base 대조군 규격(x617·x644)과 맞추기 위한 값이다.
@@ -28,6 +29,8 @@ TRIALS=1
 POS=()
 while [ $# -gt 0 ]; do
   case "$1" in
+    --arm) ARM="$2"; shift 2 ;;
+    --arm=*) ARM="${1#*=}"; shift ;;
     --profile) PROFILE="$2"; shift 2 ;;
     --profile=*) PROFILE="${1#*=}"; shift ;;
     --no-preflight) PREFLIGHT=0; shift ;;
@@ -36,7 +39,8 @@ while [ $# -gt 0 ]; do
     --trials=*) TRIALS="${1#*=}"; shift ;;
     --concurrency=*) CONC="${1#*=}"; shift ;;
     -h|--help)
-      echo "사용: run_ours_task.sh [--profile 이름|경로] [--no-preflight] [--concurrency N] [--trials N] <TAG> <PORT> <TASK_IDS>"
+      echo "사용: run_ours_task.sh [--profile 이름|경로] [--arm 이름] [--no-preflight] [--concurrency N] [--trials N] <TAG> <PORT> <TASK_IDS>"
+      ls -1 "$(dirname "$0")/arms" 2>/dev/null | sed 's|^|  팔: |'
       echo "  프로필 = model_profiles/<모델 id 의 / 를 __ 로 바꾼 이름>.env"
       ls -1 "$(dirname "$0")/model_profiles" 2>/dev/null | sed 's|^|  가용: |'
       exit 0 ;;
@@ -92,6 +96,17 @@ fi
 echo "[run_ours] 프로필: $PROFILE"
 # shellcheck disable=SC1090
 source "$PROFILE"
+
+# ★실험 팔(arm) — **같은 sha · env 만 다르다**([[54]]). 프로필(모델에 매인 값) **뒤**에 실려
+#   이번 실험에서 가르려는 축만 덮는다. 미지정이면 아무것도 안 바뀐다(종전 거동).
+if [ -n "$ARM" ]; then
+  ARMF="$(dirname "$0")/arms/$ARM.env"
+  [ -f "$ARMF" ] || { echo "REFUSING: 그런 팔이 없다 → $ARMF"; ls -1 "$(dirname "$0")/arms"/*.env 2>/dev/null | sed 's|^|  가용: |'; exit 1; }
+  # shellcheck disable=SC1090
+  source "$ARMF"
+  echo "[run_ours] 팔: $ARM ($ARMF)"
+fi
+
 export T2_ACTION_SUB=1 T2_KEEP_DENY_BODY=1 T2_CALL_FORM=1 T2_ARG_EMPTY=1 T2_SEARCH_AGENT=1
 export T2_SG_DOCS=1 T2_SG_PROMPT_V2=1 T2_SPEC_AT_WRITE=1 T2_WRITE_ARG_TYPE=1
 export T2_RULE_AT_WRITE=1 T2_DUP_WRITE=1
@@ -114,6 +129,9 @@ export T2_TRACE=$LOG/trace_${TAG}.jsonl
 echo "[run_ours] T2_AGENT_MAX_TOKENS=${T2_AGENT_MAX_TOKENS:-(미설정)} · T2_TOOL_SURFACE=${T2_TOOL_SURFACE:-(미선언)}"
 [ -n "${T2_TOOL_SURFACE:-}" ] || { echo "REFUSING: T2_TOOL_SURFACE 미선언 — 문법 표면형이 서버 파서와 어긋나면 도구 파싱이 전량 죽는다(x703)"; exit 1; }
 echo "[run_ours] 켜진 T2_/GO_ 변수 $(env | grep -cE '^(T2_|GO_)') 개"
+# ★모델에 매인 유효값을 **발사 로그에 박는다** — Q2.5 와 Q3.8 을 동시에 돌릴 때 값이 새는지
+#   런이 끝나기 전에 보이게([[30]] 계기는 회수돼야 존재한다).
+echo "[run_ours] 유효 config: surface=${T2_TOOL_SURFACE:-?} ctx=${T2_MAX_MODEL_LEN:-?} agent_mt=${T2_AGENT_MAX_TOKENS:-?} probe_mt=${T2_PROBE_MAX_TOKENS:-?} think=${T2_THINK_BUDGET:-(없음)} view_scale=${T2_VIEW_SCALE:-off} view_mintotal=${T2_VIEW_COMPACT_MINTOTAL:-(파생)} arm=${ARM:-(없음)}"
 
 # ★표면형 검산 — 선언을 믿지 않고 **한 번 쏴 본다**(요청 2개·max_tokens 128).
 #   문법이 파서와 어긋나면 네이티브 도구 파싱이 전량 죽는데, 그것은 런이 끝나야 보인다([[84]]).
