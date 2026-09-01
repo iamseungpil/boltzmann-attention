@@ -26,6 +26,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import t2_forensic as F
+import x430_account_facts as FT  # noqa: E402  (정본 DOCDIR·[[67]])
 from x733_048_percard_probe import (DB, TASK, USER_ID, ask, cards_from_db,
                                     gold_per_card, materials)
 
@@ -48,7 +49,7 @@ def declared_docs(proc):
     out = []
     for s in proc.get("_source") or []:
         did = str(s).split()[0].strip()
-        p = os.path.join(F.DOCDIR, "%s.json" % did)
+        p = os.path.join(FT.DOCDIR, "%s.json" % did)
         if not os.path.exists(p):
             print("  ⚠선언된 문서를 못 찾음: %s" % did)
             continue
