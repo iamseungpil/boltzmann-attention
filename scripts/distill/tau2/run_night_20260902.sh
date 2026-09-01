@@ -17,7 +17,16 @@
 #   ⓓ **재측정 9**(010·062·063·065·067·068·093·094·095) — 오늘 **다른 팔**에서 통과한 것들이다.
 #      단일 팔 수치가 없으면 pass율을 인용할 수 없다([[54]]) ⇒ t3prime 으로 다시 잰다.
 #
-# 팔: 두 GPU 모두 **t3prime 단일 팔**. ⚠`viewmax2` 는 넣지 않는다 — 짝 A/B 전용이라 섞으면 못 읽는다.
+# 팔: 두 GPU 모두 **viewmax2 단일 팔**(사용자 결정 2026-09-01 22시).
+#   ⚠`viewmax2` 는 별개 팔이 아니다 — `diff` 결과 t3prime 과 **한 줄 차이**다:
+#     `export T2_VIEW_COMPACT_MINTOTAL=344064` (=131072*0.75*3.5 · 뷰 총량 임계 50%→75%).
+#     즉 팔을 바꾸는 게 아니라 **레버 하나를 더 켠다**([[19]] 합성-우선·[[60]]).
+#   왜 켜나: 084 msg108 의 확정된 원인이 **우리 압축**이다 — 그 시점에 doc_031 의 category enum·
+#     card_action 매핑을 담은 메시지가 전부 다이제스트됐고 재도착 0이었다. 실측 프롬프트는
+#     p50 19,499 · max 63,677 토큰(컨텍스트의 48.6%)이라 절반이 놀고 있었다.
+#   ⚠이 런은 **스택 런이지 귀속 런이 아니다** — 오늘 밤 변경이 다섯이다(skip_when_tokens ·
+#     체인 문구 조건부화 · claimprov 스키마 충돌 · TRUNC 상한 · 뷰 임계). 귀속은 사후 per-task
+#     포렌식으로 가른다(084 는 다이제스트 집합 재구성으로 바로 갈린다).
 # 프로필: 오늘 올린 TRUNC 수리 적용(PROBE 2048 · JUDGE 16384) ⇒ **TRUNC 0 이 게이트 하나**다.
 #
 # 사용: bash run_night_20260902.sh [1|2]   (인자 없으면 둘 다 · 2번은 8143 이 비면 시작)
@@ -56,7 +65,7 @@ run_one () {                      # $1=port $2=tag $3=tasks  (동기 실행)
   local port="$1" tag="$2" tasks="$3"
   echo "[night] START $tag port=$port n=$(echo "$tasks" | tr ',' '\n' | wc -l) $(date +%H:%M)"
   cd "$HERE" || exit 1
-  bash ./run_ours_task.sh --trials 1 --concurrency 4 --arm t3prime \
+  bash ./run_ours_task.sh --trials 1 --concurrency 4 --arm viewmax2 \
        "$tag" "$port" "$tasks" > "${LOGD}/${tag}_driver.log" 2>&1
   echo "[night] DONE  $tag rc=$? $(date +%H:%M)"
 }
