@@ -10333,5 +10333,9 @@
         "Understanding Regulation E: Your Debit Card Consumer Protections"
       ]
     }
-  }
+  },
+  "group_dup_policy_docs": [
+    "Credit Card APY Bonuses: Stacking Policy"
+  ],
+  "_note_group_dup_policy_docs": "2026-09-01 §T-15. 교차그룹 동일값을 **표면화할 때 실어 보내는 정책 축자**. 출처=KB 문서 제목(gold 무접촉·[[23]]). 축자: '카드 보너스는 stack 하지 않는다 · 최고 하나만 적용'. ⚠엔진은 이 문서를 **해석하지 않는다** — 배달만 하고 같은 혜택인지 판단은 LLM 몫이다([[10]]/[[66]])."
 }

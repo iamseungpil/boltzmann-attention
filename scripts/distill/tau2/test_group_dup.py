@@ -57,13 +57,17 @@ def t_undeclared_tool_untouched():
     assert GP.group_dup_value(TC("some_tool", {"components": "[]"}), A2) is None
 
 
-def t_engine_does_not_choose_which_row_to_drop():
-    """엔진은 **어느 쪽을 빼라**고 정하지 않는다 — 혜택의 해석은 LLM 몫이다([[10]]/[[66]])."""
+def t_wording_states_a_fact_and_does_not_presume_error():
+    """⛔이 규칙의 출처는 **gold 이지 정책이 아니다**(사용자 지적·리뷰 M). 서로 다른 혜택이
+    우연히 같은 값일 수 있으므로 **오류로 단정하면 gold-fit** 이다([[23]]). 문면은 사실만 말한다."""
     src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                             "t2_gate_patch.py"), encoding="utf-8").read()
     i = src.index("[T2_GROUP_DUP]")
-    seg = src[i:i + 300]
-    assert "한 쪽을 빼고 다시 불러라" in seg and "pop(" not in seg
+    seg = src[i:i + 420]
+    assert "사실 진술" in seg and "판단은" in seg
+    assert "pop(" not in seg, "엔진이 행을 지우면 안 된다"
+    # 근거 한계가 코드에 남아 있어야 한다
+    assert "정책에는" in src[src.index("def group_dup_value"):src.index("def distinct_args_violation")]
 
 
 if __name__ == "__main__":

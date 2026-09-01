@@ -3635,6 +3635,12 @@ def sibling_paren_arg(tc):
     반환 `(도구, 인자, 값, 뺄 부분문자열)` 또는 None. **판단 0 · 도메인 리터럴 0**: 도메인 텍스트를
     해석하지 않고 한 호출 안 두 인자의 **문자열 관계**만 본다([[59]] 통과).
 
+    **출처(환경 선언 · gold 아님)**: env 독스트링이 이 인자를 *"account_class (string): **The full
+    official account class name**"* 이라고 정의한다 — 즉 **공식 상품명**이지 다른 인자를 되풀이한
+    합성 문자열이 아니다. 규칙 자체는 **구조적**이다(값이 형제 인자의 값을 괄호로 품지 않는다) —
+    도메인 지식도, gold 도 필요 없다.
+    ⚠gold 는 **검산에만** 썼다(⊖=0). 발견은 065 의 불일치에서 왔지만, 규칙을 gold 에서 읽어 온 것이
+    아니다 — 이 구분이 [[23]] 의 선이다.
     근거(065 실물): `account_class="Green Account (savings)"` 인데 같은 호출에
     `account_type="savings"` 가 이미 있다 — 같은 정보를 이름에 한 번 더 넣었고, env 는 이 인자를
     검증하지 않고 그대로 저장해 DB 행이 gold 와 달라졌다.
@@ -3687,9 +3693,13 @@ def group_dup_value(tc, a2):
     `relationship 0.025`(같은 카드의 관계 보너스)를 **함께** 보낸다. `card` 는 `max1` 이라 0.025 가
     0.6 에 밀려 버려지고, 같은 혜택이 `relationship`(sum)으로 다시 들어와 **6.85 → 6.875** 가 된다.
     ⇒ 094 `amount 140→148` · 095 `98→100`.
-    ⊖ 부호표(영속 전 런 전수): **교차그룹 동일값 있음 → 정답 0 · 오답 15** · 없음 → 정답 18 · 오답 154.
-    ⇒ 정답을 하나도 막지 않는다.
-    ⚠엔진은 **어느 행을 뺄지 고르지 않는다** — 그건 혜택의 해석이라 LLM 몫이다([[10]]/[[66]]).
+    ⛔**출처 한계(2026-09-01·사용자 지적)**: 이 형태는 **gold 와 계산값의 차이에서 발견**했고
+    부호표도 gold 대조다(교차그룹 동일값 있음 → 정답 0 · 오답 15 / 없음 → 18 · 154).
+    **정책에는 *"같은 혜택을 두 번 세지 마라"* 가 없다** — 도구 반환문의 스태킹 규칙은 *합치는
+    방법*만 말한다. 그리고 **서로 다른 두 혜택이 우연히 같은 값일 수 있다**. ⇒ 규칙의 출처가
+    정책이 아니라 gold 이므로 **반려 규칙으로 쓰지 않는다**([[23]] gold-fit 금지 · 리뷰 M).
+    쓰임은 **사실 표면화**뿐이다: *"값 v 가 그룹 A·B 양쪽에 있다"* 를 말하고 판단은 LLM 이 한다
+    ([[10]]/[[66]]). `deny` 로 승격하려면 **정책 축자**를 먼저 찾아야 한다.
     """
     d = None
     for t in ((a2 or {}).get("scaffold_get_tools") or []):
@@ -13111,7 +13121,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _sp = sibling_paren_arg(_tcp)
                     if _sp:
                         print("[T2_SIBLING_PAREN] %s.%s 가 형제 인자를 괄호로 되풀이한다 — %r 에서 "
-                              "%r 를 빼야 한다" % (_sp[0], _sp[1], _sp[2][:70], _sp[3]),
+                              "%r 를 빼라. 환경 선언상 이 인자는 **공식 상품명**이고 다른 인자를 "
+                              "되풀이한 합성 문자열이 아니다."
+                              % (_sp[0], _sp[1], _sp[2][:70], _sp[3]),
                               file=_sys.stderr, flush=True)
             except Exception as _spe:
                 print("[T2_SIBLING_PAREN] skip: %r" % (_spe,), file=_sys.stderr, flush=True)
@@ -13123,9 +13135,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 for _tcg in (am.tool_calls or []):
                     _gd = group_dup_value(_tcg, a2)
                     if _gd:
-                        print("[T2_GROUP_DUP] %s: 값 %s 가 그룹 %s 에 중복 — 같은 혜택을 두 번 "
-                              "세고 있지 않은지 확인하고 한 쪽을 빼고 다시 불러라"
-                              % (_gd[0], _gd[1], _gd[2]), file=_sys.stderr, flush=True)
+                        _pol = ""
+                        for _pd in ((a2 or {}).get("group_dup_policy_docs") or []):
+                            try:
+                                import t2_scaffold_get as _sg2
+                                for _doc2 in (_sg2._load_domain_docs("banking_knowledge") or []):
+                                    if str(_doc2.get("title") or "") == _pd:
+                                        _pol += (chr(10) + "--- policy (%s, verbatim) ---" % _pd
+                                                 + chr(10) + str(_doc2.get("content") or "")[:700])
+                                        break
+                            except Exception:
+                                pass
+                        print("[T2_GROUP_DUP] %s: 값 %s 가 그룹 %s 양쪽에 있다(사실 진술). "
+                              "서로 다른 혜택이면 둘 다 두고, 같은 혜택이면 한 쪽을 빼라 — 판단은 "
+                              "네 몫이다.%s" % (_gd[0], _gd[1], _gd[2], _pol),
+                              file=_sys.stderr, flush=True)
             except Exception as _gde:
                 print("[T2_GROUP_DUP] skip: %r" % (_gde,), file=_sys.stderr, flush=True)
 
