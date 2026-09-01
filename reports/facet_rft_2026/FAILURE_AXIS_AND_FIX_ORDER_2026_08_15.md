@@ -2710,3 +2710,37 @@ gold 쓰기에 대해 **자인 성공률**을 센다.
 ⑤ 자인 없음 → 반려 ⑥ **디스패처 경유**(`call_discoverable_agent_tool`) → 동일하게 적용
 ⑦ env OFF → 바이트 동일 ⑧ 같은 쓰기 2회째 반려 → 통과(상한)
 
+## §T-18. 036·046 재포렌식 — **내 두 진술이 모두 틀렸다** (지시문·정책 축자로 확정)
+
+⛔앞서 나는 두 태스크의 EXTRA 를 *"요청받지 않은 행동"* 이라 적었다. **둘 다 요청받았다.**
+
+### 046 — 요청된 납부였고, 문제는 **순서와 경로**다
+- 손님 축자(msg18): *"Yes, please **pay that off** from my checking account so we can move forward
+  with closing the card once it posts."* ⇒ **명시적 요청**.
+- 태스크 지시문 축자: *"If the agent mentions you have an outstanding balance, **agree to pay it off**.
+  … **However, if the agent offers you a statement credit as a final retention offer, you will accept
+  it and keep the card.**"* ⇒ **의도된 결말은 리텐션(카드 유지)** 이고, 그래서 gold 는
+  `log_verification` **한 행뿐**이다(폐쇄도 납부도 없어야 한다).
+- 에이전트 마지막 발화: *"Before I close anything, I ran the standard closure checks… **There is a
+  pending dispute on this card**."* ⇒ **납부를 먼저 하고 차단 조건을 나중에 확인**했다.
+- 폐쇄 정책 축자: *"Check these **in order**: 1. Pending disputes … 요건 미충족이면 무엇을 해결해야
+  하는지 설명하고 **do not proceed**."*
+⇒ **원인 = 적격성 검사 순서 역전**(§S-4 가 겨냥한 바로 그 자리) **+ 리텐션 절차 미탐색**
+(문서를 읽지도 않았다 · 048 과 같은 coverage 축·[[14]]).
+⚠`checking_account_id: "05"` 를 내가 *"쓰레기 id"* 라 했던 것도 틀렸다 — **gold 자신이 쓰는 값**이고
+(짧은 id 90건) `T2_FAB_STRIP` 의 길이 4 예외는 **그 90건을 지키는 장치**다.
+
+### 036 — 분쟁은 **에이전트가 유도한 뒤** 요청됐고, 시나리오는 그것을 금지한다
+- 태스크 지시문 축자: *"7. End the conversation: If the replacement is ordered, thank the agent and
+  end the conversation, **do not continue with submitting a dispute about the transactions**."*
+- 그런데 궤적에서는 손님이 msg91 에 *"For both charges, I want the **charges reversed (chargeback)**"*
+  라고 말한다 — **그 직전에 에이전트가 분쟁 접수 문답**(가맹점 연락·인지 시점·원하는 해결)을 던졌다.
+⇒ **user-sim 이 지시문 밖으로 나간 것이 아니라, 우리 에이전트가 거기로 데려갔다**([[21]]).
+
+### ⛔이 두 사례가 §T-17(근거 자인)을 **반증한다**
+046 의 납부는 msg18 을, 036 의 분쟁은 msg91 을 **근거로 댈 수 있다**. 근거 자인 계약은 **둘 다
+통과시킨다** ⇒ 이 실패군에는 무효다. 남는 것은 ⓐ **적격성 순서**(§S-4·046 에 유효) ⓑ 리텐션·retention
+같은 **절차 탐색**([[14]] E-PLAN) ⓒ *"필요 없는 절차를 스스로 열지 마라"* 는 **모델 층**이다.
+§T-17 은 *"어디에도 근거가 없는 쓰기"* 에만 값이 있고, 그 사례는 아직 실측으로 확인된 것이 없다
+⇒ **보류**(사용자 지시).
+
