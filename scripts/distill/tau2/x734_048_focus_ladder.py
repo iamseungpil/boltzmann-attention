@@ -197,6 +197,12 @@ def main():
         print("%-9s 합계 %2d/%d" % (arm, sum(hits.values()), reps * len(ids)))
         for i in ids:
             print("   %-22s %d/%d  %s" % (i, hits[i], reps, preds[i]))
+    persist("x734_%s_%s" % (TASK, tag), {
+        "probe": "x734", "tag": tag, "task": TASK, "model": model,
+        "limits": {"max_tokens": MT, "thinking_token_budget": TB},
+        "declared_docs": len(docs), "state_tools": stools, "log_tool": log_tool,
+        "gold": dict((i2, sorted(gold[i2])) for i2 in ids), "trunc": TRUNC["n"],
+        "arms": dict((a2, {"hits": res[a2][0], "preds": res[a2][1]}) for a2 in res)})
     return 0
 
 

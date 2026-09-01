@@ -31,11 +31,11 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import t2_forensic as F
-from x733_048_percard_probe import TRUNC, ask, limits
+from x733_048_percard_probe import TRUNC, ask, limits, persist
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-TOOL_CAP = 700
+TOOL_CAP = int(os.environ.get("T2_PROBE_TOOL_CAP") or 0)   # 기본 무제한(리뷰 X-1)
 
 
 def find_write(sim, arg_name):
@@ -82,7 +82,7 @@ def materials(sim, upto, with_tools=True):
         if r == "user":
             out.append("CUSTOMER: " + c)
         elif r == "tool" and with_tools:
-            out.append("TOOL RESULT: " + c[:TOOL_CAP])
+            out.append("TOOL RESULT: " + (c[:TOOL_CAP] if TOOL_CAP else c))
     return "\n\n".join(out)
 
 
@@ -113,14 +113,29 @@ def call_facts(ours, arg_name):
     return "\n".join("- %s: %s" % (k, v) for k, v in sorted(a.items()) if k != arg_name)
 
 
-Q = ("You are a bank support agent. Below is everything you have seen in this conversation so "
-     "far: the customer's messages and the results of every tool you ran (these include the "
-     "bank's own policy documents and account records).\n\n"
-     "=== CONVERSATION SO FAR ===\n%s\n=== END ===\n\n"
-     "You are about to file the customer's dispute. One field of that filing is `%s`.\n"
-     "Decide its value according to the bank's policy.\n"
-     "Also quote the sentence from the policy that decides it; if no policy sentence in the "
-     "material above decides it, say so in that field.")
+def build_q(mat, arg):
+    """근거를 **문서 id + 축자**로만 받는다 — 에코 문구를 넣지 않는다(리뷰 X-2).
+
+    종전 프롬프트는 "if no policy sentence in the material above decides it, say so in that
+    field" 라고 시켰고, 돌아온 근거 16줄이 그 문장의 **바이트 동일 반향**이었다. 그래서
+    *"근거를 못 댔다"* 가 관측이 아니라 **지시의 메아리**였다. 이제 모델은 문장을 **옮겨 적기만**
+    하고, 그것이 재료 안에 실재하는지는 **엔진이 substring 으로** 판정한다([[52]]).
+    """
+    parts = ["You are a bank support agent. Below is what you have seen in this conversation.",
+             "", "=== CONVERSATION ===", mat, "=== END ===", "",
+             "You are filing the customer's dispute. One field of that filing is: " + arg,
+             "Decide its value.",
+             "Then report the document id you relied on and the exact sentence from it.",
+             "Copy that sentence character for character from the material above;",
+             "do not paraphrase and do not summarise."]
+    return chr(10).join(parts)
+
+
+def grounded(quote, mat):
+    """엔진의 유일한 판정 = **축자 실재**. 해석·순위 0([[59]])."""
+    q = " ".join(str(quote or "").split())
+    m = " ".join(str(mat or "").split())
+    return bool(q) and len(q) >= 20 and q in m
 
 
 def main():
@@ -160,8 +175,8 @@ def main():
         vsch = {"type": "string", "enum": ["true", "false"]}
     else:
         vsch = {"type": "string"}
-    sch = {"type": "object", "required": ["value", "policy_basis"], "properties": {
-        "value": vsch, "policy_basis": {"type": "string"}}}
+    sch = {"type": "object", "required": ["value", "source_doc", "quote"], "properties": {
+        "value": vsch, "source_doc": {"type": "string"}, "quote": {"type": "string"}}}
 
     quotes = a3_quotes(arg)
     facts = call_facts(ours, arg)
@@ -180,25 +195,37 @@ def main():
 
     res = {}
     for armname, mat in arms:
-        hits, preds, bases = 0, [], []
+        hits, gnd, preds, bases = 0, 0, [], []
         for rep in range(reps):
-            r = ask(base, model, Q % (mat, arg), sch, max_tokens=MT, tb=TB)
+            r = ask(base, model, build_q(mat, arg), sch, max_tokens=MT, tb=TB)
             if r is None:
                 preds.append("무응답")
                 continue
             v = str(r.get("value")).strip().lower()
+            g = grounded(r.get("quote"), mat)   # ★엔진의 판정은 축자 실재뿐
             preds.append(v)
-            bases.append(str(r.get("policy_basis"))[:160])
+            gnd += 1 if g else 0
+            bases.append({"doc": str(r.get("source_doc"))[:60],
+                          "quote": str(r.get("quote"))[:200], "grounded": g})
             hits += 1 if v == gv else 0
-            print("  %s rep%d = %s" % (armname, rep, v), flush=True)
-        res[armname] = (hits, preds, bases)
+            print("  %s rep%d = %-24s 근거실재=%s" % (armname, rep, v, g), flush=True)
+        res[armname] = (hits, preds, bases, gnd)
 
     print("\n=== 결과 (gold=%s · %d회) ===  ⚠무응답 %d건" % (gv, reps, TRUNC["n"]))
-    for armname in ("A_LIVE", "B_CUSTOMER"):
-        hits, preds, bases = res[armname]
-        print("%-11s %d/%d  예측=%s" % (armname, hits, reps, preds))
+    for armname, _mat in arms:
+        hits, preds, bases, gnd = res[armname]
+        print("%-11s 정답 %d/%d · 근거실재 %d/%d  예측=%s"
+              % (armname, hits, reps, gnd, reps, preds))
         for b in bases[:2]:
-            print("      근거: %s" % b.replace("\n", " "))
+            print("      근거[%s] 실재=%s: %s" % (b["doc"], b["grounded"], " ".join(b["quote"].split())[:150]))
+    persist("x736_%s_%s_%s" % (task, arg, tag), {
+        "probe": "x736", "tag": tag, "task": task, "arg": arg, "model": model,
+        "limits": {"max_tokens": MT, "thinking_token_budget": TB},
+        "tool_cap": TOOL_CAP, "gold": gv, "live": ov, "cut_msg": cut,
+        "a3_quotes": len(quotes), "trunc": TRUNC["n"],
+        "materials": dict((k, len(m)) for k, m in arms),
+        "arms": dict((k, {"hits": res[k][0], "preds": res[k][1],
+                          "bases": res[k][2], "grounded": res[k][3]}) for k in res)})
     return 0
 
 

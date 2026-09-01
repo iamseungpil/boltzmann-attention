@@ -33,7 +33,11 @@ import t2_forensic as F
 TASK = "task_048"
 USER_ID = "e3f4a5b6c7"
 DB = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/db.json"
-TOOL_CAP = 700
+# ★2026-09-01 계기 수리(리뷰 X-1 치명): 종전 700 은 도구 출력을 **6~7% 만** 실었다
+#   (039 라이브 188,645자 → 프로브 11,701자). 그 잘림 때문에 "라이브와 같은 재료"가 거짓이었고
+#   x551 주석이 미리 경고한 것과 같은 실수다 — 축자: "짧은 창은 A_asis 3/4 로 결손을 지웠다".
+#   ⇒ 기본 = **무제한**(0). 자르려면 T2_PROBE_TOOL_CAP 을 명시 선언하라.
+TOOL_CAP = int(os.environ.get("T2_PROBE_TOOL_CAP") or 0)
 
 
 def cards_from_db(db_path, user_id):
@@ -53,7 +57,7 @@ def materials(sim, with_tools=True):
         if r == "user":
             out.append("CUSTOMER: " + c)
         elif r == "tool" and with_tools:
-            out.append("TOOL RESULT: " + c[:TOOL_CAP])
+            out.append("TOOL RESULT: " + (c[:TOOL_CAP] if TOOL_CAP else c))
     return "\n\n".join(out)
 
 
