@@ -87,8 +87,7 @@ def state_results(sim, account_id, tools):
             continue
         body = res.get(tc.get("id"))
         if body:
-            out.append("TOOL RESULT (%s):
-%s" % (nm, body[:900]))
+            out.append("TOOL RESULT (%s):\n%s" % (nm, body[:900]))
     return out
 
 
