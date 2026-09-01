@@ -19,6 +19,10 @@ ARM=${2:-}
 # ★시작 티어 (2026-09-01): 앞 티어를 이미 돌렸으면 거기서부터 잇는다 — 티어 경계가 정지점이자
 #   **재개점**이다. 예) `START_TIER=2 run_tiered_20260901.sh A viewscale_max`
 START_TIER=${START_TIER:-1}
+# ★SPLIT=1 (2026-09-01): 두 GPU 가 **같은 팔로 일감을 나눈다**(대조가 아니라 처리량).
+#   ⚠파는 것: 같은 sha 반대 팔이 없어지므로 이후 Δ 는 **인과가 아니라 관측**이다([[57]]·U-5 서식).
+#   기준선은 밤샘런(ctl 설정·다른 sha)과 T1 의 ctl 착지분으로만 남는다.
+SPLIT=${SPLIT:-0}
 # ★태그는 **발사마다 유일**해야 한다 (2026-09-01 사고): 같은 태그의 `results.json` 이 있으면
 #   tau2 가 *"resume? (y/n)"* 을 **대화형으로 묻고**, nohup 은 stdin 이 없어 `EOFError` 로 즉사한다.
 #   그리고 그 죽음이 rc=0 으로 보이면 드라이버가 다음 티어로 넘어간다(위 두 사고가 겹쳤다).
@@ -49,6 +53,18 @@ ARMOPT=""
 for TIER in 1 2 3 4 5; do
   [ "$TIER" -lt "$START_TIER" ] && continue
   eval IDS=\$T$TIER
+  if [ "$SPLIT" = "1" ]; then
+    # 티어 목록을 짝/홀로 갈라 A 는 짝번째, B 는 홀번째를 맡는다(티어 순서·우선순위는 보존).
+    _n=0; _mine=""
+    for _t in $(echo "$IDS" | tr "," " "); do
+      _n=$((_n+1)); _p=$((_n % 2))
+      if { [ "$SIDE" = "A" ] && [ "$_p" = "1" ]; } || { [ "$SIDE" = "B" ] && [ "$_p" = "0" ]; }; then
+        _mine="${_mine:+$_mine,}$_t"
+      fi
+    done
+    IDS="$_mine"
+    [ -n "$IDS" ] || { echo "[tiered] tier=$TIER 이 쪽 몫 없음 — 건너뜀"; continue; }
+  fi
   TAG="bank_x72${TIER}_t${TIER}${SIDE}_${SUF}_${STAMP}"
   echo "=================================================================="
   echo "[tiered] $(date '+%F %T') side=$SIDE port=$PORT arm=${ARM:-없음} tier=$TIER tag=$TAG"
