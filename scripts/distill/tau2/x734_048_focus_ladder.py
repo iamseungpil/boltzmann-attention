@@ -69,41 +69,26 @@ def declared_state_tools(proc, upto="log_reason"):
     return tools
 
 
-def _args_of(tc):
-    fn = tc.get("function") or {}
-    a = fn.get("arguments")
-    if isinstance(a, str):
-        try:
-            a = json.loads(a)
-        except Exception:
-            a = {}
-    a = a or {}
-    inner = a.get("agent_tool_name") or fn.get("name")
-    ia = a.get("arguments")
-    if isinstance(ia, str):
-        try:
-            ia = json.loads(ia)
-        except Exception:
-            ia = {}
-    vals = [v for v in list((ia or {}).values()) + list(a.values()) if isinstance(v, str)]
-    return inner, vals
-
-
 def state_results(sim, account_id, tools):
-    """그 카드에 대한 적격성 도구 **결과 축자**. 선별 기준은 선언된 도구 이름 + 인자로 넘긴
-    account_id — 본문 패턴매칭이 아니다([[59]])."""
-    M = sim.get("messages") or []
-    want = {}
-    for m in M:
-        for tc in (m.get("tool_calls") or []):
-            inner, vals = _args_of(tc)
-            if inner in tools and account_id in vals:
-                want[tc.get("id")] = inner
+    """그 카드에 대한 적격성 도구 **결과 축자**. 호출·인자·결과 잇기는 전부 **정본 헬퍼**를
+    쓴다([[67]] 사본 금지). 선별 기준은 선언된 도구 이름 + 인자로 넘긴 account_id 이지
+    본문 패턴매칭이 아니다([[59]])."""
+    res = {m["id"]: str(m.get("content") or "")
+           for m in (sim.get("messages") or [])
+           if m.get("role") == "tool" and m.get("id")}
     out = []
-    for m in M:
-        if m.get("role") == "tool" and m.get("tool_call_id") in want:
-            out.append("TOOL RESULT (%s):\n%s"
-                       % (want[m["tool_call_id"]], str(m.get("content") or "")[:900]))
+    for _m, tc in F.calls(sim):
+        a = F.argsof(tc)
+        nm = str(F.inner_name(a) or F.nameof(tc))
+        if nm not in tools:
+            continue
+        vals = [v for v in (F.flat_args(a) or {}).values() if isinstance(v, str)]
+        if account_id not in vals:
+            continue
+        body = res.get(tc.get("id"))
+        if body:
+            out.append("TOOL RESULT (%s):
+%s" % (nm, body[:900]))
     return out
 
 
