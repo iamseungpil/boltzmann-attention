@@ -70,11 +70,27 @@ def gold_per_card(sim, ids):
 TRUNC = {"n": 0}
 
 
-def ask(base, model, prompt, schema, timeout=900, max_tokens=8192):
+def think_budget(cap):
+    """사고 예산 = **상한의 절반**(하한 256 · 반드시 상한 미만).
+
+    정본은 `t2_run_gated._think_budget` 인데 **중첩 함수라 import 가 안 된다** — 정책만 옮긴다.
+    축자(t2_run_gated.py:600 부근 · 2026-08-31): *"생성 순서가 [사고 …] → [답] 이라, 상한이
+    사고 도중에 걸리면 **답이 통째로 사라진다** … 상한을 올리는 대신 **사고에만 예산**을 걸어
+    답 자리를 반드시 남긴다."* 그리고 *"예산이 상한과 같으면 답 전손은 시간 문제"*.
+    ⚠선행 실측 *"486토큰에서 답이 바뀐다"* 가 있으므로 더 조이지 않는다.
+    """
+    cap = int(cap or 0)
+    return max(256, cap // 2) if cap > 512 else None
+
+
+def ask(base, model, prompt, schema, timeout=900, max_tokens=4096):
     body = {"model": model, "temperature": 0.0, "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}],
             "response_format": {"type": "json_schema",
                                 "json_schema": {"name": "d", "schema": schema}}}
+    _tb = think_budget(max_tokens)
+    if _tb:
+        body["thinking_token_budget"] = _tb
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions",
                                  data=json.dumps(body).encode("utf-8"),
                                  headers={"Content-Type": "application/json"})
@@ -162,7 +178,7 @@ def main():
             if arm == "A_EACH":
                 for i in ids:
                     r = ask(base, model, HEAD % (desc, vocab_txt, mat_full) + ONE % i, sch_one,
-                            max_tokens=8192)
+                            max_tokens=4096)
                     if r is None:
                         preds[i].append("무응답")
                         continue
@@ -171,7 +187,7 @@ def main():
                     hits[i] += 1 if p == gold[i] else 0
             else:
                 mat = mat_full if arm == "B_ALL" else mat_strip
-                r = ask(base, model, HEAD % (desc, vocab_txt, mat) + ALL, sch_all, max_tokens=12288)
+                r = ask(base, model, HEAD % (desc, vocab_txt, mat) + ALL, sch_all, max_tokens=6144)
                 if r is None:
                     for i in ids:
                         preds[i].append("무응답")

@@ -167,7 +167,7 @@ def main():
             for i in ids:
                 if arm == "F_BINARY":
                     r = ask(base, model, BIN_Q % (govern, acct[i], st[i], log_tool),
-                            sch_bin, max_tokens=3072)
+                            sch_bin, max_tokens=2048)
                     if r is None:
                         preds[i].append("무응답")
                         continue
