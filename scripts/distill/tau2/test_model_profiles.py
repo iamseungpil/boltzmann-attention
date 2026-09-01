@@ -124,6 +124,12 @@ def test_arms_are_single_axis_and_ctl_is_legacy():
     # viewscale 은 문턱을 **고정하지 않는다** — 모델을 바꾸면 파생식이 따라와야 하기 때문이다.
     assert not any(l.strip().startswith("export T2_VIEW_COMPACT_MINTOTAL")
                    for l in vs.splitlines())
+    # ⛔그리고 **go_stack 의 명시값을 지워야** 파생식이 산다. 안 지우면 팔이 무력화된다
+    #   (실측: 첫 발사에서 arm=viewscale 인데 view_mintotal=60000 이 찍혔다).
+    assert "unset T2_VIEW_COMPACT_MINTOTAL" in vs and "unset T2_VIEW_MSG_CAP" in vs
+    go = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "go_stack.sh"),
+              encoding="utf-8").read()
+    assert "T2_VIEW_COMPACT_MINTOTAL=60000" in go, "이 전제가 깨지면 위 unset 의 이유가 사라진다"
 
 
 def test_launcher_accepts_an_arm():
