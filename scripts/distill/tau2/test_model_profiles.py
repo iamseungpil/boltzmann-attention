@@ -111,7 +111,9 @@ def test_thinking_profiles_leave_room_for_the_answer():
         kv = _parse(p)
         if "T2_THINK_BUDGET" not in kv:
             continue
-        assert int(kv["T2_PROBE_MAX_TOKENS"]) >= 512, os.path.basename(p)
+        assert int(kv["T2_PROBE_MAX_TOKENS"]) >= 2048, os.path.basename(p)
+        # ★2026-09-01: 512 에서도 TRUNC 4건(selfdecl 2 · claimprov 2 · content 1.8~1.9KB).
+        #   사용자 지시 "TRUNC 는 1개도 발생하면 안된다" ⇒ 하한을 2048 로 올린다.
 
 
 def test_arms_are_single_axis_and_ctl_is_legacy():
