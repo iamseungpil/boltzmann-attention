@@ -36,19 +36,38 @@ TOOL_CAP = 700
 
 
 def find_write(sim, arg_name):
-    """그 인자를 담은 **우리 쓰기**와 **gold 행**을 찾는다. 판정은 하지 않는다."""
+    """그 인자를 담은 **우리 쓰기**와 **짝이 되는 gold 행**을 찾는다. 판정은 하지 않는다.
+
+    ⚠첫 판에서 039 를 `gold=true` 로 찍었는데 실물 대조는 `gold=false ↔ ours=true` 였다 —
+      한 태스크에 같은 도구의 행이 여럿인데 **첫 행을 집었기** 때문이다. 짝짓기는 **대상 id**
+      (transaction_id 등)로 한다. id 가 겹치지 않으면 **인자 일치 수가 최대**인 행을 고르고,
+      후보가 둘 이상 동률이면 **모른다**로 두고 실행하지 않는다(잘못된 gold 로 재면 무의미하다).
+    """
     d = F.mutation_diff(sim)
     ours = None
     for r in (d.get("wrongarg") or []) + (d.get("extra") or []) + (d.get("done") or []):
         if arg_name in (r.get("args") or {}):
             ours = r
             break
-    gold = None
-    for g in d.get("gold") or []:
-        if arg_name in (g.get("args") or {}):
-            gold = g
-            break
-    return ours, gold
+    if ours is None:
+        return None, None
+    oa = ours.get("args") or {}
+    cands = [g for g in (d.get("gold") or [])
+             if g.get("name") == ours.get("name") and arg_name in (g.get("args") or {})]
+    if not cands:
+        return ours, None
+    if len(cands) == 1:
+        return ours, cands[0]
+    scored = []
+    for g in cands:
+        ga = g.get("args") or {}
+        same = sum(1 for k in ga if k != arg_name and str(ga.get(k)) == str(oa.get(k)))
+        scored.append((same, g))
+    scored.sort(key=lambda x: -x[0])
+    if len(scored) > 1 and scored[0][0] == scored[1][0]:
+        print("  ⚠gold 행 짝짓기 모호(동률 %d) — 실행하지 않는다" % scored[0][0])
+        return ours, None
+    return ours, scored[0][1]
 
 
 def materials(sim, upto, with_tools=True):
