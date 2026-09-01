@@ -27,11 +27,22 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 TS="$(date +%Y%m%d_%H%M)"
 LOGD=/home/woori/scratch/logs
 
-# 1단 = 단거리. 2단 = 장거리(마지막).
-G1_SHORT="task_046,task_048,task_049,task_010,task_062,task_063,task_065,task_034,task_060,task_099,task_071,task_037,task_020,task_008,task_077,task_078,task_056,task_097,task_027,task_075"
-G1_LONG="task_074"
-G2_SHORT="task_067,task_068,task_093,task_094,task_095,task_096,task_041,task_087,task_090,task_086,task_085,task_016,task_061,task_080,task_066,task_083,task_022,task_091,task_033"
-G2_LONG="task_092"
+# ── 배치 (사용자 지시 "이전 런 수행시간 참조해 빨리 끝나는 태스크를 먼저"·"074 092 등은 마지막")
+#   ⚠tau2 는 `--task_ids` **순서를 무시한다**(도메인 파일 순서로 멤버십 필터) ⇒ 순서는 **별도 런**으로만.
+#   실측 소요(오늘 로그에서 회수·초): 092 1881 · 061 2331 · 095 2790 · 078 3460 · 060 3987 ·
+#     093 4127 · 046 4170 · 041 4223 · 094 4447 · 062 4530 · 048 5190 · 085 5680 · 010 5970 ·
+#     065 6032 · 049 6120 · 083 6402 · 099 6694 · 097 6747 · 027 7920 · 020 8400 · 080 9697 ·
+#     066 9812 · 067 10500 · 068 10985 · 063 11134 · 096 11522 · **074 22065**. 미측정은 6400 가정.
+#   ⚠092 는 1,881초(31분)다 — 종전 "2.9h" 가정은 틀렸다. 진짜 장거리는 **074 하나**뿐이다.
+#   균형: 긴 것부터 가벼운 레인에 배정 → 양쪽 38.4h(동시성 4 ⇒ **약 9.6h**). 각 레인 안은 **오름차순**.
+#   단은 2개만 — 5개짜리 4단은 단마다 낙오자를 기다려 손해다.
+#   ★2026-09-01 21시 조정: 큐 배치4 가 **061·080·066·083 을 이미 돌고 있어** 목록에서 뺐다
+#     (중복 실행 방지). 큐 드라이버는 정지시켜 배치5 는 시작하지 않는다 ⇒ 022·091·033·092 는
+#     이 밤샘런이 담는다. 총 41 → **37**.
+G1_P1="task_095,task_060,task_046,task_094,task_085,task_065,task_071,task_008,task_056"
+G1_P2="task_087,task_086,task_022,task_033,task_097,task_027,task_068,task_074"
+G2_P1="task_092,task_078,task_093,task_041,task_062,task_048,task_010,task_049,task_034,task_037,task_077"
+G2_P2="task_075,task_090,task_016,task_091,task_099,task_020,task_067,task_063,task_096"
 
 run_one () {                      # $1=port $2=tag $3=tasks  (동기 실행)
   local port="$1" tag="$2" tasks="$3"
@@ -50,16 +61,16 @@ wait_port_free () {               # 그 포트를 쓰는 t2_run_gated 가 사라
   done
 }
 
-gpu_lane () {                     # $1=port $2=이름 $3=단거리 $4=장거리
+gpu_lane () {                     # $1=port $2=레인 $3=1단(짧은 것) $4=2단(긴 것·074 포함)
   wait_port_free "$1"
-  run_one "$1" "bank_night$2a_t3prime_${TS}" "$3"
-  run_one "$1" "bank_night$2b_long_${TS}"    "$4"
+  run_one "$1" "bank_night$2p1_t3prime_${TS}" "$3"
+  run_one "$1" "bank_night$2p2_t3prime_${TS}" "$4"
 }
 
 WHICH="${1:-both}"
-[ "$WHICH" = "1" ] || [ "$WHICH" = "both" ] && ( gpu_lane 8141 1 "$G1_SHORT" "$G1_LONG" ) &
-[ "$WHICH" = "2" ] || [ "$WHICH" = "both" ] && ( gpu_lane 8143 2 "$G2_SHORT" "$G2_LONG" ) &
+[ "$WHICH" = "1" ] || [ "$WHICH" = "both" ] && ( gpu_lane 8141 1 "$G1_P1" "$G1_P2" ) &
+[ "$WHICH" = "2" ] || [ "$WHICH" = "both" ] && ( gpu_lane 8143 2 "$G2_P1" "$G2_P2" ) &
 
 sleep 3
-echo "[night] 배치 완료 — 1단 20+19, 2단 074/092(마지막). 로그: ${LOGD}/bank_night*_${TS}*"
+echo "[night] 배치 완료 — 레인당 2단(짧은 것 먼저·074 는 마지막 단). 추정 각 9.6h. 로그: ${LOGD}/bank_night*_${TS}*"
 wait

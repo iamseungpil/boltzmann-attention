@@ -208,7 +208,13 @@ def _make_wrapper(inner):
     def _generate(model, messages, tools=None, tool_choice=None, call_name=None, **kwargs):
         if (os.environ.get("T2_GUIDED") == "1"
                 and tools
-                and tool_choice in (None, "auto")):
+                and tool_choice in (None, "auto")
+                # ★2026-09-01 라이브 실측: 스키마가 이미 걸린 콜에 문법까지 붙이면 서버가 **거부**한다 —
+                #   축자(bank_smoke048_2101): "You can only use one kind of structured outputs constraint
+                #   but multiple are specified". 그 결과 `agent_claimprov` 가 **6회 전부 no-op** 이었고,
+                #   날조-완료 차단 가드가 그만큼 꺼져 있었다(§T-12 가 고치려던 바로 그 증상의 재발).
+                #   ⇒ `response_format` 이 있으면 문법을 붙이지 않는다(스키마가 이미 형식을 묶는다).
+                and not kwargs.get("response_format")):
             g = grammar_for_tools(tools)
             if g:
                 eb = dict(kwargs.get("extra_body") or {})
