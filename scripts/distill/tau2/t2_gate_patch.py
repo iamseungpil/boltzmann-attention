@@ -3629,6 +3629,48 @@ def _eff_tool_name(tc):
     return re.sub(r"_\d+$", "", nm)
 
 
+def sibling_paren_arg(tc):
+    """★§T-8 — 인자가 **같은 호출의 다른 인자 값**을 괄호로 되풀이하는가.
+
+    반환 `(도구, 인자, 값, 뺄 부분문자열)` 또는 None. **판단 0 · 도메인 리터럴 0**: 도메인 텍스트를
+    해석하지 않고 한 호출 안 두 인자의 **문자열 관계**만 본다([[59]] 통과).
+
+    근거(065 실물): `account_class="Green Account (savings)"` 인데 같은 호출에
+    `account_type="savings"` 가 이미 있다 — 같은 정보를 이름에 한 번 더 넣었고, env 는 이 인자를
+    검증하지 않고 그대로 저장해 DB 행이 gold 와 달라졌다.
+    ⊖ 부호표: banking gold 문자열 인자 1,976 · 다도메인 영속 gold 3,577 **둘 다 형제-괄호 0건**
+    ⇒ 정답을 막지 않는다.
+
+    ⚠**디스패처 언랩이 하중이다**(재리뷰 W-2): 실물은 `call_discoverable_agent_tool` 이고 바깥
+    인자키가 `['agent_tool_name','arguments']` 뿐이라, inner JSON 을 안 풀면 두 값이 서로 형제로
+    보이지 않아 **영원히 거짓**이다. 같은 함정에 세 번 걸렸다(`_json` NameError · OL-A · `_fam_name`).
+    """
+    ar = _args_dict(tc) or {}
+    bag = ar
+    sub = ar.get("arguments")
+    if isinstance(sub, str):
+        try:
+            _p = json.loads(sub)
+            if isinstance(_p, dict):
+                bag = _p
+        except Exception:
+            pass
+    elif isinstance(sub, dict):
+        bag = sub
+    vals = {k: v for k, v in bag.items() if isinstance(v, str) and v.strip()}
+    for k, v in vals.items():
+        m = re.search(r"\(([^)]*)\)", v)
+        if not m:
+            continue
+        inner = m.group(1).strip().lower()
+        if not inner:
+            continue
+        for k2, v2 in vals.items():
+            if k2 != k and str(v2).strip().lower() == inner:
+                return (_exact_tool_name(tc) or getattr(tc, "name", "?"), k, v, m.group(0))
+    return None
+
+
 def free_text_drop(tool_calls, corpus_text, a2, log=None):
     """★자유서술 기본값 인자를 **근거 없으면 뺀다** (호출부: `unified()` · 단일 구현 [[67]]).
 
@@ -12930,6 +12972,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                log=lambda m: print(m, file=_sys.stderr, flush=True))
             except Exception as _fe9:
                 print("[T2_FREE_TEXT_ARG] skip: %r" % (_fe9,), file=_sys.stderr, flush=True)
+
+        # ★§T-8 계기 (2026-09-01·`T2_SIBLING_PAREN`) — **거동 변화 0**. 인자가 같은 호출의 다른
+        #   인자 값을 괄호로 되풀이하는 모양을 세기만 한다. 왜 계기부터인가: 전 코퍼스 101건은
+        #   **과거 런 분포**이고 현 스택 예측치가 아니다(재리뷰 W-4). 반려(`deny`)는 이 수를 보고
+        #   붙인다 — 그리고 그때는 **반려 상한 2회 후 경고 부착 통과**로 비용을 유계로 묶는다(W-5:
+        #   과거 한 sim 최다 18회 반복 · 회복률은 반려가 없던 데이터라 오프라인 측정 불가).
+        if os.environ.get("T2_SIBLING_PAREN") in ("log", "deny") and getattr(am, "tool_calls", None):
+            try:
+                for _tcp in (am.tool_calls or []):
+                    _sp = sibling_paren_arg(_tcp)
+                    if _sp:
+                        print("[T2_SIBLING_PAREN] %s.%s 가 형제 인자를 괄호로 되풀이한다 — %r 에서 "
+                              "%r 를 빼야 한다" % (_sp[0], _sp[1], _sp[2][:70], _sp[3]),
+                              file=_sys.stderr, flush=True)
+            except Exception as _spe:
+                print("[T2_SIBLING_PAREN] skip: %r" % (_spe,), file=_sys.stderr, flush=True)
 
         # ★EXHAUSTION→FAIL (T2_FAB_STRIP=1·BANK_IMPL_REDESIGN §2·2026-07-16):
         #   regen 소진 후에도 근거 없는(id-operand ∉ctx) WRITE 호출 = pass-through 금지 → strip + abstain.
