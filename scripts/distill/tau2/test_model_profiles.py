@@ -138,6 +138,22 @@ def test_launcher_accepts_an_arm():
     assert "--arm" in src and "arms/$ARM.env" in src
     assert "유효 config:" in src, "발사 로그에 유효값을 박아야 두 모델 동시 실행 시 새는 것이 보인다"
 
+
+def test_launcher_propagates_the_run_exit_code():
+    """★2026-09-01 사고: 요약 echo 가 마지막 명령이라 스크립트가 **항상 0** 을 돌려줬고,
+    티어 드라이버가 죽은 티어를 성공으로 읽어 **표적 판정 티어를 건너뛰었다**."""
+    src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "run_ours_task.sh"), encoding="utf-8").read()
+    assert "RC=${PIPESTATUS[0]}" in src and src.rstrip().endswith('exit "$RC"')
+
+
+def test_tiered_tags_are_unique_per_launch():
+    """같은 태그의 results.json 이 있으면 tau2 가 대화형으로 resume 을 묻고, nohup 은 stdin 이
+    없어 EOFError 로 즉사한다 — 태그에 발사 시각을 넣어 충돌 자체를 없앤다."""
+    src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "run_tiered_20260901.sh"), encoding="utf-8").read()
+    assert "date +%Y%m%d_%H%M" in src
+
 if __name__ == "__main__":
     for n, f in sorted(globals().items()):
         if n.startswith("test_"):

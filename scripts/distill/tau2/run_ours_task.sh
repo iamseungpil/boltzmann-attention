@@ -150,7 +150,13 @@ export PYTHONPATH=src:$REPO/scripts/distill/tau2
   --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 --user_reasoning_effort low \
   --task_ids "$TASKS" --num_trials "$TRIALS" --max_concurrency "$CONC" --max_steps 200 \
   --save_to "$TAG" 2>&1 | tee "$LOG/$TAG.log"
+# ★실행 결과를 **끝까지 들고 간다** (2026-09-01 사고): 아래 요약 `echo` 들이 마지막 명령이라
+#   스크립트가 **항상 0** 을 돌려줬고, 티어 드라이버가 죽은 티어를 성공으로 읽어 다음 티어로
+#   넘어갔다 — 표적 판정 티어가 통째로 건너뛰어졌다. `pipefail` 은 켜져 있어도 종료코드의
+#   **주인은 마지막 명령**이다.
+RC=${PIPESTATUS[0]}
 
 echo "=================================================================="
 echo "[run_ours] $(date '+%F %T') $TAG  pass1=$(grep -aoE 'pass1=[0-9]+/[0-9]+' "$LOG/$TAG.log" | tail -1)  TB=$(grep -ac Traceback "$LOG/$TAG.log")"
 echo "[run_ours] 계기: SALVAGED=$(grep -c 'SALVAGED=' "$LOG/$TAG.log") · TRUNC=$(grep -c 'TRUNC' "$LOG/$TAG.log") · 빈메시지재시작=$(grep -ac 'must have either content or tool_calls\|Message must have content or tool calls' "$LOG/$TAG.log")"
+exit "$RC"

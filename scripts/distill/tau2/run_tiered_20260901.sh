@@ -16,7 +16,10 @@
 set -o pipefail
 SIDE=${1:?A 또는 B}
 ARM=${2:-}
-STAMP=${STAMP:-20260901}
+# ★태그는 **발사마다 유일**해야 한다 (2026-09-01 사고): 같은 태그의 `results.json` 이 있으면
+#   tau2 가 *"resume? (y/n)"* 을 **대화형으로 묻고**, nohup 은 stdin 이 없어 `EOFError` 로 즉사한다.
+#   그리고 그 죽음이 rc=0 으로 보이면 드라이버가 다음 티어로 넘어간다(위 두 사고가 겹쳤다).
+STAMP=${STAMP:-$(date +%Y%m%d_%H%M)}
 case "$SIDE" in
   A) PORT=${PORT_A:-8141} ;;
   B) PORT=${PORT_B:-8143} ;;
