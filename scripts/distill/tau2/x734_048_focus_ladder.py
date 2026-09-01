@@ -27,7 +27,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import t2_forensic as F
 import x430_account_facts as FT  # noqa: E402  (정본 DOCDIR·[[67]])
-from x733_048_percard_probe import (DB, TASK, USER_ID, ask, cards_from_db,
+from x733_048_percard_probe import (DB, TASK, TRUNC, USER_ID, ask, cards_from_db,
                                     gold_per_card, materials)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -167,8 +167,11 @@ def main():
             for i in ids:
                 if arm == "F_BINARY":
                     r = ask(base, model, BIN_Q % (govern, acct[i], st[i], log_tool),
-                            sch_bin, max_tokens=900)
-                    got = bool((r or {}).get("log_new_reason"))
+                            sch_bin, max_tokens=3072)
+                    if r is None:
+                        preds[i].append("무응답")
+                        continue
+                    got = bool(r.get("log_new_reason"))
                     preds[i].append("log" if got else "skip")
                     hits[i] += 1 if got == gold_log[i] else 0
                 else:
@@ -176,8 +179,11 @@ def main():
                             "\n\n=== POLICY ===\n%s\n=== END POLICY ===" % govern) \
                         if arm == "D_FOCUS" else "(No policy documents are provided.)"
                     r = ask(base, model, ACT_Q % (head, acct[i], st[i], says, vocab_txt),
-                            sch_act, max_tokens=1200)
-                    p = norm((r or {}).get("actions"))
+                            sch_act, max_tokens=4096)
+                    if r is None:
+                        preds[i].append("무응답")
+                        continue
+                    p = norm(r.get("actions"))
                     preds[i].append(sorted(p))
                     hits[i] += 1 if p == gold[i] else 0
             print("  %s rep%d 완료" % (arm, rep), flush=True)

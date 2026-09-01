@@ -67,7 +67,10 @@ def gold_per_card(sim, ids):
     return out
 
 
-def ask(base, model, prompt, schema, timeout=300, max_tokens=1400):
+TRUNC = {"n": 0}
+
+
+def ask(base, model, prompt, schema, timeout=600, max_tokens=4096):
     body = {"model": model, "temperature": 0.0, "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}],
             "response_format": {"type": "json_schema",
@@ -77,10 +80,17 @@ def ask(base, model, prompt, schema, timeout=300, max_tokens=1400):
                                  headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         d = json.load(r)
-    txt = ((d.get("choices") or [{}])[0] or {}).get("message", {}).get("content") or ""
+    ch = (d.get("choices") or [{}])[0] or {}
+    txt = (ch.get("message") or {}).get("content") or ""
+    fr = ch.get("finish_reason")
     try:
         return json.loads(txt)
     except Exception:
+        # ★계기는 회수돼야 존재한다([[30]]). 이 프로브의 첫 판이 전 팔 빈 배열로 나온 이유가
+        #   `finish_reason=length`(사고가 상한 전량 소진·content None)였는데 조용히 삼켰다([[82]]).
+        TRUNC["n"] += 1
+        print("  ⚠응답 없음 finish_reason=%s content=%dB usage=%s"
+              % (fr, len(txt), (d.get("usage") or {}).get("completion_tokens")), flush=True)
         return None
 
 
@@ -151,15 +161,24 @@ def main():
         for rep in range(reps):
             if arm == "A_EACH":
                 for i in ids:
-                    r = ask(base, model, HEAD % (desc, vocab_txt, mat_full) + ONE % i, sch_one)
-                    p = norm((r or {}).get("actions"))
+                    r = ask(base, model, HEAD % (desc, vocab_txt, mat_full) + ONE % i, sch_one,
+                            max_tokens=4096)
+                    if r is None:
+                        preds[i].append("무응답")
+                        continue
+                    p = norm(r.get("actions"))
                     preds[i].append(sorted(p))
                     hits[i] += 1 if p == gold[i] else 0
             else:
                 mat = mat_full if arm == "B_ALL" else mat_strip
-                r = ask(base, model, HEAD % (desc, vocab_txt, mat) + ALL, sch_all, max_tokens=2200)
+                r = ask(base, model, HEAD % (desc, vocab_txt, mat) + ALL, sch_all, max_tokens=6144)
+                if r is None:
+                    for i in ids:
+                        preds[i].append("무응답")
+                    print("  %s rep%d 무응답" % (arm, rep), flush=True)
+                    continue
                 got = {c.get("account_id"): norm(c.get("actions"))
-                       for c in ((r or {}).get("cards") or [])}
+                       for c in (r.get("cards") or [])}
                 for i in ids:
                     p = got.get(i, set())
                     preds[i].append(sorted(p))
