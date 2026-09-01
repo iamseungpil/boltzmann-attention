@@ -108,9 +108,16 @@ OPERATOR_FIND_FB = (
 #   x322 는 **지목 자체가 파괴적**이라고 말한다.
 #   ⇒ 엔진은 **고르지 않는다**: 후보들의 **선언된 범위**(도구 자기 설명의 첫 문장·기계 추출·
 #     저작 0)만 인쇄하고 선택은 LLM 이 한다([[62]] ④ 위반 제거·[[64]] 무엇을 보고 고를지 제공).
+# ★2026-09-01 §T-9: 문면에 **탈출구**를 넣는다. 종전 문면은 *"어느 것이 선언돼 있는지 확인하라"*
+#   로 끝나서, **자기 선택이 옳다고 믿는 모델에게는 할 일이 없었다**([[64]] 위반). 036 실물:
+#   gold 가 요구하는 `order_replacement_credit_card_7291` 을 **10회 반려**했고, 에이전트는 그것을
+#   *"technical error"* 로 읽고 KB 에서 `OPERATOR-SCOPE` 를 검색하다 **포기하고 human 이관**했다
+#   ⇒ 그 gold 행이 통째로 MISSING. 이 파일의 주석이 이미 적어 둔 실측(*"61 중 49 는 끝내 실행됐다"*)
+#   과 같은 병이고, 이번엔 턴 낭비가 아니라 **태스크 상실**로 끝났다.
 OPERATOR_SCOPE_FB = (
     "[OPERATOR-SCOPE] you called '{chosen}'. The declared scope of the candidate tools is: "
-    "{scopes}. Check which one is declared for the object this request acts on."
+    "{scopes}. Check which one is declared for the object this request acts on. "
+    "If your choice is right for this object, call it again unchanged and it will proceed."
 )
 
 
@@ -268,6 +275,24 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
             # ★지목 대신 **범위 표면화**(기본·x322 실측). 지목 문구를 쓰려면 명시적으로
             #   `T2_OPERATOR_PINPOINT=1` 을 켜야 한다 — 되돌릴 길은 남기되 기본은 아니다([[60]]
             #   끄기가 아니라 조정: 발화는 계속 하고 **무엇을 말하는지만** 바꾼다).
+            # ★§T-9 반복 상한 (2026-09-01·`T2_SCOPE_DENY_CAP`·기본 1): 같은 `(chosen, want)` 를
+            #   두 번째로 반려하지 않는다. 근거는 이 파일이 이미 들고 있다 — **61 중 49 가 끝내
+            #   실행됐다**(반려가 선택을 바꾸지 않는다). 036 은 10회 반려 끝에 포기했다.
+            #   ⚠상한을 넘으면 **통과**시킨다 — 오답은 남을 수 있으나 **태스크를 잃지는 않는다**.
+            try:
+                _cap = int(os.environ.get("T2_SCOPE_DENY_CAP", "1") or 0)
+            except Exception:
+                _cap = 1
+            if _cap > 0 and agent is not None:
+                _seen = getattr(agent, "_t2_scope_denies", None)
+                if _seen is None:
+                    _seen = agent._t2_scope_denies = {}
+                _k = (str(chosen), str(want))
+                _seen[_k] = _seen.get(_k, 0) + 1
+                if _seen[_k] > _cap:
+                    print("[T2_RESOLVE] operator-scope 상한 초과(%d회) — 통과시킨다: chosen=%s"
+                          % (_seen[_k], chosen), file=sys.stderr, flush=True)
+                    return {"status": "ok"}
             if os.environ.get("T2_OPERATOR_PINPOINT") != "1":
                 _sc = [(n, _tool_scope(agent, n)) for n in (str(chosen), str(want))]
                 _sc = [(n, d) for n, d in _sc if d]

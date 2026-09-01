@@ -3671,6 +3671,79 @@ def sibling_paren_arg(tc):
     return None
 
 
+def distinct_args_violation(tc, a2, docs=None):
+    """★§T-10 — A2 가 **서로 달라야 한다**고 선언한 인자 쌍이 같은 값인가.
+
+    반환 `(도구, 인자A, 인자B, 값, 문면)` 또는 None. 엔진은 **비교만** 한다 — 어느 값이 옳은지
+    고르지 않는다([[10]]/[[52]]). 선언(어느 쌍인지·문면)은 A2 변경층이 갖는다([[05]]).
+
+    근거(082 실물·x722B): `file_debit_card_transaction_dispute_6281` 4행 전부에서
+    `customer_max_liability_amount` 가 어긋났고, **3행은 `disputed_amount` 와 값이 정확히 같았다**
+    (347.5·89.99·100.0) — 정책 상한 자리에 **거래 금액을 복사**한 것이다.
+    ⊖ 부호표: gold 에서 두 값이 같은 경우 **0/19**(gold 는 50×17·500×2) ⇒ 정답을 막지 않는다.
+    ⚠디스패처 언랩 필수(§T-8 과 같은 이유) — 실물 인자는 JSON 문자열 안에 있다.
+    """
+    decl = ((a2 or {}).get("distinct_args") or {})
+    if not decl:
+        return None
+    ar = _args_dict(tc) or {}
+    bag = ar
+    sub = ar.get("arguments")
+    if isinstance(sub, str):
+        try:
+            _p = json.loads(sub)
+            if isinstance(_p, dict):
+                bag = _p
+        except Exception:
+            pass
+    elif isinstance(sub, dict):
+        bag = sub
+    name = _exact_tool_name(tc) or str(getattr(tc, "name", ""))
+    spec = decl.get(name) or decl.get(_SUFFIX_RE.sub("", name))
+    if not spec:
+        return None
+    for pair in (spec.get("pairs") or []):
+        if len(pair) != 2:
+            continue
+        a, b = pair
+        if a not in bag or b not in bag:
+            continue
+        va, vb = bag.get(a), bag.get(b)
+        try:
+            same = abs(float(va) - float(vb)) < 1e-9
+        except Exception:
+            same = str(va).strip() == str(vb).strip()
+        if same:
+            _fb = (spec.get("fail_feedback") or
+                   "'%s' must not repeat '%s' — they are declared distinct." % (a, b))
+            # ★재료를 붙여 준다 (2026-09-01·사용자 지적 *"그냥 재시도하거나 반려하면 안 고쳐진다"*).
+            #   우리 실측이 그 말을 뒷받침한다 — `[OPERATOR-SCOPE]` 61회 반려 중 **49회가 끝내 그대로
+            #   실행**됐고, 036 은 10회 반려 끝에 **포기**했다. 지시는 안 듣는다([[63]]).
+            #   이 인자는 env 시그니처가 **필수·기본값 없음**이라 [[63]] 의 *제거*를 쓸 수 없다
+            #   ⇒ 남는 수단은 **재료 배달**이다([[78]] 격리 실패 = 거의 항상 재료 결손).
+            #   엔진은 **선언된 문서를 축자로 싣기만** 한다 — 어느 등급이 맞는지는 LLM 이 고른다
+            #   ([[10]]/[[52]] · 패턴매칭 0 · [[59]] 통과).
+            # ⚠문서 레코드에는 **id 가 없다**(실측: 키 = content·title) — 선언은 **제목**으로 한다.
+            for _did in (spec.get("policy_docs") or spec.get("policy_doc_ids") or []):
+                try:
+                    _docs = docs
+                    if _docs is None:                     # 주입 없으면 도메인에서 읽는다(검정=주입)
+                        import t2_scaffold_get as _sg
+                        _dom = (a2 or {}).get("_domain") or "banking_knowledge"
+                        _docs = _sg._load_domain_docs(_dom) or []
+                    for _doc in (_docs or []):
+                        if _did in (str(_doc.get("title") or ""),
+                                    str(_doc.get("id") or ""), str(_doc.get("doc_id") or "")):
+                            _body = str(_doc.get("content") or "")[:1200]
+                            _fb += (chr(10)*2 + "--- policy (%s, verbatim) ---" % _did
+                                    + chr(10) + _body)
+                            break
+                except Exception:
+                    pass
+            return (name, a, b, va, _fb)
+    return None
+
+
 def free_text_drop(tool_calls, corpus_text, a2, log=None):
     """★자유서술 기본값 인자를 **근거 없으면 뺀다** (호출부: `unified()` · 단일 구현 [[67]]).
 
