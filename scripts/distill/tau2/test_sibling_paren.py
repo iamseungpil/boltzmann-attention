@@ -55,9 +55,11 @@ def t_empty_paren_passes():
     assert G.sibling_paren_arg(tc) is None
 
 
-def t_case_and_space_insensitive():
-    tc = TC("x", {"kind": "Savings", "label": "Green Account ( savings )"})
-    assert G.sibling_paren_arg(tc) is not None
+def t_case_insensitive_but_not_pattern_based():
+    """대소문자는 흡수하되 **패턴은 쓰지 않는다**([[59]]). 그래서 괄호 안 공백처럼 실물에 없는
+    변형은 **일부러 안 잡는다** — 흡수하려면 정규화가 필요하고 그것이 곧 패턴 매칭이다."""
+    assert G.sibling_paren_arg(TC("x", {"kind": "Savings", "label": "Green Account (savings)"})) is not None
+    assert G.sibling_paren_arg(TC("x", {"kind": "savings", "label": "Green Account ( savings )"})) is None
 
 
 def t_gold_shape_never_fires():

@@ -3657,17 +3657,22 @@ def sibling_paren_arg(tc):
             pass
     elif isinstance(sub, dict):
         bag = sub
+    # ⛔정규식을 쓰지 않는다 (2026-09-01·[[59]]): 엔진이 도메인 값을 **패턴으로 뜯으면** 그 자체가
+    #   금지된 결정 방식이다. 필요한 것은 패턴이 아니라 **형제 값으로 만든 문자열의 포함 검사**다 —
+    #   `"(" + 형제값 + ")"` 가 이 값 안에 있는가. 문자열 동치/포함뿐이라 해석이 0이고,
+    #   기존 접지(`ns in nc`)와 같은 계열이다.
     vals = {k: v for k, v in bag.items() if isinstance(v, str) and v.strip()}
     for k, v in vals.items():
-        m = re.search(r"\(([^)]*)\)", v)
-        if not m:
-            continue
-        inner = m.group(1).strip().lower()
-        if not inner:
-            continue
+        low = v.lower()
         for k2, v2 in vals.items():
-            if k2 != k and str(v2).strip().lower() == inner:
-                return (_exact_tool_name(tc) or getattr(tc, "name", "?"), k, v, m.group(0))
+            if k2 == k:
+                continue
+            sib = str(v2).strip().lower()
+            if not sib:
+                continue
+            token = "(%s)" % sib
+            if token in low:
+                return (_exact_tool_name(tc) or getattr(tc, "name", "?"), k, v, token)
     return None
 
 
