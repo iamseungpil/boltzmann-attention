@@ -13067,6 +13067,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except Exception as _spe:
                 print("[T2_SIBLING_PAREN] skip: %r" % (_spe,), file=_sys.stderr, flush=True)
 
+        # ★§T-10 배선 (2026-09-01·`T2_DISTINCT_ARGS`) — A2 가 **서로 달라야 한다**고 선언한 인자
+        #   쌍이 같은 값이면 알린다. `log`=계기만 · `deny`=반려(정책 문서 축자 배달 포함).
+        #   ⛔이 배선을 빠뜨려 T2′ 에서 술어가 **한 번도 돌지 않았다**([[81]]). 정의만 있고 호출이
+        #   없으면 그 레버는 없는 것이다 — `test_lever_wiring.py` 가 이제 그것을 막는다.
+        if os.environ.get("T2_DISTINCT_ARGS") in ("log", "deny") and getattr(am, "tool_calls", None):
+            try:
+                for _tcd in (am.tool_calls or []):
+                    _dv = distinct_args_violation(_tcd, a2)
+                    if _dv:
+                        print("[T2_DISTINCT_ARGS] %s.%s == %s (%r) — 선언상 달라야 한다"
+                              % (_dv[0], _dv[1], _dv[2], _dv[3]),
+                              file=_sys.stderr, flush=True)
+            except Exception as _dve:
+                print("[T2_DISTINCT_ARGS] skip: %r" % (_dve,), file=_sys.stderr, flush=True)
+
         # ★EXHAUSTION→FAIL (T2_FAB_STRIP=1·BANK_IMPL_REDESIGN §2·2026-07-16):
         #   regen 소진 후에도 근거 없는(id-operand ∉ctx) WRITE 호출 = pass-through 금지 → strip + abstain.
         #   (C12 "id 날조는 env가 거부" 가정이 banking 디스패처 dispute엔 불성립=날조 txn이 reward0로 통과.)
