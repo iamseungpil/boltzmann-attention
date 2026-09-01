@@ -44,6 +44,23 @@ def t_q25_profile_is_close_to_legacy():
     assert 60000 <= mt <= 100000, mt
 
 
+
+def t_msgcap_zero_disables_the_per_message_path():
+    """★§T-6b — 압축 경로 ①(메시지당 캡)을 끄는 팔. `_compact_view` 는 `msg_cap` 이 0이면
+    `total < min_total` 에서 **조기 반환**하므로 경로 ① 자체가 죽고 ②(총량 문턱)만 남는다."""
+    mt, mc = G.view_thresholds(cap_tokens=131072, scale="auto", msgcap="0")
+    assert mc == 0 and mt == int(131072 * 0.5 * 3.5), (mt, mc)
+
+
+def t_arm_files_declare_the_two_paths_distinctly():
+    import os
+    d = os.path.join(os.path.dirname(os.path.abspath(__file__)), "arms")
+    vs = open(os.path.join(d, "viewscale.env"), encoding="utf-8").read()
+    vm = open(os.path.join(d, "viewscale_max.env"), encoding="utf-8").read()
+    # viewscale 은 ①을 파생값으로 남기고, viewscale_max 는 ①을 끈다 — 한 칸만 다르다.
+    assert "T2_VIEW_MSG_CAP=0" in vm and "unset T2_VIEW_MSG_CAP" in vs
+    assert "T2_VIEW_SCALE=auto" in vs and "T2_VIEW_SCALE=auto" in vm
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("t_")]
     for f in fns:
