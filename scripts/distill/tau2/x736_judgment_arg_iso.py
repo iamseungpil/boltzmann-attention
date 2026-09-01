@@ -32,6 +32,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import t2_forensic as F
 from x733_048_percard_probe import TRUNC, ask, limits
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+
 TOOL_CAP = 700
 
 
@@ -81,6 +83,34 @@ def materials(sim, upto, with_tools=True):
         elif r == "tool" and with_tools:
             out.append("TOOL RESULT: " + c[:TOOL_CAP])
     return "\n\n".join(out)
+
+
+def a3_quotes(arg_name):
+    """A3 `policy_facts` 에서 **그 축의 선언된 축자**를 읽는다 — 우리가 고르지 않는다([[71]]).
+
+    선언이 없으면 빈 목록을 돌려주고, 그 사실 자체가 결손의 신호다([[62]]).
+    """
+    import json as _j
+    fn = os.path.join(HERE, "a2", "banking_knowledge.policy_facts.json")
+    if not os.path.exists(fn):
+        return []
+    with io.open(fn, encoding="utf-8") as f:
+        d = _j.load(f)
+    out = []
+    for r in d.get("rows") or []:
+        if r.get("axis") != arg_name:
+            continue
+        for src in r.get("sources") or []:
+            q = str(src.get("quote") or "").strip()
+            if q:
+                out.append("[%s]\n%s" % (src.get("doc"), q))
+    return out
+
+
+def call_facts(ours, arg_name):
+    """같은 호출의 **다른 인자들** = 모델이 이미 형식화해 둔 사건 사실."""
+    a = (ours or {}).get("args") or {}
+    return "\n".join("- %s: %s" % (k, v) for k, v in sorted(a.items()) if k != arg_name)
 
 
 Q = ("You are a bank support agent. Below is everything you have seen in this conversation so "
@@ -133,8 +163,23 @@ def main():
     sch = {"type": "object", "required": ["value", "policy_basis"], "properties": {
         "value": vsch, "policy_basis": {"type": "string"}}}
 
+    quotes = a3_quotes(arg)
+    facts = call_facts(ours, arg)
+    arms = [("A_LIVE", live), ("B_CUSTOMER", cust)]
+    if quotes:
+        sep = chr(10) + chr(10)
+        decl = ("=== BANK POLICY (verbatim, as declared for this field) ===" + chr(10)
+                + sep.join(quotes)
+                + chr(10) + "=== END POLICY ===" + sep
+                + "=== THE CASE, AS ALREADY ESTABLISHED ===" + chr(10) + facts)
+        arms.append(("C_A3", decl))
+        arms.append(("D_A3_TOOLS", decl + sep + "=== TOOL RESULTS ===" + chr(10) + live))
+        print("  A3 선언 축자 %d개 · %d자 · 사건 사실 %d자" % (len(quotes), len(decl), len(facts)))
+    else:
+        print("  ⚠A3 에 이 축의 선언이 **없다** — 선언 팔을 돌리지 않는다(결손 자체가 관측이다)")
+
     res = {}
-    for armname, mat in (("A_LIVE", live), ("B_CUSTOMER", cust)):
+    for armname, mat in arms:
         hits, preds, bases = 0, [], []
         for rep in range(reps):
             r = ask(base, model, Q % (mat, arg), sch, max_tokens=MT, tb=TB)
