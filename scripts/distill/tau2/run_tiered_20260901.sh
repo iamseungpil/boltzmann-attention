@@ -16,6 +16,9 @@
 set -o pipefail
 SIDE=${1:?A 또는 B}
 ARM=${2:-}
+# ★시작 티어 (2026-09-01): 앞 티어를 이미 돌렸으면 거기서부터 잇는다 — 티어 경계가 정지점이자
+#   **재개점**이다. 예) `START_TIER=2 run_tiered_20260901.sh A viewscale_max`
+START_TIER=${START_TIER:-1}
 # ★태그는 **발사마다 유일**해야 한다 (2026-09-01 사고): 같은 태그의 `results.json` 이 있으면
 #   tau2 가 *"resume? (y/n)"* 을 **대화형으로 묻고**, nohup 은 stdin 이 없어 `EOFError` 로 즉사한다.
 #   그리고 그 죽음이 rc=0 으로 보이면 드라이버가 다음 티어로 넘어간다(위 두 사고가 겹쳤다).
@@ -44,6 +47,7 @@ ARMOPT=""
 [ -n "$ARM" ] && ARMOPT="--arm $ARM"
 
 for TIER in 1 2 3 4 5; do
+  [ "$TIER" -lt "$START_TIER" ] && continue
   eval IDS=\$T$TIER
   TAG="bank_x72${TIER}_t${TIER}${SIDE}_${SUF}_${STAMP}"
   echo "=================================================================="
