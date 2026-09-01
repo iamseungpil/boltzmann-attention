@@ -70,7 +70,7 @@ def gold_per_card(sim, ids):
 TRUNC = {"n": 0}
 
 
-def ask(base, model, prompt, schema, timeout=600, max_tokens=4096):
+def ask(base, model, prompt, schema, timeout=900, max_tokens=8192):
     body = {"model": model, "temperature": 0.0, "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}],
             "response_format": {"type": "json_schema",
@@ -162,7 +162,7 @@ def main():
             if arm == "A_EACH":
                 for i in ids:
                     r = ask(base, model, HEAD % (desc, vocab_txt, mat_full) + ONE % i, sch_one,
-                            max_tokens=4096)
+                            max_tokens=8192)
                     if r is None:
                         preds[i].append("무응답")
                         continue
@@ -171,7 +171,7 @@ def main():
                     hits[i] += 1 if p == gold[i] else 0
             else:
                 mat = mat_full if arm == "B_ALL" else mat_strip
-                r = ask(base, model, HEAD % (desc, vocab_txt, mat) + ALL, sch_all, max_tokens=6144)
+                r = ask(base, model, HEAD % (desc, vocab_txt, mat) + ALL, sch_all, max_tokens=12288)
                 if r is None:
                     for i in ids:
                         preds[i].append("무응답")
