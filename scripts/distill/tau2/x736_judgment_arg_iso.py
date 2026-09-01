@@ -24,6 +24,7 @@
 
 사용: x736_judgment_arg_iso.py <base_url> <model> <tag> <task_id> <arg_name> [반복]
 """
+import io
 import json
 import os
 import sys
@@ -90,12 +91,11 @@ def a3_quotes(arg_name):
 
     선언이 없으면 빈 목록을 돌려주고, 그 사실 자체가 결손의 신호다([[62]]).
     """
-    import json as _j
     fn = os.path.join(HERE, "a2", "banking_knowledge.policy_facts.json")
     if not os.path.exists(fn):
         return []
     with io.open(fn, encoding="utf-8") as f:
-        d = _j.load(f)
+        d = json.load(f)
     out = []
     for r in d.get("rows") or []:
         if r.get("axis") != arg_name:
