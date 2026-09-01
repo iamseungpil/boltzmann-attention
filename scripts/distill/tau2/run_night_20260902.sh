@@ -38,11 +38,14 @@ LOGD=/home/woori/scratch/logs
 #   단은 2개만 — 5개짜리 4단은 단마다 낙오자를 기다려 손해다.
 #   ★2026-09-01 21시 조정: 큐 배치4 가 **061·080·066·083 을 이미 돌고 있어** 목록에서 뺐다
 #     (중복 실행 방지). 큐 드라이버는 정지시켜 배치5 는 시작하지 않는다 ⇒ 022·091·033·092 는
-#     이 밤샘런이 담는다. 총 41 → **37**.
-G1_P1="task_095,task_060,task_046,task_094,task_085,task_065,task_071,task_008,task_056"
-G1_P2="task_087,task_086,task_022,task_033,task_097,task_027,task_068,task_074"
+#     이 밤샘런이 담는다.
+#   ★22시 재조정(사용자 지시 "배치4 멈추고 배치4 포함하여 최신 스택으로"): 배치4 는 낡은 스택
+#     (claimprov 가드 사망 · 체인 문구 무조건 로깅)으로 돌고 있었다 ⇒ **중단하고 되돌린다**.
+#     총 **41**(061·080·066·083 복귀).
+G1_P1="task_061,task_095,task_060,task_046,task_094,task_085,task_065,task_071,task_008,task_056"
+G1_P2="task_087,task_086,task_022,task_033,task_083,task_097,task_027,task_068,task_074"
 G2_P1="task_092,task_078,task_093,task_041,task_062,task_048,task_010,task_049,task_034,task_037,task_077"
-G2_P2="task_075,task_090,task_016,task_091,task_099,task_020,task_067,task_063,task_096"
+G2_P2="task_075,task_090,task_016,task_091,task_099,task_020,task_080,task_066,task_067,task_063,task_096"
 
 run_one () {                      # $1=port $2=tag $3=tasks  (동기 실행)
   local port="$1" tag="$2" tasks="$3"
