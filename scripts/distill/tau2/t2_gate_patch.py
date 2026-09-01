@@ -1847,6 +1847,52 @@ def _wev_deny_msgs(messages, tc, specs):
         #   한 갈래 열어둔 셈이다. 그렇다고 토큰을 `RESOLVED_CUSTOMER_FAVOR`로 좁히면 도구 출력
         #   형식(`Status: RESOLVED - approved`·026/028 실재)이 막혀 회귀한다. ⇒ 긍정 토큰은 넓게
         #   두고 **자격 없는 상태명을 A2가 선언**해 배제한다. 엔진은 집합 비포함만 본다(리터럴 0).
+        # ★skip_when_tokens (2026-09-01) — **정책이 이 단계를 건너뛰라고 말하는 경우**를 선언으로 받는다.
+        #   왜: 048/049 의 green 여분 행은 **우리가 만들었다**. 실물 축자(bank_x731_qB_… 로그):
+        #     `[T2_WRITE_EVIDENCE] deny tool=call_discoverable_agent_tool inner=close_credit_c…`
+        #     `WRITE-EVIDENCE] no tool output … shows that the closure reason logging …`
+        #   그런데 정책은 그 자리에서 **건너뛰라**고 한다 — doc_credit_cards_credit_card_account_
+        #   logistics_003 Step 2 축자: "If records exist for this account within that time frame,
+        #   skip retention offers and proceed directly to processing the closure."
+        #   ⇒ 요구를 없애는 것이 아니라 **정책이 지정한 조건에서만 요구를 끈다**.
+        #   엔진은 기존 계열과 같은 일만 한다 — **대상 id 와 선언 토큰의 공존 실재확인**([[03b]]).
+        #   ⚠[[70]] 파는 것: 정책은 "within the past year" 로 기간을 한정하는데 이 술어는 **기간을
+        #     보지 않는다**(날짜 산술을 엔진이 하면 [[59]]/[[62]] 를 건드린다). 1년보다 오래된
+        #     기록이 있으면 정책은 로깅을 요구하는데 우리는 끈다 ⇒ **MISSING 을 만들 수 있다**.
+        #     그 부호는 점화 전에 코퍼스로 센다.
+        _skipt = sp.get("skip_when_tokens") or []
+        if _skipt and idv:
+            # ★자기오염 배제 — **우리 자신의 쓰기가 만든 기록은 근거가 아니다**.
+            #   ⚠정직 표기: 이 가드는 `found` 분기와 **겹친다** — 우리 로그가 이미 있으면 게이트는
+            #   애초에 반려하지 않는다. 종전 주석의 "⊖=19 → 0" 은 `found` 를 모형화하지 않은
+            #   대리지표였다. **게이트 충실 부호표 = ⊖ 0 · ⊕ 37**(049 18 · 048 17 · 046 1 · 043 1).
+            #   가드는 방어로 남긴다(뒤늦은 이력 읽기가 다른 close 를 풀어 주는 경로 차단).
+            #   판정은 **메시지 순서**뿐이다 — 해석 0.
+            _req9 = sp.get("require_tokens") or []   # `tokens` 는 아래에서 정의된다
+            _own = None
+            for _j9, _m9 in enumerate(messages):
+                if getattr(_m9, "role", None) != "tool":
+                    continue
+                _c9 = getattr(_m9, "content", None)
+                _c9 = _c9 if isinstance(_c9, str) else str(_c9 or "")
+                if str(idv) in _c9 and all(_t9 in _c9 for _t9 in _req9):
+                    _own = _j9
+                    break
+            _skip = False
+            for _j9, _m9 in enumerate(messages):
+                if getattr(_m9, "role", None) != "tool":
+                    continue
+                if _own is not None and _j9 >= _own:
+                    break
+                _c9 = getattr(_m9, "content", None)
+                _c9 = _c9 if isinstance(_c9, str) else str(_c9 or "")
+                if str(idv) in _c9 and all(_t9 in _c9 for _t9 in _skipt):
+                    _skip = True
+                    break
+            if _skip:
+                print("[T2_WRITE_EVIDENCE] skip=policy-branch id=%s tokens=%s"
+                      % (str(idv)[:40], ",".join(_skipt)[:60]), file=sys.stderr, flush=True)
+                continue
         tokens = sp.get("require_tokens") or []
         forbid = sp.get("forbid_tokens") or []
         # 2026-08-28 - `{arg:NAME}` 치환(위 `_wev_expand`). 중첩 JSON 인자도 편다.
