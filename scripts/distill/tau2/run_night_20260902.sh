@@ -67,10 +67,13 @@ LOGD=/home/woori/scratch/logs
 #     (`forbid_when_tokens`·f7cc0ba6)가 들어간 뒤라 048 을 다시 넣는다 ⇒ **47**.
 #     직전 스모크(048c)는 그 수리 **이전** 스택이었고 green·eco 에 여전히 로깅했다 —
 #     요구를 끄는 것과 소프트 문구만으로는 안 됐고, 이제 금지가 걸린다.
-#     084 는 스모크(viewmax2)로 계속 판정한다.
+#     ★23시 6차(사용자 지시 "048 084 모두 같은 스택으로 포함 · 084 끝나고 나서"):
+#       084 도 넣는다 ⇒ **48**. 진행 중이던 084 스모크는 `forbid_when_tokens` **이전** 스택이라
+#       판정에 못 쓴다. GPU1 레인은 이미 최신 스택으로 돌고 있으므로 두고, **GPU2 레인만**
+#       스모크 종료 후 재발사한다(`run_night_20260902.sh 2`).
 G1_P1="task_012,task_061,task_078,task_093,task_041,task_062,task_085,task_065,task_101,task_008,task_022,task_034,task_048"
 G1_P2="task_056,task_075,task_086,task_090,task_099,task_057,task_020,task_066,task_040,task_063,task_074"
-G2_P1="task_092,task_095,task_060,task_046,task_094,task_055,task_010,task_049,task_016,task_033,task_037,task_071"
+G2_P1="task_092,task_095,task_060,task_046,task_094,task_055,task_010,task_049,task_016,task_033,task_037,task_071,task_084"
 G2_P2="task_077,task_087,task_091,task_083,task_097,task_027,task_080,task_067,task_068,task_096,task_082"
 
 run_one () {                      # $1=port $2=tag $3=tasks  (동기 실행)
