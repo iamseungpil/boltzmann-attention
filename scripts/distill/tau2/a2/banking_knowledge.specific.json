@@ -324,6 +324,20 @@
    "_note_": "2026-08-28 · t7378 task_074#s626729. 우리 비교기가 msg[55~57] 에서 14.5 · 4.75 · 3.7 을 내고 반환문이 축자로 \"use it as the credit amount\" 라고 했는데, 모델은 손님이 msg[59] 에서 말한 9.00 · 1.50 · 1.50 을 제출했다(손님은 _err 접미사 행만 세었다). 우리 값도 지시도 있었는데 층위가 뒤집혔다([[25]]).",
    "_note_radius_": "배선 전 오프라인 반경(8런·크레딧 쓰기 58건): 막힐 것 **4건**이고 그 4건이 전부 WRONGARG 다(s626729 의 9.0·1.5·1.5 + t7370 s373753 의 5.0). 오차단 0 · reward=1 인 sim 의 쓰기 28건 중 막힐 것 0.",
    "_note_source_": "출처는 우리 도구의 반환 선언 축자 - \"That signed total is the net correction for THIS account - use it as the credit amount; do not re-add the figures by hand\" · 그리고 \"the credit policy requires ONE fee_refund credit for the net correction of THIS account\". gold 무참조([[23]])."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "log_credit_card_closure_reason"
+   },
+   "id_key": "credit_card_account_id",
+   "forbid_when_tokens": [
+    "record(s) in 'credit_card_closure_reasons'"
+   ],
+   "forbid_feedback": "Error: [PROCEDURE] the retention protocol already sent this account to the closure step. Verbatim: \"If records exist for this account within that time frame, skip retention offers and proceed directly to processing the closure.\" The closure-reason history you read for {id} already contains a record, so Step 3 (logging the reason) and the retention offer are SKIPPED for it. Do not log a closure reason for {id}; close it, or move on to the next account.",
+   "_note_": "★2026-09-01 밤 신설 — **조건부 금지**. 요구를 끈 것(`skip_when_tokens`)과 체인 문구 조건부화만으로는 모델이 그대로 찍었다(smoke048c 실물: log{cc_..._green, simplifying_finances}). [[07]] soft 만으론 통제 안 된다. 부호표(게이트 충실·전 코퍼스): ⊖ 0 · ⊕ 37.",
+   "_note_source_": "doc_credit_cards_credit_card_account_logistics_003 (Internal: Credit Card Retention Protocol) Step 2 축자. Step 3 이 'Understand and Log the Reason' 이므로 그 skip 은 로깅을 뺀다. gold 무참조([[23]]). ⚠[[70]]: 정책은 'within the past year' 로 기간을 한정하는데 이 술어는 기간을 보지 않는다 — 1년 초과 기록이 있으면 정책이 허용하는 로깅을 막는다."
   }
  ],
  "scaffold_get_tools": [

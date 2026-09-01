@@ -1860,6 +1860,43 @@ def _wev_deny_msgs(messages, tc, specs):
         #     보지 않는다**(날짜 산술을 엔진이 하면 [[59]]/[[62]] 를 건드린다). 1년보다 오래된
         #     기록이 있으면 정책은 로깅을 요구하는데 우리는 끈다 ⇒ **MISSING 을 만들 수 있다**.
         #     그 부호는 점화 전에 코퍼스로 센다.
+        # ★forbid_when_tokens (2026-09-01 밤) — **조건부 금지**. `skip_when_tokens` 가 "요구를 끈다"면
+        #   이쪽은 "하지 마라"다. 라이브가 가른 자리다: green 에서 게이트 요구를 껐고 체인 문구도
+        #   조건부로 바꿨는데 모델이 **그래도 찍었다**(smoke048c: log{green,simplifying_finances}).
+        #   [[07]] 축자 — soft(prompt/memory)만으론 통제 안 된다. 금지는 hard 여야 한다.
+        #   출처: doc_credit_cards_credit_card_account_logistics_003 Step 2 —
+        #   "If records exist for this account within that time frame, skip retention offers and
+        #    proceed directly to processing the closure." (Step 3 이 로깅이므로 그 skip 은 로깅을 뺀다)
+        #   부호표(게이트 충실·전 코퍼스): **⊖ 0 · ⊕ 37**(049 18 · 048 17 · 046 1 · 043 1).
+        #   ⚠자기오염 배제: **우리 자신의 로깅이 만든 기록**은 근거가 아니다 — 그 도구 결과가
+        #     우리 첫 성공 로깅보다 **앞선** 것만 센다.
+        _fwt = sp.get("forbid_when_tokens") or []
+        if _fwt and idv:
+            _mine = None
+            for _j8, _m8 in enumerate(messages):
+                if getattr(_m8, "role", None) != "tool":
+                    continue
+                _c8 = getattr(_m8, "content", None)
+                _c8 = _c8 if isinstance(_c8, str) else str(_c8 or "")
+                if str(idv) in _c8 and "Closure reason logged" in _c8:
+                    _mine = _j8
+                    break
+            for _j8, _m8 in enumerate(messages):
+                if getattr(_m8, "role", None) != "tool":
+                    continue
+                if _mine is not None and _j8 >= _mine:
+                    break
+                _c8 = getattr(_m8, "content", None)
+                _c8 = _c8 if isinstance(_c8, str) else str(_c8 or "")
+                if str(idv) in _c8 and all(_t8 in _c8 for _t8 in _fwt):
+                    print("[T2_WRITE_EVIDENCE] forbid=policy-branch id=%s" % (str(idv)[:40],),
+                          file=sys.stderr, flush=True)
+                    _fb8 = sp.get("forbid_feedback") or sp.get("feedback") or (
+                        "Error: [PROCEDURE] this step is skipped for {id}.")
+                    return _wev_fill(_fb8, str(idv), messages, [])
+            if not (sp.get("require_tokens") or sp.get("require_tokens_any")):
+                # 순수 **금지 전용** spec — 요구 검사로 흘러가면 근거가 없다고 반려한다(단위검정 ⑥⑦).
+                continue
         _skipt = sp.get("skip_when_tokens") or []
         if _skipt and idv:
             # ★자기오염 배제 — **우리 자신의 쓰기가 만든 기록은 근거가 아니다**.

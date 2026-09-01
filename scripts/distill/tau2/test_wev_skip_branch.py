@@ -61,6 +61,28 @@ def run(name, specs, msgs, want_deny):
     return ok
 
 
+def fspec():
+    """조건부 **금지** — 요구를 끄는 것과 다르다."""
+    return [{"applies_to": "call_discoverable_agent_tool",
+             "applies_when": {"arg": "agent_tool_name", "prefix": "log_credit_card_closure_reason"},
+             "id_key": "credit_card_account_id",
+             "forbid_when_tokens": [TOK],
+             "forbid_feedback": "Error: [PROCEDURE] skipped for {id}."}]
+
+
+def logcall():
+    return TC("call_discoverable_agent_tool",
+              {"agent_tool_name": "log_credit_card_closure_reason_4521",
+               "arguments": '{"credit_card_account_id": "%s"}' % AID})
+
+
+def runf(name, specs, msgs, want_deny):
+    got = G._wev_deny_msgs(msgs, logcall(), specs)
+    ok = (got is not None) == want_deny
+    print(("ok  " if ok else "FAIL") + " " + name)
+    return ok
+
+
 def main():
     r = []
     r.append(run("① 선언 없음 → 반려 유지", spec(False), [], True))
@@ -70,6 +92,12 @@ def main():
     #   즉 순서 가드는 `found` 분기와 겹친다 — 방어적일 뿐 부호를 만들지 않는다.
     r.append(run("④ 우리 로그 존재 → 반려 없음(순서 가드는 방어적)", spec(True),
                  [ourlog(), hist()], False))
+    # ── 조건부 금지 (2026-09-01 밤)
+    r.append(runf("⑤ 선행 이력 → 로깅 **금지**", fspec(), [hist()], True))
+    r.append(runf("⑥ 이력 없음 → 로깅 허용", fspec(), [], False))
+    r.append(runf("⑦ 이력이 다른 id → 허용", fspec(), [hist("cc_other")], False))
+    r.append(runf("⑧ 자기오염(우리 로그 뒤 이력) → 허용", fspec(),
+                  [M("tool", "Closure reason logged successfully for %s" % AID), hist()], False))
     print("ALL PASS" if all(r) else "SOME FAILED")
     return 0 if all(r) else 1
 
