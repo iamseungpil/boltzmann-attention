@@ -61,10 +61,12 @@ LOGD=/home/woori/scratch/logs
 #     않는지 봐야 한다) + **수리 대상 084**(뷰 임계) 추가 ⇒ **48**.
 #     ⇒ 이 런은 커버리지 + **회귀 게이트**를 겸한다: 012·055·057·101 중 하나라도 떨어지면
 #       오늘 스택은 되돌린다([[70]] 무엇을 팔았나를 그 자리에서 본다).
-G1_P1="task_012,task_061,task_078,task_093,task_041,task_062,task_048,task_010,task_049,task_016,task_033,task_037"
-G1_P2="task_071,task_077,task_087,task_091,task_083,task_099,task_057,task_020,task_066,task_040,task_063,task_074"
-G2_P1="task_092,task_095,task_060,task_046,task_094,task_055,task_085,task_065,task_101,task_008,task_022,task_034"
-G2_P2="task_056,task_075,task_086,task_090,task_084,task_097,task_027,task_080,task_067,task_068,task_096,task_082"
+#   ★23시 4차(사용자 지시 "048·084 는 스모크 돌리니 빼라"): 그 둘은 **단독 스모크**로 판정한다
+#     ⇒ 밤샘은 **46**. 스모크가 정답이면 밤샘 결과와 합쳐 계산한다.
+G1_P1="task_012,task_061,task_078,task_093,task_041,task_062,task_085,task_065,task_101,task_008,task_022,task_034"
+G1_P2="task_056,task_075,task_086,task_090,task_099,task_057,task_020,task_066,task_040,task_063,task_074"
+G2_P1="task_092,task_095,task_060,task_046,task_094,task_055,task_010,task_049,task_016,task_033,task_037,task_071"
+G2_P2="task_077,task_087,task_091,task_083,task_097,task_027,task_080,task_067,task_068,task_096,task_082"
 
 run_one () {                      # $1=port $2=tag $3=tasks  (동기 실행)
   local port="$1" tag="$2" tasks="$3"
