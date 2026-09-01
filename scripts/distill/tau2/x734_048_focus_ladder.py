@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import t2_forensic as F
 import x430_account_facts as FT  # noqa: E402  (정본 DOCDIR·[[67]])
 from x733_048_percard_probe import (DB, TASK, TRUNC, USER_ID, ask, cards_from_db,
-                                    gold_per_card, materials)
+                                    gold_per_card, limits, materials)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROC_ID = "credit_card_closure_retention"
@@ -127,6 +127,8 @@ def main():
         print("선언 결손: docs=%d state_tools=%s log_tool=%s" % (len(docs), stools, log_tool))
         return 3
 
+    MT, TB = limits(model)
+    print("한도(프로필 선언): max_tokens=%s · thinking_token_budget=%s" % (MT, TB))
     rows = cards_from_db(DB, USER_ID)
     ids = [r["account_id"] for r in rows]
     gold = gold_per_card(sim, ids)
@@ -167,7 +169,7 @@ def main():
             for i in ids:
                 if arm == "F_BINARY":
                     r = ask(base, model, BIN_Q % (govern, acct[i], st[i], log_tool),
-                            sch_bin, max_tokens=2048)
+                            sch_bin, max_tokens=MT, tb=TB)
                     if r is None:
                         preds[i].append("무응답")
                         continue
@@ -179,7 +181,7 @@ def main():
                             "\n\n=== POLICY ===\n%s\n=== END POLICY ===" % govern) \
                         if arm == "D_FOCUS" else "(No policy documents are provided.)"
                     r = ask(base, model, ACT_Q % (head, acct[i], st[i], says, vocab_txt),
-                            sch_act, max_tokens=4096)
+                            sch_act, max_tokens=MT, tb=TB)
                     if r is None:
                         preds[i].append("무응답")
                         continue

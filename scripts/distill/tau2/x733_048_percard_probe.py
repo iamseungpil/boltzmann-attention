@@ -70,6 +70,41 @@ def gold_per_card(sim, ids):
 TRUNC = {"n": 0}
 
 
+def profile_env(model):
+    """모델 프로필(`model_profiles/<model>.env`)의 선언을 읽는다 — 값을 코드에 적지 않는다.
+
+    라이브가 쓰는 짝을 그대로 물려받아야 **정보-맞춘 격리**가 된다([[18]]). Q3.8 선언:
+    `T2_JUDGE_MAX_TOKENS=8192` · `T2_PROBE_THINK_BUDGET=4096` (본응답은 8192/4096).
+    모델을 바꾸면 프로필만 바뀌고 이 프로브는 그대로다.
+    """
+    fn = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_profiles",
+                      model.replace("/", "__") + ".env")
+    out = {}
+    if os.path.exists(fn):
+        for line in io.open(fn, encoding="utf-8"):
+            line = line.strip()
+            if not line.startswith("export "):
+                continue
+            kv = line[len("export "):].split("#", 1)[0].strip()
+            if "=" in kv:
+                k, v = kv.split("=", 1)
+                out[k.strip()] = v.strip().strip('"').strip("'")
+    else:
+        print("  ⚠프로필 없음: %s — 서버 기본값으로 돈다" % fn)
+    return out
+
+
+def limits(model):
+    """(max_tokens, thinking_token_budget) — 선언 우선, 없으면 사고예산은 상한의 절반."""
+    e = profile_env(model)
+    mt = int(e.get("T2_JUDGE_MAX_TOKENS") or e.get("T2_AGENT_MAX_TOKENS") or 8192)
+    tb = e.get("T2_PROBE_THINK_BUDGET") or e.get("T2_THINK_BUDGET")
+    tb = int(tb) if tb else think_budget(mt)
+    if tb and tb >= mt:
+        tb = think_budget(mt)          # 예산이 상한과 같으면 답이 전손된다(t2_run_gated 실측)
+    return mt, tb
+
+
 def think_budget(cap):
     """사고 예산 = **상한의 절반**(하한 256 · 반드시 상한 미만).
 
@@ -83,12 +118,14 @@ def think_budget(cap):
     return max(256, cap // 2) if cap > 512 else None
 
 
-def ask(base, model, prompt, schema, timeout=900, max_tokens=4096):
+def ask(base, model, prompt, schema, timeout=900, max_tokens=None, tb=None):
+    if max_tokens is None:
+        max_tokens, tb = limits(model)
     body = {"model": model, "temperature": 0.0, "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}],
             "response_format": {"type": "json_schema",
                                 "json_schema": {"name": "d", "schema": schema}}}
-    _tb = think_budget(max_tokens)
+    _tb = tb if tb else think_budget(max_tokens)
     if _tb:
         body["thinking_token_budget"] = _tb
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions",
@@ -147,6 +184,9 @@ def main():
     vocab_txt = "\n".join("- " + v for v in vocab)
     gold = gold_per_card(sim, ids)
 
+    MT, TB = limits(model)
+    print("한도(프로필 선언): max_tokens=%s · thinking_token_budget=%s" % (MT, TB))
+
     mat_full = materials(sim, True)
     mat_strip = materials(sim, False)
     print("재료: full=%d자 strip=%d자 · 어휘 %d개 · 카드 %d장"
@@ -177,8 +217,8 @@ def main():
         for rep in range(reps):
             if arm == "A_EACH":
                 for i in ids:
-                    r = ask(base, model, HEAD % (desc, vocab_txt, mat_full) + ONE % i, sch_one,
-                            max_tokens=4096)
+                    r = ask(base, model, HEAD % (desc, vocab_txt, mat_full) + ONE % i,
+                            sch_one, max_tokens=MT, tb=TB)
                     if r is None:
                         preds[i].append("무응답")
                         continue
@@ -187,7 +227,7 @@ def main():
                     hits[i] += 1 if p == gold[i] else 0
             else:
                 mat = mat_full if arm == "B_ALL" else mat_strip
-                r = ask(base, model, HEAD % (desc, vocab_txt, mat) + ALL, sch_all, max_tokens=6144)
+                r = ask(base, model, HEAD % (desc, vocab_txt, mat) + ALL, sch_all, max_tokens=MT, tb=TB)
                 if r is None:
                     for i in ids:
                         preds[i].append("무응답")
