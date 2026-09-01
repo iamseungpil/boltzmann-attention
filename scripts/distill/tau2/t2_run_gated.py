@@ -375,6 +375,27 @@ def main():
         #   **TRUNC 2회**. 절단은 `finish=length · content 0B` = **답 전손**이라 상한은 넉넉해야
         #   한다. 절감은 상한이 아니라 **프롬프트의 "200자 이내" 지시**가 낸다(실측 33~66%).
         #   격리 최대 1,625 였으나 라이브 문맥이 더 길어 넘겼다 — 격리치를 상한으로 쓰지 마라.
+        # ★§T-12: TERSE 경로 프로브의 출력 스키마 — 소비부가 실제로 읽는 모양 그대로다
+        #   (`t2_gate_patch`: `_j2["claims"]` 리스트 · 항목의 `tool` · `_j2["pending"]` 리스트).
+        _t2_terse_schemas = {
+            "agent_claimprov": {
+                "type": "object",
+                "properties": {
+                    "claims": {"type": "array", "items": {
+                        "type": "object",
+                        "properties": {"claim": {"type": "string"},
+                                       "tool": {"type": "string"},
+                                       "kind": {"type": "string"}},
+                        "required": ["claim"]}},
+                    "pending": {"type": "array", "items": {
+                        "type": "object",
+                        "properties": {"claim": {"type": "string"},
+                                       "tool": {"type": "string"}},
+                        "required": ["claim"]}},
+                },
+                "required": ["claims", "pending"],
+            },
+        }
         _t2_judge_schemas = {
             "intent_operator_formalize": {
                 "type": "object", "properties": {"tool": {"type": "string"}},
@@ -667,6 +688,18 @@ def main():
                     _ctk["enable_thinking"] = False
                     _eb["chat_template_kwargs"] = _ctk
                     _kw["extra_body"] = _eb
+                # ★§T-12 (2026-09-01): TERSE 프로브에도 **출력 스키마**를 건다(경로는 그대로).
+                #   왜: `agent_claimprov` 는 스키마가 없어 **산문 1,825B** 를 뱉고 상한(512)에 정확히
+                #   닿아 잘렸다. 잘린 JSON 은 소비부(`t2_gate_patch` `re.search(r"{.*}")` → `json.loads`)
+                #   에서 파스 실패 → `except` → `if not _cl and not _pd: break` ⇒ **날조-완료 차단
+                #   게이트가 그 턴에 조용히 꺼진다**. 라이브 실측 1:1(TRUNC 1 ↔ no-op 1, 양 팔).
+                #   ⚠JUDGE 로 옮기지 않는다 — 그러면 상한 8192·사고 4096 이 되어 콜 ~100회에
+                #     비용이 폭증한다. 여기서는 **형식만** 묶는다(사고는 이 경로 기본대로 OFF).
+                _tsch = _t2_terse_schemas.get(_kw.get("call_name"))
+                if _tsch:
+                    _kw["response_format"] = {
+                        "type": "json_schema",
+                        "json_schema": {"name": "t2terse", "schema": _tsch}}
                 _kw["_t2_terse"] = "TERSE"
             if (_t2_stopfirst and _kw.get("call_name") not in _t2_probe_calls
                     and _kw.get("call_name") not in _t2_judge_schemas):
