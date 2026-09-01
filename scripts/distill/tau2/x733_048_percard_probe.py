@@ -21,6 +21,7 @@ A: 한 장씩 따로 물음 ↔ B: 넷을 한 번에. … 재고 나서 논한�
 
 사용: x733_048_percard_probe.py <base_url> <model> <tag> [반복]
 """
+import io
 import json
 import os
 import sys
