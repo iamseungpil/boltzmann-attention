@@ -156,6 +156,19 @@ export PYTHONPATH=src:$REPO/scripts/distill/tau2
 #   **주인은 마지막 명령**이다.
 RC=${PIPESTATUS[0]}
 
+# ★결과 영속 (2026-09-01·재리뷰 U-4): 이 런처에 **이 단계가 없어서** 판단을 뒤집은 근거가 세 번
+#   연속 repo 밖에 남았다(x708 · x713 · T1 짝). [[30]] 계기는 회수돼야 존재한다.
+#   정본 형태는 다른 런처들과 같다(`gzip -c <results.json> > sim_results/<TAG>.results.json.gz`).
+#   ⚠멱등: 이미 있으면 덮지 않는다. 로그는 별도 스위퍼(`t2_persist_logs.sh`)가 회수한다.
+_SRC="$GO_TAU2/data/simulations/$TAG/results.json"
+[ -f "$_SRC" ] || _SRC="$GO_TAU2/data/simulations/$TAG.json"
+_DST="$REPO/reports/facet_rft_2026/sim_results/$TAG.results.json.gz"
+if [ -f "$_SRC" ] && [ ! -f "$_DST" ]; then
+  gzip -c "$_SRC" > "$_DST" && echo "[run_ours] persist: $(basename "$_DST") ($(stat -c%s "$_DST") bytes)"
+else
+  [ -f "$_SRC" ] || echo "[run_ours] ⚠persist 불가 — results.json 이 없다: $_SRC"
+fi
+
 echo "=================================================================="
 echo "[run_ours] $(date '+%F %T') $TAG  pass1=$(grep -aoE 'pass1=[0-9]+/[0-9]+' "$LOG/$TAG.log" | tail -1)  TB=$(grep -ac Traceback "$LOG/$TAG.log")"
 echo "[run_ours] 계기: SALVAGED=$(grep -c 'SALVAGED=' "$LOG/$TAG.log") · TRUNC=$(grep -c 'TRUNC' "$LOG/$TAG.log") · 빈메시지재시작=$(grep -ac 'must have either content or tool_calls\|Message must have content or tool calls' "$LOG/$TAG.log")"
