@@ -3017,3 +3017,43 @@ test_flag_registry.py          ⛔FAIL        (미선언 플래그가 baseline �
 
 ★그중 **`lever_reachable` · `no_undefined_names` · `subcall_canonical`** 은 성격상
 [[81]]/[[67]] 감시자다(도달 불가 레버 · 미정의 이름 · 서브 관용구 사본). 우선순위가 높다.
+
+### §U-6 (★최대 소득). `T2_ARG_LABEL` — **켜져 있고, 격리 16/16 이고, 라이브에서 발화할 수 없다**
+
+§U-3 에서 내가 찾다가 헛짚은 [[81]] 사례가 **실재한다**. 그리고 그것을 찾은 것은 내 grep 이 아니라
+**이미 있던 검정** `test_lever_reachable.py` 다([[74]] 그대로 — 찾기 전에 짓지 마라).
+
+**사슬**(전부 축자·전/후 동일하므로 어젯밤 편집과 무관):
+
+```
+go_stack.sh:26    export T2_GATE_REGEN=1      → 런처가 `_unified` 분기를 탄다
+go_stack.sh:181   export T2_ARG_LABEL=1       → 레버는 **ON**
+t2_gate_patch.py:1202  def gated(self, tool_calls):   ← 구현이 이 몸통 **안에만** 있다
+             :1238  label_on = os.environ.get("T2_ARG_LABEL") == "1"
+             :1303  if label_on:  # env 가 다른 필드로 낸 값을 이 인자에 넣은 것을 반려
+```
+`T2_GATE_REGEN=1` 이면 런처는 `t2_gate_patch.apply()` 를 **아예 호출하지 않고**(`t2_run_gated.py:196`
+분기) 실행 훅은 `exec_augment`(deny 없음)가 가져간다. ⇒ `gated` 전용 **deny** 레버 = 죽은 코드.
+검정 출력 축자: `T2_ARG_LABEL  gated 전용 · deny=True  ON=True  ★★활성 버그`.
+
+**그런데 이 레버의 격리 성적이 크다** — `go_stack.sh:175` 축자:
+*"격리(x565·3팔): A_asis **4/16**(라이브 재현) · B_say **16/16**(전부 생산자 read 호출)"*.
+2026-08-27 에 계수(`x564_arg_producer_census.py`)와 격리(`x565_wrong_account_id_iso.py`)까지 하고
+정본에 등재해 **ON 으로 두었다**. 그 뒤 라이브에서 한 번도 발화할 수 없었다.
+
+**④ 선행 확인**: `reports/facet_rft_2026/*.md` 전체에 `T2_ARG_LABEL` **0건** — 이 사실은 지금까지
+어디에도 적혀 있지 않다. (검색 경로: `grep -rn T2_ARG_LABEL reports/facet_rft_2026/*.md` ·
+`go_stack.sh` · `--include=*.py` 전체)
+**반증조건**: `unified` 몸통 안에 `T2_ARG_LABEL` 참조가 하나라도 있으면(또는 `exec_augment` 가
+같은 술어를 다른 이름으로 이미 걸고 있으면) 이 항목은 철회된다.
+
+**같은 검정이 낸 나머지 (⚠잠재 — 지금 OFF 라 사고는 아니지만 켜면 무음 실패)**:
+`T2_AUTOFETCH` · `T2_RETRY_CONTROLLER` · `T2_RETRY_K` · `T2_WRITE_CAP(_K)` — 전부 `gated` 전용 deny.
+그리고 **표적 가드**: `T2_CALC`→`calc_specs` · `T2_PRESENT_NESTED`→`present_specs` ·
+`T2_WRITE_CAP`→`_confirm_write_tools` 는 banking_knowledge A2 에서 **표적 집합이 비어** 있어
+켜도 0건 발화한다.
+
+⛔**지금 고치지 않는다.** 밤샘런이 도는 중이고 조건을 바꾸면 그 런이 무효가 된다([[54]]).
+그리고 [[62]] 대로 **결손을 먼저 재야** 한다 — 격리 16/16 은 라이브 이득의 상한이지 이득이 아니다.
+⇒ 순서: ① 밤샘런 회수 → ② `unified` 로 옮기는 최소 패치 → ③ 같은 sha 대조군으로 짝 A/B →
+④ [[70]] 부호표(무엇을 파는가: 이 레버는 **거절**이라 정답을 지울 수 있다) → ⑤ go_stack 등재 확인.
