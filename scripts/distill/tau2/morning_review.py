@@ -3,8 +3,8 @@
 
 사용자 지시 2026-08-25 밤: *"가장 효율적으로 내일 아침에 작업 다시 검토할 수 있는 계획을 세워라."*
 
-    py -3 morning_review.py                 # 기본 = t7356 (대조 t7355·t7354)
-    py -3 morning_review.py --tag t7357     # 다른 런
+    py -3 morning_review.py                      # 기본 = bank_night (대조 bank_x721)
+    py -3 morning_review.py --tag bank_x7xx      # 다른 런
 
 인쇄 순서는 **판정 순서**다([[69]]·[[08]]·[[25]]):
   §1 회수  — 산출물이 tracked 인가. 아니면 그 배치는 아직 판정할 수 없다([[30]]).
@@ -24,22 +24,48 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+try:                       # 로컬(Windows cp949) 콘솔에서도 돌게 한다 — 리모트는 UTF-8
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 import t2_forensic as F   # noqa: E402  (정본 재사용·사본 금지 [[67]])
 
-MARKERS = ["T2_SPEC_AT_WRITE", "T2_RULE_AT_WRITE", "T2_WRITE_ARG_TYPE", "T2_WRITE_ARG_ENUM",
-           "T2_WRITE_ARG_FAB", "T2_SPEC_ARG_FACTS", "T2_SG_RECORD_ORDER",
-           "T2_ARG_POLICY_AT_WRITE", "T2_SG_PROMPT_V2", "Traceback"]
+MARKERS = ["[T2_WRITE_EVIDENCE]", "[T2_VIEW_COMPACT]", "[T2_CLAIMPROV]",
+           "[T2_P2]", "[T2_ARG_DOC_SUB]"]
+"""라이브에서 **말을 해야 하는** 계기(0이면 死배선·[[24]]/[[81]]). 문자열은 전부 소스에서 확인:
+   `t2_gate_patch.py:1892,1930`(forbid=/skip=policy-branch) · `:8846` · `:14765` ·
+   `t2_run_gated.py:748`(P2 사다리) · `t2_scaffold_get.py:2871`."""
+
+ALARMS = ["**TRUNC**", "SALVAGED=", "declaration failed", "[T2_TRUNCGUARD]", "Traceback"]
+"""**0이어야 하는** 것. 여기 하나라도 잡히면 그 배치는 성적 이전에 계기 문제다.
+   · `**TRUNC**`(`t2_run_gated.py:895`) — 사용자 게이트 2026-09-01: *"TRUNC 는 1개도 발생하면 안된다"*.
+   · `SALVAGED=`(`:894`) — 살리기가 돌았다 = 네이티브 파싱이 실패했다([[84]] 표면형↔파서 짝).
+   · `declaration failed` — 선언 프로브가 JSON 을 못 냈다(상한 부족의 자국·§U-1).
+   · `[T2_TRUNCGUARD]` — 절단 재생성이 돌았다(발화 자체가 절단의 증거)."""
 
 OPEN_AXES = [
-    ("085", "분쟁 커버리지 — gold 분쟁 3건 중 몇 건을 내는가",
-     "어젯밤 t7355 스모크는 1건만 냈다(user_stop). t7354 는 4건 냈고 2건이 gold 축자 일치. "
-     "nt10 이 이 물음에 답한다. 큐 findings_2026_08_25_night.N1"),
-    ("040", "eligible_for_provisional_credit 판단 6행",
-     "규칙은 doc_credit_cards_(general)_015 에 축자로 있고 **그 문서가 궤적에 안 온다**. "
-     "A3 에는 포인터 행만 있다 → x541 이 그 포인터를 결정점에 놓았을 때를 쟀다."),
-    ("040", "partial_refund_amount / resolution_requested 1행", "미측정"),
-    ("074", "전사 순서 — T2_SG_RECORD_ORDER 의 첫 라이브",
-     "격리는 x536(72샘플)·x539(4계좌 4/4·부정통제 부순다). 스모크 로그의 `재배열적용=` 수를 볼 것."),
+    ("TRUNC", "게이트 0 — 어젯밤 각 레인 2건이 남아 있었다",
+     "처방은 상한이었다: PROBE 512->2048->8192 · JUDGE 8192->16384(프로필 축자 근거 포함). "
+     "실물은 `agent_claimprov mt=2048 -> gen=2048 TRUNC reason=0B content=6970B` = **답이 상한을 넘겼다**"
+     "(사고 아님). 아침에 ALARMS 의 `**TRUNC**` 가 0 이 아니면 그 태스크의 프롬프트 길이부터 본다."),
+    ("012/055/057/101", "회귀 게이트 — 오늘 t3prime 통과분이 어젯밤 다섯 변경에도 버티는가",
+     "하나라도 떨어지면 어젯밤 스택은 되돌린다([[70]] 무엇을 팔았나를 그 자리에서 본다). "
+     "★055 는 이미 한 번 떨어졌다(account_class 'Silver Plus'->'Silver'). 후보 원인 셋: "
+     "되살아난 claimprov 가드 · 뷰 임계 · nt=1 분산. 가드를 끈 짝런이 유일한 분리 수단이다([[57]])."),
+    ("046/048/049", "조건부 금지(§U-1)가 라이브에서 잉여 로깅을 지웠는가",
+     "판정 단위는 reward 가 아니라 **변이집합의 EXTRA**다([[69]]). 048 은 어젯밤 "
+     "MISSING 0·WRONGARG 1·EXTRA 0 까지 왔고 남은 칸은 `log{cc_e3f4a5b6c7_eco, annual_fee}`(msg43). "
+     "그 칸은 [[23]] 출처가 깨끗하지 않아 **일부러 안 닫았다** — 아침에 다시 열지 마라."),
+    ("084", "뷰 임계 상향(T2_VIEW_COMPACT_MINTOTAL=344064)이 msg108 근거를 살렸는가",
+     "확정된 원인은 우리 압축이다(그 시점 doc_031 category enum·card_action 매핑이 전부 다이제스트·재도착 0). "
+     "귀속은 **다이제스트 집합 재구성**으로 가른다 — 총점 Δ 로 귀속하지 마라(런에 변경이 다섯이다)."),
+    ("010/062/063/065/067/068/093/094/095", "재측정 9 — 오늘 **다른 팔**에서 통과한 것들",
+     "단일 팔 수치가 없으면 pass 율을 인용할 수 없다([[54]]). 이 9개는 성적이 아니라 "
+     "**비교가능성**을 위해 다시 잰 것이다. 팔을 섞어 집계하지 마라."),
+    ("053/102/069", "분모 제외 후보 — 아침에 재론하지 마라",
+     "053 = gold 결함(§T-19 · 도달 불가) · 102 = 순환 트리거 + per-task reward_basis 불일치 · "
+     "069 = 표적 금지. 새 근거 없이 다시 조사하는 것은 [[40]] 위반이다."),
 ]
 
 
@@ -70,8 +96,8 @@ def rewards(tag):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tag", default="t7356")
-    ap.add_argument("--ref", default="t7355")
+    ap.add_argument("--tag", default="bank_night")
+    ap.add_argument("--ref", default="bank_x721")
     ap.add_argument("--diffs", type=int, default=2, help="태스크당 인쇄할 실패 sim 수")
     a = ap.parse_args(argv)
 
@@ -97,7 +123,18 @@ def main(argv=None):
     for b, tid, tr, rw in rows:
         per[tid].append(rw)
     tot = sum(1 for _, _, _, rw in rows if (rw or 0) > 0)
-    print("  전체 %d sim · reward>0 **%d**" % (len(rows), tot))
+    # ★배치별로 먼저 가른다 — 배치가 곧 팔인 경우가 많고, 합치면 [[54]] 비교가능성이 깨진다.
+    #   (2026-09-02 실측: `--tag bank_x721` 은 viewscale 팔과 ctl 팔을 **한 줄로 합쳐** 찍고 있었다.)
+    perb = collections.defaultdict(list)
+    for b, tid, tr, rw in rows:
+        perb[b].append(rw)
+    if len(perb) > 1:
+        print("  ⚠배치 %d개 — **팔이 다르면 합치지 마라**([[54]]). 배치별:" % len(perb))
+        for b in sorted(perb):
+            v = perb[b]
+            print("    %-44s %d/%d" % (b, sum(1 for x in v if (x or 0) > 0), len(v)))
+    print("  전체 %d sim · reward>0 **%d**  (배치가 같은 팔일 때만 이 줄을 인용하라)"
+          % (len(rows), tot))
     for tid in sorted(per):
         v = per[tid]
         print("    %-10s %d/%d   %s" % (tid, sum(1 for x in v if (x or 0) > 0), len(v),
@@ -133,11 +170,18 @@ def main(argv=None):
             print("  %-40s (로그 없음)" % b)
             continue
         cnt = {m: txt.count(m) for m in MARKERS}
-        print("  %-40s %s" % (b, " · ".join("%s=%d" % (k.replace("T2_", ""), v)
+        print("  %-40s %s" % (b, " · ".join("%s=%d" % (k.strip("[]").replace("T2_", ""), v)
                                             for k, v in cnt.items() if v)))
-        dead = [m for m in MARKERS if m != "Traceback" and cnt.get(m, 0) == 0]
+        dead = [m for m in MARKERS if cnt.get(m, 0) == 0]
         if dead:
-            print("       ⚠무발화: %s" % ", ".join(x.replace("T2_", "") for x in dead))
+            print("       ⚠무발화(死배선 후보): %s"
+                  % ", ".join(x.strip("[]").replace("T2_", "") for x in dead))
+        al = {m: txt.count(m) for m in ALARMS}
+        bad = {k: v for k, v in al.items() if v}
+        if bad:
+            print("       ⛔경보: %s" % " · ".join("%s=%d" % (k, v) for k, v in bad.items()))
+        else:
+            print("       ✅경보 0 (TRUNC·SALVAGED·declaration failed·TRUNCGUARD·Traceback)")
 
     print()
     print("=" * 78)
