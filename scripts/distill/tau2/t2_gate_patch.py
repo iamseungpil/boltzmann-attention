@@ -1867,7 +1867,9 @@ def _wev_deny_msgs(messages, tc, specs):
         #   출처: doc_credit_cards_credit_card_account_logistics_003 Step 2 —
         #   "If records exist for this account within that time frame, skip retention offers and
         #    proceed directly to processing the closure." (Step 3 이 로깅이므로 그 skip 은 로깅을 뺀다)
-        #   부호표(게이트 충실·전 코퍼스): **⊖ 0 · ⊕ 37**(049 18 · 048 17 · 046 1 · 043 1).
+        #   부호표(게이트 충실·전 코퍼스): **⊖ 0 · ⊕ 18** — 단위는 **막힌 계정 id**
+        #     (048 6 · 049 12 · log 호출 225 중 8.0%). ⚠옛 주석의 `⊕37`(049 18·048 17·046 1·043 1)
+        #     은 단위가 **호출 수**였고 046·043 은 지금 술어로 발화하지 않는다([[69]] 단위 혼합).
         #   ⚠자기오염 배제: **우리 자신의 로깅이 만든 기록**은 근거가 아니다 — 그 도구 결과가
         #     우리 첫 성공 로깅보다 **앞선** 것만 센다.
         #   ⛔2026-09-02 수리: 그 컷오프 토큰을 **엔진에 박아 두었다**([[59]]/[[05]]/[[03b]] 위반 —
