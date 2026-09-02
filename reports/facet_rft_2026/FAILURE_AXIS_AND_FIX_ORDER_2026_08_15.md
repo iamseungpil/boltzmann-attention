@@ -2971,3 +2971,49 @@ test_flag_registry.py          ⛔FAIL        (미선언 플래그가 baseline �
 사고와 같은 모양이라). **아니다.** `t2_run_gated.py:733` 유일 사용처는 `print("[T2_TOOL_OBS] ...")`
 = **stderr 로그 줄 길이 상한**이고, 그 블록 자체가 `T2_TOOL_OBS=1` 일 때만 돈다. 전달 경로와 무관하다.
 ⇒ 재료 소실 기전 후보에서 **제외**한다.
+
+### §U-5. 로컬 검정 전수 — **51개가 상시 빨간불**이고, 그래서 회귀를 볼 수 없다
+
+`test_*.py` **263개**를 전수로 돌리고(90초/개 상한), 어젯밤 편집 **직전 커밋 `5a6597bc`** 에
+워크트리를 띄워 **같은 전수를 한 번 더** 돌려 짝비교했다.
+
+```
+전(5a6597bc) 실패 51  ↔  후(HEAD) 실패 51
+전 통과 → 후 실패  : **0건**            ← 어젯밤 A2·게이트 편집의 회귀 없음
+전 실패 → 후 통과  : 0건
+파일 집합 차이     : test_guided_schema_conflict.py (어젯밤 추가·통과) 하나뿐
+```
+
+**51 의 내역**:
+
+| 부류 | 건수 | 성격 |
+|---|---:|---|
+| `UnicodeEncodeError`(cp949) | 15 | **로컬 콘솔 전용** — 리모트(UTF-8)에선 안 난다. 코드 결함 아님 |
+| `No module named 'tau2'` | 5 | tau2-bench 패키지가 리모트 전용 |
+| 90초 타임아웃 | 1 | `test_reground_043` |
+| **실질** | **30** | 아래 |
+
+⛔**이 상태 자체가 결함이다.** 51개가 늘 빨간색이면 *"새로 깼는가"* 를 검정으로 알 수 없다 —
+오늘 그 답을 낸 것은 검정이 아니라 **워크트리 짝비교**였다. [[07]] 의 정확한 사례:
+래칫은 늘렸을 때만 울리게 만들어졌고(§M-3 원인 ③), 빨간불 자체는 아무도 못 줄이고 있다.
+
+**하드 에러 2종은 검정이 낡은 것이지 라이브 결함이 아니다**(확인함):
+- `test_ref_verify(_replay).py` — `TypeError: _ref_verify_deny() missing 3 required positional
+  arguments`. 정의는 `t2_gate_patch.py:2000` 6인자, **라이브 호출부 `:9925` 는 6인자로 맞다**.
+  3인자로 부르는 것은 검정 파일뿐.
+- `test_forensic054_fixes.py` — `KeyError: 'require_tokens'`. 대괄호 인덱싱은 **그 검정 파일에만**
+  있고(`:84`) 엔진은 전부 `.get()` 이다. ⚠내가 어젯밤 넣은 **순수 금지 spec**(그 키가 없다)이
+  원인인가를 의심했으나 **전/후 실패 모양이 바이트 동일**이라 무관하다.
+
+**남은 실질 실패 30**(내일 이후 큐 · 이름만 · 재유도 금지):
+`a2_answer_format_placeholder(69/75)` · `action_index` · `action_reminder(8)` · `actionreq_grounded` ·
+`actionreq_waitset_evidence(2)` · `audit_divergence(7/8)` · `c201_stage2` · `c204_nextrun` ·
+`c207_envelope` · `c214_day9b` · `docs_at_write` · `enum_reject_ledger` · `eplan_chain` ·
+`flag_registry` · `followup_chain` · `forensic054_fixes` · `ground_warning_echo` ·
+`keep_deny_body(16/17)` · `lever_reachable` · `limit_reduce_operand_gated(2)` · `no_undefined_names` ·
+`pending_discovered(1)` · `proceed_docbody` · `ref_verify` · `ref_verify_replay` ·
+`sg_prompt_v2_reachable` · `subcall_canonical` · `subject_align(2)` · `t7337_residual_debt(34/36)` ·
+`unlockname(6)` · `v6_transfer` · `verify_persistence(3)` · `wev_tokens_any`.
+
+★그중 **`lever_reachable` · `no_undefined_names` · `subcall_canonical`** 은 성격상
+[[81]]/[[67]] 감시자다(도달 불가 레버 · 미정의 이름 · 서브 관용구 사본). 우선순위가 높다.
