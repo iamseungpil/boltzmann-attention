@@ -3115,3 +3115,42 @@ viewmax2** 다. 태그만 보고 팔을 귀속하면 틀린다.
 ⛔**지금 스크립트를 고치지 않는다** — 돌고 있는 bash 파일을 편집하면 그 런이 깨진다([[30]]).
 런이 끝난 뒤 고치고, 그 전까지는 이 문단이 유일한 대조표다:
 `bank_night*_t3prime_20260901_2341` = **arm viewmax2 (min_total 344,064 · msg_cap 0)**.
+
+### §U-8. 레버·계기 감사 — 검산 통과분
+
+워크플로 감사 ①②가 제기하고 **내가 명령 하나로 재확인**한 것만 싣는다. 재현 명령을 같이 둔다.
+
+**⑴ `_closure_note`(`T2_SEARCH_CLOSURE`)는 "꺼져 있다"가 아니라 *배선된 적이 없다*.**
+```
+grep -rn "_closure_note" --include=*.py .
+  t2_gate_patch.py:812  def _closure_note(agent, a2, content):     ← 정의
+  x640_closure_iso_q38.py:130  n = G._closure_note(...)            ← 유일한 호출
+```
+엔진 라이브 경로의 호출부 **0**. ⇒ 플래그를 켜도 바이트 동일이다. §U-3 에서 내가 *"판정 기록이
+없다"* 고만 적은 것은 과소진술이었다 — **판정 이전에 배선이 없다.**
+반증조건: `unified`/`exec_augment` 경로에서 이 함수를 부르는 자리가 하나라도 나오면 철회.
+
+**⑵ `T2_COMPUTE` 는 아무도 읽지 않는 이름이다 — 실 게이트는 `T2_CALC` 이고 오늘 사슬은 그것을
+안 켠다.**
+```
+go_stack.sh:67   export T2_COMPUTE=1 ...          ← 읽는 .py 파일 0개
+t2_gate_patch.py:1232, :7981   ... if os.environ.get("T2_CALC") == "1" else []
+grep -nE "\bT2_CALC=" go_stack.sh run_ours_task.sh arms/viewmax2.env … → 0건
+```
+⇒ `calc_specs` 는 오늘 밤 **꺼져 있다**. 그리고 이 이름 표류는 새 발견이 아니다 —
+`LEVER_ROSTER_CANONICAL_2026_08_19.md:65` 가 이미 축자로 적었다. **14일간 미수리**([[07]]).
+
+**⑶ 어떤 표면형이 실제로 걸렸는지가 산출물에 남지 않는다.**
+로컬 로그 **676개 전량**에서 `grammar built` = **0건**. 그 발화는 `T2_GUIDED_VERBOSE` 로 게이트돼
+있고 그 변수를 켜는 자리는 `run_ours_task.sh:118` 하나뿐인데, 로그가 회수된 런들은 그 이전 것이다.
+⇒ [[84]] 가 요구하는 *"모델/서버를 바꾸면 표면형 레버 전부 재검증"* 을 **사후에 할 수단이 없다**.
+[[30]] 축자대로 **계기는 회수돼야 존재한다**.
+
+**⑷ `go_stack.sh` 의 `t2_launch()` 는 Qwen2.5-32B 를 pin 한 채 qwen3_xml 표면형을 선언한다.**
+```
+go_stack.sh:365   --agent_model Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8
+go_stack.sh:845   export T2_TOOL_SURFACE=qwen3_xml
+```
+오늘 밤은 `run_ours_task.sh` 로 발사했고 그쪽에는 모델 id 대조 거부가 있어 사고가 안 났다.
+⚠그러나 `t2_launch ` 를 부르는 다른 스크립트가 **125개**다 — 그중 어느 것으로 발사하면 [[84]] 의
+그 사고(문법×파서 불일치)가 그대로 재현된다. **거부 게이트는 정본 런처에 있어야 한다.**
