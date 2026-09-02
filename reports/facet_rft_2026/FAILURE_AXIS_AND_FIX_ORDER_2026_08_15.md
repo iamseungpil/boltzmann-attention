@@ -2878,3 +2878,96 @@ A_asis **2/4** ↔ **B_rule 4/4** ↔ N_len 2/4 … 창은 **전 접두**로 잡
    → *"⇒ 기본 요율"*, `t2_compute.py:496-498` 기본값). 기본값이면 그것부터 고친다.
 ③ **x551 재현** — `T2_ARG_POLICY_AT_WRITE` 를 격리에서 다시 재고(전 접두 창), 켤지는 부하 실측으로 정한다.
 ④ 그 뒤에야 부호표·점화.
+
+---
+
+## §U. 오프라인 감사 (2026-09-02 · 리모트 접속 불가 구간)
+
+사용자 지시: *"리모트는 내일 되야 복구된다. 로컬에서 할 수 있는 건 없나? 문서들 업데이트 하고
+분석들 하라"*. ⇒ **무료 검증만**([[09]]): 로컬 코퍼스(sim_results 2,254 파일 · 최신 `20260901_0945`)
+와 repo 만 쓴다. 도메인 문서·정답 DB 는 리모트 전용이라 여기서 다루지 않는다.
+
+### §U-1. **048 계열 수리 기록** (2026-09-01 밤 · 지금까지 문서에 없었다)
+
+⚠이 수리는 커밋으로만 존재했고 정본 문서에 한 줄도 없었다. [[74]]/[[40]] 의 취지대로 여기 박는다.
+
+**결손**(밤샘 전): 048 은 카드 4장 중 **이미 폐쇄사유 이력이 있는 카드**에도 새 사유를 계속 기록했다.
+정책 `doc_003` Step 2 는 그 경우 사유 기록과 리텐션 제안을 **건너뛰라**고 한다.
+
+**두 단계였다 — 그리고 1단계만으로는 안 됐다.**
+
+| 단계 | 커밋 | 선언 | 라이브 결과 |
+|---|---|---|---|
+| ① 요구를 끈다 | `117f02e5` | `write_evidence_specs[close_credit_card_account].skip_when_tokens` + 체인 문구 조건부화 | ⛔**모델은 그대로 기록했다**(green·eco 둘 다) |
+| ② 금지한다 | `f7cc0ba6` | 순수 금지 spec: `applies_when.prefix=log_credit_card_closure_reason` · `forbid_when_tokens` 동일 토큰 · `forbid_feedback` = doc_003 Step 2 **축자** | ✅ 발화 확인 |
+
+⇒ **[[63]] 의 재확인**: 모델은 *"안 해도 된다"* 로는 안 닫고 **제거(금지)로만** 닫는다.
+요구 철회(①)는 필요조건이었지 충분조건이 아니었다.
+
+**구현**: `scripts/distill/tau2/t2_gate_patch.py` `_wev_deny_msgs()`. 두 갈래 모두 **닫힌 술어**다 —
+조건은 *"그 id 를 담은 도구 결과 안에 선언된 토큰들이 전부 있는가"* 이지 태스크 id·도구명 리터럴이
+아니다([[05]]/[[58]]). 자기 로그가 만든 기록을 조건으로 세지 않도록 자기오염 배제를 넣었다.
+
+**A2 3층 동기화**: core/specific/gate 세 층 모두에 넣고 `test_a2_three_layer.py` **ALL PASS**([[24]]).
+
+**부호표**([[70]] · 코퍼스 재생): **⊖0 / ⊕37**. 즉 이 금지가 지운 정답은 관측 0, 막은 오답 37.
+
+**라이브 발화 실측** (밤샘 `bank_night*p1_t3prime_20260901_2341`):
+```
+[T2_WRITE_EVIDENCE] forbid=policy-branch id=cc_h1i2j3k4l5_green   (GPU2 · task_049 · 2회)
+[T2_WRITE_EVIDENCE] skip=policy-branch                            (각 레인 2회)
+```
+⇒ 계기가 **첫 런에서 발화했다**([[81]] 의 점검 항목 통과 — 0이면 경로가 틀린 것이다).
+
+**048 남은 칸**: 변이집합 **MISSING 0 · WRONGARG 1 · EXTRA 0** (WRONGARG 4→1). 남은 하나는
+`log{cc_e3f4a5b6c7_eco, annual_fee}` (msg43). reward 는 리모트 복구 후 회수한다.
+⛔이 칸을 **일부러 안 닫았다**: eco 갈래의 Step 1 근거가 [[23]] 기준(정책·환경 출처)으로 깨끗하지
+않다고 판정했다. gold 를 보고 조건을 만들면 실험이 무효가 된다.
+
+**부수 수리**(같은 커밋): `t2_guided_patch._make_wrapper` — `response_format` 이 이미 걸린 호출에
+문법까지 붙이면 서버가 거부한다(라이브 실측). 가드 추가 · `test_guided_schema_conflict.py` 2/2.
+
+### §U-2. 로컬 회귀 검정 — 4 통과 · **래칫 1 실패**
+
+```
+test_a2_three_layer.py         ALL PASS      (A2 3층 병합 == 단일본)
+test_wev_skip_branch.py        ALL PASS      (8/8 · 위 ①②의 닫힌 술어)
+test_guided_schema_conflict.py ALL PASS      (2/2)
+test_model_profiles.py         ALL PASS      (프로필 래칫 · PROBE ≥2048)
+test_flag_registry.py          ⛔FAIL        (미선언 플래그가 baseline 보다 30 늘었다)
+```
+
+### §U-3. 미선언 플래그 감사 — **그리고 내 첫 스캔이 틀렸다**
+
+래칫 축자: `엔진이 읽는 T2_* : 355 / go_stack 선언 : 202 / 미선언 : 153(본 플래그 120)` ·
+**새로 생긴 미선언 30개**.
+
+⛔**내 오류(자인)**: 30개가 어디서 켜지는지 세면서 `(export +|^ *)FLAG=` 로 grep 했다.
+그런데 정본은 `export A=1 B=1 C=1` 처럼 **한 줄에 여러 개**를 export 한다 — 첫 변수만 잡혔고
+14개를 *"어디서도 안 켜짐"* 으로 **오분류**했다. 실제로 `run_ours_task.sh:117` 은
+`T2_NO_FORCE_TOOLCHOICE=1 T2_PROBE_TERSE=1 T2_TC_SALVAGE=1 **T2_P2_REGEN=1**` 을 켠다.
+그 오분류 위에서 나는 *"§M 이 진단한 사고가 §M 의 처방(P2)에서 재발했다"* 는 결론까지 갔다가
+`\bFLAG=` 로 재검해서 **철회**했다. [[30]] grep 함정의 정확한 재발이다.
+
+**재검 결과** — 어디서도 설정되지 않는 16개의 실제 성격:
+
+| 성격 | 플래그 | 판정 |
+|---|---|---|
+| **기본 ON**(선언만 없음·거동은 켜짐) | `T2_SUBCALL_CACHE`=1 · `T2_UNUSED_GRANT`=1 · `T2_SCOPE_DENY_CAP`=1 · `T2_P2_CAP`=3 · `T2_SEARCH_CLOSURE_CAP`=1200 · `T2_TOOL_OBS_MAX`=600 · `T2_PROBE_NOTHINK`(사고 유지) | 결함 아님 · **정본 등재만 필요** |
+| **대조팔 전용**(안 켜진 게 설계) | `T2_P2_STOP` · `T2_P2_NOFORCE` · `T2_SALVAGE_ALL` | 결함 아님 |
+| **코드 기본값 있음** | `T2_PROBE_CALLS` · `T2_JUDGE_DISABLE` · `T2_PROBE_KEEP_THINK(_MAX)` | 결함 아님 |
+| ★**dark 후보** | **`T2_SEARCH_CLOSURE`** · **`T2_TC_SALVAGE_GUIDED`** | 아래 |
+
+**`T2_SEARCH_CLOSURE`** — 설계는 `A3_POLICY_ONTOLOGY_DESIGN_2026_08_08.md:951` 축자
+*"플래그 `T2_SEARCH_CLOSURE`(기본 OFF → 격리·A/B 후 [[60]])"*. 구현은 `t2_gate_patch.py:829`.
+격리 프로브 `x640_closure_iso_q38.py` 가 2026-08-30 에 만들어졌고 `:105` 에서 이 플래그를 켠다.
+**그런데 repo 안에 x640 의 판정 기록이 없다** — 검색 경로: `reports/facet_rft_2026/*.md` ·
+`go_stack.sh` · `find . -iname "*x640*"`(프로브 소스 1건뿐). ⇒ *"격리하고 그 결과를 안 적었다"* 이지
+*"격리에서 떨어졌다"* 가 아니다. **반증조건**: 리모트에 x640 산출물/로그가 있으면 이 항목은 철회된다.
+
+### §U-4. `T2_TOOL_OBS_MAX` 는 재료 상한이 **아니다** (오진 차단)
+
+600 이라는 기본값을 보고 *"도구 출력이 600자로 잘려 모델에 간다"* 를 의심했다(x733 의 `TOOL_CAP=700`
+사고와 같은 모양이라). **아니다.** `t2_run_gated.py:733` 유일 사용처는 `print("[T2_TOOL_OBS] ...")`
+= **stderr 로그 줄 길이 상한**이고, 그 블록 자체가 `T2_TOOL_OBS=1` 일 때만 돈다. 전달 경로와 무관하다.
+⇒ 재료 소실 기전 후보에서 **제외**한다.
