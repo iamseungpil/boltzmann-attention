@@ -61,13 +61,24 @@ def run(name, specs, msgs, want_deny):
     return ok
 
 
-def fspec():
-    """조건부 **금지** — 요구를 끄는 것과 다르다."""
-    return [{"applies_to": "call_discoverable_agent_tool",
-             "applies_when": {"arg": "agent_tool_name", "prefix": "log_credit_card_closure_reason"},
-             "id_key": "credit_card_account_id",
-             "forbid_when_tokens": [TOK],
-             "forbid_feedback": "Error: [PROCEDURE] skipped for {id}."}]
+SELFTOK = "Closure reason logged"   # 우리 로깅이 만든 기록의 표지 — **A2 선언에서 온다**
+
+
+def fspec(selfrec=True):
+    """조건부 **금지** — 요구를 끄는 것과 다르다.
+
+    `selfrec=False` 는 **자기오염 컷오프를 선언하지 않은** spec 이다. 2026-09-02 수리 전까지
+    그 토큰은 엔진에 박혀 있었고(도메인 리터럴·[[59]]/[[05]]) 선언과 무관하게 걸렸다.
+    수리 후에는 **선언이 없으면 컷오프도 없다**(기본값 금지) — ⑨가 그것을 잠근다.
+    """
+    sp = {"applies_to": "call_discoverable_agent_tool",
+          "applies_when": {"arg": "agent_tool_name", "prefix": "log_credit_card_closure_reason"},
+          "id_key": "credit_card_account_id",
+          "forbid_when_tokens": [TOK],
+          "forbid_feedback": "Error: [PROCEDURE] skipped for {id}."}
+    if selfrec:
+        sp["forbid_self_record_tokens"] = [SELFTOK]
+    return [sp]
 
 
 def logcall():
@@ -97,7 +108,22 @@ def main():
     r.append(runf("⑥ 이력 없음 → 로깅 허용", fspec(), [], False))
     r.append(runf("⑦ 이력이 다른 id → 허용", fspec(), [hist("cc_other")], False))
     r.append(runf("⑧ 자기오염(우리 로그 뒤 이력) → 허용", fspec(),
-                  [M("tool", "Closure reason logged successfully for %s" % AID), hist()], False))
+                  [M("tool", "%s successfully for %s" % (SELFTOK, AID)), hist()], False))
+    # ⑨ **엔진에 리터럴이 없다**: 같은 궤적인데 선언만 빼면 컷오프가 사라져 금지가 걸린다.
+    #    이 칸이 깨지면 누군가 도메인 문자열을 엔진에 되돌려 놓은 것이다([[59]]/[[05]]/[[03b]]).
+    r.append(runf("⑨ 자기오염 토큰 **미선언** → 컷오프 없음(=금지)", fspec(selfrec=False),
+                  [M("tool", "%s successfully for %s" % (SELFTOK, AID)), hist()], True))
+    # ⑩ A2 병합본이 그 토큰을 실제로 싣고 있는가(선언 결손이면 라이브 거동이 조용히 바뀐다).
+    try:
+        import gate_interpreter as GI
+        _a2 = GI.load_domain_a2("banking_knowledge") or {}
+        _fs = [x for x in (_a2.get("write_evidence_specs") or []) if x.get("forbid_when_tokens")]
+        _ok = bool(_fs) and all(x.get("forbid_self_record_tokens") for x in _fs)
+        print(("ok   " if _ok else "FAIL ") + "⑩ A2 병합본이 forbid_self_record_tokens 를 싣는다")
+        r.append(_ok)
+    except Exception as _e:
+        print("FAIL ⑩ A2 로드 실패: %r" % (_e,))
+        r.append(False)
     print("ALL PASS" if all(r) else "SOME FAILED")
     return 0 if all(r) else 1
 

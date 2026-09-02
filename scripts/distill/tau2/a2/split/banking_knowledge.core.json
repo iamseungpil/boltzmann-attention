@@ -4157,6 +4157,9 @@
    "forbid_when_tokens": [
     "record(s) in 'credit_card_closure_reasons'"
    ],
+   "forbid_self_record_tokens": [
+    "Closure reason logged"
+   ],
    "forbid_feedback": "Error: [PROCEDURE] the retention protocol already sent this account to the closure step. Verbatim: \"If records exist for this account within that time frame, skip retention offers and proceed directly to processing the closure.\" The closure-reason history you read for {id} already contains a record, so Step 3 (logging the reason) and the retention offer are SKIPPED for it. Do not log a closure reason for {id}; close it, or move on to the next account.",
    "_note_": "★2026-09-01 밤 신설 — **조건부 금지**. 요구를 끈 것(`skip_when_tokens`)과 체인 문구 조건부화만으로는 모델이 그대로 찍었다(smoke048c 실물: log{cc_..._green, simplifying_finances}). [[07]] soft 만으론 통제 안 된다. 부호표(게이트 충실·전 코퍼스): ⊖ 0 · ⊕ 37.",
    "_note_source_": "doc_credit_cards_credit_card_account_logistics_003 (Internal: Credit Card Retention Protocol) Step 2 축자. Step 3 이 'Understand and Log the Reason' 이므로 그 skip 은 로깅을 뺀다. gold 무참조([[23]]). ⚠[[70]]: 정책은 'within the past year' 로 기간을 한정하는데 이 술어는 기간을 보지 않는다 — 1년 초과 기록이 있으면 정책이 허용하는 로깅을 막는다."

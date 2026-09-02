@@ -1870,15 +1870,22 @@ def _wev_deny_msgs(messages, tc, specs):
         #   부호표(게이트 충실·전 코퍼스): **⊖ 0 · ⊕ 37**(049 18 · 048 17 · 046 1 · 043 1).
         #   ⚠자기오염 배제: **우리 자신의 로깅이 만든 기록**은 근거가 아니다 — 그 도구 결과가
         #     우리 첫 성공 로깅보다 **앞선** 것만 센다.
+        #   ⛔2026-09-02 수리: 그 컷오프 토큰을 **엔진에 박아 두었다**([[59]]/[[05]]/[[03b]] 위반 —
+        #     고정층에 은행 도메인 문자열). 형제 분기(`skip_when_tokens`)는 같은 판정을 A2 선언에서
+        #     읽는데 이 분기만 리터럴이었다. ⇒ `forbid_self_record_tokens` 선언으로 옮긴다.
+        #     선언이 없으면 컷오프는 걸리지 않는다(기본값 금지 · 거동은 선언이 정한다).
         _fwt = sp.get("forbid_when_tokens") or []
         if _fwt and idv:
+            _selft = sp.get("forbid_self_record_tokens") or []
             _mine = None
             for _j8, _m8 in enumerate(messages):
+                if not _selft:
+                    break
                 if getattr(_m8, "role", None) != "tool":
                     continue
                 _c8 = getattr(_m8, "content", None)
                 _c8 = _c8 if isinstance(_c8, str) else str(_c8 or "")
-                if str(idv) in _c8 and "Closure reason logged" in _c8:
+                if str(idv) in _c8 and all(_t8 in _c8 for _t8 in _selft):
                     _mine = _j8
                     break
             for _j8, _m8 in enumerate(messages):
