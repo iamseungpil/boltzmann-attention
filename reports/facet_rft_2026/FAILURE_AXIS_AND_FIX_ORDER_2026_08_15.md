@@ -3188,3 +3188,39 @@ Q3.8 우리 런 · DB-채점 **33 sim**):
 
 ★교훈: 훅 §74 가 *"코퍼스 전량 순회는 세대를 뭉갠다"* 로 막아 세운 자리가 정확히 여기였다.
 서브가 낸 전량 수치를 그대로 실었으면 없는 축을 최우선으로 올릴 뻔했다.
+
+### §U-10. ⛔밤샘런은 **9/2 04:41 에 기계가 통째로 멈춰** 죽었다 — 그리고 나는 33시간 동안 못 알아챘다
+
+**내 잘못부터.** 모니터링이 로그의 `Status:` 줄만 읽고 **프로세스 생존을 한 번도 확인하지 않았다.**
+그래서 *"변화 없음(GPU1 6/13 · GPU2 7/12)"* 을 33시간 반복 보고했다 — 실제로는 런이 죽어 로그가
+얼어붙은 것이다. 지시문의 *"도는 런이 없으면 그 사실만 알리고 크론을 지울지 물어라"* 를 어겼다.
+⇒ **점검에 반드시 넣는다**: `ps -eo args | grep -c "[t]2_run_gated"` · `ss -ltn | grep -c ":814"` ·
+   로그 **mtime vs now**. 셋 중 하나라도 죽어 있으면 `Status:` 줄은 **과거의 화석**이다.
+
+**사건 재구성**(전부 실측):
+
+| 시각 | 관측 |
+|---|---|
+| 09-01 23:41 | 밤샘런 발사(2레인) |
+| **09-02 04:41** | **모든 writer 가 같은 순간 정지** — 레인 2 · 드라이버 2 · trace · faildump · **vLLM 2** |
+| 04:41~16:26 | 이 구간에 **쓰인 파일 0개** (완전 정지 ≈11h45m) |
+| 09-02 16:26 | 부팅. ⛔`last -x` 에 **앞선 `shutdown` 레코드 없음** = **비정상 종료** |
+
+**소프트웨어 고장이 아니다** — vLLM 두 서버 모두 마지막 줄까지 정상 서빙이었다(축자:
+`Avg generation throughput: 36.2 tokens/s, Running: 2 reqs, GPU KV cache usage: 71.8%` ·
+`"POST /v1/chat/completions HTTP/1.1" 200 OK`). 에러·트레이스백·OOM **0**.
+**커널 패닉도 아니다** — `kdump` 가 **enabled·active 인데 `/var/crash` 가 비었다**(패닉이면 vmcore 가 남는다).
+**하드웨어 열화 징후도 없다** — GPU `Remapped Rows` Correctable 0 · Uncorrectable 0 · Pending No
+(두 장) · EDAC `ce_count`/`ue_count` 0 · 현재 부팅 dmesg 에 MCE·thermal 없음.
+⇒ 남는 것은 **전원/하드 리셋 계열의 일회성 정지**다.
+
+**⛔증거가 날아갔다**: `journalctl --list-boots` 축자 *"no persistent journal was found"* —
+`/var/log/journal` 이 없어 저널이 휘발성이고 **직전 부팅 커널 로그가 통째로 소실**됐다.
+디스크의 `/var/log/messages` 에는 남아 있으나 `root:root 0600` 이라 woori(=wheel, 단 sudo 암호 필요)로는
+이 세션에서 못 읽는다. ⇒ **정확한 방아쇠는 root 로만 확정 가능**하다.
+
+**살아남은 것**: 두 레인 `results.json` 정상 파싱 — **13 sim · pass 6**
+(GPU1 6: pass 008·012 / GPU2 7: pass 010·033·037·060). 048 착지·실패(WRONGARG 1) · 055 실패.
+
+**다음**: ⑴root 로 `/var/log/messages` 의 04:41 직전 확인 · ⑵BMC/IPMI SEL(전원 이벤트) ·
+⑶`/var/log/journal` 생성해 저널 영속화(다음 사고 때 증거 보존) · ⑷우리 쪽 watchdog(위 3종 점검).
