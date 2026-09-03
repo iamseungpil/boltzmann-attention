@@ -122,10 +122,43 @@ tool-deny 130 = 원발 65 + [BLOCKED] 부수 65 (50%)
 
 `task_041` 한 건이 130 중 **67**을 차지하고, **한 턴에 최대 21건**이 동반 차단됐다(turn 44).
 
-### ★CONFIRMED 우리 층 결함 — `[REFERENCE]` 게이트의 오판 (task_041 · n=8 칸)
+### §1b-refute — 내가 CONFIRMED 라 적었다가 **스스로 반증한 것** (2026-09-04)
 
-**주장 + 양화**: `bank_g97151p11_viewmax2_20260903_1924` 의 `task_041` 에서, gold 가 요구한
-`file_credit_card_transaction_dispute_4829` **8 칸 전부**가 우리 게이트에 막혀 실패했다.
+**주장(원래)**: `task_041` 의 dispute **8 칸**을 우리 `[REFERENCE]` 게이트가 죽였다. n=8 칸 · sim 1개.
+
+**반증 근거 — 축자 + 위치(sim#turn / action_id)**
+```
+같은 sim 의 같은 게이트 아래에서 dispute 6 칸이 **통과**했다:
+  041_9  match=True  txn_645286a3dd13 digits=0652     041_19 match=True txn_dd095dee227f
+  041_10 match=True  txn_1b4cc30a928e digits=3081     041_20~041_24 match=True (4칸 더)
+연쇄의 머리는 따로 있다 — 손님 액션이 안 났다:
+  041_3 requestor=assistant give_discoverable_user_tool(get_card_last_4_digits)  match=True
+  041_4~041_7 requestor=user  call_discoverable_user_tool(get_card_last_4_digits) **match=False ×4**
+그리고 우리 게이트는 그 결손을 **정확히 지적**했다 (task_041 turn 42·44 축자):
+  "[WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits (2716).
+   Do NOT guess or fabricate the digits ... call give_discoverable_user_tool to give the customer
+   the get_card_last_4_digits ..."
+```
+⇒ **도구를 넘기는 것(041_3)은 우리가 했고, 손님이 그것을 호출하지 않았다(041_4~7).** 자릿수 없이
+분쟁을 걸려는 시도를 우리 층이 막은 것은 **정당하다**. 같은 게이트 아래 6 칸이 통과했으므로
+*"게이트가 8 칸을 죽였다"* 는 인과는 **성립하지 않는다**.
+
+**남는 것(축소된 주장)**: `[REFERENCE]` 문면이 *"does not appear in any record returned by the
+tools"* 라고 말하는데 그 8개 id 는 msg 17(role=tool)에 있었다 ⇒ **문면이 거짓**이다. 이것만이
+확정이고, 처방은 D3 의 **문면·술어 일치**로 한정된다.
+
+**반증 조건 / refutation (남은 주장에 대해)**: `apply_op` 가 집합을 돌려주는데 호출부가 스칼라로
+비교하는 것이면 수리 위치가 `t2_compute` 다. 그리고 041 의 8개 id 중 criteria 부합이 1개뿐이라면
+게이트 술어는 옳고 문면만 고치면 된다 ⇒ P3a·P3b.
+
+**선행 확인**: `grep -rn "does not appear in any record" scripts/distill/tau2/`(`t2_gate_patch.py:2851`
+`:9410`) · `grep -n "def resolve_reference_filter" -A 90 t2_resolve.py` · 회수된
+`fb_bank_g97151p11_viewmax2_20260903_1924.jsonl` · 해당 sim 의 `action_checks` 전문.
+
+### 원래 적었던 관찰 (위 반증을 붙여 읽어라) — `[REFERENCE]` 게이트의 오판
+
+**주장 + 양화 (n=8 칸 · sim 1개)**: gold 요구 `file_credit_card_transaction_dispute_4829`
+8 칸(041_11~041_18)이 실패했고 같은 턴에서 우리 게이트가 이들을 거부·동반차단했다.
 
 **근거 (축자 + 위치)**
 ```
@@ -201,7 +234,7 @@ tool-deny 130 = 원발 65 + [BLOCKED] 부수 65 (50%)
 
 ---
 
-### D3 — reference-filter 의 **단일-지시체 가정**을 깬다 (§1b 의 CONFIRMED 결함)
+### D3 — reference-filter 의 문면과 술어를 **일치**시킨다 (§1b-refute 로 축소된 주장)
 
 **주장 + 양화 (n=8 칸 · sim 1개)**: `task_041` 의 `file_credit_card_transaction_dispute` 8 칸이
 이 게이트에 막혔다. **창(view) 때문이 아니다** — 게이트는 `state.messages` 전사를 받는다.
@@ -218,7 +251,9 @@ t2_resolve.py:1258-1264
 검사는 *"지목한 id 가 기록에 있는가"* 가 **아니라** *"내가 계산한 단 하나의 id 와 같은가"* 다.
 `formalize_reference_criteria` 는 criteria **하나**를 뽑고 `apply_op(filter)` 는 id **하나**를
 돌려준다. 그런데 041 의 손님은 거래 8건을 분쟁한다 ⇒ 8개 중 7개는 정의상 `chosen != correct`
-가 되어 **정당한 호출이 전부 거부**된다.
+가 되어 거부된다. ⚠단 §1b-refute 대로 **이것이 041 실패의 원인이라는 인과는 성립하지 않는다**
+(같은 게이트 아래 dispute 6 칸이 통과했다). 확정된 결함은 아래 ②(문면 거짓)이고, ①은 P3b 가
+criteria 부합 수를 세기 전까지 **가설**이다.
 
 **두 번째 결함 — 거부 문면이 검사한 내용과 다르다** (`t2_gate_patch.py:9410` 하드코딩)
 ```
