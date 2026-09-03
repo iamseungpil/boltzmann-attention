@@ -189,7 +189,7 @@ tools"* 라고 말하는데 그 8개 id 는 msg 17(role=tool)에 있었다 ⇒ *
 
 ---
 
-## 2. 설계 — 수리 후보 넷
+## 2. 설계 — 수리 후보 다섯
 
 ### [[05]] 3질문 (설계서 상설 의무 · [[17]])
 
@@ -304,6 +304,48 @@ D4 는 불필요하다 ⇒ **D3 만 켠 팔을 먼저** 보고 D4 단독 효과�
 **선행 확인**: `grep -rn "BLOCKED" t2_gate_patch.py` · 회수된
 `fb_bank_g97151p11_viewmax2_20260903_1924.jsonl` 의 turn 별 deny 집계.
 
+### D5 — `[ARG-ENUM]`: 선언된 값 집합에서만 오는 인자를 검사한다
+
+**주장 + 양화 (n=1 칸 · sim 1개)**: `task_059`(`bank_k8141med1_20260903_2256`)는 gold 6 칸 중
+**5 칸을 통과하고 059_4 한 칸**으로 떨어졌다. 그 한 칸의 차이는 문자열 하나다.
+
+**근거 — 축자 + 파일:줄**
+```
+GOLD  059_4 : account_class = "Green Account"
+OURS        : account_class = "Green Account (savings)"          <- 모델이 "(savings)" 를 덧붙였다
+
+도구 문서 축자  tau2-bench/src/tau2/domains/banking_knowledge/tools.py:2384
+  "account_class (string): The full official account class name"
+정책 문서의 등급 열거 (tasks/정책 JSON 등장 횟수)
+  Green Account 194 · Sky Blue Account 18 · Gold Account 16 · Silver Plus Account 16 · Bronze Account 6
+
+우리 층은 이 호출을 건드린 적이 없다 — task_059 의 tool-deny 는 3건뿐이고 전부 다른 자리다:
+  turn 49  "resolve the flagged call(s) first"
+  turn 53  "[ACTION] 'apply_for_credit_card' is run by the CUSTOMER, not by you"
+  turn 53  "[ARG-EMPTY] ... left the required argument(s) ... as an empty string"
+```
+
+⇒ **059 는 우리 스택의 부작용이 아니다**(같은 sim 의 다른 `open_bank_account` 칸 059_3 은 통과).
+그러나 **우리가 잡을 수 있었던 결함**이다: `account_class` 는 자유 문자열이 아니라 **열거값**이고,
+지목한 값이 그 집합에 속하는지는 **닫힌 술어**다([[22]] 변이 불변 · [[59]] 문자열 소속만).
+
+```
+규칙 : 인자의 허용값 집합이 선언돼 있으면(A2/정책 열거), 집합에 없는 값을 거부한다.
+문면 : 무엇이 틀렸나(집합 밖) + 무엇을 하면 풀리나(선언된 값 중 하나를 쓰라).
+       ⛔옳은 값을 골라 주지 않는다 — 고르는 순간 측정 대상이 사라진다([[62]] · [[23]]).
+```
+같은 계열이 **이미 둘 있다**: `[ARG-EMPTY]`(빈 문자열) · `[SIGNATURE]`(선언 안 된 인자).
+D5 는 그 형제이고 엔진에 도메인 리터럴을 박지 않는다([[58]]) — 집합은 A2 에서 온다.
+
+**반증 / refutation**: 그 열거가 A2·정책에서 **닫히지 않으면**(등급이 문서마다 다르거나 자유 서술이면)
+이 술어는 성립하지 않고 D5 는 폐기다. 그리고 059 의 `"Green Account (savings)"` 를 거부했을 때
+모델이 올바른 값으로 재발행하지 못하면 **레버가 사는 것은 0**이다 ⇒ P4 에서 격리로 확인한다.
+
+**선행 확인**: `grep -rn "account_class" tau2-bench/data/tau2/domains/banking_knowledge/*.json` ·
+`grep -rn -A3 "account_class" tau2-bench/src/.../tools.py`(:2377·:2384·:2394) ·
+`grep -rn "ARG-EMPTY|SIGNATURE" scripts/distill/tau2/` (기존 형제 게이트 확인) ·
+회수된 `fb_bank_k8141med1_20260903_2256.jsonl` 의 task_059 deny 3건 전문.
+
 ---
 
 ## 3. 격리 먼저, 배선은 그 다음 ([[62]] · [[78]])
@@ -330,6 +372,13 @@ D4 는 불필요하다 ⇒ **D3 만 켠 팔을 먼저** 보고 D4 단독 효과�
   8개 다 부합하면 D3 확정 · 1개만 부합하면 이 귀속은 무너진다.
 - **P3c**: D3 만 켠 팔 vs D3+D4 팔을 같은 재료로 돌려 D4 의 단독 기여를 잰다([[57]] 부정통제 포함).
 - **exit**: D3 가 041 의 8 칸을 통과시키는가 · D4 가 그 위에 무엇을 더 사는가.
+
+### P4 — D5 격리 (ARG-ENUM)
+
+- **P4a**: `account_class` 의 허용값 집합이 A2/정책에서 **닫히는지** 확인한다(닫히지 않으면 D5 폐기).
+- **P4b**: 059 가 그 자리에서 실제로 받은 재료로 `"Green Account (savings)"` 를 거부했을 때
+  모델이 **선언된 값으로 재발행하는가**. 재발행 못 하면 레버가 사는 것은 0이다.
+- **exit**: P4a 통과 ∧ P4b 에서 재발행 성공 ⇒ D5 배선 자격. 부정통제 필수([[57]]).
 
 ### P2 — D2 격리 + K 결정
 
@@ -445,6 +494,39 @@ sim 수 : 97 × 2 arms = 194 (대조군 재실행 시) / 97 (재사용 시)
   전 단계를 놓치는 태스크가 생길 수 있다. 그 손실을 세지 않으면 판정이 아니다.
 - 우리 층 귀속은 per-step 포렌식 + 적대적 refutation 을 거친 것만 CONFIRMED([[73]]).
 
+### ★비용 축 — reward 만 보면 "무엇을 팔았나"가 안 보인다 ([[70]])
+
+**주장 + 양화 (n=2 sim · base 대조)**: 같은 태스크를 base 는 분 단위로 통과하는데 ours 는 시간
+단위를 쓴다. 두 사례 모두 base 팔이 **pass** 한 태스크다.
+
+**근거 — 축자 + 위치**
+```
+task_059   base(x644) reward=1.0 ·  15분 · msg 47      ours reward=0.0 · 291분 · msg 72
+task_064   base(x644) reward=1.0 ·  20분 · msg 68      ours 4.7시간째 미완 (2026-09-04 08:15)
+
+task_064 의 생성 호출 분해 (bank_k8141med1_20260903_2256.log · [T2_GEN_TRACE] call=... 집계)
+  agent_response 29  ↔  부수 생성 30
+  (intent_operator_formalize 5 · source_claim_formalize 5 · recommend_formalize 4 ·
+   agent_response_unified_regen 6 · claimprov 6 · selfdecl 3 · sg_arg_docs 2 · 기타)
+=> 실질 턴당 생성이 2배 이상이다.
+```
+
+그러므로 판정표에 **세 칸을 더 적는다**(태스크별 부호표와 같은 줄에):
+
+```
+① reward 짝 (A/B)                      <- 지금 유일하게 보고 있는 것
+② sim 당 벽시계 분                       <- 우리가 파는 것
+③ gold 대비 생성 호출 배수 (agent_response + 부수 생성) / base 의 turn 수
+```
+②③ 없이 Δ 를 보고하면 *"정확도를 샀다"* 만 남고 **대가가 장부에서 사라진다**. base 팔의 분/턴은
+`x738_q38_base97_census_2026_09_04.md` 의 두 런에서 무료로 뽑힌다.
+
+**반증 / refutation**: ②③ 의 격차가 **KV 경합만으로** 설명되면(예산 안에서 돌린 배치에서 격차가
+사라지면) 이건 우리 레버의 대가가 아니라 배치 문제다 ⇒ §5a 규칙대로 묶은 첫 배치에서 다시 잰다.
+
+**선행 확인**: `grep -rn "T2_GEN_TRACE" scripts/distill/tau2/` · 회수된 base 런
+`bank_x644_q38base_bank78_20260830.results.json.gz`(duration·messages) · 이 캠페인 로그의 호출 집계.
+
 ---
 
 ## 6. 중단 조건
@@ -467,6 +549,7 @@ sim 수 : 97 × 2 arms = 194 (대조군 재실행 시) / 97 (재사용 시)
 [ ] 2. P1  D1 격리 (+ 부정통제)
 [ ] 3. P2  D2 격리 · K 결정
 [ ] 3b. P3 D3/D4 격리 (apply_op 반환형 · criteria 부합 수 · D4 단독 기여)
+[ ] 3c. P4 D5 격리 (열거값이 닫히는가 · 거부 후 재발행하는가)
 [ ] 4. 통과분만 배선 + go_stack.sh 등재 + 단위테스트
 [ ] 5. 스모크 게이트 5칸
 [ ] 6. x509 큐에 단계 등재 (정본 갱신 — 새 문서 만들지 마라)
