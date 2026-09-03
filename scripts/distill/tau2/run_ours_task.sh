@@ -149,6 +149,7 @@ export PYTHONPATH=src:$REPO/scripts/distill/tau2
   --agent_model "$EXPECT" --agent_base "http://localhost:$PORT/v1" \
   --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 --user_reasoning_effort low \
   --task_ids "$TASKS" --num_trials "$TRIALS" --max_concurrency "$CONC" --max_steps 200 \
+  --max_retries "${T2_MAX_RETRIES:-8}" --retry_delay "${T2_RETRY_DELAY:-20}" \
   --save_to "$TAG" 2>&1 | tee "$LOG/$TAG.log"
 # ★실행 결과를 **끝까지 들고 간다** (2026-09-01 사고): 아래 요약 `echo` 들이 마지막 명령이라
 #   스크립트가 **항상 0** 을 돌려줬고, 티어 드라이버가 죽은 티어를 성공으로 읽어 다음 티어로

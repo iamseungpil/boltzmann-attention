@@ -3260,3 +3260,31 @@ call_discoverable_user_tool 시도 0 · give 호출 0 · 거절 메시지 0 · �
 `.153` = 34태스크 비교런(스택 고정·건드리지 않음) / `.151` = **격리 프로브**(055·061 `account_class`
 판촉 우선순위 · 016 선제 전달 · 034 이관 시점 · 046 잉여 억제). 041 은 팔이 준비됐으니 GPU 가
 비는 대로 짝 A/B 로 돌린다.
+
+### §U-12. 순단 하나가 태스크를 죽인다 — 재시도가 **3초 안에 끝난다**
+
+사용자 물음(2026-09-03): *"착지분은 착지하자마자 채점하는 거 아닌가? … 끝나면 바로 채점하게 하라"*
+
+**채점은 이미 즉시·영속된다** — 두 증거. ⑴밤샘런이 하드 정지했는데도 `results.json` 에 착지 13개가
+**전부 `reward_info` 를 갖고** 남아 있었다(§U-10). ⑵코드상 `run_fn()` 직후 `save_fn` 이 불린다
+(`tau2-bench/src/tau2/runner/progress.py`). ⇒ 중단으로 채점이 날아가지 않는다.
+
+**⛔그런데 다른 것이 드러났다.** 재런 레인2의 `task_092`·`task_095` 는 `reward=None` 이었는데
+채점 대기가 아니라 **메시지 0 · `termination_reason: infrastructure_error`** 였다. 로그 축자:
+```
+litellm.APIError: OpenrouterException - [Errno -2] Name or service not known
+Retry 1/3 → 14:22:17 · 2/3 → 14:22:18 · 3/3 → 14:22:20
+Task task_095 failed permanently after 4 attempts
+```
+user-sim 이 `openrouter/openai/gpt-5.2`(원격 API)라 **매 sim 이 DNS 에 매여 있다**. 그리고 tau2 기본은
+`max_retries=3` · **`retry_delay=1.0` 고정(지수 백오프 없음)** ⇒ **총 4시도가 3초 안에** 끝난다.
+**3초 넘는 순단이면 태스크가 영구 실패**한다. 이 서버는 그 순단이 실재한다 — 같은 시각 내 ssh 도
+끊겼고(§U-10 의 접속 불가와 같은 계열), 다만 재확인 시점에는 `openrouter.ai` 해석이 10/10 정상이었다.
+
+**수리**: `t2_run_gated.py` 에 `--retry_delay` 추가(`--max_retries` 는 이미 있었다) · `run_ours_task.sh`
+가 둘 다 넘긴다 — 기본 `T2_MAX_RETRIES=8` · `T2_RETRY_DELAY=20` ⇒ 총 9시도 · 약 160초를 버틴다.
+⚠**실험 레버가 아니다** — 재시도는 sim 을 처음부터 다시 돌리므로 모델 입력을 바꾸지 않는다.
+바뀌는 것은 *"네트워크 잡음이 실패로 기록되는가"* 뿐이다([[54]] 비교가능성에 영향 없음).
+도는 레인의 **2단부터** 적용된다(1단은 이미 인자가 고정됐다).
+
+**⇒ 092·095 는 모델 실패가 아니라 인프라 손실이다.** 재런 대상에 다시 넣는다.
