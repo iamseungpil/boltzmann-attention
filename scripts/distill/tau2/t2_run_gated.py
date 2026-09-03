@@ -130,6 +130,12 @@ def main():
     #   ⚠️궤적이 안 남아 **포렌식 불가**가 된다 — 점수 정직성과 맞바꾸는 값.
     ap.add_argument("--max_retries", type=int, default=None,
                     help="tau2 기본 3(총 4시도). **0 = 재시도 없음**(초과=fail·삭제편향 제거).")
+    # 2026-09-03: 재시도 **간격**도 넘긴다. tau2 기본은 `retry_delay=1.0` 고정(지수 백오프 없음)
+    #   이라 `max_retries=3` 과 합쳐 **총 4시도가 3초 안에** 끝난다. 실물: 09-03 14:22 DNS 순단에
+    #   user-sim(openrouter)이 걸려 task_092/095 가 **메시지 0 · infrastructure_error** 로 죽었다.
+    #   실험 레버가 아니다 — 재시도는 sim 을 처음부터 다시 돌리므로 모델 입력을 바꾸지 않는다.
+    ap.add_argument("--retry_delay", type=float, default=None,
+                    help="tau2 기본 1.0초(고정). 순단이 잦은 환경에서는 올린다.")
     ap.add_argument("--max_steps", type=int, default=None,
                     help="tau2 기본 200(텍스트 모드의 실질 한계). 명시=기록용.")
     ap.add_argument("--seed", type=int, default=None,
@@ -941,6 +947,8 @@ def main():
         _extra_cfg["seed"] = a.seed
     if a.max_retries is not None:
         _extra_cfg["max_retries"] = a.max_retries
+    if a.retry_delay is not None:
+        _extra_cfg["retry_delay"] = a.retry_delay
     if a.max_steps is not None:
         _extra_cfg["max_steps"] = a.max_steps
     cfg = TextRunConfig(
