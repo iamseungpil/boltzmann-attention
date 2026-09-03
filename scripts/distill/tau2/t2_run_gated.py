@@ -828,7 +828,14 @@ def main():
                 # ★2026-08-31: 구판 술어는 본문에 `<tool_call>` 이 **있을 때만** 떴다. 그런데
                 #   제일 비싼 실패(전손 = content 0B ∧ tool_calls 0)에는 그 문자열이 없다 —
                 #   그래서 원문 회수가 구조적으로 0이었다. 전손도 뜬다.
-                if "<tool_call>" in _c0 or not _c0.strip():
+                # ★2026-09-03: **절단도 뜬다**. 구판은 `<tool_call>` 이 있거나 전손일 때만 떠서
+                #   **JSON 프로브의 절단**(claimprov·selfdecl·writeprov)은 회수가 구조적으로 0이었다.
+                #   실물: task_071 `gen=8192 TRUNC reason=0B content=39530B` — 그 8k 가 반복 폭주인지
+                #   정상 장문인지 **판정할 원문이 없었다**([[30]] 계기는 회수돼야 존재한다).
+                _fr0 = (getattr(_r, "finish_reason", None)
+                        or (((getattr(_r, "raw_data", None) or {}).get("choices")
+                             or [{}])[0] or {}).get("finish_reason"))
+                if "<tool_call>" in _c0 or not _c0.strip() or str(_fr0) == "length":
                     try:
                         _msgs = _a[1] if len(_a) > 1 else _kw.get("messages")
                         _rec = {"call_name": _kw.get("call_name"),
@@ -850,7 +857,15 @@ def main():
                                 "tool_choice": _kw.get("tool_choice"),
                                 "n_tools": len(_kw.get("tools") or _a[2] if len(_a) > 2 else
                                                (_kw.get("tools") or [])),
-                                "content": _c0[:4000],
+                                # ★반복 폭주 판정용: 앞/뒤 토막 + 압축비. 반복이면 비가 급락한다
+                                #   (엔진이 내용을 해석하지 않는다 — 바이트만 센다).
+                                "content_len": len(_c0),
+                                "content_gzip_ratio": (
+                                    round(len(__import__("zlib").compress(
+                                        _c0.encode("utf-8", "replace"), 6)) / max(1, len(_c0)), 4)
+                                    if _c0 else None),
+                                "content_head": _c0[:4000],
+                                "content_tail": _c0[-2000:] if len(_c0) > 6000 else "",
                                 "messages": [{"role": str(getattr(_m, "role", "?")),
                                               "content": str(getattr(_m, "content", "") or "")[:2500],
                                               "tool_calls": [str(getattr(_t, "name", "?"))
