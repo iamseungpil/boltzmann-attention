@@ -6202,6 +6202,44 @@ def _called_tools(msgs):
     return out
 
 
+def _eff_called(msgs):
+    """원장에 실재하는 **유효 도구 이름** 집합(디스패처 unwrap 적용).
+
+    ⛔사본 금지([[67]]): 이 관용구는 `:10395` 에 인라인으로 있던 것을 **함수로 올린 것**이고
+      두 자리가 같은 함수를 쓴다. 거동은 바이트 동일이다(`_eff_tool_name` 그대로).
+    `_called_tools` 와 다른 점: 저쪽은 requestor=assistant 로 거르고 겉이름을 쓰며, 이쪽은
+      requestor 를 안 가리고 `call_` 디스패처를 안쪽 이름으로 푼다. 촉구의 술어는
+      *"이 도구가 이 대화에서 실행됐는가"* 라 **유효 이름**이 맞다.
+    """
+    return {_eff_tool_name(tc) for m in (msgs or [])
+            for tc in (getattr(m, "tool_calls", None) or [])}
+
+
+def _last_user_idx(msgs):
+    """마지막 user 메시지의 인덱스(없으면 -1). **구조만** 본다 — 본문 해석 0([[59]])."""
+    j = -1
+    for i, m in enumerate(msgs or []):
+        r = getattr(m, "role", None)
+        if r is None and isinstance(m, dict):
+            r = m.get("role")
+        if str(r or "") == "user":
+            j = i
+    return j
+
+
+def _acts_since_last_user(msgs, acts):
+    """마지막 손님 발화 **이후** 실제로 발화된 행동도구 집합 (이름 집합 대조만).
+
+    왜 필요한가(§5.2 T4·`CLAIM_DEMAND_ISO_VS_LIVE_AUDIT_2026_08_22`): 촉구가 첫 인사 턴·
+    초반 give/unlock 턴에서 울린 것이 C492 의 over-action +6 의 실물이었다. *"이 손님 요청에
+    대해 이미 뭔가 했다"* 면 촉구하지 않는다 — 의도 분류가 아니라 **원장 구간 대조**다([[66]]).
+    """
+    j = _last_user_idx(msgs)
+    if j < 0:
+        return set()
+    return {n for n in _eff_called(list(msgs)[j + 1:]) if n in (acts or set())}
+
+
 def _fu_target_called(msgs, tool, tool_args):
     """★C212/A1 (day7 022/027 [S]): follow_up 이행 판정 — A2가 `tool_args`를 선언하면
     그 인자 부분집합이 일치하는 assistant 호출이 실재해야 '이행'. 도구명 단위 판정은
@@ -10392,8 +10430,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                       file=_sys.stderr, flush=True)
                             return _rz._agent_ending(am, _transfer_tools(a2))
                         if ((_uacts or _acts) and _win_open()):
-                            _effall = {_eff_tool_name(tc) for m2 in state.messages
-                                       for tc in (getattr(m2, "tool_calls", None) or [])}
+                            _effall = _eff_called(state.messages)   # 관용구를 함수로(거동 동일·[[67]])
                             _upending = sorted(_uacts - _effall)
                             if _upending or (_acts and not (_called & _acts)):
                                 _tgt_pre = _rz.formalize_intent_tool(self, la, UserMessage,
@@ -11115,16 +11152,65 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             #   ⚠[[05]] ⑴도메인 어휘 0(문장에 은행 용어 없음) ⑵유동 판단 동결 없음
                             #     ⑶엔진이 도메인 행동을 수행하지 않는다 — 요구만 한다.
                             #   ⚠[[57]] 부작용 계측 의무: over-action(gold 없는 write)이 늘면 손해다.
-                            if (os.environ.get("T2_ACT_DEMAND") == "1"
-                                    and os.environ.get("T2_DECISION_CARRY") == "1"):
+                            # ⛔`and T2_DECISION_CARRY == "1"` 를 **뗐다**(2026-09-03·T2 의 일부).
+                            #   그 연언은 촉구가 `_t2_cp2_pending` 을 빌려 쓰던 시절 **그 슬롯의
+                            #   스위치**였다. 이제 촉구는 자기 슬롯(`_t2_demand_pending`)과 자기
+                            #   소비 지점을 가지므로 결합은 잔재다. 남겨 두면 A/B 가 촉구와 무관한
+                            #   CP2 채널(검색재료·문서배달·precommit)까지 함께 켜야 해서 **두 변수**가
+                            #   되고, 그 순간 [[54]] 한-변수 규격이 깨진다. 실측: `T2_DECISION_CARRY`
+                            #   는 `go_stack.sh` 에 없고 최근 배치 3개에서 발화 **0** 이다 —
+                            #   즉 이 연언은 촉구를 **영구 무발화**로 만드는 자물쇠였다([[81]]).
+                            if os.environ.get("T2_ACT_DEMAND") == "1":
+                                # ★전달 수리 T2·T3·T4 (2026-09-03·정본 §5.2
+                                #   `CLAIM_DEMAND_ISO_VS_LIVE_AUDIT_2026_08_22.md`).
+                                #   ⛔T1(문면 교체)은 **하지 않는다** — x470 이 D_name 을 자격시키지
+                                #     못했다(1/24 ↔ N_neg 1/24). 문면은 한 글자도 안 바꾼다.
+                                #   무엇이 틀렸었나: `_dm` 이 **상수**라 `_dm != _t2_cp2_said` 가 한 번
+                                #     배달한 뒤 영원히 거짓이었다 ⇒ sim 당 1회, 그것도 초반 턴에서
+                                #     소진되고 **결정점(종료 직전)에서는 영영 침묵**했다(감사 행 3:
+                                #     침묵 122회 · 결정점 도달 **0/8**). 그 위에서 나온 C492 의
+                                #     *"촉구는 성적 null"* 은 도달 0의 결과지 무해의 증거가 아니다.
                                 _dm = "Carry out the next step of this request now."
-                                if _dm != getattr(self, "_t2_cp2_said", None):
-                                    _cp2_assign(self, _dm, "ACT_DEMAND")
-                                    self._t2_cp2_said = _dm
-                                    print("[T2_ACT_DEMAND] 행동 촉구 1줄 배달(도구 지목 0)",
+                                # ── T3 재무장: 지문 = (마지막 손님 발화 인덱스, 미호출 행동도구 집합).
+                                #    횟수가 아니라 **인자 변화**로 재발화한다([[57]]). 같은 지문 1회.
+                                # ── T4 트리거: 마지막 손님 발화 **이후** 행동도구를 이미 발화했으면
+                                #    침묵. 초반 give/unlock 턴의 무목표 촉구(=C492 over-action +6 의
+                                #    실물)를 닫힌 구간 술어로 거른다 — 의도 분류 0([[66]]).
+                                try:
+                                    _dm_eff = _eff_called(state.messages)
+                                    _dm_left = frozenset(_acts - _dm_eff)
+                                    _dm_since = _acts_since_last_user(state.messages, _acts)
+                                    _dm_fp = (_last_user_idx(state.messages), _dm_left)
+                                except Exception as _dme:
+                                    _dm_left, _dm_since, _dm_fp = None, None, None
+                                    print("[T2_ACT_DEMAND] 술어 실패(무발화): %r" % (_dme,),
+                                          file=_sys.stderr, flush=True)
+                                _dm_seen = getattr(self, "_t2_demand_seen", None)
+                                if _dm_seen is None:
+                                    _dm_seen = self._t2_demand_seen = set()
+                                if _dm_fp is None:
+                                    pass
+                                elif _dm_since:
+                                    print("[T2_ACT_DEMAND] 침묵 — 마지막 손님 발화 이후 행동도구 "
+                                          "%d개 발화(T4)" % len(_dm_since),
+                                          file=_sys.stderr, flush=True)
+                                elif not _dm_left:
+                                    print("[T2_ACT_DEMAND] 침묵 — 미호출 행동도구 0(T3 지문 공집합)",
+                                          file=_sys.stderr, flush=True)
+                                elif _dm_fp in _dm_seen:
+                                    print("[T2_ACT_DEMAND] 같은 지문 — 재배달 안 함 "
+                                          "(user_idx=%s 미호출=%d)" % (_dm_fp[0], len(_dm_left)),
                                           file=_sys.stderr, flush=True)
                                 else:
-                                    print("[T2_ACT_DEMAND] 같은 문자열 — 재배달 안 함",
+                                    _dm_seen.add(_dm_fp)
+                                    # ── T2 슬롯 분리: `_t2_cp2_pending` 은 CLAIM_PROV·문서배달과
+                                    #    **한 칸**을 나눠 써서 109 발화 중 64 가 덮였다. 촉구는 전용
+                                    #    슬롯으로 두고 소비 지점에서 `_cp2` **뒤**에 붙인다
+                                    #    (재료 뒤 마지막 UserMessage = recency 보존).
+                                    self._t2_demand_pending = _dm
+                                    print("[T2_ACT_DEMAND] 행동 촉구 1줄 배달(도구 지목 0) "
+                                          "user_idx=%s 미호출=%d 전용슬롯"
+                                          % (_dm_fp[0], len(_dm_left)),
                                           file=_sys.stderr, flush=True)
                             if (_ar.get("status") != "deny"
                                     and os.environ.get("T2_SEARCH_ON_PROCEED") == "1"
@@ -13043,6 +13129,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     work = work + [UserMessage(content=_cp2)]
                 print("[T2_DECISION_CARRY] 이 턴 재생성 버퍼에 부착 (%d자)" % len(_cp2),
                       file=_sys.stderr, flush=True)
+            # ★T2 슬롯 분리 소비 지점 (2026-09-03·정본 §5.2 행 2).
+            #   촉구는 `_t2_cp2_pending` 을 CLAIM_PROV·문서배달과 나눠 쓰다 **109 중 64 가 덮였다**.
+            #   전용 슬롯을 여기서, `_cp2` **뒤에** 붙인다 — 재료 뒤 마지막 UserMessage 라
+            #   recency 가 산다(C578ⓕ 의 "재료 뒤 매몰"은 **같은 메시지 안** 얘기다).
+            #   ⚠컨텍스트 가드는 통과시킨다: 배달물이 상수 한 줄(45자)이라 `_CP2_GUARD_MIN`
+            #     미만이고, 대용량 스킵 경로와 경쟁하지 않는다.
+            _dmp = getattr(self, "_t2_demand_pending", None)
+            if _dmp:
+                self._t2_demand_pending = None
+                try:
+                    work = work + [UserMessage(role="user", content=_dmp)]
+                except TypeError:
+                    work = work + [UserMessage(content=_dmp)]
+                print("[T2_ACT_DEMAND] 재생성 버퍼에 부착 (%d자·전용 슬롯·cp2뒤=%s)"
+                      % (len(_dmp), bool(_cp2)), file=_sys.stderr, flush=True)
             # ★P1: A2 `require_tool_before`가 선언한 선행 read가 미실행이면 이 재생성 1회를
             #   그 read로 고정한다. deny 스텁이 아니라 **생성-측 제약**이라 replay가 비교할
             #   tool 출력을 만들지 않는다 — require_tool_before를 권고로 강등시킨 C210 사유가
