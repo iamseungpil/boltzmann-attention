@@ -65,7 +65,11 @@ source /home/woori/.openrouter_key
 source /home/woori/.openai_key
 [ -n "${OPENROUTER_API_KEY:-}" ] || { echo "REFUSING: no OPENROUTER_API_KEY"; exit 1; }
 
-S=$(curl -s -m 10 "http://localhost:$PORT/v1/models" | grep -oE '"id":"[^"]+"' | head -1 | cut -d'"' -f4)
+# ★2026-09-03: 추론 서버를 **다른 기계**로 보낼 수 있게 한다(하네스·데이터·태그는 그대로).
+#   왜: GPU 두 장이 다 찼는데 세 번째 기계가 놀고 있었다. 그리고 격리 프로브도 같은 배선을 쓴다.
+#   ⚠기본은 localhost — 선언하지 않으면 종전과 **바이트 동일**하다.
+AGENT_HOST="${T2_AGENT_HOST:-localhost}"
+S=$(curl -s -m 10 "http://$AGENT_HOST:$PORT/v1/models" | grep -oE '"id":"[^"]+"' | head -1 | cut -d'"' -f4)
 [ -n "$S" ] || { echo "REFUSING: 포트 $PORT 에서 모델 id 를 못 읽었다"; exit 1; }
 if [ -n "$EXPECT" ]; then
   echo "[run_ours] 서빙: $S (기대 $EXPECT)"
@@ -74,8 +78,10 @@ else
   EXPECT="$S"
   echo "[run_ours] 서빙: $S (기대 미지정 → 서빙 중인 모델을 쓴다)"
 fi
-BUSY=$(ps -eo args --no-headers | grep "localhost:$PORT" | grep -v "grep " | grep -c "tau2 run\|t2_run_gated" || true)
-[ "$BUSY" -gt 0 ] && { echo "REFUSING: $PORT 사용중"; exit 1; }
+# ⚠가드는 **이 기계에서 도는 런**만 셀 수 있다. 원격 호스트를 쓰면 그 기계의 점유는
+#   여기서 안 보이므로 같은 base 문자열로 세고, 겹치면 그대로 거부한다.
+BUSY=$(ps -eo args --no-headers | grep "$AGENT_HOST:$PORT" | grep -v "grep " | grep -c "tau2 run\|t2_run_gated" || true)
+[ "$BUSY" -gt 0 ] && { echo "REFUSING: $AGENT_HOST:$PORT 사용중"; exit 1; }
 
 cd "$REPO/scripts/distill/tau2" || exit 1
 source ./go_stack.sh >/dev/null 2>&1
@@ -136,7 +142,7 @@ echo "[run_ours] 유효 config: surface=${T2_TOOL_SURFACE:-?} ctx=${T2_MAX_MODEL
 # ★표면형 검산 — 선언을 믿지 않고 **한 번 쏴 본다**(요청 2개·max_tokens 128).
 #   문법이 파서와 어긋나면 네이티브 도구 파싱이 전량 죽는데, 그것은 런이 끝나야 보인다([[84]]).
 if [ "$PREFLIGHT" = "1" ]; then
-  /home/woori/venvs/seka_env/bin/python "$REPO/scripts/distill/tau2/x704_surface_preflight.py"       "http://localhost:$PORT/v1" "$EXPECT"
+  /home/woori/venvs/seka_env/bin/python "$REPO/scripts/distill/tau2/x704_surface_preflight.py"       "http://$AGENT_HOST:$PORT/v1" "$EXPECT"
   _pf=$?
   [ "$_pf" = "1" ] && { echo "REFUSING: 표면형 검산 실패 - 발사 중단"; exit 1; }
   [ "$_pf" = "2" ] && echo "[run_ours] ⚠표면형 검산 불가 — 그대로 발사한다"
@@ -146,7 +152,7 @@ cd "$GO_TAU2" || exit 1
 export PYTHONPATH=src:$REPO/scripts/distill/tau2
 /home/woori/venvs/seka_env/bin/python -u "$REPO/scripts/distill/tau2/t2_run_gated.py" \
   --domain banking_knowledge --gate 1 --retrieval_config alltools \
-  --agent_model "$EXPECT" --agent_base "http://localhost:$PORT/v1" \
+  --agent_model "$EXPECT" --agent_base "http://$AGENT_HOST:$PORT/v1" \
   --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 --user_reasoning_effort low \
   --task_ids "$TASKS" --num_trials "$TRIALS" --max_concurrency "$CONC" --max_steps 200 \
   --max_retries "${T2_MAX_RETRIES:-8}" --retry_delay "${T2_RETRY_DELAY:-20}" \
