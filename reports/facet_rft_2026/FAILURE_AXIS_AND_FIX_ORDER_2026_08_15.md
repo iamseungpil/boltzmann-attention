@@ -3224,3 +3224,39 @@ Q3.8 우리 런 · DB-채점 **33 sim**):
 
 **다음**: ⑴root 로 `/var/log/messages` 의 04:41 직전 확인 · ⑵BMC/IPMI SEL(전원 이벤트) ·
 ⑶`/var/log/journal` 생성해 저널 영속화(다음 사고 때 증거 보존) · ⑷우리 쪽 watchdog(위 3종 점검).
+
+### §U-11. 1단 실패 7개 — **무엇이 배선만 하면 되고, 무엇이 새 일인가**
+
+밤샘런에서 착지한 13 중 실패 7의 원인을 인자 수준까지 확정했다(전부 `t2_forensic` 재현).
+
+| task | 결손 | 확정된 원인 | 우리가 할 수 있는 것 |
+|---|---|---|---|
+| **041** | MISS 8 / WRONGARG 8 | 검색 실패 **아님** — gold 거래 8 · 시도 8 · **겹침 8/8**. 틀린 칸은 `eligible_for_provisional_credit` **gold=False got=True 8/8** 하나뿐 | ★**배선만 하면 된다**(아래) |
+| **055** | MISS 2 / WRONGARG 2 | `open_bank_account_4821.account_class` gold=`Silver Plus Account` got=`Silver Account` → `deposit_check.account_id` 연쇄 | 레버 **없음** → 격리 필요 |
+| **061** | MISS 1 / WRONGARG 1 | **같은 칸** · got=`Bronze Account` | 〃 |
+| **034** | 변이 0 | 사용자측 8건 전부 match, **034_9 `transfer_to_human_agents`(assistant) match=False** | 이관 레버 3종이 **이미 ON 인 채로 실패** → 새 일 |
+| **016** | MISS 1 | `submit_transaction`(user-side) 시도 **0회** | 아래 ⛔ |
+| **046** | EXTRA 1 | 요청 없는 `pay_credit_card_from_checking_9182` + 인자 `checking_account_id="05"`(형식 불일치) | 억제 축 · 새 일 |
+| **048** | WRONGARG 1 | eco 칸 — §U-1 에서 **일부러 열어 둔** 자리 | 보류(의도) |
+
+**★041 — 격리는 이미 통과했고 배선만 빠졌다.** `go_stack.sh:701-707` 축자:
+*"★2026-08-26 ON — 격리 통과(`x551`, 040 `eligible_for_provisional_credit`): A_asis **2/4** ↔
+B_rule **4/4** ↔ N_len **2/4**(부정통제가 A 와 행별 답까지 동일)"* — 그런데 실제 export 는
+`:776` 의 **`T2_ARG_POLICY_AT_WRITE=0`** 이다(주석과 **79줄** 떨어져 서로 안 보인다).
+§U-6 의 `T2_ARG_LABEL` 과 **같은 [[81]] 패턴**이고, 이번엔 실패한 인자와 격리한 인자가 **동일**하다.
+⇒ 팔 `arms/viewmax2_argpol.env` 신설(= viewmax2 를 `source` + 한 줄). go_stack 을 직접 고치지
+않는 이유는 **도는 런의 2단이 go_stack 을 다시 source** 하기 때문이다([[54]] 한 런이 두 스택으로 갈린다).
+
+**⛔016 은 `T2_GIVE_REQUIRED` 로 못 고친다 — 결정적 음성.** 그 레버의 트리거는 축자로
+*"손님이 `call_discoverable_user_tool` 로 실행하려다 env 에 거절당했는데 에이전트가 give 를 안 부른
+상태"*(`go_stack.sh:779-781`)인데, 016 궤적 실측은:
+```
+call_discoverable_user_tool 시도 0 · give 호출 0 · 거절 메시지 0 · 메시지 53
+```
+**손님이 시도조차 하지 않았다** ⇒ 켜도 발화 0. 켜기 전에 트리거를 궤적에서 확인한 것이 잘못된
+수리 하나를 막았다([[62]] 결손을 먼저 재라).
+
+**분업**(사용자 지시 2026-09-03 *"수리에 시간이 걸리는 것은 151 에서 수리해서 실험한 후 나중에 돌려라"*):
+`.153` = 34태스크 비교런(스택 고정·건드리지 않음) / `.151` = **격리 프로브**(055·061 `account_class`
+판촉 우선순위 · 016 선제 전달 · 034 이관 시점 · 046 잉여 억제). 041 은 팔이 준비됐으니 GPU 가
+비는 대로 짝 A/B 로 돌린다.
