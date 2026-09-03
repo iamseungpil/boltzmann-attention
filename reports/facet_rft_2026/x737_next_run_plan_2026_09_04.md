@@ -95,6 +95,20 @@ read  scripts/distill/tau2/a2/banking_knowledge.specific.json:4742-4850
 
 ## 1b. 캠페인 실패 20건 전수 per-step 포렌식 (2026-09-04 08:00)
 
+> ⛔⛔ **이 절 전체에 붙는 경고 — `action_checks` 는 채점 단위가 아니다** ([[69]])
+> 이 캠페인의 실패 20건 중 **19건이 `reward_basis: ['DB']`** 다. 그 태스크의 reward 는
+> `db_check.db_match`(궤적 재실행 후 **DB 해시 비교**)에서 나오고, `action_checks` 는 **진단용**이다.
+> 실증(n=1 sim · task_051): `051_6` 이 `match=False` 인데 그 호출은 **실제로 실행됐고 DB 를 바꿨다** —
+> `msg60` 축자 *"Payment processed successfully! - Payment Amount: $3000.00 - New Checking Balance:
+> $2000.00"*. 불일치의 정체는 중첩 payload 문자열 비교(`3000` ↔ `3000.00`)뿐이었다
+> (`tau2-bench/src/tau2/data_model/tasks.py:195` `return tool_args == action_args`).
+> ⇒ **아래의 칸 단위 수치(81칸·45/32/4·34칸 값 대조)는 "어디를 볼지"의 지도이지 실패 귀속이 아니다.**
+> 귀속은 **변이 집합(MISSING/WRONGARG/EXTRA)** 으로 다시 세야 한다([[69]]).
+> ⚠같은 이유로 내가 한때 낸 *"81칸 중 12칸이 직렬화 문제 · base 는 345칸 중 204칸"* 은 **철회한다** —
+> `action_checks` 를 실패 단위로 놓은 데서 나온 수치다.
+
+
+
 채점 55/97 · pass 35 · **fail 20**. 20건 **전부 `user_stop`** 종료다(크래시 0 · 컨텍스트 소진 0).
 
 ### 실패 칸의 기전 분해 (81 칸)
@@ -189,7 +203,7 @@ tools"* 라고 말하는데 그 8개 id 는 msg 17(role=tool)에 있었다 ⇒ *
 
 ---
 
-## 2. 설계 — 수리 후보 넷(D1~D4) + 조사 하나(L1) · 파생값·오선택은 측정만
+## 2. 설계 — 수리 후보 다섯(D1~D4 · D6) + 조사 하나(L1) · 파생값·오선택은 측정만
 
 ### [[05]] 3질문 (설계서 상설 의무 · [[17]])
 
@@ -304,6 +318,54 @@ D4 는 불필요하다 ⇒ **D3 만 켠 팔을 먼저** 보고 D4 단독 효과�
 **선행 확인**: `grep -rn "BLOCKED" t2_gate_patch.py` · 회수된
 `fb_bank_g97151p11_viewmax2_20260903_1924.jsonl` 의 turn 별 deny 집계.
 
+### D6 — `[DUPLICATE-WRITE]` 의 중복 창을 **상태 변화로 리셋**한다 ★오늘 가장 확실한 우리-층 결함
+
+**주장 + 양화 (n=1 sim · gold 칸 2개 직접 사망)**: `task_051`(`bank_k8143med1_20260904_0135`)에서
+gold 가 **같은 write 를 두 번** 요구하는데 우리 게이트가 두 번째를 막았고, 그 하류 2 칸이 죽었다.
+
+**근거 — 축자 + 위치**
+```
+gold 051_2 {"agent_tool_name":"submit_credit_limit_increase_request_7392",
+            "arguments":"{\"credit_card_account_id\":\"cc_5e4c1a83b0_bronze\",
+                          \"user_id\":\"5e4c1a83b0\",\"requested_increase_amount\":1000}"}
+gold 051_7 위와 **바이트 단위로 동일**            <- 같은 호출을 두 번 요구한다
+궤적의 실제 submit 호출: msg23 **한 번뿐**
+
+우리 게이트 축자 (task_051 turn 61·63):
+  "[DUPLICATE-WRITE] This exact call (same tool, same arguments) already succeeded earlier in this
+   conversation, so this call was REMOVED and not run ... It ran at message 23 and returned:
+   Credit limit increase request submitted successfully ... Request ID: cli_e33db0778663 ...
+   That change is already done. **Do NOT attempt this change again and do not do anything further
+   about it.**"
+
+에이전트가 손님에게 (msg65): "시스템이 방금 처리·거절된 동일 요청으로 인식해서 새로 제출하지 못하게
+                              하고 있습니다"
+손님 (msg66): "몇 분 기다릴게요. 시스템이 허용하면 $1,000 증액을 **다시 제출**해 주세요"
+죽은 하류: 051_8 · 051_9 (approve_credit_limit_increase_5847) = match False
+```
+gold 흐름은 **신청 → 조회 → 거절 → 대금 완납 → 재신청 → 승인**이다. 완납이 상태를 바꿨으므로 두 번째
+신청은 **다른 요청**인데, 우리 게이트는 "같은 도구·같은 인자"만 보고 동일하다고 판정한다.
+
+```
+규칙 : 직전 동일 write 이후 **그 대상에 대한 다른 mutating 호출이 있었으면** 중복이 아니다.
+       (닫힌 술어 — 변이 이력의 집합 소속만 본다 · 도메인 리터럴 0 · [[59]])
+선언 : A2 `write_once_keys` 가 이 게이트의 선언 자리다. 새 키 없이 조건만 넓힌다.
+```
+
+⚠ [[70]] 무엇을 파는가: 창을 열면 **진짜 중복 실행**(같은 변경 두 번 적용)이 돌아온다 — 이 게이트가
+원래 막던 것이 그것이다. 태스크별 부호표 없이 배선 금지.
+
+**반증 / refutation**: gold `051_7` 이 `051_2` 와 인자가 달랐다면 이 귀속은 무너진다 —
+**동일하다**(위 축자). 재신청이 `DUPLICATE-WRITE` 아닌 다른 이유로 막혔다면 무너진다 —
+deny 문면이 그 이름을 달고 있다. 그리고 D6 를 켠 격리에서 재신청이 통과해도 **승인까지 가지 못하면**
+이 태스크는 여전히 안 산다.
+
+**선행 확인**: `grep -rn "DUPLICATE-WRITE" scripts/distill/tau2/` · A2 `write_once_keys` ·
+`_note_write_once_keys` · 회수된 `fb_bank_k8143med1_20260904_0135.jsonl` turn 61·63 ·
+해당 sim 의 `messages` msg20·23·57·59·60·65·66.
+
+---
+
 ### L1 — **꺼진 레버 조사** (D5 를 철회하고 이것으로 대체한다 · 2026-09-04)
 
 > ⛔**D5 는 재발명이었다. 철회한다.** 아래 원문은 근거로 남겨 두되 **새 레버로 올리지 마라.**
@@ -383,6 +445,66 @@ within 60 days→$500 / after→전액"* · 구조 `min(disputed_amount, tier_ca
 `ALL{timely ≤ 60일, category ∈ 5종, written_statement, account OPEN}`. 085 의 OURS(100.0·89.99·
 14.99)는 **거래 금액 자체**로 보이고(티어 표 미적용), 041 의 10칸은 `ALL{}` 을 **평가하지 않고
 True 로 넘긴** 모습이다.
+
+### R1 정밀 분석 — **gold 없이 닫히는가? 부분적으로 그렇다** (2026-09-04)
+
+*"파생값은 gold 를 볼 수밖에 없나"* 에 대한 답. **아니다.** 규칙은 KB 에 있다. 2026-08-19 의 위반은
+**규칙을 몰라서가 아니라 상수를 gold 재현율로 고른 것**이었다. 파라미터별로 가른다 (n=17 칸).
+
+```
+[A] 규칙이 KB 축자에 있다 — gold 불필요
+  eligible_for_provisional_credit (10칸)
+    KB 축자 doc_credit_cards_credit_cards_(general)_015:
+      "Previous Disputes: The customer has not filed more than 2 disputes in the past 12 months"
+      (이 축자는 A2 `_note` 에 **이미 인용돼 있다** — 새 사실 0)
+    => 규칙은 "직전 12개월 분쟁 2건 이하" + 카테고리 적격 + 60일 이내.
+       분쟁 이력은 get_user_dispute_history_7291 로 **관측된다**. 계좌 OPEN 여부도 관측된다.
+  customer_max_liability_amount (3칸)
+    KB 축자 doc_036/_031: "within 2 business days of statement -> $50 / within 60 days -> $500 /
+                           after -> 전액", 구조 min(disputed_amount, tier_cap)
+
+[B] 관측이 아니라 **손님 발화 해석**이 정한다 — LLM 몫([[52]])
+  8건 중 어느 3건에 임시 크레딧을 줄 것인가. 041 의 손님은 "가장 큰 금액들"이라고 말한다.
+  => 순위·선택은 해석이다. 엔진이 고르면 [[62]] 위반.
+
+[C] 상수가 정책 문면과 어긋난다 — **여기가 2026-08-19 의 죄**
+  구판은 thr=30일을 썼는데 정책 축자는 "within 2 business days".
+  그 30일은 **gold 재현율로 선택**됐다(T1=2 -> 73.6% vs T1=30 -> 89.4%) => [[23]] 위반.
+  ⇒ 상수를 다시 고를 때 gold 를 보면 같은 죄를 반복한다. **정책 축자 외의 출처 금지.**
+```
+
+⇒ **결론: gold 는 필요 없다. 필요한 것은 ⓐKB 축자를 전달하고 ⓑ선택은 모델에게 남기는 것**이다.
+같은 노트가 이미 그 경계를 그어 뒀다 — *"policy tables stay legal as DELIVERED TEXT … forbidden is
+the engine writing the value into the call."*
+
+⚠**주의 — 이 규칙을 `tasks.json` 에서 읽지 마라.** 벤치의 태스크 주석에 *"maximum 3 disputes can
+receive provisional credit … only 3 can actually receive provisional credit"* 라는 **해설이 들어
+있다**. 그것은 gold 주석이지 KB 가 아니다([[23]]). 위 [A]의 출처는 **`documents/` 아래 KB 문서**여야
+한다.
+
+### 격리로는 안 되는가 — **된다. 그리고 그것이 정확히 옳은 도구다**
+
+이 물음은 [[62]] 2b 가 이미 정한 형태다: *격리에서 되면 결손은 전달(부하)이고, 격리에서도 안 되면
+능력 경계다.* 무료이고 gold 를 안 본다.
+
+```
+P5-iso : 041 · 040 · 085 의 결정 시점에서 모델이 **실제로 받은 재료**만 주고
+         + KB 축자(doc_015 · doc_032 · doc_036/_031)를 앞쪽에 두고
+         => eligible_for_provisional_credit / customer_max_liability_amount 를 산출시킨다
+부정통제 : 같은 길이의 무내용 문구를 넣은 팔([[57]])
+exit    : 격리에서 닫히면 => 결손은 **전달**이고 합법 레버는 "표를 앞쪽에 전달"이다(값은 안 쓴다)
+          격리에서도 안 닫히면 => **능력 경계**로 기록하고 이 17칸을 수리 대상에서 내린다
+```
+전례가 있다: `x511` 이 ①금액 축에서 같은 실험을 했고 *"B_policy(궤적과 같은 자리·앞쪽) **8/8** ·
+C_policy_last(요구 직전) 8/8 합치되 산수가 깨진다"* 를 얻었다 — **표를 어디에 두느냐가 결과를 갈랐다**.
+이 자리도 같은 설계를 쓴다.
+
+**반증 / refutation**: 격리에서 닫히는데 라이브에서 안 닫히면 iso↔live 차이를 **프롬프트 두 개를 찍어
+diff** 해야 한다([[78]]) — 추정 금지.
+
+**선행 확인**: `_note_compute_ops`(PROVENANCE 축자 · doc_036/_031 · doc_032 인용) ·
+`_note_compute_ops_removed_2026_08_19` · `x509_axis_queue` 의 `steps[S2].result.isolation_x511` ·
+`grep -rn "provisional" tau2-bench/data/tau2/domains/banking_knowledge/documents/`.
 
 **그래서 P5 는 측정만 한다 (무료·오프라인)**
 ```
@@ -678,7 +800,8 @@ task_064 의 생성 호출 분해 (bank_k8141med1_20260903_2256.log · [T2_GEN_T
 [ ] 3. P2  D2 격리 · K 결정
 [ ] 3b. P3 D3/D4 격리 (apply_op 반환형 · criteria 부합 수 · D4 단독 기여)
 [ ] 3c. P4 L1 격리 (언제 꺼졌나 · 재발행하는가 · CAP fail-open)
-[ ] 3d. P5 파생값 17칸 측정 (정책 표가 전달됐는가) — **수리 아님**
+[ ] 3d. P5 파생값 17칸 측정 (P5-iso: KB 축자를 앞쪽에 두고 격리 · 부정통제) — **수리 아님**
+[ ] 3e. P6 D6 격리 (상태 변화 후 재-write 가 통과하는가 · 진짜 중복은 여전히 막히는가)
 [ ] 4. 통과분만 배선 + go_stack.sh 등재 + 단위테스트
 [ ] 5. 스모크 게이트 5칸
 [ ] 6. x509 큐에 단계 등재 (정본 갱신 — 새 문서 만들지 마라)
