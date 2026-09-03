@@ -189,7 +189,7 @@ tools"* 라고 말하는데 그 8개 id 는 msg 17(role=tool)에 있었다 ⇒ *
 
 ---
 
-## 2. 설계 — 수리 후보 다섯
+## 2. 설계 — 수리 후보 넷(D1~D4) + 조사 하나(L1) · 파생값·오선택은 측정만
 
 ### [[05]] 3질문 (설계서 상설 의무 · [[17]])
 
@@ -304,7 +304,134 @@ D4 는 불필요하다 ⇒ **D3 만 켠 팔을 먼저** 보고 D4 단독 효과�
 **선행 확인**: `grep -rn "BLOCKED" t2_gate_patch.py` · 회수된
 `fb_bank_g97151p11_viewmax2_20260903_1924.jsonl` 의 turn 별 deny 집계.
 
-### D5 — `[ARG-ENUM]`: 선언된 값 집합에서만 오는 인자를 검사한다
+### L1 — **꺼진 레버 조사** (D5 를 철회하고 이것으로 대체한다 · 2026-09-04)
+
+> ⛔**D5 는 재발명이었다. 철회한다.** 아래 원문은 근거로 남겨 두되 **새 레버로 올리지 마라.**
+
+**주장 + 양화 (n=3 런 · 발화 0)**: 내가 D5 로 제안한 열거값 검사는 **이미 존재한다**. A2
+`write_arg_enum` 에 **9 개 선언**이 있고 그 **0번이 `open_bank_account.account_class`** 다.
+그런데 이번 캠페인 3개 런에서 **발화 0회**다.
+
+**근거 — 축자 + 파일:줄**
+```
+A2      banking_knowledge.specific.json  "write_arg_enum" (9 항목)
+        [0] applies_to=call_discoverable_agent_tool · applies_when.prefix=open_bank_account
+            arg=account_class · group_arg=account_type · group_map={...}
+        [3] prefix=file_credit_card_transaction_dispute
+            booleans=["contacted_merchant","eligible_for_provisional_credit"]   <- 파생값 10칸의 그 인자
+엔진    t2_gate_patch.py:12004  _ens = (a2 or {}).get("write_arg_enum") or []
+        t2_gate_patch.py:12005  if os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens:
+스위치  go_stack.sh 에 T2_WRITE_ARG_ENUM  **없음**
+라이브  bank_k8141med1 · bank_g97151p11 · bank_re151med1  발화 각 **0**
+과거 런 축자 (CAUSE_STEP_FORENSIC_RAW_2026_08_23.json:188):
+  "[sim=task_055#s363271] [T2_WRITE_ARG_ENUM] deny val='Beige Savings Account'
+   group=savings_accounts (후보 9)"
+```
+⇒ **레버는 있고, 예전엔 발화했고, 지금은 꺼져 있다**([[81]]). 할 일은 새 게이트를 짓는 것이 아니라
+*"언제·왜 꺼졌나, 켜면 무엇이 달라지나"* 를 재는 것이다.
+
+**⚠선행이 이미 경고한다 — 그냥 켜지 마라.** `refute_2026_08_23/refute_1.json` 축자:
+*"⑵`T2_WRITE_ARG_ENUM_CAP` fail-open. 단 [[70]] 판정 의무 3종이 아직 안 채워졌다(레버 ON/OFF
+reward 짝 없음·태스크별 부호표 없음) … **격리 프로브 없이 손대지 말 것**([[62]] ②③)."*
+같은 문서가 이미 셋을 박제해 뒀다: ⓐgold 값 오거부(2026-08-13 FIX-6 로 수리됨) ⓑ**CAP(기본 3)
+소진 후 fail-open** ⓒdeny 본문이 **영속 궤적에 안 남아** `messages` 만 보는 포렌식엔 안 보임.
+
+**반증 / refutation**: `T2_WRITE_ARG_ENUM=1` 로 켠 팔에서 059·066·071 의 값이 그대로 통과하면
+이 레버는 그 칸들을 사지 못한다 ⇒ L1 폐기. 그리고 CAP 3 이 sim 당 소진되면 fail-open 이 되어
+**켠 것과 안 켠 것이 같아진다** — 그 경우도 폐기다.
+
+**선행 확인**: `grep -rn "T2_WRITE_ARG_ENUM" scripts/distill/tau2/` · `go_stack.sh`(부재 확인) ·
+`reports/facet_rft_2026/CAUSE_STEP_FORENSIC_RAW_2026_08_23.json`(:188 · :251 · :271) ·
+`reports/facet_rft_2026/refute_2026_08_23/refute_1.json`(:7 · :31 · :55) ·
+`reports/facet_rft_2026/lever_consolidation_map_2026_08_19.json`(:1661 · :1667).
+
+---
+
+### P5 — 파생값 17칸은 **수리가 아니라 측정**이다
+
+**주장 + 양화 (n=17 칸 · sim 5개)**: 값만 틀린 34 칸 중 **17 칸**이 정책 파생값이다.
+```
+eligible_for_provisional_credit  10칸 (041×8 · 040×2)  GOLD False ↔ OURS True   (전부 한 방향·과다 인정)
+customer_max_liability_amount     3칸 (085)            GOLD 50    ↔ 100.0 · 89.99 · 14.99
+new_rewards_earned                2칸 (026)            GOLD 1020 · 1500 ↔ 6300
+provisional_credit_eligible       1칸 (085_7)          GOLD True  ↔ False        (반대 방향)
+expedited_shipping                1칸 (038_4)          GOLD True  ↔ False
+=> 12/17 이 불리언, 그중 10칸이 같은 인자를 같은 방향으로 틀린다.
+```
+
+**⛔ 이 자리는 일부러 비워 둔 자리다 — 계산 레버를 되살리면 실험이 무효다.**
+`a2/banking_knowledge.specific.json` 의 `compute_ops` 는 `{}` 이고 옆의
+`_note_compute_ops_removed_2026_08_19` 축자:
+
+> *"REMOVED (user decision 2026-08-19, plan A). Two ops were deleted because **the engine was
+> producing values that the benchmark scores as gold arguments, which erases the very deficit we
+> measure** ([[62]]), and because one constant was fitted to gold ([[23]]). (1)
+> `file_debit_card_transaction_dispute.customer_max_liability_amount` used thr=30 days while the
+> policy text says 'within 2 business days of statement'; the threshold was chosen by **gold
+> reproduction rate** (T1=2 → 73.6% vs T1=30 → 89.4%) … Live evidence in run
+> `bank_t7326_*_20260819q`: `'[T2_RESOLVE] compute silent-repair customer_max_liability_amount
+> -1->50' fired 8 times in **task_085**."*
+
+⇒ **085 의 그 3칸은 예전에 엔진이 채워 주던 바로 그 칸이다.** 다시 계산하면 [[23]]·[[62]] 위반이다.
+
+**경계는 같은 노트가 그어 뒀다** — 축자:
+> *"The policy tables themselves stay legal as **DELIVERED TEXT** (surface the doc_036/_031
+> wording to the model); **what is forbidden is the engine writing the value into the call**."*
+
+정책 조건 자체는 KB 에 있다: 책임 상한 `doc_036/_031` *"within 2 business days of statement→$50 /
+within 60 days→$500 / after→전액"* · 구조 `min(disputed_amount, tier_cap)`; 임시 크레딧 `doc_032`
+`ALL{timely ≤ 60일, category ∈ 5종, written_statement, account OPEN}`. 085 의 OURS(100.0·89.99·
+14.99)는 **거래 금액 자체**로 보이고(티어 표 미적용), 041 의 10칸은 `ALL{}` 을 **평가하지 않고
+True 로 넘긴** 모습이다.
+
+**그래서 P5 는 측정만 한다 (무료·오프라인)**
+```
+P5a  041 · 040 · 085 의 궤적에 그 정책 표(doc_032 · doc_036/_031)가 **실제로 전달됐는가**
+     전달됐는데 틀렸다 => 능력 경계(모델 몫) · 전달 안 됐다 => 전달 레버가 자리다(값은 안 쓴다)
+P5b  L1 을 켠 팔에서 write_arg_enum[3].booleans 가 그 10칸에 발화하는가
+P5c  CAP(기본 3) 소진 시점과 그 뒤 통과 여부 (fail-open 재현)
+```
+**exit**: P5a 가 "전달됨"이면 이 17칸은 **수리 대상에서 내린다**(측정값으로만 기록).
+
+**반증 / refutation**: 표가 전달되지 않았음이 확인되면 *"모델 몫"* 이라는 접기는 거짓이 되고,
+전달 레버가 정당한 후보가 된다. 반대로 전달됐는데도 틀렸다면 어떤 우리-층 처방도 이 칸을 못 산다.
+
+**선행 확인**: `_note_compute_ops_removed_2026_08_19` · `_note_compute_ops`(PROVENANCE 축자) ·
+`grep -rn "compute_ops" scripts/distill/tau2/a2/*.json`(specific:67 · gate:260 모두 `{}`) ·
+`t2_resolve.py:1281 resolve_compute_params`(선언 없으면 no-op).
+
+---
+
+### 오선택 14칸 — **분류만 한다. 수리 대상이 아니다**
+
+**주장 + 양화 (n=14 칸 · sim 5개)**: `credit_card_account_id`(041×4 · 040×2) ·
+`card_id` `_green↔_blue`(092) · `_lb/_green↔_lg`(078) · `transaction_id`(026×4).
+지목한 **레코드가 다르다** — 값 형식도 계산도 아니다.
+
+**근거 — 축자(값 대조)**
+```
+041_4  GOLD cc_a6a7d745b2_gold   OURS cc_a6a7d745b2_crypto
+041_5  GOLD cc_a6a7d745b2_crypto OURS cc_a6a7d745b2_gold      <- 서로 뒤바뀐 꼴
+092_13 GOLD dbc_rw42b8d3e1_green OURS dbc_rw42b8d3e1_blue
+078_3  GOLD dbc_mc78a5b9d2_lb    OURS dbc_mc78a5b9d2_lg
+```
+
+이 축은 x509 큐의 **②범주**이고 `x512`(경계 판정 철회) · `x513`(*"표를 줘도 057·063 은 0/6"*)이
+**이미 판정한 자리**다. 여기서 새 처방을 만들지 마라([[74]]).
+
+**필요한 것은 격리 프로브 하나**: *같은 종류의 카드·계좌가 여럿일 때 손님 발화의 지시체를
+고르는가*. [[18]] 상 F3/경계 판정 전에는 **정보-맞춘 격리**가 선행이고, 이 문서는 그 프로브를
+**기술만 하고 설계하지 않는다**(큐 밖 작업 금지 · §74-d).
+
+**반증 / refutation**: 격리에서 지시체 선택이 닫히면 이것은 능력 경계가 아니라 전달 부하이고,
+그때는 ②범주 축의 판정을 되돌려야 한다.
+
+**선행 확인**: `x509_axis_queue_2026_08_24.json`(`axis_table.boundary_RETRACTED` · `status_2026_08_24_pm.②범주`) ·
+`grep -rn "x512\|x513" reports/facet_rft_2026/`.
+
+---
+
+### (철회됨) D5 — `[ARG-ENUM]`: 선언된 값 집합에서만 오는 인자를 검사한다
 
 **주장 + 양화 (n=1 칸 · sim 1개)**: `task_059`(`bank_k8141med1_20260903_2256`)는 gold 6 칸 중
 **5 칸을 통과하고 059_4 한 칸**으로 떨어졌다. 그 한 칸의 차이는 문자열 하나다.
@@ -373,12 +500,13 @@ D5 는 그 형제이고 엔진에 도메인 리터럴을 박지 않는다([[58]]
 - **P3c**: D3 만 켠 팔 vs D3+D4 팔을 같은 재료로 돌려 D4 의 단독 기여를 잰다([[57]] 부정통제 포함).
 - **exit**: D3 가 041 의 8 칸을 통과시키는가 · D4 가 그 위에 무엇을 더 사는가.
 
-### P4 — D5 격리 (ARG-ENUM)
+### P4 — L1 격리 (꺼진 열거 레버)
 
-- **P4a**: `account_class` 의 허용값 집합이 A2/정책에서 **닫히는지** 확인한다(닫히지 않으면 D5 폐기).
-- **P4b**: 059 가 그 자리에서 실제로 받은 재료로 `"Green Account (savings)"` 를 거부했을 때
-  모델이 **선언된 값으로 재발행하는가**. 재발행 못 하면 레버가 사는 것은 0이다.
-- **exit**: P4a 통과 ∧ P4b 에서 재발행 성공 ⇒ D5 배선 자격. 부정통제 필수([[57]]).
+- **P4a**: `T2_WRITE_ARG_ENUM` 이 **언제 꺼졌는지** git 이력으로 찾는다(`git log -S`). 의도적 OFF 면 그 이유를 인용한다.
+- **P4b**: 켠 팔에서 059·066·071 의 값이 실제로 거부되는가, 그리고 모델이 **선언된 값으로 재발행하는가**.
+- **P4c**: `T2_WRITE_ARG_ENUM_CAP`(기본 3) 소진 후 fail-open 재현 — 켠 것과 안 켠 것이 같아지는지.
+- **exit**: 재발행 성공 ∧ CAP 소진 전 발화 ⇒ L1(켜기) 자격. 부정통제 필수([[57]]).
+  ⛔[[70]] 판정 의무 3종(ON/OFF reward 짝 · 태스크별 부호표 · 무엇을 팔았나)을 채우기 전엔 켜지 마라.
 
 ### P2 — D2 격리 + K 결정
 
@@ -549,7 +677,8 @@ task_064 의 생성 호출 분해 (bank_k8141med1_20260903_2256.log · [T2_GEN_T
 [ ] 2. P1  D1 격리 (+ 부정통제)
 [ ] 3. P2  D2 격리 · K 결정
 [ ] 3b. P3 D3/D4 격리 (apply_op 반환형 · criteria 부합 수 · D4 단독 기여)
-[ ] 3c. P4 D5 격리 (열거값이 닫히는가 · 거부 후 재발행하는가)
+[ ] 3c. P4 L1 격리 (언제 꺼졌나 · 재발행하는가 · CAP fail-open)
+[ ] 3d. P5 파생값 17칸 측정 (정책 표가 전달됐는가) — **수리 아님**
 [ ] 4. 통과분만 배선 + go_stack.sh 등재 + 단위테스트
 [ ] 5. 스모크 게이트 5칸
 [ ] 6. x509 큐에 단계 등재 (정본 갱신 — 새 문서 만들지 마라)
