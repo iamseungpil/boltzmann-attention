@@ -81,7 +81,17 @@ fi
 # ⚠가드는 **이 기계에서 도는 런**만 셀 수 있다. 원격 호스트를 쓰면 그 기계의 점유는
 #   여기서 안 보이므로 같은 base 문자열로 세고, 겹치면 그대로 거부한다.
 BUSY=$(ps -eo args --no-headers | grep "$AGENT_HOST:$PORT" | grep -v "grep " | grep -c "tau2 run\|t2_run_gated" || true)
-[ "$BUSY" -gt 0 ] && { echo "REFUSING: $AGENT_HOST:$PORT 사용중"; exit 1; }
+# ★T2_SHARE_PORT (2026-09-03·기본 OFF) — **의도적 공유**만 허용한다.
+#   이 가드가 막는 것은 *실수로 같은 포트에 두 번 쏘는 것*이다. 그런데 앞선 런이 동시성 4 중
+#   1칸만 쓰고 있으면 3칸이 논다(실측: `lost5` 가 022 하나만 남기고 8143 을 붙들고 있었다).
+#   vLLM 은 `--max-num-seqs 128` 이라 요청 수가 병목이 아니다 — 병목은 우리가 안 보내는 것이다.
+#   ⚠공유하면 두 런의 지연이 서로 섞인다 ⇒ **소요시간을 비교 근거로 쓰지 마라**([[54]]).
+#     성적(reward·db_match)은 영향받지 않는다(같은 sha·같은 팔·같은 서버).
+if [ "$BUSY" -gt 0 ] && [ "${T2_SHARE_PORT:-0}" = "1" ]; then
+  echo "[run_ours] $AGENT_HOST:$PORT 공유 발사 (T2_SHARE_PORT=1 · 선행 런 $BUSY 개와 동거)"
+  BUSY=0
+fi
+[ "$BUSY" -gt 0 ] && { echo "REFUSING: $AGENT_HOST:$PORT 사용중 (의도한 공유면 T2_SHARE_PORT=1)"; exit 1; }
 
 cd "$REPO/scripts/distill/tau2" || exit 1
 source ./go_stack.sh >/dev/null 2>&1
