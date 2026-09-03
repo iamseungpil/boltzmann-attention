@@ -93,7 +93,70 @@ read  scripts/distill/tau2/a2/banking_knowledge.specific.json:4742-4850
 
 ---
 
-## 2. 설계 — 수리 후보 둘
+## 1b. 캠페인 실패 20건 전수 per-step 포렌식 (2026-09-04 08:00)
+
+채점 55/97 · pass 35 · **fail 20**. 20건 **전부 `user_stop`** 종료다(크래시 0 · 컨텍스트 소진 0).
+
+### 실패 칸의 기전 분해 (81 칸)
+
+각 실패 칸의 도구 이름이 궤적에 ①아예 안 나왔나 ②나왔는데 안 불렀나 ③불렀는데 불일치인가:
+
+```
+③ 불렀는데 인자/값 불일치   45 칸 (55.6%)
+② 이름은 나왔는데 미호출     32 칸 (39.5%)
+① 이름이 안 나옴(미발견)      4 칸 ( 4.9%)   <- 검색은 병목이 아니다([[79]] 와 정합)
+```
+
+첫 실패 칸(연쇄의 머리)의 requestor = **assistant 11 · user 8**. 도구는
+`call_discoverable_agent_tool` 6 · `call_discoverable_user_tool` 5 · `unlock_discoverable_agent_tool` 4.
+전체 실패 칸의 45/81 이 `assistant/call_discoverable_agent_tool` 다.
+
+### 우리 층 거절 130건의 절반이 **부수 차단**이다
+
+```
+tool-deny 130 = 원발 65 + [BLOCKED] 부수 65 (50%)
+원발 문구: resolve-the-flagged-call 22 · [SIGNATURE] 16 · [OPERATOR-SCOPE] 6
+           [POLICY GATE GB2_NOTICE_BEFORE_TRANSFER] 5 · [DUPLICATE-WRITE] 4
+           [WRITE-EVIDENCE] 4 · [REFERENCE] 3 · [E-PLAN] 2 · [PROCEDURE] 1
+```
+
+`task_041` 한 건이 130 중 **67**을 차지하고, **한 턴에 최대 21건**이 동반 차단됐다(turn 44).
+
+### ★CONFIRMED 우리 층 결함 — `[REFERENCE]` 게이트의 오판 (task_041 · n=8 칸)
+
+**주장 + 양화**: `bank_g97151p11_viewmax2_20260903_1924` 의 `task_041` 에서, gold 가 요구한
+`file_credit_card_transaction_dispute_4829` **8 칸 전부**가 우리 게이트에 막혀 실패했다.
+
+**근거 (축자 + 위치)**
+```
+원발 deny 축자:
+  "Error: [REFERENCE] the transaction_id you named does not appear in any record
+   returned by the tools in this conversation."
+부수 deny 축자 (같은 턴 나머지 전부):
+  "Error: [BLOCKED] this call was not run because another call in the same turn was
+   blocked: 'call_discoverable_agent_tool(file_credit_card_transaction_dispute_4829)'"
+
+그런데 그 8개 transaction_id 는 모두 이미 대화에 있었다:
+  txn_107c4fa829bd · txn_3880720b4409 · txn_816986054539 · txn_4f6e48543e07
+  txn_b4f90f6ee392 · txn_5e6ad271fefb · txn_a42ce2e4156d · txn_c7a1c5fad26b
+  최초 등장 = 전부 **메시지 17 (role=tool)**
+  dispute 호출이 나간 메시지 = **23 · 64**   => 차단 시점에 이미 6~47 메시지 전부터 존재
+```
+
+**반증 / refutation**: 그 id 들이 msg 17 이 아니라 차단 **이후**에 처음 나왔다면 게이트가 옳고
+이 귀속은 무너진다. 위 index 측정이 그 반증을 이미 쳤다(8/8 이 msg 17 · 호출은 23·64).
+
+**선행 확인**: §0 의 grep 경로 + `fb_bank_g97151p11_*.jsonl`(회수분) + 해당 sim 의 messages 전문.
+
+**⛔내가 처음 세운 가설은 틀렸다 — 코드를 읽어 반증했다.** *"게이트가 view 창만 보느라 msg 17 을
+못 봤다"* 고 적었으나, `t2_gate_patch.py:9394` 는 `state.messages` **전사**를 넘긴다. 창은 무관하다.
+**진짜 버그는 술어 자체**이고 §2 의 D3 에 적었다 — 게이트는 *"지목한 id 가 기록에 있는가"* 가 아니라
+*"내가 계산한 단 하나의 id 와 같은가"* 를 검사하며, 손님이 8건을 분쟁하는 이 태스크에서는 정의상
+7개가 거부된다.
+
+---
+
+## 2. 설계 — 수리 후보 넷
 
 ### [[05]] 3질문 (설계서 상설 의무 · [[17]])
 
@@ -138,6 +201,76 @@ read  scripts/distill/tau2/a2/banking_knowledge.specific.json:4742-4850
 
 ---
 
+### D3 — reference-filter 의 **단일-지시체 가정**을 깬다 (§1b 의 CONFIRMED 결함)
+
+**주장 + 양화 (n=8 칸 · sim 1개)**: `task_041` 의 `file_credit_card_transaction_dispute` 8 칸이
+이 게이트에 막혔다. **창(view) 때문이 아니다** — 게이트는 `state.messages` 전사를 받는다.
+
+**근거 — 축자 + 파일:줄**
+```
+t2_gate_patch.py:9394   _rz_rf.resolve_reference_filter(am, state.messages, a2, ...)
+                                                            ^^^^^^^^^^^^^ 전사 (창 가설 반증됨)
+t2_resolve.py:1258-1264
+  correct = _c.apply_op({"op":"filter","over":"records","return":keyf,"match":match, ...})
+  if correct and str(correct) != str(chosen):
+      return {"status":"deny", ...}
+```
+검사는 *"지목한 id 가 기록에 있는가"* 가 **아니라** *"내가 계산한 단 하나의 id 와 같은가"* 다.
+`formalize_reference_criteria` 는 criteria **하나**를 뽑고 `apply_op(filter)` 는 id **하나**를
+돌려준다. 그런데 041 의 손님은 거래 8건을 분쟁한다 ⇒ 8개 중 7개는 정의상 `chosen != correct`
+가 되어 **정당한 호출이 전부 거부**된다.
+
+**두 번째 결함 — 거부 문면이 검사한 내용과 다르다** (`t2_gate_patch.py:9410` 하드코딩)
+```
+"[REFERENCE] the %s you named does not appear in any record returned by the tools in this
+ conversation. Re-read the records you already fetched and name a %s that appears in one of them"
+```
+`t2_resolve.py` 가 만든 `REF_FILTER_FB` 를 **쓰지 않고** 이 문장으로 대체한다(2026-08-19 의
+*"치환 폐기"* 결정의 부산물). 그래서 문면이 사실과 다르다 — 041 의 8개 id 는 모두 msg 17 의
+도구 출력에 있었다. 모델은 이미 시킨 대로 하고 있었으므로 msg 64 에서 **같은 배치를 재발행**했고
+또 막혔다. [[64]] 위반이다 — 억제가 이름을 대되 **그 이름이 틀린 처방**이다.
+
+```
+규칙 : deny 조건을 "계산한 하나와 다르다" 에서
+       **"지목한 id 가 criteria 에 부합하는 레코드 집합에 없다"** 로 바꾼다
+       (집합 소속 검사 — 여전히 닫힌 술어이고 옳은 값을 흘리지 않는다 · [[59]] · [[23]])
+문면 : 검사한 것과 같은 말을 한다. 집합에 없을 때만 "기록에 없다" 고 말한다.
+```
+
+**반증 / refutation**: `apply_op` 가 실제로는 집합을 돌려주는데 호출부가 스칼라로 비교하는
+것이라면 수리 위치가 다르다(`t2_compute` 쪽) ⇒ P3 에서 반환형을 먼저 찍는다. 그리고 041 의
+8개 id 중 criteria 부합이 실제로 1개뿐이라면 이 귀속은 무너진다.
+
+**선행 확인**: `grep -rn "does not appear in any record" scripts/distill/tau2/` →
+`t2_gate_patch.py:2851 · :9410` · `grep -n "def resolve_reference_filter" -A 90 t2_resolve.py` ·
+`a2/banking_knowledge.specific.json` 의 `reference_filter` 2 스펙(debit · credit).
+
+### D4 — 턴 동반 차단(`[BLOCKED]`)을 **의존 호출로만** 좁힌다
+
+**주장 + 양화 (n=130 deny · sim 20개)**: `tool-deny` 130 중 **65(50%)** 가 부수 차단이고,
+`task_041` 은 한 턴에 21건(turn 44) · 17건(turn 40)이 함께 죽었다. 그 대상이 gold 요구 8 칸이다.
+
+**근거 — 축자**
+```
+"Error: [BLOCKED] this call was not run because another call in the same turn was blocked:
+ 'call_discoverable_agent_tool(file_credit_card_transaction_dispute_4829)'"
+```
+```
+규칙 : 플래그된 호출만 막고 나머지는 실행한다.
+예외 : 막힌 호출의 **출력에 의존하는** 호출만 함께 막는다 — 그 의존은 A2 `arg_source_reads`
+       로 이미 닫혀 있다(새 선언 0).
+```
+⚠ [[70]] 무엇을 파는가: 부분 실행은 한 턴의 일부만 반영된 상태를 만든다(원자성 상실). 그 대가를
+**태스크별 부호표**로 세지 않으면 판정 불가다.
+
+**반증 / refutation**: D3 를 고치면 원발 거부가 사라져 부수 차단도 함께 사라질 수 있다. 그러면
+D4 는 불필요하다 ⇒ **D3 만 켠 팔을 먼저** 보고 D4 단독 효과를 판단한다.
+
+**선행 확인**: `grep -rn "BLOCKED" t2_gate_patch.py` · 회수된
+`fb_bank_g97151p11_viewmax2_20260903_1924.jsonl` 의 turn 별 deny 집계.
+
+---
+
 ## 3. 격리 먼저, 배선은 그 다음 ([[62]] · [[78]])
 
 ### P0 (선결·무료) — R2 를 먼저 친다
@@ -154,6 +287,14 @@ read  scripts/distill/tau2/a2/banking_knowledge.specific.json:4742-4850
 - 재료: 그 sim 이 종결 시점에 실제로 받은 메시지 전량(축자 재생).
 - **exit**: off 에서 읽기 루프 재현 ∧ on 에서 소멸 ⇒ D1 배선 자격. 둘 다 루프면 R1 성립 ⇒ D1 폐기.
 - 부정통제 필수([[57]]): 같은 길이의 무내용 문구를 붙인 팔.
+
+### P3 — D3/D4 격리 (2026-09-04 신설)
+
+- **P3a**: `apply_op(filter)` 의 반환형을 찍는다(스칼라 vs 집합). 집합이면 수리 위치가 `t2_compute` 다.
+- **P3b**: 041 의 8개 id 각각이 formalize 된 criteria 에 부합하는지 결정론으로 센다.
+  8개 다 부합하면 D3 확정 · 1개만 부합하면 이 귀속은 무너진다.
+- **P3c**: D3 만 켠 팔 vs D3+D4 팔을 같은 재료로 돌려 D4 의 단독 기여를 잰다([[57]] 부정통제 포함).
+- **exit**: D3 가 041 의 8 칸을 통과시키는가 · D4 가 그 위에 무엇을 더 사는가.
 
 ### P2 — D2 격리 + K 결정
 
@@ -290,6 +431,7 @@ sim 수 : 97 × 2 arms = 194 (대조군 재실행 시) / 97 (재사용 시)
 [ ] 1. P0  종결-후 표면화 실재 확인            <- 여기서 폐기될 수 있다
 [ ] 2. P1  D1 격리 (+ 부정통제)
 [ ] 3. P2  D2 격리 · K 결정
+[ ] 3b. P3 D3/D4 격리 (apply_op 반환형 · criteria 부합 수 · D4 단독 기여)
 [ ] 4. 통과분만 배선 + go_stack.sh 등재 + 단위테스트
 [ ] 5. 스모크 게이트 5칸
 [ ] 6. x509 큐에 단계 등재 (정본 갱신 — 새 문서 만들지 마라)
