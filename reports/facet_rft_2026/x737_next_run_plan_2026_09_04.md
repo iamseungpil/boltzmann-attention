@@ -660,6 +660,139 @@ _029  "PREMIUM TIER: ... (delivery_fee: $0 for both STANDARD and EXPEDITED) - Ru
 
 ---
 
+### 1d. 회귀 10건 per-step 대조 (2026-09-04)
+
+> **회귀 = base pass ∩ ours 전량 실패**. 이 캠페인에서 **정확히 10건**이고 base PASS 42 는 전부
+> 소진됐다(2026-09-04 12:0x · `x738:34-36` 와 교집합) ⇒ **더 이상 회귀가 나올 수 없다**.
+> `007 014 015 038 051 054 055 059 064 079`
+>
+> ⛔⛔**가장 중요한 교훈 — "회귀" 는 사실이지 인과가 아니다.**
+> `1d-055` 가 그 실증이다: 같은 seed·같은 gold·같은 sha 에서 **ours 가 통과한 런이 있다**
+> (`bank_x725_t3prime_A_20260901` task_055 **reward 1.0 · db_match True**). Q38+ours 에서 055 는
+> **1/3** 이다. ⇒ *"우리 스캐폴드가 base-pass 를 깼다"* 는 **n=1 회귀로는 성립하지 않는다.**
+> 059 도 같은 이유로 등급이 내려갔다(코퍼스 14 sim 중 gold 문자열은 x644 단 1회 · §1c-1).
+> **모든 회귀 항목에 「코퍼스 전량에서 ours 가 이 태스크를 몇 번 통과했나」를 붙여라.**
+>
+> 채점 단위는 DB 변이다([[69]]). `1d-055` 가 그 실증도 겸한다 — **base 도 `action_checks` 2칸이
+> False 인데 reward 1.0** 이다.
+
+##### 1d-055 — 유일하게 미분석이던 회귀 (base PASS ↔ ours FAIL)
+
+**왜 이 칸이 남아 있었나.** 이 캠페인의 회귀(= base pass ∩ ours 전량 실패)는 **정확히 10건**이다 [CONFIRMED] — `regrun/.perstep_simindex.json` 에서 mtime ≥ 2026-09-03 인 런 **30개 · 고유 72 태스크**를 모아 ours 전량 0.0 인 24 태스크를 뽑고, `x738_q38_base97_census_2026_09_04.md:34-36` 의 base pass 42 와 교집합:
+
+```
+007 014 015 038 051 054 055 059 064 079
+```
+
+이 중 **9건은 `/home/woori/scratch/regrun/` 에 per-step 덤프가 이미 있었고**(`_007_out.txt` `_014_full.txt` `_015_out.txt` `_038_out.txt` `_051_*` `_054_*` `_059_full.txt` `_064_full.txt` `_079_*`) **055 만 없었다.** 이 소절이 그 칸을 채운다.
+
+> ⛔ **채점 단위는 DB 변이다** ([[69]]). `reward_basis: ['DB']` · `reward_breakdown: {"DB": 0.0}` · `db_check: {"db_match": false, "db_reward": 0.0}`. `action_checks` 는 진단용이고, 이 태스크가 그 실증이다 — **base 도 `055_6`·`055_7` 두 칸이 `action_match=False` 인데 reward 1.0** 이다(base m82 가 `give_discoverable_user_tool` 에 `arguments` 를 얹어 보냈다). 아래는 전부 **MISSING / WRONGARG / EXTRA** 로 센다.
+
+**대조 표** — 같은 시드 · 같은 sha · 같은 모델 · 같은 검색 설정 [CONFIRMED]
+
+| | base `bank_x617_iso_q38_bank20_20260830` | ours `bank_k8143long3_20260904_0839` (arm=**viewmax2**) |
+|---|---|---|
+| reward / db_match | **1.0** / True | **0.0** / False |
+| 벽시계 | 131.5분 (7,888.91s) | 73.6분 (4,416.80s) |
+| msg / tool call | 100 / 45 | 84 / 37 |
+| seed · git · llm · retrieval | s626729 · `fc0055dc4e0a…` · `Qwen/Qwen3.8-27B-FP8` · `alltools` | **동일** |
+| 저장·savings 결정 msg | **m58** 단일 지목 | **m41** 3지선다(1번 Gold) → m46 확정 → m63 기록 |
+| 분기 직전 우리 층 발화 | **없음** (런 로그 `[T2_` **0줄**) | **있음** (fb `reminder-user/claimprov` turn=41 · log:803-806) |
+
+⚠ **분은 비교하지 마라** — 배치 조건이 다르다(§1c-6). 배치 불변 지표(메시지 usage 합, 서브콜 제외): 생성 **20,970 ↔ 35,358 토큰(1.69배)** · 프롬프트 **2,568,388 ↔ 1,770,790**(ours 가 더 적다) — §1c-6 의 064 패턴과 같은 방향이다.
+
+**결정 턴 축자.** base m58: *"## My recommendation: **Silver Plus Account** (savings)"*. ours m41(= 이 sim 에서 savings 클래스 이름이 처음 나오는 어시스턴트 발화 · 앞 41 메시지에 Gold/Silver 언급 0):
+
+> `1. **Gold Account + Gold Rewards Card** — my top pick. $5,000 minimum (no fee at your $5–6k balance), ~6.25%+ APY …`
+> `3. **Silver Plus Account** — no-fee fallback. $2,500 minimum, ~3.275% APY, 15 withdrawals/mo …`
+
+손님 발화 차이로는 설명되지 않는다 [CONFIRMED] — base m49 *"A friend mentioned like Gold and Green accounts?"* ↔ ours m15 *"A friend mentioned something about **Gold** and **Green** accounts, but I'm honestly lost."* 로 **양쪽 다 Gold 를 먼저 꺼낸다**. ours m66 의 수락(*"keep the Gold Account as-is for now"*)은 m63 **이후**라 원인이 될 수 없다 — `DEFECT_LEVER_COVERAGE_2026_08_23.md:356` 축자 *"손님이 고른 것이 아니라 우리가 틀리게 추천한 것을 손님이 받아들였다"* 와 동형.
+
+**DB 실패 단위 [CONFIRMED]** — write 도구는 `ToolType.WRITE` 셋뿐이다(`tools.py:481 log_verification` · `:2372 open_bank_account_4821` · `:4326 deposit_check_3847`).
+
+```
+MATCHED   m52 log_verification                    -> "Verification logged successfully."
+MATCHED   m61 open_bank_account_4821 checking="Purple Account"
+WRONGARG  m63 open_bank_account_4821 savings account_class="Gold Account"   (gold "Silver Plus Account")
+          실행됨: m64 "Bank account opened successfully! - Account ID: 1bc7064aea2ca2d3 …
+                       - Account Class: Gold Account - Status: OPEN"
+WRONGARG  m77 deposit_check_3847 account_id="1bc7064aea2ca2d3"  (gold "7e48bf3b0589cfad")  ← 순수 하류
+          실행됨: m78 "Check deposited successfully …"
+MISSING   0      EXTRA(write) 0      DUP 0
+```
+
+EXTRA 가 0 인 근거: m71 손님 호출은 **에러로 죽었다**(m72 *"Error: Tool 'deposit_check_3847' has not been given to you by the agent."*) ⇒ 변이 0. m48 `verify_identity` 는 우리 A2 도구다 — env `tools.py` 에 정의 **0건**이고 로그가 `[T2_A2_VARIANT] verify_identity ← 'ledger' (params=['provided'] op=match_verdict_grounded)` 로 자인한다 ⇒ DB 무관. 나머지 EXTRA 는 전부 `shell`/`KB_search` read.
+⇒ **단일 결손 = `open_bank_account_4821.account_class` 한 칸.** `account_id` 는 클래스의 함수이므로 둘째 칸은 하류다(`tasks__20260824/TASK_055.md:80` 재현).
+
+**귀속 4조건**
+
+| | 조건 | 판정 | 근거 |
+|---|---|---|---|
+| (a) | 첫 분기 msg 특정 | **✅ m41** | 이 sim 최초의 클래스 지목. 손님 발화 대조로 배제 완료(위) |
+| (b) | 분기 **직전** 우리 층 발화 | **✅** | log:758 `agent_response … content=2069B`(초안) → :803 `[T2_CLAIMPROV] window hit(resign) claims=17 **unbacked=0 pending=4 unb_p=4 [None, None, None, None]`* → :806 `[T2_LEVER] T2_GATE_REGEN … claimprov` → :829 `agent_response_claimprov … content=1082B`(= m41). m46 도 동일(:881→:902→:928) |
+| (c) | 그 발화가 base 가 한 행동을 금지·전환시킴을 축자로 | **❌** | 전송 문면에 `account_class`·상품명이 **0회**다(내용은 미이행 약속·도구 소유권, 그것도 이름이 전부 `None`). base m58 의 *단일 지목* 을 우리가 막았다고 말하려면 **폐기된 2069B 초안 본문**이 필요한데 어디에도 없다(**D9**) |
+| (d) | 같은 게이트 아래 통과한 형제 없음 | **❌** | 같은 CLAIMPROV window 가 regen 없이 **4회 통과**(log:296 `claims=5 … pending=0` · :1417 `claims=8` · :1570 `claims=20` · :1644 `claims=9`). 더 결정적으로 **보상을 잃은 write 자체(m61·m63)에는 우리 층이 한 번도 발화하지 않았다** — `T2_LEVER` 가 log:906 다음 **:1469 까지 공백**이다 |
+
+## ⇒ 최종 등급: **미판정** (`our_layer = unknown`)
+
+(c)(d) 미충족. 추정으로 'yes' 를 쓰지 않는다. 확정적으로 남는 두 문장:
+
+1. **우리 층은 결정 자리에 아무것도 하지 않았다** [CONFIRMED] — `account_class` 를 보는 게이트·서브가 라이브에 없다(`T2_WRITE_ARG_ENUM` = 이 로그 **0회** · `go_stack.sh`·`arms/*.env` grep **0건**). `recommend_formalize` 는 3회 발화했으나 전부 `{"applies": false, "card_type": "none"}` 이다.
+2. **우리 층은 결정 턴 두 개를 오발화로 덮어썼다** [CONFIRMED · 결함 / 인과 미판정] — `unbacked=0` 인데 `pending=4`, 항목 이름이 전부 `None`, resign 중이 아닌데 resign 문면. 그 결과 m41·m46 이 면책문으로 시작하고, 손님이 m42 에서 *"I really don't want to compare three. Can you please just tell me **which ONE**"* 이라 되물었는데 m46 은 다시 검증 얘기로 갔다. 부호 판정은 **claimprov ON/OFF × 같은 팔(viewmax2) × 같은 seed** A/B 로만 선다.
+
+**부수 (reward 무관 · 턴 비용만)** — `[SIGNATURE] give_discoverable_user_tool takes only discoverable_tool_name in this domain; you also passed arguments` 가 turn 70·72(deny) + 72·74(route)에서 걸려 m70–m76 **6 메시지**를 태웠다. 그러나 **같은 거부가 통과 런 x725 에도 2회 났고 reward 1.0** 이다 ⇒ DB 무관 [CONFIRMED].
+
+---
+
+**정본과의 관계 — 재현이다. 새 후보를 만들지 않는다.**
+
+- **②범주(`account_class`) 의 재현** — `x506_hard0_rootcause_2026_08_24.json` `answer_3_six_axes[1]` 축자: `axis "② 범주 소속" · fields ["account_class","card_type"] · tasks ["055","057","063"]`. 오답쌍까지 코퍼스 표의 **첫 줄 그대로**다 — `DEFECT_LEVER_COVERAGE_2026_08_23.md:344` `Gold Account ↔ Silver Plus Account 27`.
+- **다만 32B 의 `canonical_cause`(*"의미 소속 판정 불가(경계)"*)는 재현되지 않았다** — 모델은 m20 에서 `doc_savings_accounts_silver_plus_account_*` 를 cat 했고, m41 에 Silver Plus 스펙을 **표로 적었고**, m65 에서 *"the **Silver Plus Account** … is the cleaner fit for your actual balance"* 라고 스스로 말한다. 이름·표·비교가 다 있다. 이는 정본이 이미 내린 판정과 같은 방향이다 — `x509_axis_queue_2026_08_24.json:82` `boundary_RETRACTED` · `DEFECT_LEVER_COVERAGE:361` 축자 *"이 축은 `의미 소속 판정 불가`(경계)가 **아니다**. 스펙 표와 손님의 수치 요구를 맞추는 **검산 미실행**이다."*
+- **기전 이름도 정본이 이미 붙여 뒀다: 「미합류 조건부 칸」.** `x506` ② `status` 축자 *"잔여를 **우리 층 둘**(미합류 조건부 칸·`absent` 토큰 충돌)로 좁혔다"* · `x509…json:256` 축자 *"라이브 엔진은 `exists|absent` op enum 을 모델에게 제시하지 않고 **조건부 표를 안 읽는다**"*. 이번 실패가 정확히 그 자리다 — 모델은 m41 에서 Gold 최소잔액을 **`$5,000`(조건부 행)** 으로 쓰고, m65 에서 *"(The $5,000 minimum I mentioned earlier only applies if you also hold a Gold Rewards Card, **which you don't currently**.)"* 라고 자기 정정한다. 궤적의 원문은 m34 축자 *"Opening deposit minimum: $5,000 · Ongoing minimum balance: $10,000"* 다.
+- **⑥ 식별자 전사는 재현되지 않았다** — `x506` ⑥ 의 `tasks` 에 055 가 있지만, m64 가 발급한 `1bc7064aea2ca2d3` 는 m65·m66·m77 에서 **한 글자도 어긋나지 않는다**. 틀린 것은 *틀린 계좌의 옳은 id* 다 ⇒ `TASK_055.md:80`(*"`account_id` 는 클래스의 함수"*)이 Q38 프레임에서 재확인됐다. 축표의 *"②+⑥ 동시 필요"* 는 여기서도 **필드 인구조사이지 인과가 아니다**.
+
+**⛔ 철회 목록 (055)**
+
+| 철회한 주장 | 왜 |
+|---|---|
+| *"base PASS ↔ ours FAIL ⇒ **우리 스캐폴드가 Q38 base-pass 를 깼다**"* | 회귀 **사실**은 맞지만 **인과 진술로는 철회**. 같은 seed·같은 gold·같은 sha 에서 ours 가 **통과한 런이 있다** — `bank_x725_t3prime_A_20260901` task_055 **reward 1.0 · db_match True** |
+| *"Q38 + ours 에서 055 를 잰 적이 없다"* | **3회** 쟀다: x725(t3prime) 1.0 · night2p1(실제 arm=**viewmax2**) 0.0 · k8143long3(viewmax2) 0.0 ⇒ **1/3** |
+| *"`x725` 는 base 다"* (조사 배경 브리프) | **ours 다.** `fb_`/`trace_` 사이드카 존재 · trace 의 `task_055#s626729` 행 339 · 런 로그 `[T2_` **1,528줄** · `[T2_LEVER] T2_GATE_REGEN … usertoolnote/givequote/givexec` |
+| *"`messages` 안 `[T2_` 마커 0 ⇒ base"* (같은 브리프의 판별식) | **무효.** 확정 ours 인 k8143long3·x725·night2p1 모두 `messages` 기준 0이다 — 마커는 영속 궤적이 아니라 **stderr 로그/trace** 로 간다 |
+| *"⇒ 그러므로 `x738` census 를 재검증해야 한다"* | **철회.** `x738:63-71` 의 판별식은 처음부터 **런 로그** 기준이고(*"판별자: 런 로그의 `[T2_` 마커 유무"*), 실측이 그것을 지지한다(x617 log **0** · x725 log **1,528**). x738 은 x725 를 ours 로 옳게 분류한다 |
+| *"claimprov 문법×스키마 충돌은 **새** CONFIRMED 배선 결함"* | **철회.** 2026-09-01 커밋 `117f02e5` 가 고쳤고 회귀 검정 `scripts/distill/tau2/test_guided_schema_conflict.py` 가 축자로 그 사유를 담고 있다(*"스키마가 걸린 콜에는 문법을 붙이지 않는다"*). [[74]] 위반이었다 |
+| *"night2p1 은 `silver_plus` 가 로그에 3회뿐"* | 수치 교체: 궤적 기준 `Silver Plus` **32회**다. 결론은 유지 — 전부 KB 인덱스·검색 결과 리스트이고 **어시스턴트 발화 0회 · `silver_plus` 문서 cat 0회** |
+| *"네 롤아웃 전부 같은 Gold/Green 언급"* | **거짓.** night2p1 의 손님은 `Gold` 를 **한 번도** 말하지 않는다. 손님 발화 대조가 성립하는 짝은 **base m49 ↔ k8143long3 m15** 뿐이다 |
+
+---
+
+**수리 후보에 미치는 영향**
+
+| 후보 | 이 건의 효과 | 근거 |
+|---|---|---|
+| **D1** (종결 후 표면화 중지) | **중립** — 이 sim 의 `T2_LEVER` 전량이 claimprov 2 · usertoolnote 1 · givequote 1 · givexec 1 · EPLAN_WALK 1 이고 표면화 루프 마커가 없다 | log `sim=task_055` LEVER 전수 |
+| **D2** (읽기 루프에 이름·출구) | **중립~약화** — 결손은 읽기 부족이 아니다. Silver Plus 문서를 m20 에서 cat 하고 m41 에 스펙을 표로 적고도 틀렸다 | m20 · m41 |
+| **D3** (문면·술어 일치) | **본체 미발화 / 계열 강화** — *"deny 문면이 이름을 못 댄다"* 의 새 독립 사례 2건(`None: None; None: None; None: None`) | fb turn 41·46 |
+| **D4** (`[BLOCKED]` 좁히기) | **약화 재확인** — 이 sim 의 동반 차단은 turn 50 `resolve the flagged call(s) first` **1건**이고 gold 를 죽이지 않았다 | fb tool-deny 전수 |
+| **D6** (중복 창 리셋) | **중립** — `[DUPLICATE-WRITE]` 이 sim 발화 **0** | grep 0 |
+| **D7** (grounding 접두) | **중립** — `[GROUNDING…]` 이 sim 발화 **0** | grep 0 |
+| **D8** (claimprov `None` 금지) | **강화 · n 증가** — 055 에서 **2 sim · 4 발화 전부** `None`(k8143long3 turn 41·46 · night2p1 turn 25·48). 게다가 여기서는 그 발화가 **결정 턴 두 개를 덮어썼고**, 손님의 *"which ONE"* 질문에 답하지 못했다 | fb 4행 · log:803·902 |
+| **D9** (폐기 초안 원장) | **결정적 강화 — 이 소절의 (c) 가 D9 때문에 원리상 미충족이다.** 2069B·1720B 두 초안 본문이 어디에도 없다(faildump 없음 · trace 없음 · 바이트 수만 남음) | log:758·881 |
+| **L1** (꺼진 열거 레버) | **기대수익 0 재확인** — 오답 `Gold Account` 는 KB 실재 상품명이다(m12·m13 에서 cat). `T2_WRITE_ARG_ENUM` 술어(*'실재하는 이름인가'*)는 이 칸을 통과시킨다 ⇒ `x509…json:183` 축자 *"게이트가 겨누는 것은 1.4% 뿐이다"* 의 실증 사례 하나 추가. 전제(레버 OFF)는 여전히 CONFIRMED | grep 0건 |
+
+**새 후보 D10 — 선언 서브가 실패하면 게이트가 조용히 꺼진다 (계기·비교 규격 · 레버 아님)**
+
+1. **주장 + 양화** — 현 캠페인(2026-09-03 이후) 런 로그 **32개 중 9개 · 18회**에서 `[T2_CLAIMPROV] declaration failed (no-op)` 가 났고, 그 sim 에서 claimprov 는 **꺼진 것과 같다**(뒤이어 `window hit claims=None pending=None`). 055 의 **통과 런 x725 는 task_055 안에서만 6회** 나서 그 sim 전 구간 무효였다 ⇒ *"ours 1/3"* 은 **레버 대조가 아니다**([[54]]).
+2. **근거 (축자 + 위치)** — `logs/bank_k8143med1_20260904_0135.log:896-897` `call=agent_claimprov max_tokens=8192 tb=None [TERSE] -> gen=8192 … **TRUNC** … content=29666B` → `declaration failed (no-op): JSONDecodeError("Expecting ',' delimiter: line 1 column 29646 (char 29645)")` / 침묵 지점 `t2_gate_patch.py:14875` `print("[T2_CLAIMPROV] declaration failed (no-op): %r" % (_ce2,), …)`.
+3. **반증 조건** — ⑴ 선언 실패가 난 sim 의 reward 분포가 성공 sim 과 다르지 않으면 비교 규격 손상은 무해하다(그때는 계기만 남긴다). ⑵ `JSONDecodeError` 가 8192 절단이 아닌 다른 원인이면 처방이 바뀐다 — `**TRUNC**` 동반 여부로 가른다(현 실측은 **동반 1:1**). ⑶ 실패 시 재발사 경로가 이미 있는데 로그만 안 남는 것이면 결손 없음.
+4. **선행 확인** — `test_terse_schema.py` §T-12 가 **같은 기전을 512 상한에서 이미 확정했다**(축자 *"TRUNC 1 ↔ `declaration failed (no-op)` 1 로 **1:1 대응**했다"*) · 문법×스키마 원인은 `test_guided_schema_conflict.py` + 커밋 `117f02e5`(2026-09-01)로 **수리 완료** · [[84]] · [[54]] · [[81]].
+   ⇒ **새 기전이 아니다.** 델타는 두 개뿐이다: ⓐ 같은 절단이 **8192 상한에서 현 sha 로 계속 난다**(캠페인 18회), ⓑ 실패가 **fail-open 침묵**이라 레버 켠 런과 꺼진 런이 같은 태그로 섞인다. 레버가 아니라 **D9 와 같은 계기 항목**으로 둔다.
+
+**주요 경로** — 리모트: `/home/woori/scratch/tau2-bench/data/simulations/bank_k8143long3_20260904_0839/results.json` · `/home/woori/scratch/logs/bank_k8143long3_20260904_0839.log`(:296·758·803-806·829·881·902·928·1417) · `fb_bank_k8143long3_20260904_0839.jsonl` · `/home/woori/scratch/logs/bank_x725_t3prime_A_20260901.log:207` · `bank_k8143med1_20260904_0135.log:896` · `/home/woori/scratch/regrun/v055*.py` · `.perstep_simindex.json` · `sim_results/bank_x617_iso_q38_bank20_20260830.results.json.gz`
+로컬: `C:\workspace\ba-frft\reports\facet_rft_2026\x506_hard0_rootcause_2026_08_24.json` · `…\x509_axis_queue_2026_08_24.json:82,183,256` · `…\DEFECT_LEVER_COVERAGE_2026_08_23.md:344,356,361` · `…\tasks__20260824\TASK_055.md:80` · `…\x738_q38_base97_census_2026_09_04.md:34-36,63-71` · `C:\workspace\ba-frft\scripts\distill\tau2\go_stack.sh:134,279` · `…\test_terse_schema.py` · `…\test_guided_schema_conflict.py`
+
+---
+
 ## 2. 설계 — 수리 후보 다섯(D1~D4 · D6) + 조사 하나(L1) · 파생값·오선택은 측정만
 
 ### [[05]] 3질문 (설계서 상설 의무 · [[17]]) — **후보별 재작성** (B3 · 2026-09-04)
