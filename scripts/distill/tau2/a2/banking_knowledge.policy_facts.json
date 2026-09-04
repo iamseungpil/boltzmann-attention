@@ -1,6 +1,6 @@
 {
  "_note_": "★2026-08-21 저작(C588·[[72]] 1회 완결). 출처 = 코퍼스 전수 감사 x453(인용 2,497·절 검산 실패 0) → 접기-안전 군 x462(닫힌 술어: 접어서 충돌을 제조하는 53군 기각·842 채택) → x457 v2. 행 2,226 · conflict 796(같은 (subject,axis) 상이 값 — 조건 형식화 패스 표적·우리가 고르지 않는다[[62]]) · condition 은 그 패스 후 채움(A3_CONDITIONAL_FACT_ROW_2026_08_21 §3). gold·tasks 미참조([[23]]). 값·인용은 전부 문서 축자·quote 는 quote_in 검산 통과분만. 두 층(specific/gate)에는 포인터만 산다 — 데이터 정본은 이 파일 하나([[24]] 사본 방지).",
- "n_rows": 2226,
+ "n_rows": 2227,
  "n_conflict": 796,
  "rows": [
   {
@@ -26256,6 +26256,38 @@
      "quote": "Per-transaction cash deposit fee: $0.00"
     }
    ]
+  },
+  {
+   "subject": "bank_accounts_bank_accounts_(general)",
+   "axis": "account_class",
+   "value": "account_class (string)",
+   "sources": [
+    {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_001",
+     "quote": "Personal checking account_class options must use the full official name ending with 'Account' (e.g., 'Blue Account', 'Green Account (checking)')."
+    },
+    {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_002",
+     "quote": "account_class must use the full official name ending with 'Account', e.g., 'Silver Plus Account', 'Gold Account'"
+    },
+    {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_013",
+     "quote": "PROMOTION NOTICE - ACTIVE FROM 11/01/2025 TO 11/30/2025: When recommending business checking accounts to customers, if multiple accounts meet all of the customer's stated requirements, agents should prioritize recommending accounts in the following order: (1) Sky Blue account should be recommended first, as it is currently under promotional priority; (2) Lime Green account should be recommended second, as it is also under promotional priority; (3) All other qualifying accounts may be recommended only if neither Sky Blue nor Lime Green meet the customer's requirements."
+    },
+    {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_014",
+     "quote": "PROMOTION NOTICE - ACTIVE FROM 10/12/2025 TO 11/12/2025: When recommending business checking accounts to customers, if multiple accounts meet all of the customer's stated requirements, agents should prioritize recommending accounts in the following order: (1) Lime Green account should be recommended first, as it is currently under promotional priority; (2) Hunter Green account should be recommended second, as it is also under promotional priority; (3) All other qualifying accounts may be recommended only if neither Lime Green nor Hunter Green meet the customer's requirements."
+    },
+    {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_015",
+     "quote": "PROMOTION NOTICE - ACTIVE FROM 11/01/2025 TO 11/30/2025: When recommending business savings accounts to customers, if multiple accounts meet all of the customer's stated requirements, agents should prioritize recommending accounts in the following order: (1) Gold Saver Account should be recommended first, as it is currently under promotional priority; (2) Silver Plus Saver should be recommended second, as it is also under promotional priority; (3) All other qualifying accounts may be recommended only if neither Gold Saver Account nor Silver Plus Saver meet the customer's requirements."
+    },
+    {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_016",
+     "quote": "PROMOTION NOTICE - ACTIVE FROM 10/12/2025 TO 11/12/2025: When recommending business savings accounts to customers, if multiple accounts meet all of the customer's stated requirements, agents should prioritize recommending accounts in the following order: (1) Gold Plus Saver should be recommended first, as it is currently under promotional priority; (2) Silver Plus Saver should be recommended second, as it is also under promotional priority; (3) All other qualifying accounts may be recommended only if neither Gold Plus Saver nor Silver Plus Saver meet the customer's requirements."
+    }
+   ],
+   "_note_": "★2026-09-03 저작 — 축 미완결이었다(2,226행·1,092축 중 account_class 0행). 실측: open_bank_account_4821.account_class 가 055(gold 'Silver Plus Account' ↔ got 'Silver Account') · 061(↔ 'Bronze Account') · 071(gold 'Sky Blue' ↔ got 'Lime Green') 세 태스크를 깨뜨렸고 071 은 **만료된 10월 공지의 1순위**를 골랐다. 그래서 형식 규칙 2건 + 날짜 창이 겹치는 판촉 공지 4건을 축자로 싣는다. ⛔우리가 고르지 않는다([[52]]/[[62]]) — 어느 공지가 유효한지·제품명↔클래스명 매핑은 결정점에서 LLM 이 판단한다. 출처는 정책 문서뿐이고 gold·tasks 미참조([[23]])."
   }
  ]
 }
