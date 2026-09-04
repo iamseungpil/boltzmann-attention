@@ -203,6 +203,444 @@ tools"* 라고 말하는데 그 8개 id 는 msg 17(role=tool)에 있었다 ⇒ *
 
 ---
 
+### 1c. 새 실패 3건 정밀 포렌식 (2026-09-04 09:00 · 059 · 064 · 088)
+
+> **채점 단위 선언 ([[69]] ①)** — 세 태스크 모두 `reward_basis: ['DB']` 이고 셋 다 `db_check.db_match=false` ·
+> `nl_assertions=null` · `env_assertions=[]` 다. 따라서 **아래 서술의 실패 단위는 전부 DB 변이 집합
+> (MISSING / WRONGARG / EXTRA / DUP / MATCHED)** 이고, 정본 `t2_forensic.mutation_diff(sim, tag=TAG)` 로
+> 산출·재현했다. `action_checks`(059 1/6 · 064 2/4 · 088 3/17 실패)는 **어디를 볼지의 지도일 뿐 실패 귀속이
+> 아니다** — §1b 머리말의 경고가 그대로 적용된다. 아래에서 action_checks 수치는 한 번도 실패 단위로 쓰지 않았다.
+>
+> **절차** — 태스크마다 per-step 포렌식 1회 + **적대적 반증 1회**를 돌렸다. 반증에서 무너진 주장은 **지우지
+> 않고 "⛔철회" 로 남긴다**([[73]] · §1b-refute 와 같은 규율). 각 문장에 **[CONFIRMED] / [PLAUSIBLE] /
+> [미판정]** 을 붙였다.
+>
+> **분모 주의** — 태그는 `bank_k8141med1_20260903_2256` (results.json 12 sim)이며 §1b 의 20건과 **합산하지
+> 마라**. 두 집계가 겹치는지는 **[미판정]**.
+>
+> **라벨 충돌 주의** — 088 반증 문서가 자체 라벨 `D1~D3` 을 썼는데 이 계획서의 `D1~D6` 과 **다른 것**이다.
+> 이 절에서는 그 항목들을 **D8·D9** 로 재명명해 인용한다.
+>
+> **시간 수치 주의 ([[83]] · [[54]])** — ours 는 `Concurrency: 4`(`bank_k8141med1_20260903_2256.log` 축자
+> *"Save: bank_k8141med1_20260903_2256  Concurrency: 4"*), base x644 는 축자 *"규격 : alltools · seed 300 ·
+> max-steps 200 · timeout 7200 · **concurrency 1** · port 8143"* 다. **벽시계 분은 배선 비용과 배치 조건이
+> 섞인 값이므로 원인 진술에 쓰지 않는다.** 아래 분 수치는 §5 ② 축의 참고값으로만 적는다.
+
+---
+
+#### 1c-0. 세 건 공통 (교차 확인된 것)
+
+| 사실 | 등급 | 근거 |
+|---|---|---|
+| 세 건 모두 **검색 결손이 아니다** — 필요한 KB 문서가 궤적에 배달됐는데 값·건수·전달이 어긋났다 | **CONFIRMED** | 059 msg32(두 절차 문서) · 064 msg31(`check_card_application_fit` 로스터) · 088 `doc_..._031` **4회 배달**. [[79]] *"Q38 의 잔여는 retrieval 이 아니다"* 와 정합 |
+| **우리 층 거절이 gold mutating 호출을 막은 사례 0건** | **CONFIRMED** | 059 deny 3건 전문 · 064 deny 8건 전수 + 형제-통과 대조 · 088 deny 6건 전수(`[OPERATOR-SCOPE]` 는 **지연**시켰고 turn 67 축자 *"[T2_RESOLVE] operator-scope 상한 초과(2회) — 통과시킨다"* 로 통과) |
+| 그러나 **"우리 층이 값을 저작하지 않았다"** 는 059·064 에서만 유지되고 **088 에서는 무너졌다** | **CONFIRMED** | 088 msg 66 = 우리 claimprov 재생성 산출물(1256B, 바이트 일치) — 1c-3 참조 |
+| 세 건 모두 `max_tokens=8192` 상한 미충돌 ⇒ [[82]] 폭주 아님 | **CONFIRMED** | 059 최대 completion **4,998**(`…log:5714` `gen=4998 prompt=58499`) |
+| 세 건 모두 **절차 체크리스트 정체·readloop 없음** (§1 의 task_049 병리가 재현되지 않음) | **PLAUSIBLE** | 059 msg62→66 절차 소진 · 088 KB 검색 15회 **질의 중복 0**. ⚠같은 포렌식이 다른 칸(재생성 카운트)에서 오류를 냈으므로 등급을 낮춘다 |
+
+---
+
+#### 1c-1. task_059 — `account_class` 한 인자 (sim `task_059#s626729` · n=1 · 72 msg · 291분)
+
+**실패 단위 [CONFIRMED]** — `MISSING 1 · WRONGARG 1(같은 gold 행의 짝) · EXTRA 0 · DUP 0 · MATCHED 2 · BLOCKED 0`.
+
+```
+MATCHED  msg51 log_verification              -> "Verification logged successfully. - User: Casey Rivera (ID: cr59b4d8e3)"
+MATCHED  msg56 apply_for_credit_card(card_type="Silver Rewards Card")
+WRONGARG msg68 open_bank_account_4821 account_class = "Green Account (savings)"   (gold "Green Account")
+```
+그 호출은 **거절되지 않고 실행됐다** [CONFIRMED] — msg69 축자: *"Bank account opened successfully! - Account ID:
+f9386249cd4ade09 - Account Type: savings - **Account Class: Green Account (savings)** - Status: OPEN"*.
+⇒ 이 태스크의 DB 실패 전체 = 문자열 `" (savings)"` 6글자.
+
+**연쇄의 머리 [수정됨]** — **msg 40** 이다(msg 68 아님). 28 메시지 앞에서 이미 같은 문자열을 쓰고 출처를 KB 문서
+id 로 자인했다:
+```
+msg40 get_correct_savings_apy {"savings_account_type": "Green Account (savings)",
+      "source": "Green Account (savings) FAQ: '... 4.0%' (doc_savings_accounts_green_account__savings__005)"}
+```
+그리고 그 표기는 **유추가 아니라 KB 의 상품명 축자**다 [CONFIRMED] — msg3 *"doc_savings_accounts_green_account__savings__001.md
+- **Green Account (savings)** specifications and requirements"*, msg7 표제 *"# Green Account (savings) specifications
+and requirements"*, msg4 *"3. Evergreen Account (checking) + **Green Account (savings)**"* (msgs 3·4·7·9·10·13).
+`"Green Account"` 와 `"Green Account (savings)"` 가 **둘 다 KB 에 실재**해 KB 접지로는 가를 수 없다.
+⇒ 남는 진술: **표기 직렬화 분산** [PLAUSIBLE]. 양쪽 런 어디에도 선택 이유가 남지 않았다 [CONFIRMED].
+
+**우리 층 개입 [수정됨]** — *"손대지 않았다"* 는 **문장 그대로는 거짓**이다. 문제의 생성(trace turn 65) 직전·직후로
+우리 문장이 뷰에 들어갔다:
+```
+trace turn=63 / 65 / 67   [T2_FB_VIEW] 1 queued feedback item(s) injected in view
+t2_gate_patch.py:8939-8956  _t2_view_fb 를 UserMessage 로 작업버퍼에만 부착(비커밋)
+큐잉 원천 = T2_LEDGER (trace turn 61 · T2_LEDGER_VIEW_KEEP=3 -> 63·65·67 정확히 3회)
+```
+그러나 **주입된 내용은 값과 무관하다** [CONFIRMED] — 정본 `t2_ledger.facts_text` 를 실제 rows 로 렌더한 전문에
+`account_class`·상품명·괄호 언급이 **0회**다(*"[COMPUTED FACTS] Counted from the accounts above (arithmetic, not a
+recommendation): 1 account(s). …This is elapsed time only. It is NOT a threshold."*). 그 턴의 우리 층 발화 전량
+(`T2_SUBWIN` · `T2_SUBCALL cache hit` · `T2_SIBLING_PAREN`(print) · `T2_A2_VARIANT`×2 · `T2_FB_VIEW`)에 인자를
+고치는 경로가 없다. `attempted_mutations` 상 `open_bank_account_4821` 시도는 **msg68 단 1회 · ok=True**.
+⇒ **우리 층은 `account_class` 값을 저작·변경하지 않았다** [CONFIRMED · 근거 교체됨].
+
+**우리 층 계기 결함 (원인 아님) [CONFIRMED]** — `T2_SIBLING_PAREN` 이 이 호출을 정확히 탐지하고 고칠 값까지
+이름 붙였는데(런 전체 8,300여 줄에서 **유일한 발화** · `logs/bank_k8141med1_20260903_2256.log:7764`) **집행되지
+않는다**:
+```
+t2_gate_patch.py:13306  "★§T-8 계기 ... **거동 변화 0**. ... 반려(`deny`)는 이 수를 보고 붙인다"
+t2_gate_patch.py:13311  if os.environ.get("T2_SIBLING_PAREN") in ("log","deny") ...   <- 분기는 print 한 줄뿐
+arms/{t8log,t2prime,t3prime,viewmax2}.env  전부 "=log"     repo 전체 "=deny" 0건
+```
+인용한 코드 = 실제로 돈 코드임을 확인했다 [CONFIRMED]: `provenance.json` 이 `engine_dirty: true` 인데
+`git status --porcelain | grep -v '^??'` → **0줄**(전부 untracked reports/).
+
+**base 대조 [강등]** — x644(`sim_results/bank_x644_q38base_bank78_20260830.results.json.gz`)에서 task_059 는
+**reward 1.0 · db_match True · 47 msg · 14.7분** 이고 보낸 값이 `"Green Account"` 다. ours 는 `0.0 · 72 msg ·
+291분`. **그러나 "회귀" 로 쓰지 마라** — 코퍼스 전량(정본 `F.iter_all_sims(want_tasks={"task_059"})` · **14 sim**)에서
+gold 문자열은 **x644 단 1회**이고, 호출을 한 7 sim 중 6 sim 은 아예 다른 상품(Diamond Elite ×7 · Platinum Savings …)을
+골랐다. 이번 런은 **상품을 처음으로 맞히고 표기만 틀린 최초 사례**다. ⇒ 판정: **n=1 분산** [PLAUSIBLE], 회귀
+[미판정]. (08-04~08-06 sim 은 Q2.5 레거시라 [[79]] 상 직접 비교 불가.)
+
+**⛔ 철회 목록 (059)**
+
+| 철회한 주장 | 왜 |
+|---|---|
+| *"사이드카 turn 집합 = [0,29,…,57] · turn≥58 은 0건 ⇒ 우리 층 미개입"* | 계기 파손. 33행 중 **17행이 `turn=0`이고 전부 `kind='subcall'`** — turn 이 subcall 행에 채워지지 않는다. 그 중 4행은 시간상 turn 57 이후이고, 하나는 `{"tool": "open_bank_account_4821"}` 로 **msg67 unlock 이후에만 존재하는 이름**을 담고 있다 |
+| *"turn 57 < turn 68 이므로 개입 없음"* | **turn 축 3종 혼용**(msg 색인 / 사이드카 turn / trace turn). 문제의 생성은 trace turn **65** 다 |
+| *"우리 층은 그 호출에 아예 손을 대지 않았다"* | `T2_FB_VIEW` 주입 3회가 사이드카·영속 궤적 **어디에도 안 남는다**. 결론은 유지하되 근거를 D1 계열(내용 무관)로 교체 |
+| msg66 assistant reasoning 축자(*"…but that doesn't end in 'Account.' Hmm. … By analogy…"*) | **궤적에 존재하지 않는다.** 우리 런 assistant 28개 전부 `reasoning_content` 0B. `'By analogy'`·`"doesn't end in"`·`'Hmm'` 모두 검색 결과 `[]` |
+| base x644 msg41 reasoning 축자(*"…account_type disambiguates…"*) | 동일. base assistant 중 `reasoning_content` 보유 **0개**, base msg41 은 content 0B 의 맨 도구 호출 |
+| *"checking 예시로부터 유추해 술어를 뒤집었다"* | KB 가 그 상품을 그렇게 부른다(위 msgs 3·4·7·9·10·13). 유추 아님 |
+| *"머리 = msg68 말단 단일 인자 오류"* | 첫 발화는 **msg40** |
+| *"우리 층이 개입한 가지는 정답이 됐다(apply_for_credit_card MATCHED)"* | 그 호출은 **`role=user`** 다 — user-sim 이 실행했고 `annual_income=55000` 도 user-sim 이 채웠다(agent 는 msg55 에서 *"I left this blank for you to fill in"*). base 도 동일(`msg25 role=user`, 인자 바이트 동일) |
+| *"turn 49 deny 대상 = apply_for_credit_card / check_card_application_fit"* | turn 49 의 대상은 `call_discoverable_agent_tool` 이고 사유는 `[T2_PHASE_PRECEDE] … reqs=['GB1_VERIFY_BEFORE_ACCOUNT_ACCESS']` — **gold 호출과 같은 래퍼**다. ⚠§2 (철회됨)D5 의 *"우리 층은 이 호출을 건드린 적이 없다"* 줄도 이 좁은 표현으로 읽어라 |
+| *"T2_SIBLING_PAREN 이 이 결함을 막을 수 있었던 **유일한** 결정론 장치"* | 거짓. `[OFFICIAL-NAME]`/`T2_WRITE_ARG_ENUM` 계열이 존재하고 과거 fb 파일 **56개**에서 발화했다(이번 런 0건 — L1 참조) |
+| 최대 completion `4,613` | 실측 **4,998**. 결론(8192 미충돌)은 불변 |
+
+**⛔[[74]] 위반 (059 포렌식의 방법 결함) [CONFIRMED]** — `prior_checked` 12칸이 전부 `scripts/`·`logs/`·`sim_results` 이고
+**`reports/` 를 한 번도 grep 하지 않았다.** 결론의 절반이 3주 전 정본에 이미 있다:
+```
+FAILURE_AXIS_AND_FIX_ORDER_2026_08_15.md:2478-2481 §T-8
+  gold : open_bank_account_4821{account_class:"Green Account", ...}
+  done : open_bank_account_4821{account_class:"Green Account (savings)", ...}
+:2490  "**KB 접지** — `Green Account` 와 `Green Account (savings)` **둘 다 KB 에 실재**해 못 가른다."
+:2508  ⛔W-5 (블로커) "모델이 반려를 받고도 같은 값을 다시 보낸다 ... 한 sim 최다 반복 18회 ...
+        회복되지 않으면 이 레버는 **오답을 스텝 소진으로 바꾼다**"
+:2521  "⛔엔진이 값을 고치지 않는다. ... 지금은 **관측+부호표**이고, 효과는 켠 팔과 안 켠 팔로 재야 한다."
+DEFECT_LEVER_COVERAGE_2026_08_23.md §ⓒ
+  open_bank_account_4821 WRONGARG 160건 중 **159건이 단일 인자 account_class**
+  (Green Account (savings) ↔ Silver Plus Account 25 ...)
+```
+
+---
+
+#### 1c-2. task_064 — operand 2칸(`account_class` · `card_type`) (sim `c65c88f6…` = `task_064#s626729` · n=1 · 92 msg · 301분)
+
+**실패 단위 [CONFIRMED · 독립 재현 일치]** — `gold mutating 3 · MATCHED 1 · WRONGARG 2 · MISSING 2(같은 gold 행의
+미매칭 쌍) · EXTRA 0 · DUP 0 · BLOCKED 0 · regen_blocked 8`.
+```
+MATCHED  msg53 log_verification            -> "Verification logged successfully. - User: Jordan Lee (ID: jl72b4e9d1)"
+WRONGARG msg84 open_bank_account_4821  account_class "Silver Account"   (gold "Gold Plus Account")
+         msg85 축자 "Bank account opened successfully! ... **Account Class: Silver Account** - Status: OPEN"
+WRONGARG msg87 apply_for_credit_card   card_type "EcoCard"              (gold "Gold Rewards Card") · requestor=user(gold 도 user)
+         msg88 축자 "Credit card application submitted: Your application has been successfully submitted."
+```
+두 호출 모두 **실행됐다**. 나머지 인자(`user_id`·`account_type`·`customer_name`·`annual_income`·
+`rho_bank_subscription`)는 gold 와 동일 ⇒ **operand 값 선택 오류 2칸**이고 열거·전달·실행은 성공했다.
+
+**연쇄의 머리 [수정됨]** — msg 35 송출본(689B, 권고표 소실) → **msg 47** → msg 80 → 집행. 다만 msg 47 은
+**모델의 자발적 전환이 아니라 우리가 만든 턴**이다 [CONFIRMED]:
+```
+fb idx=27 kind=reminder-user turn=47 channel=claimprov len=306 축자:
+  "Note: [CLAIM-PROVENANCE] tool ownership — the following are in YOUR OWN tool list, not the
+   customer's: None (tool: verify_identity); None (tool: log_verification); None (tool: give_discoverable_user_tool)."
+msg 47 reasoning_content 축자:
+  "**This appears to be a system reminder/note rather than a genuine customer message.**"
+  "Since there's no actionable customer request, **I'll send a brief message keeping the ball in their court.**"
+```
+그 턴의 채움말이 *"lock in the **EcoCard + Silver Account** combination"* 이었다. **심의된 operand 결정이 아니다.**
+그리고 msg 80 송출본(1503B)은 두 금액을 **나란히** 제시했다 — *"**Reply \"1\"** → I open the **Silver Account** now
+(best score-independent combo: $1,817.50 …)"* / *"**Reply \"2\"** → I open the **Gold Plus Account** now (best overall
+combo: $1,905.00 …, if your score is 720+)"* — 고객은 그것을 보고 1을 골랐다(msg 81). ⇒ 머리의 최소 진술:
+**닫힌 목적함수(연이자−연회비 최대화)의 operand 2칸이 우리가 점유한 턴에서 굳었고, 금액 병치 뒤에도 열린 조건
+(미지 신용점수) 회피가 이겼다** [PLAUSIBLE · n=1].
+
+**우리 층 개입 = yes [CONFIRMED]**, 단 세 갈래로 나눠 적는다.
+
+1. **[B] `get_correct_savings_apy` grounding 이 `파일명: '인용'` 접두를 못 읽는다 — CONFIRMED, 기전 확정**
+```
+t2_scaffold_get.py:724     src_ok = bool(ns) and any(ns in nc for nc in norm_corpus if nc)     <- 순수 substring
+t2_scaffold_get.py:121-123 _norm_ground = re.sub(r"[^a-z0-9%]+", " ", str(s).lower())
+msg59 source="doc_savings_accounts_silver_account_003.md: 'At or above threshold | At least $10,000 | 4.0%'"
+  -> msg60 "[GROUNDING WARNING] 3 input value(s) could not be verified ... (could not compute — check your arguments)"
+msg64 접두만 제거한 **같은 인용**
+  -> msg65 "Correct savings APY computed from the components supplied in this call: 6.2250000000000005%"
+계약 축자 a2/banking_knowledge.gate.json:1092  "source": "<verbatim quote from the KB doc stating this value>"
+```
+   반증조건 [B'](코퍼스 미도달) **소거됨**: msg 59↔64 사이 새 read **0건**. 비용 = 4콜 1라운드 전손, 유효 수치
+   6개를 얻는 데 14콜. 거절 문면 *"source not found in the knowledge base"* 는 **무엇을 하면 풀리는지 말하지
+   않는다** ⇒ [[64]] 위반 [CONFIRMED].
+2. **[A] RECOMMEND-OFFER 는 원인이 아니라 추인 — 단 근거가 바뀌었다**. 우리 서브가 gold 와 다른 값을 확언했고
+   (`recommend_formalize` → `{"applies": true, "card_type": "EcoCard"}`) 명령형으로 뷰에 넣었다. 그러나 그
+   산출물은 **사용자에게 전달되지 않았다** [CONFIRMED]: 621B 문면이 궤적에 0건, `give_discoverable_user_tool`
+   영속 호출 0건, `driver.log:8255 [T2_RESOLVE] recommendation-offer deny`, 송출 msg 86(634B)에 카드명 0회.
+3. **[N2] 같은 턴에서 우리 층 두 문면이 시키고 막았다 — CONFIRMED · [[55]] 대상**
+```
+8227 [T2_RESOLVE] recommendation-offer deny  -> "Offer it now by calling 'give_discoverable_user_tool' … card_type='EcoCard'"
+8235 agent_response_unified_regen … tool_calls=1                 <- 시킨 대로 호출
+8247 [T2_TOOL_SIGNATURE] would-deny tool=give_discoverable_user_tool but preempted-by=resolve_write
+8249 [T2_TOOL_OBS] err=True -> "Error: [ACTION] 'apply_for_credit_card' is run by the CUSTOMER, not by you."
+8255 [T2_RESOLVE] recommendation-offer deny                       <- 또 같은 요구
+8263 [T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=86
+```
+   루프는 판단이 아니라 **정체 캡으로만** 멈췄다.
+   부수: **[N3]** `[ARG-EMPTY]` 거절(fb idx=6, turn=30)이 날조를 유도했고(msg30 reasoning 축자 *"I shouldn't
+   fabricate constraints. **But the tool requires non-empty values.**"*, args `"credit_score":"850"`), 우리
+   grounding 이 msg31 에서 다시 드롭했다(*"credit_score=850 (the customer never mentioned this kind of
+   requirement — do not add limits they did not state)"*). [F](우리 도구가 Gold 우세 근거를 쥐어줬다)는 사실이나
+   **거절→날조→드롭 1왕복 뒤**에 얻은 것이다.
+
+**gold 호출 차단 여부 [CONFIRMED · 형제 통과 전수 대조]** — 0건. 같은 `[READ-FIRST]` 게이트가 msg40 4콜을
+막았으나 msg59 4콜·msg64 4콜·msg77 2콜을 통과시켰고, `[ACTION]` 라우팅은 gold(`064_1 requestor=user`)와
+**일치**하며 사용자가 msg87 에 실제 실행했다. turn 51 의 `resolve the flagged call(s) first` 는
+`GB1_VERIFY_BEFORE_ACCOUNT_ACCESS` 선행이고 이후 msg53 MATCHED · msg84 실행 성공.
+
+**base 대조 [CONFIRMED · 회귀]** — x644 `task_064` = **reward 1.0 · 68 msg · 20.25분(1215.13s) · 같은 시드
+626729 · 첫 사용자 발화 동일**. base 결정 축자(msg 28): *"**My recommendation: Gold Plus Savings + Gold Rewards
+Card**"* → user msg 29 *"…let's do it"*. ours 는 `0.0 · 92 msg`. **pass→fail 성립**.
+
+**⛔ 철회 목록 (064)**
+
+| 철회한 주장 | 왜 |
+|---|---|
+| *"검증 패스(`recommend_operand_verify`)도 EcoCard 를 통과시켰다"* | **독립 검증이 아니다.** 두 프롬프트(plen 5935 / 5900)는 35자만 다른 **같은 재료**이고, `Option details` 블록에 `annual_fee`·`min_score`·`cashback`·`"Gold Rewards"`·`"Gold Plus"` 가 **각 0회**다. 앞선 "none" 6회도 카드가 0회 등장하는 프롬프트에서 나온 **강제값**이다 ⇒ [[78]] 재료 결손 |
+| *"그 값이 그대로 W2 가 됐다"* | 산출물 **미전달**(위 [A]). 결론('추인')은 유지, 근거 교체 |
+| *"월클럭 14.9배"* | **배치 산물**(conc 4 ↔ 1). 배치 불변 지표로 다시 재면 `ours comp 52,800 tok / prompt 2,137,899` ↔ `base comp 21,267 / prompt 2,338,132` ⇒ **생성 2.48배, 프롬프트는 오히려 우리가 적다**. `msg 92↔68` 과 `reward 1.0→0.0` 만 유효 |
+| 계기 수치 *"생성 45콜 · 재생성 31% · recommend_formalize ×7"* | 실측 **79콜 · 재생성 13/79 = 16.5% · recommend_formalize 실생성 5회**(사이드카 8행 중 캐시 3) |
+| msg 80 축자(*"…$87.50 more…"*) | **폐기된 초안**(fb idx=39, len=3117)의 문장이고 송출 msg 80 에는 없다. 송출본은 두 금액 병치(위) — 결론은 오히려 강화 |
+| *"msg 47 에서 에이전트가 수치 하나 없이 스스로 전환했다"* | 그 턴은 **우리 claimprov note 가 점유한 턴**이다(위 축자) |
+| *"[T2_CLAIM_PROV] 오작동 1건"* | **3건**(idx 17 turn 35 · idx 27 turn 47 · idx 43 turn 80) |
+| *"regen 이 정답 초안을 2회 폐기 · EcoCard 대체안은 regen 산물"* | 폐기는 **3회**(turn 30·35·80)이고, turn 35 **초안 자체**가 이미 *"(The EcoCard has no score requirement, which is why it's the fallback.)"* 를 담고 있었다 ⇒ 대체안 프레임은 regen 이 만든 게 아니다. [C] 는 **상관까지만** |
+
+---
+
+#### 1c-3. task_088 — EXTRA 1 + WRONGARG 2 (sim `task_088#s626729` · n=1 · 93 msg · 242.2분)
+
+**실패 단위 [CONFIRMED · 독립 재현 일치]** — `GOLD 4 · DONE 5 · MATCHED 2 · MISSING 2 · WRONGARG 2 · EXTRA 1 ·
+DUP 0 · BLOCKED 0`.
+```
+MATCHED  msg13 log_verification · msg74 close_debit_card_4721(reason=fraud_suspected)
+WRONGARG msg70 file_debit_card_transaction_dispute_6281  (17 인자 중 15 일치)
+           transaction_type              gold 'signature_purchase' ↔ 'pin_purchase'
+           customer_max_liability_amount gold 50                   ↔ 500
+           실행 증거 msg71 "Dispute ID: dsp_76b0f2bc26c3 … Provisional Credit: ISSUED - $347.99"
+WRONGARG msg78 order_debit_card_5739
+           delivery_option              gold 'STANDARD' ↔ 'EXPEDITED'
+           excess_replacement_fee       gold 미선언   ↔ 0 명시           (DB 영향 [미판정])
+           실행 증거 msg79 "Debit Card Order Confirmed … Delivery Option: EXPEDITED"
+EXTRA    msg49 transfer_funds_between_bank_accounts_7291(blue->green, 100)  gold 17 action 어디에도 없음
+           실행 증거 msg50 "Transfer completed successfully! - Amount: $100.00 - From: chk_..._blue
+                            (new balance: $1150.00) - To: chk_..._green (new balance: $480.47)"
+```
+`transfer_to_human_agents`(088_16)는 **`mutating_tools`(44종) 밖**이라 DB 단위에 들어오지 않는다 [CONFIRMED ·
+`F.mutating_tools()` 직접 확인].
+
+**연쇄의 머리 [수정됨]** — 두 사슬이다.
+
+- **사슬 A (EXTRA)**: msg 45 무청구 제안 → msg 46 승낙 → msg 49 실행. user 대본에 이 분기는 없다
+  ([CONFIRMED] `task_088.json` notes 축자 *"informational resolution"*; msg 46 은 대본 §11 문장 *"Okay, I
+  understand now. So basically I need to wait a couple more days…"* 과 즉흥 승낙을 **한 메시지에** 담고 있다) ⇒
+  제안의 저자는 에이전트다([[21]]). 단 KB 가 그 제안을 허용한다 [CONFIRMED]: `doc_checking_accounts_…_006`
+  CODE 51 §3 *"If they want to transfer, help them do so."*
+  ⚠**그 턴의 실행 경로는 우리가 코치했다** — 아래 철회 참조.
+- **사슬 B (`delivery_option`)**: **msg 66 은 모델의 작문이 아니라 우리 claimprov 재생성 산출물이다**
+  [CONFIRMED · 바이트 일치].
+```
+trace turn 65
+  [T2_GEN_TRACE] call=agent_response          -> gen=2059 reason=5476B **content=2325B** tool_calls=0
+  [T2_CLAIMPROV] window hit(resign) claims=12 unbacked=0 pending=3 **unb_p=3 [None, None, None]**
+  [T2_CLAIMPROV] owner split: agent=0 user=0 **unknown=3**
+  [T2_GUIDED] guided applied (call=agent_response_claimprov tools=27)
+  [T2_GEN_TRACE] call=agent_response_claimprov -> gen=966 reason=2932B **content=1256B** tool_calls=0
+  [T2_CLAIMPROV] regen tool_calls=[]
+궤적 msg 66 = **1256자**  (원본 2325B 는 폐기 · -46%)
+```
+  그 재생성본이 배달 메뉴에서 **STANDARD 를 통째로 빠뜨렸다**: *"3. **Delivery speed:** Free expedited (3–5
+  business days) or Rush (1–2 business days, $35)?"* → 대본 §18 *"Just the standard option is fine."* 인 user 는
+  준 메뉴에서 고를 수밖에 없었다(msg 67) → msg 78 `EXPEDITED`. 그리고 그 메시지의 "안 했다 + 번호 매긴 재질의"
+  골격은 우리 문구가 축자로 요구한 것이다 — reminder-user turn 66: *"Do not end your involvement by describing the
+  work as done or under way — either call the tool now, or **state explicitly that it has NOT been performed.**"*
+  ⚠**폐기된 2325B 원본에도 STANDARD 가 없었는지는 원리적으로 확인 불가**(→ D9) ⇒ 이 자리는 **[미판정]** 으로
+  남긴다. 원 포렌식이 *"모델의 열거 결손"* 으로 **닫은 것 자체가 잘못**이다.
+
+**우리 층 개입 = yes [철회된 판정]** — 아래 참조. 다만 **거절이 gold 호출을 막지는 않았다** [CONFIRMED]:
+`[OPERATOR-SCOPE]`(turn 68)의 대상은 gold `088_9` 의 unlock 이었으나 turn 67 축자 *"[T2_RESOLVE] operator-scope
+상한 초과(2회) — 통과시킨다"* 로 한 턴 **지연 후 통과**했고(msg69 *"Tool unlocked: …"*), unlock 은 GRANTS 라 DB 를
+바꾸지 않는다. `[POLICY GATE GB2_NOTICE_BEFORE_TRANSFER]`(turn 85)도 이전을 막지 않았다(msg90 *"Transfer
+successful"*).
+
+**값이 어긋난 자리의 KB 출처 (gold 역산 없음 · [[23]] 준수) [CONFIRMED]** — 필요 문서는 배달됐다
+(`doc_bank_accounts_…_031` **4회**):
+```
+_031  "- Reported within 2 business days of statement: Maximum liability $50
+       - Reported within 60 days of statement: Maximum liability $500"      -> 모델은 500 선택
+      msg55 축자 "That charge was on **11/09/2025** — about **five days ago**."  <- 거래일 앵커
+_031  "9. transaction_type ... 'pin_purchase': In-store purchase with PIN
+                             'signature_purchase': In-store purchase with signature"
+      같은 호출에 pin_compromised='no' 를 넣고 msg58 에서 "the classic signature of a **cloned (counterfeit) card**"
+      라고 진단해 놓고 pin_purchase 를 골랐다 (자기 인자와 모순)
+_029  "PREMIUM TIER: ... (delivery_fee: $0 for both STANDARD and EXPEDITED) - Rush shipping ... ($35)"
+      => EXPEDITED $0 은 **정책상 허용**된다. 정책 위반이 아니라 메뉴 결손이다
+```
+*"pin_compromised='no' ⇒ transaction_type≠'pin_purchase'"* 를 세울 KB 축자는 **없다** ⇒ 닫힌 술어 후보로
+올릴 수 없다 [미판정 · [[23]]].
+
+**base 대조 [CONFIRMED · 회귀 아님]** — x644 `task_088#s626729`(같은 시드) = **reward 0.0 · db_match False ·
+61 msg · 9.3분(556.49s)** 이고 변이집합은 `MISSING 3 · WRONGARG 0 · EXTRA 0 · MATCHED 1` — dispute·close·order 를
+**한 건도 실행하지 않았다**. ⇒ *"base 는 됐는데 우리가 깨뜨렸다"* 는 성립하지 않는다. [[79]] 그대로 **행동 부재
+(base) → 값·건수 어긋남(ours)** 으로 이동했고 reward 는 둘 다 0.0. 대가는 msg 61→93, 생성 호출 110회 ·
+프롬프트 누적 4.07M 토큰 [PLAUSIBLE — 이 두 수치는 재검증하지 않았다].
+
+**⛔ 철회 목록 (088)**
+
+| 철회한 주장 | 왜 |
+|---|---|
+| **`our_layer_involved: "no"`** | 판정 자체가 무너졌다(아래 두 줄) |
+| *"msg 66 의 불완전 열거 = 모델의 열거 결손([[49]])"* | msg 66 은 **우리 claimprov 재생성본**(2325B→1256B, 바이트 일치)이고, 메뉴 결손은 그 안에서만 존재한다. 원본 확인 불가 ⇒ **[미판정]** |
+| *"msg 45–49 구간에 우리 층 개입이 0건"* | **거짓.** fb reminder-user turn=47 channel=`channel` 축자 *"Error: [TOOL-CHANNEL] `transfer_funds_between_bank_accounts_7291` has not been unlocked yet. Call `unlock_discoverable_agent_tool(...)` first…"* + trace turn 46 `[T2_TOOL_CHANNEL] pre-call regen` ⇒ msg 47 = **0자 · tool_calls=1(unlock)** 이 우리 재생성 산출이다 |
+| *"재생성 6회(모두 unified_regen)"* | 실측 **12회 · 11턴 · 4채널**(unified_regen 7 · claimprov 3 · channel 2). 교체 수지 4건 전부 바이트 일치 확인 |
+| *"EXTRA 하나만으로 db_match=False 가 확정된다"* | 두 계좌 잔액이 실제로 바뀐 것은 확정이나, 세 변이 각각의 해시 기여도는 **재실행하지 않았다** ⇒ **[미판정]** (강한 [PLAUSIBLE]) |
+| *"우리 층이 EXTRA 를 만들었다"* 로 읽힐 여지 | 만들지 않았다 [CONFIRMED · 형제 통과]: `T2_TOOL_CHANNEL` 은 EXTRA transfer(turn 47)와 **gold `close_debit_card_4721`**(turn 72, 같은 문면)에 똑같이 발화했고 둘 다 통과했다. 우리가 한 것은 **실행 경로 코치**이지 변이 저작이 아니다. ⚠단 `T2_CLAIM_PROV` 에는 **형제가 없다** — acting 구간에서 발화 조건이 성립한 자리는 turn 65 하나뿐이고 그것이 정확히 어긋난 메시지 위에 떨어졌다 |
+| turn 68 `[BLOCKED]` 2건 = unlock 이라는 판정 | 추론으로 강등. 근거는 여전히 강하다(content=205B *"Let me get all three tools ready and execute everything."* · `tool_calls=3` = 잠긴 3종 · unlocked 카운터 6→7→8 한 턴에 하나). 그러나 **폐기된 tool_calls 인자 원문이 존재하지 않으므로**(D9) 원 보고서의 반증조건 #1 은 **원리적으로 시험 불가** |
+
+---
+
+#### 1c-4. 수리 후보에 미치는 영향 (D1 · D2 · D3 · D4 · D6 · L1)
+
+| 후보 | 이 3건의 효과 | 근거 | 등급 |
+|---|---|---|---|
+| **D1** (종결 후 표면화 중지) | **중립~약화** — 세 건 어디에도 §1 의 절차 정체·표면화 루프가 **재현되지 않았다**. D1 의 적용 폭은 캠페인 전체가 아니라 049 계열로 좁다 | 059 msg62→66 절차 소진 · 088 KB 질의 중복 0 · 세 건 모두 `readloop-turn` 집계 없음 | PLAUSIBLE |
+| **D2** (읽기 루프에 이름과 출구) | **약화** — 064 의 `get_correct_savings_apy` 14콜 중 6콜만 유효한 낭비는 **읽기 루프가 아니라 grounding 접두 드롭**이 원인이다. D2 는 이 칸을 사지 못하고 **D7 이 산다** | `t2_scaffold_get.py:724` · msg59↔64 대조 | CONFIRMED |
+| **D3** (reference-filter 문면·술어 일치) | **그 게이트 자체는 미발화(중립)**, 그러나 **상위 계열 주장이 강화**된다 — *"deny 문면이 검사한 것과 다르거나 처방을 못 준다"* 의 **새 독립 사례 2건**: ① 064 grounding *"source not found in the knowledge base"*(무엇을 하면 풀리는지 없음) ② 088/064 claimprov *"None: None"*(이름 자체가 없음) | 위 축자 · [[64]] | CONFIRMED (계열) / 미판정 (D3 본체) |
+| **D4** ([BLOCKED] 을 의존 호출로만) | **약화** — 이번 3건의 동반 차단은 **gold 를 죽이지 않고 지연만** 시켰다. 088 turn 68(unlock 3콜 → 한 턴에 하나씩 3턴에 전부 성공) · 064 turn 40(4콜 → msg59/64/77 에 재발행 통과). ⇒ D4 가 사는 것은 **턴 수**이지 reward 가 아닐 수 있다. 게다가 **D4 의 효과 측정 자체가 D9 에 의존한다**(폐기된 인자 원문이 없으면 무엇이 막혔는지 사후 확인 불가) | 위 · trace turn 67·69·73·77 | PLAUSIBLE |
+| **D6** (중복 억제를 선언된 write 로 한정) | **중립 + ⊖ 신호 1개.** `[DUPLICATE-WRITE]` 는 이 3건에 미발화다. 그러나 **088 의 EXTRA 1건이 DB 채점을 무너뜨릴 수 있음을 보였다**(잔액 2계좌 실제 변경). D6 는 deny 를 309→88(**221건 소멸**)로 여는 레버이므로, §D6 선행조건 3(태스크별 부호표)의 **필요성이 커졌다** — "보호 상실"의 실물 형태가 EXTRA 다 | mutation_diff(088) · §2 D6 반사실 재현 | PLAUSIBLE (기여도 미분리 · [미판정]) |
+| **L1** (꺼진 열거 레버 조사) | **전제 강화 · 기대수익 약화.** 강화: 이 런에서도 `[OFFICIAL-NAME]`/`T2_WRITE_ARG_ENUM` 발화 **0건**이고 `provenance.json.levers_on` 195개에 이름이 **없다**(과거 fb 파일 **56개**에는 있다) ⇒ [[81]] 배선 회귀 **CONFIRMED**. 약화: `x509_axis_queue_2026_08_24.json:183` 축자 *"모델이 낸 `account_class` 69건 중 집합 안 68(98.6%) … 게이트가 겨누는 것은 1.4% 뿐"* 이고 `"Green Account (savings)"` 는 **KB 에 실재하는 이름**이므로 켜져 있었어도 059 를 통과시켰을 공산이 크다 | 위 · 059 msgs 3·4·7 | 전제 CONFIRMED / 059 무효 PLAUSIBLE (`write_arg_enum[0].group_map` 실물 미확인 = **[미판정]**) |
+
+**⇒ P4(L1 격리)의 exit 를 한 칸 늘려라**: *"`group_map` 에 `"… (savings)"` 형 변형이 들어 있는가"* 를 먼저
+찍는다. 들어 있으면 L1 은 059 를 못 산다(그 자체가 폐기 사유는 아니고 **기대수익 0** 기록).
+
+---
+
+#### 1c-5. 새 후보 — D7 · D8 · D9(계기) · L2(조사) · 4칸 계약
+
+> ⛔[[62]]: 넷 다 **격리 프로브 전에는 배선하지 않는다**. D9 는 레버가 아니라 **원장**이고, 나머지 셋의 판정
+> 가능성이 D9 에 걸려 있으므로 **먼저 한다**.
+
+##### D7 — grounding 출처 검사가 `파일명: '인용'` 접두를 삼키지 못한다 (**CONFIRMED 우리-층**)
+
+1. **주장 + 양화** — n=1 sim(`task_064#s626729`) · 4콜 1라운드 전손 · 성분 3개 드롭. 같은 대화·같은 도구·같은
+   축자 인용에서 **접두 유무로만** 결과가 갈렸다. 형제 통과 10콜이 있으므로 표적은 **문자열 형식 하나**로 좁다.
+2. **근거 (축자 + 파일:줄)** — `t2_scaffold_get.py:724` `src_ok = bool(ns) and any(ns in nc for nc in norm_corpus
+   if nc)` · `:121-123` `_norm_ground = re.sub(r"[^a-z0-9%]+", " ", str(s).lower())` · msg59 → msg60 *"[GROUNDING
+   WARNING] 3 input value(s) could not be verified … (could not compute — check your arguments)"* · msg64(접두만
+   제거) → msg65 *"Correct savings APY computed … 6.2250000000000005%"* · 계약 `a2/banking_knowledge.gate.json:1092`
+   *"source": "<verbatim quote from the KB doc stating this value>"*.
+   **규칙(2단)**: ① **문면 수리(무조건)** — 거절문에 요구 형식을 축자로 넣는다(무엇이 틀렸나 + 무엇을 하면
+   풀리나 · [[64]]). ② **술어 완화(격리 후)** — 검사 전에 선행 `"<파일명>: "` 접두를 제거하는 정규화. 도메인
+   리터럴 0, 값 선택 0([[59]] · [[23]]).
+3. **반증 조건** — 격리에서 (i)접두형·(ii)순수 인용을 같은 components 로 넣어 **둘 다 통과하면** 이 귀속은
+   거짓이다(원인은 다른 요인). / msg59↔64 사이에 새 read 가 있었다면 "코퍼스 미도달" 가설로 돌아간다(**이미
+   소거: 0건**). / 접두형을 권장하는 계약 문구가 실제로 없다면 ②는 폐기하고 ①만 남는다.
+4. **선행 확인** — `t2_scaffold_get.py:121-123·724` · `a2/banking_knowledge.gate.json:1092` · 형제 통과 6콜
+   (msg64 4 · msg77 2) · [[22]] 근거-우선 formalize · [[64]] · §1b-refute(문면-술어 불일치 계열).
+
+##### D8 — claimprov 는 **식별 불가 항목으로 발화하지 않는다** (`None` 금지) (**CONFIRMED 우리-층 · 런 전역**)
+
+1. **주장 + 양화** — 이 태그 전역 8 태스크에서 `T2_CLAIMPROV window hit` 64행 중 발화 후보(`unb_p≥1`) **22행이고
+   22/22 전부** 항목 목록에 `None` 을 담는다(`owner split` 20행 중 `unknown≥1` 이 12행). 실제 전송 문면 6건
+   확인(088 turn 5·66·82 · 064 idx 17·27·43).
+2. **근거 (축자)** — trace turn 65 `[T2_CLAIMPROV] window hit(resign) claims=12 unbacked=0 pending=3 unb_p=3
+   **[None, None, None]**` · `owner split: agent=0 user=0 **unknown=3**` / 사이드카 전송 문면 *"…the conversation
+   ledger shows it was never actually executed: **None: None; None: None; None: None**."* / 064 fb idx=27 turn=47
+   *"…are in YOUR OWN tool list, not the customer's: **None** (tool: verify_identity); …"*.
+   **동반 관측(같은 항목의 2차 피해)**: 그 문면이 **user 롤을 점유**해 에이전트가 없는 사용자 턴을 상상하고
+   허위를 발화했다 — 064 msg47 reasoning *"This appears to be a system reminder/note rather than a genuine
+   customer message."*, msg86 reasoning *"the user's message is empty… This probably means the user executed…"* →
+   송출 *"Thanks for running it."*(사용자는 그때 실행하지 않았다 — 실행은 msg87).
+   **규칙**: 식별 가능한 항목이 0건이면 **침묵한다**(닫힌 술어: `owner=unknown` 또는 `kind=None` 만 남으면 발화
+   금지). 목적 미달성도 함께 관측됐다 — 088 turn 65 `[T2_CLAIMPROV] regen tool_calls=[]` (0→0), 얻은 것은 **-46%
+   압축**뿐이다.
+3. **반증 조건** — `None` 이 로그 렌더링만이고 모델에 간 실제 문면엔 실명이 들어갔음을 보이면 거짓(**반대 증거**:
+   사이드카에 **저장된 전송 문면 자체**가 `None: None` 이다). / 침묵시킨 팔에서 unbacked claim 이 늘고 reward 가
+   내려가면 억제 자체는 필요했다는 뜻이므로 규칙을 "침묵"에서 **"이름 확보 후 발화"** 로 좁혀야 한다.
+4. **선행 확인** — [[64]] 거부는 이름을 대야 한다 · `t2_gate_patch.py:9837`(WORK-INCOMPLETE 인접) ·
+   `fb_bank_k8141med1_20260903_2256.jsonl` · `trace_bank_k8141med1_20260903_2256.jsonl` · §1b-refute 의 문면 계열.
+
+##### D9 — 재생성 폐기 원문을 **모든 채널**에서 원장에 남긴다 (계기 · 배선 자격의 선행조건) (**CONFIRMED**)
+
+1. **주장 + 양화** — 이 태그 전역 `reminder-assistant`(폐기 원문 보존) **53행 / 53행 전부 `channel=unified_regen`**
+   인 반면 `reminder-user` 59행의 채널은 `unified_regen 22 · claimprov 18 · usertoolnote 3 · channel 3 ·
+   selfdecl 2 …` 다 ⇒ **claimprov·channel 재생성은 폐기 원문을 한 줄도 남기지 않는다.**
+2. **근거 (축자 + 위치)** — 088 trace turn 65 `content=2325B` → `agent_response_claimprov … content=1256B`
+   (= 궤적 msg 66 **1256자**, 바이트 일치)인데 **2325B 의 내용은 어디에도 없다** / 088 turn 46 `content=44B
+   tool_calls=1` → `agent_response_channel … content=0B tool_calls=1`(= msg 47) / 088 turn 68 `[BLOCKED]` 2건의
+   폐기 인자 원문도 없다. **귀결**: 1c-3 의 두 자리가 **확증도 반증도 불가**가 됐고, 059 포렌식이 존재하지 않는
+   reasoning 을 인용한 것도 같은 구멍(영속 궤적 `reasoning_content` 0B)에서 나왔다.
+3. **반증 조건** — claimprov·channel 재생성의 폐기 원문이 다른 산출물(`driver.log` 의 본문 덤프 등)에 **전량**
+   남아 있음을 보이면 이 결손은 없다.
+4. **선행 확인** — [[76]](서브는 진리다 — 검증 가능해야 한다) · [[70]] 판정 의무 3종 · `x509_axis_queue…` §방법_교훈
+   *"레버 원장 상설화"* · `fb_/trace_` 채널 분포 실측.
+
+##### L2 — `recommend_formalize` 격리 (서브가 **확언으로 오답**을 낸 2건) (**조사 · 레버 아님**)
+
+1. **주장 + 양화** — n=2 sim. 059 사이드카 row0·row3 → `{"applies": true, "card_type": "Gold Rewards Card"}`
+   (gold = Silver Rewards Card)이고 turn 29 에 **명령형으로 뷰 주입**: *"…'card_type=Gold Rewards Card' is the
+   match. **Offer it now** by calling 'give_discoverable_user_tool' …"*. 064 #31·#32 → `EcoCard`(gold = Gold
+   Rewards Card). 064 프롬프트 실물(plen 5935)의 `Option details` 에 `annual_fee`·`min_score`·`cashback` **각 0회**.
+2. **근거** — 위 축자 + `[T2_RESOLVE] recommendation-offer deny`(059 trace turn 27·41 · 064 driver.log 8227·8255).
+   059 는 모델이 무시해서 DB 가 살았을 뿐이다 ⇒ **오답 자체가 수리 대상**([[76]]).
+3. **반증 조건** — 다른 sim 의 recommend 프롬프트 `Option details` 에 `check_card_application_fit` 로스터가 실려
+   있으면 "재료 결손"은 국소 사고다(그때는 판단 결손). / 재료를 채운 격리에서 **여전히** 오답이면 결손이 아니라
+   판단이고, [[76]] 대로 서브를 고치거나 폐기한다. / 재료를 채웠더니 정답이면 **전달 경로**만 남는다.
+4. **선행 확인** — ⚠**로스터 주입을 새 레버로 올리기 전에 반드시 인용할 판정**: `x509_axis_queue_2026_08_24.json`
+   `status_2026_08_24_pm.⑦유도` 축자 *"x516(후보집합)·x517(질문 프레임) **둘 다 gold 0/39** ⇒ **경로 없음**"*.
+   무엇이 다른지 대지 못하면 제안 금지([[40]] · [[74]]). 그 외 `Option details` 를 채우는 **코드 경로는 아직
+   grep 하지 않았다 — [미판정]**.
+
+##### ⛔ 새 후보로 올리지 **않는** 것 (재유도 금지)
+
+- **`T2_SIBLING_PAREN` 의 deny 승격** — `FAILURE_AXIS_AND_FIX_ORDER_2026_08_15.md` §T-8(:2476-2586)이 **이미**
+  결함·KB 접지 불가·처방 후보·블로커 W-5(*"모델이 반려를 받고도 같은 값을 다시 보낸다 … 한 sim 최다 18회 …
+  오답을 스텝 소진으로 바꾼다"*)까지 확정해 두었다. 승격 여부는 **§T-8 이 정한 게이트**(반대 팔 A/B + 반려 후
+  괄호 제거율 부호표)를 그대로 따른다.
+- **`account_class` 열거 검사** — 이미 `D5(철회됨)` → `L1` 로 처리된 자리다.
+- **088 의 `customer_max_liability_amount`(①금액) · `transaction_type`(②범주) 에 표를 더 주는 처방** —
+  x509 축자 *"②범주: x512 경계 판정 철회 · x513 표를 줘도 057·063 0/6"* ⇒ **이미 측정돼 실패한 경로**다.
+- **088 의 이체 제안을 ⑦유도 축으로 접기** — ⑦유도는 `requestor=user` 축인데 이 EXTRA 는 **에이전트 자신이**
+  실행했다. 접으면 오분류.
+
+---
+
+#### 1c-6. §5(비용 축)에 반영할 정정
+
+- **② `sim 당 벽시계 분` 은 이번 캠페인에서 교란돼 있다** [CONFIRMED] — ours conc **4** ↔ base x644 conc **1**
+  (양쪽 축자 확보). 배선 비용을 재려면 **배치 불변 지표**를 함께 적어라: task_064 `생성 토큰 52,800 ↔ 21,267
+  (2.48배)` · `프롬프트 2,137,899 ↔ 2,338,132 (ours 가 더 적다)`.
+- **③ 생성 호출 배수** — §5 의 task_064 분해(`agent_response 29 ↔ 부수 30`)는 08:15 미완 시점 값이다. **완주 후
+  실측 79콜**(agent_response 32 · unified_regen 10 · claimprov 3 · source_claim_formalize 6 ·
+  recommend_formalize 5 · intent_operator_formalize 5 · selfdecl 5 · agent_claimprov 5 · 기타)로 갱신하라.
+  재생성 비율은 **13/79 = 16.5%**.
+- **§5 표의 `task_064 ours 4.7시간째 미완`** → **완료: reward 0.0 · 92 msg · 301.0분**.
+
+---
+
+#### 1c-7. 아직 모르는 것 (원인 진술에 쓰지 마라)
+
+- 088 turn 65 에서 폐기된 **2325B 원본의 내용** — D9 때문에 **영구 복구 불가**.
+- 088 세 변이(EXTRA · dispute · order) **각각의 `db_match` 기여도** — db_check 해시 내부 미개봉, 재실행 미수행.
+- 088 `excess_replacement_fee="0"` 명시가 DB 행을 바꾸는지.
+- 059 `write_arg_enum[0].group_map` 에 `"… (savings)"` 형 변형이 있는지(→ L1 기대수익).
+- 064 `Option details (from lookups)` 를 **무엇이 채우는지** — 프롬프트 실물만 봤고 코드 경로 미확인.
+- `_t2_view_fb` 큐잉 원천이 059 turn 61 `T2_LEDGER` 하나뿐인지(다른 마커가 큐잉하면 1c-1 의 D1 렌더 근거가 흔들린다).
+
+---
+
 ## 2. 설계 — 수리 후보 다섯(D1~D4 · D6) + 조사 하나(L1) · 파생값·오선택은 측정만
 
 ### [[05]] 3질문 (설계서 상설 의무 · [[17]])
