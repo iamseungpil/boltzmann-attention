@@ -3795,9 +3795,83 @@ CLI 제출          "Only the account owner or an authorized account manager may
   «동의 확보 후 재요청되면 통과»가 없으면 W-5 형 18회 루프를 산다.
 - ⚠agent temperature = **0.0**(`t2_run_gated.py:321`) — 재현성은 프롬프트 동일성에 달렸다.
 
-**⑶ 미검증 (다음 세션 선결)**: 반증 감사 에이전트가 **세션 한도로 죽었다**(`agents_error 1`).
-초안은 인용 검산만 통과했고 ①[[23]] gold 유래 흔적 ②[[58]] 케이스 입법 누수 ③과잉/과소 포함
-④078/080 시뮬레이션(msg49 형 발화가 consent_form 을 만족하는가) 이 **미감사**다. **감사 전 배선 금지.**
+**⑶ ★반증 감사 완료 (2026-09-05) — 두 감사 모두 «배선 자격 없음»**
+
+두 격리 서브가 각각 코퍼스 축자와 078/080 시뮬레이션을 맡았다. 결론이 겹치지 않고 서로를 보강한다.
+
+**감사 A — 코퍼스 축자 전수 (698 doc · 도구 인벤토리 52 추출)**
+```
+인용 축자성    133/133 통과 · fail 0 · 고유 (doc,quote) 쌍 85
+              ⛔초안 _note_ 의 «102/102» 는 어떤 실측량과도 일치하지 않는 근거 없는 수치였다([[77]])
+[[23]] 위반    ★_note_ 가 «실물 근거 078/080» 이라고 **task id 를 근거로 인용**했다.
+              코퍼스 파일명 전수 스캔 = `_078`/`_080` doc **0개** · 계열 최대 인덱스 048
+              ⇒ doc id 일 수 없다. 정책 코퍼스 밖 출처를 선언 본문에 박은 직접 위반
+스키마 날조    `authorized_parties`(698 doc 중 0건) · `customer_request_codes`(0건 · 집합 미열거)
+인용↔소비 모순 CLI: 인용은 "or an authorized account manager" 인데 consumer 가 선언지를 삭제
+인용 절단      A3 26행이 "ONLY in the following circumstances" 제한절을 잘라 **허가문처럼** 만들었다
+[[58]] 누수    8항 + ★근본: `consumer` 의 둘째 연언지들(fee_disclosed·scope_explained·
+              benefit_change_understood·src(args)==customer …)이 **규칙 하나를 여러 개로 증식**시킨다
+과잉 포함      6항 — 축자 반대 문면이 코퍼스에 실재(O1 CODE 54 · O3 "Must reset PIN." · O4 unfreeze 절차 ·
+              O5 velocity "after identity verification" · O6 고지문 역추론)
+과소 포함      실재 user_owned 도구 3개 중 **2개 누락**(`deposit_check_3847`·`submit_cash_back_dispute_0589`)
+              · credit dispute 쌍둥이 통째 누락 · transfer 요청-횟수 게이트(8회/3회) 누락
+발화 불능      A3 38행 중 **11행이 코퍼스에 존재하지 않는 도구**를 가리켜 규칙이 발화조차 못 한다
+```
+
+**감사 B — 078/080 시뮬레이션 (★[[69]]① 채점단위부터 열었고, 그것이 4문 전체를 지배했다)**
+```
+task_080  MISS = 080_3~8·11b·11c  전부 freeze / unfreeze
+          OK   = 080_13 close(blue,"stolen") · 080_14 close(gff,"stolen")   action_match=true
+task_078  MISS = 078_3·4 freeze · 078_9b~9d unfreeze
+          OK   = 078_11 close(lb,"lost") · 078_12 close(green,"lost")       action_match=true
+```
+⇒ ★**`close` 는 두 태스크 모두 gold 액션이고 두 번 다 맞혔다. 실패 단위는 전량 MISSING 이다.**
+`action_authority` 는 **거부 축**이고 거부 술어는 **누락된 호출을 만들어 내지 못한다** —
+이 레버는 078/080 에 **원리상 닿지 않는다**. ⑴의 *"실패 실물과 맞물린다"* 는 철회한다.
+
+시뮬레이션도 같은 답을 냈다: 초안 게이트는 078·080 을 **둘 다 통과**시킨다(078 msg1 *"I lost my
+wallet…"* · 080 msg1 *"my wallet was just stolen"* 이 `confirms_lost_stolen` 을 채운다). 게다가
+초안 `condition` 이 *"lost/stolen 확인 발화하면 즉시 실행"* 이라고 **실패 행동을 명문으로 면허**했다.
+
+**확정된 오차단 2건**(수리 전이면 gold 를 죽인다)
+```
+①[[84]] 재발  order_replacement_credit_card 의 consumer 가 `args.expedited_fee_acknowledgement` 요구
+             — 서버 스키마엔 없다(궤적 전체 0회). 실제 인자는 `expedited_shipping: boolean (optional)`
+             이고 gold 080_19 도 그것을 쓴다 ⇒ **gold 액션 영구 차단**. KB 문서의 파라미터 이름을
+             서버 스키마로 착각한 것 — [[84]] 가 말한 «출력 스키마 × 소비부» 불일치의 세 번째 실물
+②A2↔A3 모순  doc_031 *"'card_present_fraud' → 'close_and_reissue'"* · doc_041 *"If unauthorized
+             transactions found: File dispute, close card, order replacement."* 는 **지시형**이라 동의
+             문면이 없다. A3 는 면제로 선언했으나 subject 가 합성 문자열이라 `base(tool)` 규칙이
+             **영원히 매치하지 못하고**, 도구 단위에서는 consent_required 가 이겨 **차단**된다
+```
+**해제 술어**: `cap`·`철회`·`pending` **grep 0히트**. 더 나쁜 것은 해제 판정 입력을 **게이트당하는
+LLM 이 직접 쓴다**는 점이다([[10]] 위반) — 현행 `[OPERATOR-SCOPE]` 의 축자 *"call it again unchanged
+and it will proceed"* 자답 통과가 080 msg58 에서 이미 실물로 났는데, 초안은 **같은 커밋 지점에 같은
+자기-인증 해제를 하나 더** 얹고 있었다.
+**형제쌍**: `sibling`/`reversible_alternative` grep 0히트 — C601 판별식 ⑴을 선언만으로 전수열거 불가.
+다만 그 지식은 **엔진엔 이미 있다**(`[OPERATOR-SCOPE]` 문면이 두 도구의 scope 를 축자 병기).
+
+**⑷ 처분 적용 (2026-09-05 · 초안 두 파일 개정 완료 · 인용 107건 전수 재검산 통과·고유쌍 71)**
+```
+A2 consent_required  24 -> 16   (삭제 7 · 인자-출처 축으로 이동 1)
+A3 rows              38 -> 25   (삭제 15 · 이동 1 · 신설 3)
+consumer             전부 `commit <= consent_ledger[base(tool)].granted == true` **단일형으로 환원**
+                     둘째 연언지는 `_deferred_conjuncts_` 로 강등 — 규칙은 이제 문자 그대로 하나다
+신설 축              `reversible_sibling`(close_debit_card ↔ freeze_debit_card · **object_key=card_id**)
+                     `request_ledger`(requested_turn·executed·withdrawn — 세 칸 전부 닫힌 술어)
+                     `referral_rule`(cap=1 · 모델 자답 금지 · 사후 3분기 · 무응답은 통과=교착 금지)
+                     `_precedence_`(면제 > 동의요구 · 면제는 반드시 **도구명 키**로)
+_note_               «078/080» 문장 삭제([[23]]) · «102/102» -> 133/133(고유쌍 85) 정정
+```
+⛔`object_key` 가 핵심이다 — 판별식이 **같은 객체**에서만 성립해야 gold 인 close(078_11/12·080_13/14)를
+함께 죽이지 않는다. 이 한 칸이 [[70]] 부호표의 순손실을 0으로 유지하는 유일한 장치다.
+
+**⑸ ★남은 선결 — 표적이 비었다 (배선 금지 유지)**
+감사 B 가 P12 의 표적(078/080)을 무너뜨렸으므로, **이 선언이 무엇을 사는지 다시 정해야 한다.**
+후보는 «오지목·과행동» 이 실제 실패 단위인 태스크들(071 자발 이체 EXTRA 계열)이지 MISSING 계열이 아니다.
+⇒ **격리 전 선결 = 채점단위가 EXTRA/WRONGARG 인 태스크로 표적 재선정**([[69]]①).
+그 전까지 P12 는 배선하지 않는다. 부수로 확정된 오차단 ①②는 **표적과 무관하게** 수리 대상이다.
+
 
 ---
 

@@ -1,292 +1,562 @@
 {
  "action_authority": {
-  "_note_": "★2026-09-04 저작. 행동 권위 3계급: user_owned(고객 직접 실행·에이전트 대행 금지) / agent_autonomous(정책이 열거한 상황에서 에이전트 자율 — 본 블록엔 미수록, A3 rows 에만) / consent_required(고객의 명시 요청·승인 발화가 커밋 전건). 출처 = 코퍼스 정책 문서 축자뿐(gold/tasks 무참조·[[23]]). 규칙은 엔진 일반 하나 — «base(tool) ∈ consent_required 이면 커밋 전 consent_ledger[base(tool)] 에 고객 동의 발화 기록(granted, turn_ref)이 있어야 한다» — 어느 도구가 어느 계급이고 어떤 문면이 그것을 명하는지만 이 선언이 담는다([[58]] 케이스 입법 아님). 발화가 동의인가의 해석은 LLM 몫, 엔진은 선언·원장 대조만([[52]]). 게이트 미충족 거부 시 consent_form 을 그대로 «무엇을 물으면 풀리는지»로 제시([[64]]). quote 전부 verbatim substring 검산 통과(102/102, fail 0). 실물 근거 078/080: 손님이 freeze 를 축자 요청했는데 close(비가역) 직행 — CLOSE 의 실행 전건은 'customer wants to cancel'(문서 026).",
+  "_note_": "2026-09-05 개정 — 반증 감사 2건(코퍼스 축자 감사 · 078/080 시뮬레이션)의 처분표를 적용했다. 행동 권위 3계급: user_owned(고객 직접 실행·대행 금지) / agent_autonomous(A3 rows 에만) / consent_required(고객의 명시 요청·승인 발화가 커밋 전건). 출처 = 코퍼스 정책 문서 축자뿐(gold/tasks 무참조·[[23]]). 엔진 규칙은 rule 한 줄이고, 선언은 «어느 도구가 어느 계급이며 어떤 문면이 그것을 명하나» 만 담는다([[58]]). 발화가 동의인가의 해석은 LLM 몫, 엔진은 선언·원장 대조만([[52]]). 거부 시 consent_form 을 그대로 «무엇을 물으면 풀리는지»로 제시한다([[64]]) — 종단은 referral_rule. quote 검산 실측 = 133/133 통과 · fail 0 · 고유 (doc,quote) 쌍 85. 초안의 «102/102» 는 어떤 실측량과도 일치하지 않는 근거 없는 수치였다 — 정정([[77]]). 초안 _note_ 가 근거로 인용하던 «078/080» 문장은 삭제했다 — 그 둘은 doc id 가 아니라 task id 이고, 정책 코퍼스 밖 출처를 선언에 박은 [[23]] 직접 위반이었다(코퍼스 파일명 전수 스캔에서 _078/_080 doc 0개 · 계열 최대 인덱스 048). consent_required 24항 -> 16항(삭제 7 · 인자-출처 축으로 이동 1). A3 38행 -> 25행(삭제 15 · 이동 1 · 신설 3). 모든 consumer 를 rule 단일형으로 환원하고 둘째 연언지(fee_disclosed · scope_explained · benefit_change_understood 등 열린 술어)는 _deferred_conjuncts_ 로 내렸다 — 그것들이 규칙 하나를 여러 개로 증식시키고 있었다([[58]]).",
   "consent_required": [
    {
     "tool": "transfer_funds_between_bank_accounts",
     "condition": null,
     "consent_form": "이체 여부를 질문(ask/offer)한 뒤 고객의 명시 승인(authorizes / If yes) 발화",
-    "consumer": "commit 전: consent_ledger[transfer_funds_between_bank_accounts].granted == true (LLM 이 승인 발화 turn_ref 와 함께 기록; 엔진은 존재 대조만)",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_002", "quote": "When to call: In step 5, only if the customer authorizes an immediate transfer for the opening deposit."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_004", "quote": "Only if the customer authorizes transferring the opening deposit now."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_010", "quote": "the customer has authorized the transfer"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_010", "quote": "Moving funds between a customer’s checking and savings accounts at their request"},
-     {"doc": "doc_checking_accounts_checking_accounts_(general)_006", "quote": "If they want to transfer, help them do so."}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_002",
+      "quote": "When to call: In step 5, only if the customer authorizes an immediate transfer for the opening deposit."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_004",
+      "quote": "Only if the customer authorizes transferring the opening deposit now."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_010",
+      "quote": "the customer has authorized the transfer"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_010",
+      "quote": "Moving funds between a customer’s checking and savings accounts at their request"
+     },
+     {
+      "doc": "doc_checking_accounts_checking_accounts_(general)_006",
+      "quote": "If they want to transfer, help them do so."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[transfer_funds_between_bank_accounts].granted == true (LLM 이 승인 발화 turn_ref 와 함께 기록; 엔진은 존재 대조만)"
    },
    {
     "tool": "open_bank_account",
     "condition": null,
     "consent_form": "고객의 account_class 선택·확인 발화 후 개설",
-    "consumer": "commit 전: consent_ledger[open_bank_account].granted == true (선택 발화 turn_ref)",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_002", "quote": "once eligibility is confirmed and the customer has selected an account_class"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_002", "quote": "Confirm account selection with customer"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_004", "quote": "the customer has selected the desired business savings account_class"}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_002",
+      "quote": "once eligibility is confirmed and the customer has selected an account_class"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_002",
+      "quote": "Confirm account selection with customer"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_004",
+      "quote": "the customer has selected the desired business savings account_class"
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[open_bank_account].granted == true (선택 발화 turn_ref)"
    },
    {
     "tool": "close_debit_card",
-    "condition": "고객이 lost/stolen 을 확인 발화하면 즉시 실행(냉각기·카드연령 요건 우회 — 단 그 확인 발화 자체가 고객 발화라 동의-계급 유지); 그 외에는 고객의 close/cancel 의사 발화. 에이전트 판단(예: 사기 의심)만으로는 recommend(발화행위)까지",
+    "condition": "lost/stolen/fraud_suspected 확인 발화 시 냉각기·카드연령 요건 우회(doc_025 는 세 사유를 열거한다 — 초안이 둘로 좁혔던 것을 정정) 또는 file_debit_card_transaction_dispute 커밋 후 정책이 지시한 card_action=='close_and_reissue' 인 경우 동의 불요",
     "consent_form": "고객의 «wants to close/cancel» 발화 또는 «confirms the card is lost/stolen» 발화 + 사유 청취(reason enum 은 고객 발화에서 채취) + 비가역 고지",
-    "consumer": "commit 전: consent_ledger[close_debit_card].granted == true ∧ granted_via ∈ {wants_cancel, confirms_lost_stolen} (어느 전건인지 LLM 이 기록; 엔진은 대조만)",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_026", "quote": "CLOSE: Permanent deactivation - cannot be reversed. Use when card is confirmed lost/stolen or customer wants to cancel."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_026", "quote": "If customer confirms the card is lost/stolen, recommend closing instead of freezing"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_025", "quote": "Procedure for when a customer wants to close, cancel, or deactivate their debit card."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_025", "quote": "Ask customer for the reason they want to close the card (select from: lost, stolen, fraud_suspected, damaged, no_longer_needed, account_closing)"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_025", "quote": "Cards reported as lost or stolen are closed immediately with no cooling-off period"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_041", "quote": "CANNOT unlock. Check for successful unauthorized transactions. Recommend card closure and replacement."}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_026",
+      "quote": "CLOSE: Permanent deactivation - cannot be reversed. Use when card is confirmed lost/stolen or customer wants to cancel."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_026",
+      "quote": "If customer confirms the card is lost/stolen, recommend closing instead of freezing"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_025",
+      "quote": "Procedure for when a customer wants to close, cancel, or deactivate their debit card."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_025",
+      "quote": "Ask customer for the reason they want to close the card (select from: lost, stolen, fraud_suspected, damaged, no_longer_needed, account_closing)"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_025",
+      "quote": "Cards reported as lost or stolen are closed immediately with no cooling-off period"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_041",
+      "quote": "CANNOT unlock. Check for successful unauthorized transactions. Recommend card closure and replacement."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_031",
+      "quote": "the agent must separately perform the indicated card action after filing the dispute"
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[close_debit_card].granted == true ∧ granted_via ∈ {wants_cancel, confirms_lost_stolen} (어느 전건인지 LLM 이 기록; 엔진은 대조만)"
    },
    {
     "tool": "freeze_debit_card",
-    "condition": "기본 = 고객 의사(wants) 전건. 예외(정책-자율): dispute 접수 후 카테고리→행동 매핑이 freeze 를 의무화하는 문맥(doc 031) — 단 그 상류의 dispute 제기 자체가 고객 요청",
+    "condition": "dispute 매핑이 freeze 를 지시한 경우(전건 = file_debit_card_transaction_dispute 커밋 사실, 닫힌 술어)엔 동의 불요. 시나리오 이름 술어 context == dispute_card_action_mapping 은 철회",
     "consent_form": "고객의 «wants temporary security / misplaced» 발화 + 사유 청취",
-    "consumer": "commit 전: consent_ledger[freeze_debit_card].granted == true ∨ context == dispute_card_action_mapping (후자는 file_debit_card_transaction_dispute 커밋 사실로 엔진이 원장 대조)",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_026", "quote": "FREEZE: Temporary lock - card can be unfrozen later. Use when customer misplaced the card or wants temporary security."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_026", "quote": "Ask customer why they want to freeze the card"},
-     {"doc": "doc_checking_accounts_purple_account_007", "quote": "Recommend freezing the card until a replacement arrives."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_031", "quote": "the agent must separately perform the indicated card action after filing the dispute"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_031", "quote": "call freeze_debit_card_3892 (the most severe action) once for the card"}
-    ]
-   },
-   {
-    "tool": "unfreeze_debit_card",
-    "condition": null,
-    "consent_form": "질문 후 긍정(If yes) — 해제 발의는 항상 고객",
-    "consumer": "commit 전: consent_ledger[unfreeze_debit_card].granted == true",
-    "sources": [
-     {"doc": "doc_checking_accounts_checking_accounts_(general)_003", "quote": "Ask customer if they want to unfreeze. If yes, follow the freezing/unfreezing card protocol."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_026", "quote": "They can unfreeze at any time by calling customer service or through the mobile app"}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_026",
+      "quote": "FREEZE: Temporary lock - card can be unfrozen later. Use when customer misplaced the card or wants temporary security."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_026",
+      "quote": "Ask customer why they want to freeze the card"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_031",
+      "quote": "the agent must separately perform the indicated card action after filing the dispute"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_031",
+      "quote": "call freeze_debit_card_3892 (the most severe action) once for the card"
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[freeze_debit_card].granted == true ∨ context == dispute_card_action_mapping (후자는 file_debit_card_transaction_dispute 커밋 사실로 엔진이 원장 대조)"
    },
    {
     "tool": "order_debit_card",
-    "condition": "예외(고지-후-실행 반례): CODE 54 — 교체카드 미발송 발견 시 «Let me order one for you now.» (약한 동의: 고지 스크립트가 강제되나 질문형 아님)",
+    "condition": "자기반증 주의: doc_checking_accounts_checking_accounts_(general)_003 의 CODE 54 분기는 질문도 승낙도 없이 주문을 명령한다. 그 분기에서 동의는 전건이 아니다 — 초안은 이것을 condition 에 반례로 적어 두고도 소비부에서 빼지 않아 조건과 소비부가 서로를 반증했다 (감사A 4-O1)",
     "consent_form": "요청/승낙(want) 발화 + 배송 옵션·수수료 고지 + 주소 확인 발화",
-    "consumer": "commit 전: consent_ledger[order_debit_card].granted == true ∧ fee_disclosed == true",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_025", "quote": "Ask if they want to order a replacement card immediately"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_029", "quote": "When a customer requests a replacement debit card (due to lost, stolen, damaged, or other reasons), the replacement policies vary based on the customer's checking account tier."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_029", "quote": "Always inform the customer that the fee will be deducted from their checking account balance before placing the order."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_023", "quote": "Confirm the address that the customer would like to mail the card to."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_023", "quote": "Ask customer for preferred delivery option (STANDARD, EXPEDITED, or RUSH) and explain fees."},
-     {"doc": "doc_checking_accounts_checking_accounts_(general)_003", "quote": "Let me order one for you now."}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_025",
+      "quote": "Ask if they want to order a replacement card immediately"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_029",
+      "quote": "When a customer requests a replacement debit card (due to lost, stolen, damaged, or other reasons), the replacement policies vary based on the customer's checking account tier."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_029",
+      "quote": "Always inform the customer that the fee will be deducted from their checking account balance before placing the order."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_023",
+      "quote": "Confirm the address that the customer would like to mail the card to."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_023",
+      "quote": "Ask customer for preferred delivery option (STANDARD, EXPEDITED, or RUSH) and explain fees."
+     },
+     {
+      "doc": "doc_checking_accounts_checking_accounts_(general)_003",
+      "quote": "Let me order one for you now."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[order_debit_card].granted == true ∧ fee_disclosed == true"
    },
    {
     "tool": "order_replacement_credit_card",
     "condition": null,
-    "consent_form": "offer → 승낙 발화(거절 시 미실행 + 기록) + 주소 확인 + 유료 배송이면 동의를 인자(expedited_fee_acknowledgement)로 캡처",
-    "consumer": "commit 전: consent_ledger[order_replacement_credit_card].granted == true ∧ (expedited_fee ⇒ args.expedited_fee_acknowledgement == true)",
+    "consent_form": "교체 주문 오퍼에 대한 고객의 승낙 발화. 유료 배송을 쓸 때는 수수료를 고지하고 승낙을 받는다 — 단 그 승낙은 대화 원장에 기록되는 것이지 도구 인자가 아니다(서버 스키마에는 expedited_shipping 만 있다).",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_030", "quote": "Would you like me to do that for you?"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_030", "quote": "If they decline, note in the account that the offer was made"},
-     {"doc": "doc_credit_cards_credit_card_replacements_001", "quote": "Ask whether they want expedited shipping (advise on possible fees by tier; see Shipping selection)."},
-     {"doc": "doc_credit_cards_credit_card_replacements_001", "quote": "customer consent captured if a fee applies based on tier"},
-     {"doc": "doc_credit_cards_credit_card_replacements_001", "quote": "Confirm the shipping address with the customer (primary or alternate, including any unit or suite information)."},
-     {"doc": "doc_credit_cards_credit_card_replacements_001", "quote": "If the reason is fraud_suspected or stolen, strongly recommend expedited shipping to minimize exposure and remind the customer to review recent transactions for unauthorized activity."}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_030",
+      "quote": "Would you like me to do that for you?"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_030",
+      "quote": "If they decline, note in the account that the offer was made"
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_replacements_001",
+      "quote": "Ask whether they want expedited shipping (advise on possible fees by tier; see Shipping selection)."
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_replacements_001",
+      "quote": "customer consent captured if a fee applies based on tier"
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_replacements_001",
+      "quote": "Confirm the shipping address with the customer (primary or alternate, including any unit or suite information)."
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_replacements_001",
+      "quote": "If the reason is fraud_suspected or stolen, strongly recommend expedited shipping to minimize exposure and remind the customer to review recent transactions for unauthorized activity."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[order_replacement_credit_card].granted == true ∧ (expedited_fee ⇒ args.expedited_fee_acknowledgement == true)",
+    "_schema_warning_": "[[84]] — KB 문서의 'Expedited_fee_acknowledgement' 는 서버 스키마에 없다. env 가 unlock 응답으로 주는 실제 인자는 'expedited_shipping: boolean (optional)' 이고 gold 080_19 도 그것을 쓴다. 그 인자를 요구하는 연언은 gold 액션을 영구 차단하므로 소비부에서 삭제했다 (감사B 2-b)"
    },
    {
     "tool": "set_debit_card_recurring_block",
-    "condition": "설정·해제 양방향 모두 고객 요청이 전건",
+    "condition": "설정 전 범위 설명 의무만 남긴다(축자 'Explain that this will block ALL recurring payments'). '설정·해제 양방향 고객 요청 전건' 은 고지문에서 역추론한 것이라 철회 (감사A 4-O6)",
     "consent_form": "고객 요청(requests) 발화 + 전면 차단 범위 설명 후 커밋",
-    "consumer": "commit 전: consent_ledger[set_debit_card_recurring_block].granted == true ∧ scope_explained == true",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_034", "quote": "Explain that this will block ALL recurring payments on the card, not just one merchant"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_034", "quote": "Block remains active until customer requests it to be removed"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_034", "quote": "Customer can unblock recurring payments at any time by calling back"}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_034",
+      "quote": "Explain that this will block ALL recurring payments on the card, not just one merchant"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_034",
+      "quote": "Block remains active until customer requests it to be removed"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_034",
+      "quote": "Customer can unblock recurring payments at any time by calling back"
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[set_debit_card_recurring_block].granted == true ∧ scope_explained == true"
    },
    {
     "tool": "reset_debit_card_pin",
-    "condition": null,
+    "condition": "3회 이상 선행 잠금이면 정책이 리셋을 명령한다 — 그 분기에서는 동의가 전건이 아니다(예외) (감사A 4-O3)",
     "consent_form": "고객 wants 발화(또는 MUST ask/offer 스크립트 후 승낙) + 새 PIN 을 고객 발화에서 수취",
-    "consumer": "commit 전: consent_ledger[reset_debit_card_pin].granted == true ∧ args.new_pin 출처 == customer_utterance",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_027", "quote": "Procedure for when a customer wants to reset or change their debit card PIN."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_027", "quote": "Ask customer to provide a new 4-digit PIN"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_041", "quote": "Would you like me to reset your PIN to a new number?"},
-     {"doc": "doc_checking_accounts_green_account_(checking)_010", "quote": "If they've forgotten: Offer/help them PIN reset."}
-    ]
-   },
-   {
-    "tool": "change_debit_card_pin",
-    "condition": null,
-    "consent_form": "고객 wants 발화",
-    "consumer": "commit 전: consent_ledger[change_debit_card_pin].granted == true",
-    "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_027", "quote": "Procedure for when a customer wants to reset or change their debit card PIN."}
-    ]
-   },
-   {
-    "tool": "activate_debit_card",
-    "condition": null,
-    "consent_form": "고객의 활성화 의사(wants to activate) + PIN 설정 발화",
-    "consumer": "commit 전: consent_ledger[activate_debit_card].granted == true",
-    "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_024", "quote": "Procedure for when a customer has received their new debit card and wants to activate it with Rho-Bank customer service."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_024", "quote": "Ask customer to set a 4-digit PIN"}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_027",
+      "quote": "Procedure for when a customer wants to reset or change their debit card PIN."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_027",
+      "quote": "Ask customer to provide a new 4-digit PIN"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_041",
+      "quote": "Would you like me to reset your PIN to a new number?"
+     },
+     {
+      "doc": "doc_checking_accounts_green_account_(checking)_010",
+      "quote": "If they've forgotten: Offer/help them PIN reset."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_041",
+      "quote": "Cannot unlock. Must reset PIN."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[reset_debit_card_pin].granted == true ∧ args.new_pin 출처 == customer_utterance"
    },
    {
     "tool": "file_debit_card_transaction_dispute",
     "condition": "dispute 제기 자체가 고객 요청; 인자 written_statement_provided 는 고객 agree 발화가 있어야만 true",
     "consent_form": "동의 질문 축자 스크립트 → 고객 agrees 발화 → 인자 true",
-    "consumer": "commit 전: args.written_statement_provided == true ⇒ consent_ledger[file_debit_card_transaction_dispute.written_statement].granted == true",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_031", "quote": "Are you willing to provide a written statement describing what happened? We can use this conversation as your written statement if you agree."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_031", "quote": "Set to true if the customer agrees."}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_031",
+      "quote": "Are you willing to provide a written statement describing what happened? We can use this conversation as your written statement if you agree."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_031",
+      "quote": "Set to true if the customer agrees."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: args.written_statement_provided == true ⇒ consent_ledger[file_debit_card_transaction_dispute.written_statement].granted == true"
    },
    {
     "tool": "clear_debit_card_fraud_alert",
-    "condition": "customer_initiated alert: 고객의 거래-정상 confirm 발화 후. velocity block: 30분 자동해제 고지 + «Would you like me to …» 승낙 후",
+    "condition": "customer_initiated 분기만 유지. velocity 블록은 축자상 '신원확인 후 해제'라 동의 전건이 없다 — 분기 철회 (감사A 4-O5)",
     "consent_form": "고객의 confirm(legitimate) 발화 또는 offer 승낙 발화",
-    "consumer": "commit 전: consent_ledger[clear_debit_card_fraud_alert].granted == true ∧ granted_via ∈ {confirms_legitimate, accepts_offer}",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_checking_accounts_checking_accounts_(general)_003", "quote": "If they confirm all transactions are legitimate, clear the alert."},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_039", "quote": "Use when clearing a customer-initiated fraud alert after the customer has verified their identity and confirmed their transactions are legitimate"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_039", "quote": "The alert was customer-initiated AND customer confirms their recent transactions are legitimate"},
-     {"doc": "doc_checking_accounts_checking_accounts_(general)_003", "quote": "This block automatically lifts after 30 minutes. Would you like me to verify your identity and lift it now?"}
-    ]
+     {
+      "doc": "doc_checking_accounts_checking_accounts_(general)_003",
+      "quote": "If they confirm all transactions are legitimate, clear the alert."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_039",
+      "quote": "Use when clearing a customer-initiated fraud alert after the customer has verified their identity and confirmed their transactions are legitimate"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_039",
+      "quote": "The alert was customer-initiated AND customer confirms their recent transactions are legitimate"
+     },
+     {
+      "doc": "doc_checking_accounts_checking_accounts_(general)_003",
+      "quote": "This block automatically lifts after 30 minutes. Would you like me to verify your identity and lift it now?"
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[clear_debit_card_fraud_alert].granted == true ∧ granted_via ∈ {confirms_legitimate, accepts_offer}"
    },
    {
     "tool": "pay_credit_card_from_checking",
     "condition": null,
     "consent_form": "금액을 고객과 확인 + 이체 승인(obtain authorization) 발화",
-    "consumer": "commit 전: consent_ledger[pay_credit_card_from_checking].granted == true ∧ amount_confirmed == true",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_credit_cards_credit_card_account_logistics_009", "quote": "Confirm the payment amount with the customer and obtain authorization to transfer."},
-     {"doc": "doc_credit_cards_credit_card_account_logistics_009", "quote": "the amount is authorized"}
-    ]
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_009",
+      "quote": "Confirm the payment amount with the customer and obtain authorization to transfer."
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_009",
+      "quote": "the amount is authorized"
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[pay_credit_card_from_checking].granted == true ∧ amount_confirmed == true"
    },
    {
     "tool": "submit_credit_limit_increase_request",
-    "condition": "요청 주체 자격 = 계정 소유자(또는 수권 관리자); 상한 초과 요청이면 상한 고지 후 고객의 진행 선택 발화가 재제출 전건",
+    "condition": "요청 자격 = account owner 또는 authorized account manager. 초안이 인용문의 선언지를 삭제해 인용이 금지하지 않는 것을 금지했었다 — 복원 (감사A 2-c)",
     "consent_form": "고객의 금액 confirm 발화(once-절) — 제출은 «on their behalf»",
-    "consumer": "commit 전: consent_ledger[submit_credit_limit_increase_request].granted == true ∧ requester == account_owner",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_credit_cards_credit_card_account_logistics_004", "quote": "Only the account owner or an authorized account manager may submit a CLI request for the account."},
-     {"doc": "doc_credit_cards_credit_card_account_logistics_007", "quote": "Once the customer has confirmed a valid increase amount within their tier's limits, submit the request on their behalf using the submit_credit_limit_increase_request_7392 tool."},
-     {"doc": "doc_credit_cards_credit_card_account_logistics_006", "quote": "If the customer requests more than the maximum allowed for their tier, inform them of the maximum amount they are eligible for and ask if they would like to proceed with that amount instead."}
-    ]
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_004",
+      "quote": "Only the account owner or an authorized account manager may submit a CLI request for the account."
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_007",
+      "quote": "Once the customer has confirmed a valid increase amount within their tier's limits, submit the request on their behalf using the submit_credit_limit_increase_request_7392 tool."
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_006",
+      "quote": "If the customer requests more than the maximum allowed for their tier, inform them of the maximum amount they are eligible for and ask if they would like to proceed with that amount instead."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[submit_credit_limit_increase_request].granted == true ∧ requester == account_owner"
    },
    {
     "tool": "close_credit_card_account",
-    "condition": "우려 해소 시도 후에도 still wants + retention offer 를 고객이 decline(1년 내 재시도 이력자는 offer 생략하되 «their closure request» 는 여전히 전건)",
+    "condition": "리텐션 오퍼는 절차 순서이지 고객 동의가 아니다 — 동의 축에서 제거 (감사A 처분표 16)",
     "consent_form": "폐쇄 의사 지속 발화 + retention offer 거절 발화. 압박 금지",
-    "consumer": "commit 전: consent_ledger[close_credit_card_account].granted == true ∧ (retention_offered ∨ prior_attempt_exempt)",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_credit_cards_credit_card_account_logistics_003", "quote": "If the customer still wants to close after addressing their concerns, make one retention offer based on their card tier"},
-     {"doc": "doc_credit_cards_credit_card_account_logistics_003", "quote": "If the customer declines the retention offer (or was ineligible due to prior attempts), thank them for being a Rho-Bank customer and proceed with closure. Do not apply pressure."},
-     {"doc": "doc_credit_cards_credit_card_account_logistics_003", "quote": "If records are found within the past year, inform the customer you will proceed with their closure request and move to Step 6."}
-    ]
-   },
-   {
-    "tool": "log_credit_card_closure_reason",
-    "condition": null,
-    "consent_form": "고객의 폐쇄 사유 진술 발화가 인자(closure_reason)의 유일 출처",
-    "consumer": "commit 전: args.closure_reason 출처 == customer_utterance (turn_ref 기록)",
-    "sources": [
-     {"doc": "doc_credit_cards_credit_card_account_logistics_003", "quote": "Ask the customer why they want to close their account. Then log it using log_credit_card_closure_reason_4521."}
-    ]
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_003",
+      "quote": "If the customer still wants to close after addressing their concerns, make one retention offer based on their card tier"
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_003",
+      "quote": "If the customer declines the retention offer (or was ineligible due to prior attempts), thank them for being a Rho-Bank customer and proceed with closure. Do not apply pressure."
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_003",
+      "quote": "If records are found within the past year, inform the customer you will proceed with their closure request and move to Step 6."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[close_credit_card_account].granted == true ∧ (retention_offered ∨ prior_attempt_exempt)"
    },
    {
     "tool": "apply_credit_card_account_flag",
     "condition": "리텐션 맥락: 연회비 면제는 offer(발화행위) → 고객 수락 후 커밋",
     "consent_form": "offer 후 고객 수락 발화",
-    "consumer": "commit 전: consent_ledger[apply_credit_card_account_flag].granted == true",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_credit_cards_credit_card_account_logistics_003", "quote": "If they have been a customer for 2+ years, offer to waive their annual fee for one year as a loyalty benefit."}
-    ]
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_003",
+      "quote": "If they have been a customer for 2+ years, offer to waive their annual fee for one year as a loyalty benefit."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[apply_credit_card_account_flag].granted == true",
+    "_weakened_": "doc_003 에 '수락 시 적용' 문면이 없다(offer to waive 뿐) — 'offer 는 발화행위' 는 추론이었다. 근거 문면만 남기고 강도를 낮춘다 (감사A 처분표 18)"
    },
    {
     "tool": "downgrade_credit_card",
-    "condition": null,
+    "condition": "'Confirm the customer wants to proceed' 만 소비. '혜택 변경 이해'는 열린 판단이라 철회 (감사A 처분표 19)",
     "consent_form": "진행 의사 + 혜택 변경 이해의 이중 확인 발화(또는 고객의 explicit ask 트리거)",
-    "consumer": "commit 전: consent_ledger[downgrade_credit_card].granted == true ∧ benefit_change_understood == true",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_credit_cards_credit_card_account_logistics_008", "quote": "Confirm the customer wants to proceed and understands benefit changes."},
-     {"doc": "doc_credit_cards_credit_card_account_logistics_008", "quote": "The customer explicitly asks to downgrade to avoid annual fees."}
-    ]
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_008",
+      "quote": "Confirm the customer wants to proceed and understands benefit changes."
+     },
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_008",
+      "quote": "The customer explicitly asks to downgrade to avoid annual fees."
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[downgrade_credit_card].granted == true ∧ benefit_change_understood == true"
    },
    {
     "tool": "request_temporary_debit_card_limit_increase",
     "condition": null,
     "consent_form": "고객 요청(requests) 발화 또는 offer 스크립트(«Would you like me to do that?») 후 승낙",
-    "consumer": "commit 전: consent_ledger[request_temporary_debit_card_limit_increase].granted == true",
+    "consumer": "commit <= consent_ledger[base(tool)].granted == true",
     "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_040", "quote": "Procedure for when a customer requests a temporary increase to their debit card's daily ATM withdrawal or purchase limit."},
-     {"doc": "doc_checking_accounts_light_green_account_005", "quote": "I can request a temporary increase that lasts 24 hours. Would you like me to do that?"}
-    ]
-   },
-   {
-    "tool": "transfer_to_human_agents",
-    "condition": "조건부 — reason 코드의 정의가 고객 요청인 코드(account_closure_request, TIER 3 human-요청 코드)에 한해 그 요청 발화가 전건. 그 외 코드(fraud 등 상황 열거형)는 에이전트 자율",
-    "consent_form": "고객의 explicit request 발화 (해당 reason 코드일 때)",
-    "consumer": "commit 전: args.reason ∈ customer_request_codes ⇒ consent_ledger[transfer_to_human_agents.reason].granted == true",
-    "sources": [
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_042", "quote": "Customer is explicitly requesting to close their account"},
-     {"doc": "doc_bank_accounts_bank_accounts_(general)_042", "quote": "Customer requests human without clear reason, customer is not frustrated, just prefers human interaction"}
-    ]
-   },
-   {
-    "tool": null,
-    "action": "parental_controls_change",
-    "condition": "동의 주체가 통화 중 고객이 아니라 보호자(guardian)일 수 있음",
-    "consent_form": "guardian 의 authorization 발화 없이는 실행 금지",
-    "consumer": "commit 전: consent_ledger[parental_controls_change].granted_by == guardian",
-    "sources": [
-     {"doc": "doc_checking_accounts_light_green_account_005", "quote": "Do NOT modify parental controls without the guardian's authorization."}
-    ]
-   },
-   {
-    "tool": null,
-    "action": "card_transaction_settings_enable (international/online)",
-    "condition": null,
-    "consent_form": "offer 스크립트(«Would you like me to enable them?») 후 고객 승낙",
-    "consumer": "commit 전: consent_ledger[card_transaction_settings_enable].granted == true",
-    "sources": [
-     {"doc": "doc_checking_accounts_light_green_account_005", "quote": "International transactions are currently blocked on your card. Would you like me to enable them?"}
-    ]
-   },
-   {
-    "tool": null,
-    "action": "third_party_account_discussion",
-    "condition": "제3자와의 계정 논의는 사전 수권(authorized party 등록)이 전건 — 소유자 동의의 제도화 형태",
-    "consent_form": "authorized party 등재(사전 수권)",
-    "consumer": "commit 전: counterpart ∈ authorized_parties(account)",
-    "sources": [
-     {"doc": "doc_checking_accounts_gold_years_account_005", "quote": "If you want a spouse, family member, or caregiver to discuss your account, ensure they are added as an authorized party on file."}
-    ]
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_040",
+      "quote": "Procedure for when a customer requests a temporary increase to their debit card's daily ATM withdrawal or purchase limit."
+     },
+     {
+      "doc": "doc_checking_accounts_light_green_account_005",
+      "quote": "I can request a temporary increase that lasts 24 hours. Would you like me to do that?"
+     }
+    ],
+    "_deferred_conjuncts_": "commit 전: consent_ledger[request_temporary_debit_card_limit_increase].granted == true"
    }
   ],
   "user_owned_note": {
    "note": "①계급(user_owned): 고객이 동의·요청해도 에이전트 대행 실행 금지 — 고객 직접 실행만 허용. 엔진 술어: base(tool) ∈ user_owned ⇒ 에이전트 호출 자체 차단(안내 발화만 허용).",
    "entries": [
-    {"action": "refresh_cache", "sources": [{"doc": "doc_checking_accounts_checking_accounts_(general)_002", "quote": "Provide the following tool directly to the user and instruct them to run it. Do not execute it on their behalf."}]},
-    {"action": "MCC 블록 해제(gambling/adult)", "sources": [{"doc": "doc_checking_accounts_light_green_account_005", "quote": "Do NOT remove MCC blocks over the phone for gambling or adult content. Customer must do this themselves via app or in-branch."}]},
-    {"action": "가상카드 취소(UI 자가 실행)", "sources": [{"doc": "doc_credit_cards_virtual_card_management_003", "quote": "Cancel to permanently close a card you no longer intend to use."}, {"doc": "doc_credit_cards_virtual_card_management_003", "quote": "Select Cancel card and confirm."}]},
-    {"action": "온라인뱅킹 비밀번호 변경(권고 대상)", "sources": [{"doc": "doc_bank_accounts_bank_accounts_(general)_025", "quote": "For fraud_suspected closures, recommend the customer also change their online banking password"}]},
-    {"action": "경찰 신고(권고 대상)", "sources": [{"doc": "doc_bank_accounts_bank_accounts_(general)_031", "quote": "For fraud disputes over $500, ask if customer has filed a police report. If not, recommend they do so."}]}
+    {
+     "action": "refresh_cache",
+     "sources": [
+      {
+       "doc": "doc_checking_accounts_checking_accounts_(general)_002",
+       "quote": "Provide the following tool directly to the user and instruct them to run it. Do not execute it on their behalf."
+      }
+     ]
+    },
+    {
+     "action": "MCC 블록 해제(gambling/adult)",
+     "sources": [
+      {
+       "doc": "doc_checking_accounts_light_green_account_005",
+       "quote": "Do NOT remove MCC blocks over the phone for gambling or adult content. Customer must do this themselves via app or in-branch."
+      }
+     ]
+    },
+    {
+     "tool": "deposit_check_3847",
+     "_added_": "감사A 5-U1 — 코퍼스의 실재 user_owned 도구 3개 중 놓친 것",
+     "sources": [
+      {
+       "doc": "doc_bank_accounts_bank_accounts_(general)_011",
+       "quote": "The agent cannot deposit checks on behalf of the customer"
+      },
+      {
+       "doc": "doc_bank_accounts_bank_accounts_(general)_011",
+       "quote": "You must complete the deposit yourself in the mobile app."
+      }
+     ]
+    },
+    {
+     "tool": "submit_cash_back_dispute_0589",
+     "_added_": "감사A 5-U2 — 동상",
+     "sources": [
+      {
+       "doc": "doc_credit_cards_credit_cards_(general)_003",
+       "quote": "instruct the customer to use the tool directly"
+      }
+     ]
+    }
+   ],
+   "_dropped_": [
+    {
+     "action": "가상카드 취소(UI 자가 실행)",
+     "reason": "'Select Cancel card and confirm.' 은 UI 사용법이지 대행 금지가 아니다. 금지 문면 0건이고 도구도 없다"
+    },
+    {
+     "action": "온라인뱅킹 비밀번호 변경(권고 대상)",
+     "reason": "recommend 는 권고이지 권위 계급이 아니다 — 축을 오염시킨다"
+    },
+    {
+     "action": "경찰 신고(권고 대상)",
+     "reason": "동상 — recommend 는 권위 계급이 아니다"
+    }
    ]
   },
   "irreversible": [
-   {"tool": "close_debit_card", "sources": [
-    {"doc": "doc_bank_accounts_bank_accounts_(general)_026", "quote": "CLOSE: Permanent deactivation - cannot be reversed. Use when card is confirmed lost/stolen or customer wants to cancel."},
-    {"doc": "doc_bank_accounts_bank_accounts_(general)_025", "quote": "The card is now permanently deactivated and cannot be reactivated"}
-   ]},
-   {"tool": null, "action": "wire_transfer", "sources": [
-    {"doc": "doc_savings_accounts_platinum_account_001", "quote": "Always confirm recipient details before sending, as wires generally cannot be reversed"}
-   ]},
-   {"tool": null, "action": "virtual_card_cancel", "sources": [
-    {"doc": "doc_credit_cards_virtual_card_management_003", "quote": "Cancel to permanently close a card you no longer intend to use."}
-   ]}
-  ]
+   {
+    "tool": "close_debit_card",
+    "sources": [
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_026",
+      "quote": "CLOSE: Permanent deactivation - cannot be reversed. Use when card is confirmed lost/stolen or customer wants to cancel."
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_025",
+      "quote": "The card is now permanently deactivated and cannot be reactivated"
+     }
+    ]
+   }
+  ],
+  "_irreversible_dropped_": [
+   {
+    "action": "wire_transfer",
+    "reason": "도구 인벤토리에 없음 + 근거는 Platinum 저축계좌 고객용 안내의 2인칭 you(=고객)를 agent 의무로 오독한 것 (감사A 4-O7)"
+   },
+   {
+    "action": "virtual_card_cancel",
+    "reason": "도구 없음 + UI 사용법 문면 (감사A 처분표)"
+   }
+  ],
+  "reversible_sibling": [
+   {
+    "irreversible": "close_debit_card",
+    "reversible": "freeze_debit_card",
+    "object_key": "card_id",
+    "_why_object_key_": "판별식은 같은 객체(같은 card_id)에서만 성립해야 정당한 close 를 함께 막지 않는다 — gold 078_11/12 · 080_13/14 는 action_match=true 로 맞힌 칸이다 (감사B 4-1)",
+    "sources": [
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_026",
+      "quote": "FREEZE: Temporary lock"
+     },
+     {
+      "doc": "doc_bank_accounts_bank_accounts_(general)_026",
+      "quote": "CLOSE: Permanent deactivation - cannot be reversed."
+     }
+    ]
+   }
+  ],
+  "_dropped_": [
+   {
+    "tool": "unfreeze_debit_card",
+    "reason": "정본 절차(doc_026 Unfreezing Steps 1~3)에 동의 단계가 없다. 근거는 CODE 05 트러블슈팅 스크립트 1줄 + 「freeze 시 고객에게 알려줄 고지 항목」을 전건으로 오독한 인용 1줄뿐 (감사A 4-O4)"
+   },
+   {
+    "tool": "change_debit_card_pin",
+    "reason": "유일 근거가 문서 스코프 헤더이고 reset_debit_card_pin 과 같은 한 문장을 공유한다 — 두 항목이 한 문장 위에 서 있었다 (감사A 처분표 10)"
+   },
+   {
+    "tool": "activate_debit_card",
+    "reason": "근거 2개가 모두 스코프 헤더와 인자 수집 문면. 동의 전건 문면 0건 (감사A 처분표 11)"
+   },
+   {
+    "tool": "transfer_to_human_agents",
+    "reason": "reason 코드표는 코드 선택 규칙이지 동의 게이트가 아니다. 진짜 요청-전건 문면(8회/3회 요청)은 이 소비부로 표현조차 불가 (감사A 5-U5)"
+   },
+   {
+    "action": "parental_controls_change",
+    "reason": "도구 인벤토리 52개 대조 결과 도구가 없다 — 규칙이 발화조차 못 한다. 게다가 같은 문서에 'The primary account holder can modify these settings.' 가 병존해 계급이 확정되지 않는다 (감사A 6-a)"
+   },
+   {
+    "action": "card_transaction_settings_enable (international/online)",
+    "reason": "도구 없음 — 문면은 진짜 오퍼이나 배선 불가 (감사A 6-a)"
+   },
+   {
+    "action": "third_party_account_discussion",
+    "reason": "도구 없음 + authorized_parties 스키마가 코퍼스 698문서에 0건(날조) + Gold Years 계열 고객용 FAQ 를 일반 조항으로 승격 (감사A 2-b, 4-O7)"
+   }
+  ],
+  "_moved_out_": [
+   {
+    "tool": "log_credit_card_closure_reason",
+    "reason": "커밋 게이트가 아니라 인자-출처 검사(src(args)==customer_utterance) 축이다 — 선언된 규칙 하나로 소비 불가 (감사A 처분표 17)",
+    "sources": [
+     {
+      "doc": "doc_credit_cards_credit_card_account_logistics_003",
+      "quote": "Ask the customer why they want to close their account. Then log it using log_credit_card_closure_reason_4521."
+     }
+    ]
+   }
+  ],
+  "rule": "base(tool) in consent_required 이면 커밋 전 consent_ledger[base(tool)].granted == true 여야 한다. 규칙은 이 하나뿐이다.",
+  "_precedence_": "면제(정책이 행동을 지시하는 문면) > 동의요구. 면제는 반드시 도구명 키로 선언한다 — 합성 문자열 subject 는 base(tool) 규칙이 소비하지 못해 영원히 매치되지 않고, 모순이 «차단» 쪽으로 잘못 해소된다 (감사B 2-c).",
+  "request_ledger": {
+   "_why_": "판별식 요소 (2)는 «요청됨 AND 미이행 AND 미철회» 인데 consent_ledger 는 «허가 있음» 만 담아 그것을 표현하지 못한다 (감사B 4-2).",
+   "shape": "request_ledger[tool][object] = {requested_turn:int|null, executed:bool, withdrawn:bool}",
+   "pending": "pending(tool,obj) == requested_turn != null AND executed == false AND withdrawn == false",
+   "_closed_": "세 칸 전부 닫힌 술어다. withdrawn 은 «고객이 그 도구를 명시적으로 철회했는가» 하나만 묻는다."
+  },
+  "referral_rule": {
+   "trigger": "pending(reversible, obj) AND commit(irreversible, obj)  — reversible_sibling 로 짝지어진 같은 object_key 에서만",
+   "action": "1회 고객-회부 강제: 두 옵션 이름 + 가역성 라벨 + 어느 쪽인지 질문을 고객 턴으로 넘긴다. 저작이 아니라 전달이다([[62]]).",
+   "_no_self_answer_": "모델 자답 금지. 현행 [OPERATOR-SCOPE] 의 축자 'call it again unchanged and it will proceed' 는 이 경로에서 무효화한다 — 080 msg58 에서 모델이 정확히 그 자답으로 통과했다([[10]] 선택기·검증기는 결정론).",
+   "cap": 1,
+   "_cap_why_": "(도구,객체)쌍당 회부 1회. 없으면 W-5 형 «반려 받고 같은 값 18회» 루프를 산다(1f-11 (4) 횡단 의무).",
+   "post_branches": [
+    "고객이 비가역을 선택 -> 통과하고 withdrawn = true 기록",
+    "고객이 가역을 선택 -> 가역 도구 미실행 상기 1회, 그 뒤 재발화 금지",
+    "고객 무응답 -> 통과(교착 금지)"
+   ]
+  },
+  "_audit_": {
+   "verdict_before": "두 감사 모두 «배선 자격 없음»",
+   "unresolved": [
+    "감사B 결론: 이 선언으로 078/080 은 갈리지 않는다 — 두 태스크의 실패 단위는 전량 MISSING(freeze/unfreeze)이고 close 는 gold 액션이며 action_match=true 로 맞혔다. 거부 축은 누락된 호출을 만들지 못한다([[69]] 채점단위).",
+    "따라서 P12 의 표적은 078/080 이 아니다. 이 선언이 무엇을 사는지는 다시 정해야 한다 — 격리 전 선결."
+   ],
+   "open": [
+    "close_bank_account_7392 계급 미정(_pending_ 참조)",
+    "078 의 db_match 갈림 필드 미확정 — 리모트 dbdiff_task.py <tag> task_078 1회로 닫힌다"
+   ]
+  }
  }
 }
