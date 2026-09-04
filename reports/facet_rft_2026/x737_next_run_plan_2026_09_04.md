@@ -40,7 +40,8 @@ flip 바닥(scaffold 0개인 base 팔을 두 번 돌렸을 때 뒤집히는 비�
 [[23]]/[[64]] 근거로 유지 (reward 대응은 전부 미판정)
     D12  user_action_feedback 오부착 — t2_gate_patch.py:10524·10961
     D13  정책 근거 없는 [ORDER] 강제 — gate.json:4653 이 스스로 "정책 문장은 없다" 고 자백
-    D14  ★★신설(1f · 029+048 통합) — **재생성 산출물이 쓰기 게이트 밖에서 커밋된다.**
+    D14  ★★신설(1f · 029+048+**027** 통합) — **재생성 산출물이 쓰기 게이트 밖에서 커밋된다.**
+         027 추가(1f-7): 같은 write 를 정상경로 5회 DENY 한 게이트를 searchexhaust 1발이 우회.
          `_ap_regen` 29채널 전부가 wtag 6종(WEV 포함)을 원리적으로 우회 + `_fab_only` 두 번째 문.
          029: 모델의 옳은 거절을 넛지 3연발이 뒤집어 **금지 write 5건 커밋**(오프라인 재실행 5/5 DENY).
          ⚠반사실 reward 예측 0 — 수리 근거는 [[25]](자기 금지 우회 금지)다. §1f-2
@@ -837,7 +838,13 @@ test_terse_schema.py      항목 필드 이름을 **소비부에서 뽑아** 대
 4. **선행 확인** — [[76]](서브는 진리다 — 검증 가능해야 한다) · [[70]] 판정 의무 3종 · `x509_axis_queue…` §방법_교훈
    *"레버 원장 상설화"* · `fb_/trace_` 채널 분포 실측.
 
-##### L2 — `recommend_formalize` 격리 (서브가 **확언으로 오답**을 낸 2건) (**조사 · 레버 아님**)
+##### L2 — `recommend_formalize` 격리 (서브가 **확언으로 오답**을 낸 2건 + 자재결손 1건) (**조사 · 레버 아님**)
+
+> ★1f-7 의 067 이 **세 번째 유형**을 보탠다: 오답이 아니라 **자재결손의 옳은 답** —
+> `applies=false` ×3 은 카드 로스터가 `ctx[-8:]` 창(t2_resolve.py:1076) 밖이라 나온 답이고,
+> offer 는 `applies ∧ correct` 동시 필요(:1149)라 이중 불발. 재격리(로스터+기준 주입 →
+> `applies=true`+Platinum 산출 여부)가 재료결손↔판단결손을 가른다. ⚠`recommendation_verify` 는
+> gate.json:271 에서 이미 «DISCARD 제거 대상» 플래그 — 수리 승격 전 x509 ⑦유도 판정 인용 필수.
 
 1. **주장 + 양화** — n=2 sim. 059 사이드카 row0·row3 → `{"applies": true, "card_type": "Gold Rewards Card"}`
    (gold = Silver Rewards Card)이고 turn 29 에 **명령형으로 뷰 주입**: *"…'card_type=Gold Rewards Card' is the
@@ -855,7 +862,11 @@ test_terse_schema.py      항목 필드 이름을 **소비부에서 뽑아** 대
 
 ##### ⛔ 새 후보로 올리지 **않는** 것 (재유도 금지)
 
-- **`T2_SIBLING_PAREN` 의 deny 승격** — `FAILURE_AXIS_AND_FIX_ORDER_2026_08_15.md` §T-8(:2476-2586)이 **이미**
+- **`T2_SIBLING_PAREN` 의 deny 승격** — ★1f-7 의 068 이 신 sim 을 보탠다: 계기가 `'Green Account
+  (checking)'` 를 **정확히 탐지하고 수리값까지 지목**했는데 log-only 미무장([[81]]). env-KB 가
+  괄호형을 유효 공식명으로 못박고 있어 **deny 무장은 재발화-루프 위험 — 처방 후보는 결정론
+  괄호-STRIP** 이고 gold-손상 여부는 §T-8 A/B 게이트 실측 전 미확정. 그 게이트의 정본은 그대로:
+  `FAILURE_AXIS_AND_FIX_ORDER_2026_08_15.md` §T-8(:2476-2586)이 **이미**
   결함·KB 접지 불가·처방 후보·블로커 W-5(*"모델이 반려를 받고도 같은 값을 다시 보낸다 … 한 sim 최다 18회 …
   오답을 스텝 소진으로 바꾼다"*)까지 확정해 두었다. 승격 여부는 **§T-8 이 정한 게이트**(반대 팔 A/B + 반려 후
   괄호 제거율 부호표)를 그대로 따른다.
@@ -2296,13 +2307,38 @@ D12 무증거 0/6 · D10 1건 · L1 기대수익 0 재확인 · L2 연결 축자
 #5  029 t72 3넛지 개별 OFF 부정통제 ([[57]])
 #6  039 base 팔 user-sim 이 (9/4/2026) 를 말하는가 — user_sim 귀속의 반증 조건
 #7  063 get_correct_savings_apy 자격 술어 부재 측정 (최소잔액 검사 0)
+    ⚠1f-7: 067(자격 충족·정상 산출)·068(None 반환=술어 작동)에서 미재현 — 발현 n=1 · D16 미자격
 #8  084 customer_max_liability 412.88 의 KB 유도 경로 (KB 결손 vs gold 임의값)
 #9  084 동일날짜 중복쌍 tie-break — KB 에 규칙 없음 · 모델이 맞게 유도했다 스스로 뒤집음
 #10 T2_WEV_ROUNDS 코드 경로 (발견자·반증자 둘 다 모름)
 #11 engine_sha · n_sims 회수 ([[85]] — 미회수 상태로 타 런 대조 금지)
 ```
 
-#### 1f-6. P9 프로브 신설 (§3 에 편입)
+#### 1f-7. 신규 실패 4건 — 027 · 067 · 068 · 086 (워크플로 9에이전트 · `wf_bdb58e3f` · 반증 4/4 생존)
+
+> 전부 flip 권역 재실험(086 만 base 0·첫 ours)·n=1·`['DB']`. args_equal 필터로 거짓음성을
+> 걸렀다(027 에서 whitespace 위양성 3칸 제거 — 진짜 변이만 셌다).
+
+| task | 등급 | 층 | 진짜 변이 | 무엇이 있었나 |
+|---|---|---|---|---|
+| **027** | **CONFIRMED** | our_layer | MISSING 1 + **EXTRA 1** | ★**D14 신 사례(3번째)**: WEV 게이트가 같은 write(update e403)를 정상경로에서 **5회 live-DENY**(t55·57·63·65·71) 했는데 `searchexhaust` 재생성 1발(t73)이 WEV 재검 없이 **커밋**. MISSING(과다지급 e506 미분쟁)은 029 와 동일 패턴의 모델 판단(도구는 *"each needs a cash back dispute"* 로 4건 전부 나열) — 우리층무관. ⚠반사실 reward 미판정(EXTRA 막아도 MISSING 잔존) |
+| **067** | 우리층무관 | model | MISSING 1 (`apply_for_credit_card` · user) | 007 정확 재현(카드 미추천). **L2 자재결손 n↑**: 카드 로스터가 서브의 `ctx[-8:]` 창(t2_resolve.py:1076) 밖 → `applies=false` ×3 은 서브의 옳은 답이지만 재료가 없었다. 063 자격술어와 **무관 배제**($100k=Platinum Plus min 충족·7.3% 정상) |
+| **068** | 우리층무관 | model | WRONGARG 1 (`account_class`) | `'Green Account (checking)'` ↔ gold `'Green Account'` — **env-KB 함정**(msg7 이 괄호형을 유효 공식명 예시로 못박음). ★`T2_SIBLING_PAREN` 이 **정확히 탐지하고 수리값까지 지목**했는데 log-only 미무장([[81]]). 처방은 deny 가 아니라 **괄호 STRIP**(deny 는 재발화-루프 위험) — 무차별 STRIP 의 gold-손상은 §T-8 A/B 실측 전 미확정 |
+| **086** | 우리층무관 | model | WRONGARG 6 (4× `customer_max_liability` 0↔50 등) | **P5 파생값 측정 자리 신 sim**(085 쌍 · compute_ops 는 08-19 의도적 공집합). 정정: *"우리층이 안 닿았다"* 가 아니라 — `write_rules`(specific:10318 · 격리 20/20)·`distinct_args`(:10344) 레버가 **실재하되 write-point 전달 레버가 기본 OFF·미발화**([[81]] delivered-where) |
+
+**★코드 결합 발견 (P9 에 박제)**: `searchexhaust` 재생성은 `t2_gate_patch.py:14432`
+`_resign or _srchex_mid` 로 게이트된다 — **M1 의 사임-창이 D14 채널의 트리거 표면을 공유**한다.
+
+**★횡단 명제 — 이 4건의 공통 형상은 「억제-원인」이 아니라 「remedy 공백」이다**: 3/4 가
+우리층무관이고, 그 옆에 도울 수 있던 레버가 **미무장(068)·미발화(086)·자재결손(067)** 상태로
+서 있었다. 다음 런의 물음은 *"우리가 무엇을 막았나"* 만이 아니라 **"도울 수 있던 레버를 왜 안
+전달했나"**(무장·발화·급양)다.
+
+**D16 승격 기각**: 063 의 자격술어-부재(get_correct_savings_apy 가 최소잔액 검사 0)는 067(자격
+충족·정상 산출)·068(None 반환 = 술어 작동) 에서 **미재현** — 발현 n=1 이라 §1f-5 #7 단독 측정
+대상으로 유지.
+
+#### 1f-8. P9 프로브 신설 (§3 에 편입)
 
 - **P9 — D14 격리**: 팔 = 선언 오버라이드 한 칸(`regen_calls_reenter_write_gates = on/off`).
   재료 = 029 t72 · 048 t36/t55 · 027 t73 메시지 전량. **exit** = off 에서 커밋 ∧ on 에서 deny.
@@ -3098,6 +3134,11 @@ reward 짝 없음·태스크별 부호표 없음) … **격리 프로브 없이 
 ---
 
 ### P5 — 파생값 17칸은 **수리가 아니라 측정**이다
+
+> ★1f-7 신 sim: **086** — 4× `customer_max_liability_amount` 0↔50 (085 쌍). 정정 포함:
+> *"우리층이 안 닿았다"* 가 아니라 `write_rules`(specific:10318 · 50/500/-1 만 방출 가능 — 모델의
+> '0' 은 못 낸다)·`distinct_args`(:10344)가 **실재하되 write-point 전달 레버(T2_RULE_AT_WRITE 류·
+> 기본 OFF·gate_patch:12442)가 미발화**([[81]]). 등급은 우리층무관 유지(의도적 측정 자리).
 
 **주장 + 양화 (n=17 칸 · sim 5개)**: 값만 틀린 34 칸 중 **17 칸**이 정책 파생값이다.
 ```
