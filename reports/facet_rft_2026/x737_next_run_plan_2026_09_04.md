@@ -2537,6 +2537,15 @@ msg81 반전(미도난 판명·영구 close). **판별식 통과**: 갈림 조�
 가역성 라벨 고객 회부. [[70]] 파는 것 = 정당 업그레이드 확인 턴 — 부호표·프로브(P11) 전 배선 금지.
 ★일반화(C601): flip 바닥은 미포착 기전 상계 — flip 실물마다 이 검사를 표준 산출로 한다.
 
+**보강 (사용자 3연 지적 «권고 조항에 조건이 있을 것» — 축자 확인)**: 조항은 조건부가 맞다 —
+*"If customer **confirms** the card is lost/stolen"* 이고, 근거도 문서 안에 있다(*"Freezing does
+NOT affect ATM access if the customer has their PIN"* — 도난 확정 카드에 freeze 는 무방비).
+같은 문서의 freeze 사유 목록이 정답 경로를 이름 붙여 둔다: *"Suspicious activity noticed, wants
+to **investigate before closing**"*. CLOSE 의 실행 전건은 *"customer wants to cancel"* — 080 손님은
+취소를 원한 적 없다. ⇒ 모델의 죄목 정밀화: ①미확정 «확인»의 확정 승격(3장 중 1장은 실제 비도난
+— 시나리오의 시험 지점) ②권고→실행 면허 승격 ③미철회 지시 재해석. 셋 다 닫힌 검사 사정권
+(①: confirm 발화 축자 실재 검사 — A2 선언 가능).
+
 ##### 1f-10-6. §1f-7b 계수 확정 (4건)
 
 ```
