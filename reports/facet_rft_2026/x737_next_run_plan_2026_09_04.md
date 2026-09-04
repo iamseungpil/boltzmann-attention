@@ -2305,7 +2305,7 @@ D12 무증거 0/6 · D10 1건 · L1 기대수익 0 재확인 · L2 연결 축자
 #### 1f-6. P9 프로브 신설 (§3 에 편입)
 
 - **P9 — D14 격리**: 팔 = 선언 오버라이드 한 칸(`regen_calls_reenter_write_gates = on/off`).
-  재료 = 029 t72 · 048 t36/t55 메시지 전량. **exit** = off 에서 커밋 ∧ on 에서 deny.
+  재료 = 029 t72 · 048 t36/t55 · 027 t73 메시지 전량. **exit** = off 에서 커밋 ∧ on 에서 deny.
   ⛔[[70]] 부호표 필수 — **048 t63(gold pay)·t123(gold unlock)이 함께 죽지 않는지** 센다
   (예측: `pay_credit_card_from_checking` 은 `write_evidence_specs` 밖이라 무영향 · [미측정]).
 - 스모크 추가: **`_ap_regen` 산출 호출 중 게이트 체인 밖 커밋 = 0** (§4 (3) 표에 D14 행).
@@ -3356,7 +3356,8 @@ D5 는 그 형제이고 엔진에 도메인 리터럴을 박지 않는다([[58]]
 ### P9 — D14 격리 (재생성 산출물의 게이트 재진입)
 
 - 팔 = 선언 오버라이드 한 칸(`regen_calls_reenter_write_gates = on/off`) · 프롬프트 미사용([[78]]).
-- 재료 = 029 t72 · 048 t36/t55 의 메시지 전량(축자 재생).
+- 재료 = 029 t72 · 048 t36/t55 · **027 t73(searchexhaust 채널 · 정상경로 5회 DENY 뒤 우회 커밋)** 의 메시지 전량(축자 재생).
+- ★채널 트리거 결합: `t2_gate_patch.py:14432` `_resign or _srchex_mid` — **M1 사임-창이 이 채널을 연다**(1f-7).
 - **exit**: off 에서 금지 write 커밋 재현 ∧ on 에서 deny ⇒ D14 배선 자격.
 - ⛔[[70]] 부호표 필수: 048 t63(gold `pay_credit_card`)·t123(gold unlock) — **재생성이 만들어 낸
   gold 칸 2개가 함께 죽지 않는지** 센다(예측: `pay` 는 `write_evidence_specs` 밖이라 무영향 · [미측정]).
