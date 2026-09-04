@@ -378,9 +378,50 @@ A2 축자 `_note_write_once_keys`:
 - **[[05]] 정합**: 무엇이 유일한지는 **선언(A2)** 이 정하고 엔진은 집합 소속만 본다([[59]]).
 
 ⚠ [[70]] 무엇을 파는가: **아직 선언되지 않았지만 반복하면 해로운 write** 가 보호를 잃는다.
-완화책은 창을 여는 게 아니라 **선언을 채우는 것**이다 — write 도구의 설명에 *"once per …"* 류
-문면이 있는지 전수 감사한다(출처는 도구 설명 축자 · gold 무참조 · [[23]]). 그 감사 전에는
-**보호를 잃는 도구 목록을 함께 보고**해야 판정이 된다.
+완화책은 창을 여는 게 아니라 **선언을 채우는 것**이다. ⇒ **P6a 로 실제 감사했다(아래).**
+
+#### P6a 결과 — 감사 완료 (2026-09-04) · **채워야 할 선언 0개**
+
+**주장 + 양화 (WRITE 도구 n=42 · KB 문서 전수)**: banking 도메인의 write 도구 42개 중 KB 가
+유일성을 말하는 것은 **`apply_checking_account_credit_5829` 하나뿐이고, 그것은 이미 선언돼 있다.**
+
+**근거 — 축자 + 출처**
+```
+유일성 문면이 있는 KB 문서 5개 · 그중 write 유일성은 1건
+  doc_bank_accounts_bank_accounts_(general)_017 축자:
+    "The apply_checking_account_credit_5829 tool may only be called ONCE per checking account
+     per customer interaction. After a credit is applied to a checking account, the system
+     enforces a 14-day cooldown period before another credit can be applied to that same account."
+  => A2 write_once_keys 에 **이미 선언됨**(keys=["agent_tool_name","account_id"])
+
+같이 걸린 나머지 1건은 write 유일성이 **아니다** — read 로 확인하라는 선행 조건이다:
+  doc_credit_cards_credit_card_account_logistics_007 축자:
+    "Cooldown Period: Use the get_credit_limit_increase_history_4829 tool to check if the customer
+     has submitted a request within the cooldown period for their card tier."
+  => 이것은 **점검(read)** 지시이지 재제출 금지가 아니다. 051 이 정확히 이 경우다 —
+     정책은 "확인하라"고 하고 우리는 "하지 마라"로 막았다.
+```
+
+**보호를 잃는 write 목록 (41개 · 정책 근거 없음)**: `submit_credit_limit_increase_request_7392` ·
+`approve_credit_limit_increase_5847` · `pay_credit_card_from_checking_9182` · `open_bank_account_4821` ·
+`close_bank_account_7392` · `order_debit_card_5739` · `freeze_debit_card_3892` · `close_debit_card_4721` ·
+`file_credit_card_transaction_dispute_4829` · `file_debit_card_transaction_dispute_6281` ·
+`log_verification` · `submit_referral` · `apply_for_credit_card` … (전 41개)
+⇒ **정책이 반복을 금지한 적 없는 도구들**이다. 기본 억제는 이들에게 근거가 없다.
+
+**반증 / refutation**: 내 검색어가 놓친 표현이 있으면 이 "0개" 는 거짓이 된다. 쓴 패턴:
+`only be called ONCE` · `may only be called` · `only once` · `ONCE per` · `a second time/request` ·
+`cannot be called/submitted/applied again|twice` · `cooldown period` · `one per` ·
+`single request/submission per` · `duplicate request/submission`. 다른 표현이 나오면 **선언을 먼저
+채우고** D6 를 켠다. (⚠파이썬 docstring 만 뒤진 1차 감사는 enum 값 `duplicate_charge` ·
+`cooldown_period_active` 에 걸린 **오탐 3건**을 냈고 정작 017 문서를 놓쳤다 — 출처는 **KB 문서**다.)
+
+**선행 확인**: `grep -rln "may only be called ONCE" tau2-bench/` →
+`documents/doc_bank_accounts_bank_accounts_(general)_017.json` · A2 `write_once_keys`(1건) ·
+`_note_write_once_keys` · `env_surface.json`(banking 엔 유일성 문면 없음 · retail 만 2건).
+
+⇒ **P6a 통과: D6 을 켜도 정책이 보호하라고 한 것은 전부 보호된다.** 남은 관문은 P6b(051 이
+승인까지 가는가) · P6c(선언된 진짜 중복은 여전히 막히는가)다.
 
 **반증 / refutation**: gold `051_7` 이 `051_2` 와 인자가 달랐다면 이 귀속은 무너진다 —
 **동일하다**(위 축자). 재신청이 `DUPLICATE-WRITE` 아닌 다른 이유로 막혔다면 무너진다 —
@@ -829,8 +870,7 @@ task_064 의 생성 호출 분해 (bank_k8141med1_20260903_2256.log · [T2_GEN_T
 [ ] 3c. P4 L1 격리 (언제 꺼졌나 · 재발행하는가 · CAP fail-open)
 [ ] 3d. P5 파생값 17칸 측정 (P5-iso: KB 축자를 앞쪽에 두고 격리 · 부정통제) — **수리 아님**
 [ ] 3e. P6 D6 격리 — 세 칸
-       P6a  write_once_keys 미선언 write 목록을 뽑고, 각 도구 설명에 "once per ..." 문면이 있는지 감사
-            (출처=도구 설명 축자·gold 무참조). 있으면 선언을 채운다.
+       P6a  ✅ 2026-09-04 완료 — write 42개 중 KB 유일성 문면은 1건뿐이고 이미 선언됨. 채울 선언 0개.
        P6b  선언-only 억제로 바꿨을 때 051 의 재신청이 통과하고 승인까지 가는가
        P6c  apply_checking_account_credit 의 진짜 중복은 **여전히 막히는가**(회귀 검사)
 [ ] 4. 통과분만 배선 + go_stack.sh 등재 + 단위테스트
