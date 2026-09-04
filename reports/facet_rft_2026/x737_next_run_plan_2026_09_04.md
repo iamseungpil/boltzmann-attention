@@ -2446,9 +2446,22 @@ deny 문면 수리(D3·D7①)는 [[25]] 오염 제거로는 옳지만 재제출 
 
 **EXTRA 는 다르다 — requestor 로 갈라도 assistant 쪽이 본체다**(x752):
 ```
-EXTRA(비-read·gold 초과)   assistant  base 97 -> ours 136   짝 ↑33 ↓6   p<1e-4   ← 산다
+EXTRA(비-read·gold 초과)   assistant  base 97 -> ours 136   짝 ↑33 ↓6   p<1e-4
                            user       base  8 -> ours  25   짝 ↑9 ↓3    p=0.15   (비유의)
 ```
+
+⛔**범주 정정 (사용자 지적: «EXTRA 가 왜 트레이드오프인가? 얻는 게 있나?») — 없다.**
+EXTRA = gold **초과** 호출이므로 이득은 정의상 이 열에 못 찍힌다 — 같은 push 채널이 만든
+gold 칸(048 t63·t123)은 OK 열에 찍힌다. 즉 트레이드오프인 것은 EXTRA 가 아니라 **push 기전**이고,
+EXTRA 는 그 **손해쪽 계기**다. 내부이름 해제 재계산(x753)으로 손해의 순도도 갈랐다:
+```
+assistant EXTRA   읽기형(discoverable getter 류)  59 -> 83   17:4  p=0.007   DB 무해 · 컨텍스트 비용만
+                  쓰기형(DB 를 건드림)             44 -> 67   32:5  p<1e-4   진짜 손해 +23
+```
+쓰기형 정독 표본(gold-외 write 7)의 분해 = **D14 버그 5 · D8 방아쇠 1 · 게이트 spec 공백 1**
+⇒ 손해의 대부분도 버그 산출이다. **버그 수리 후 남는 쓰기형 잔여**만이 push 의 내재 비용이고,
+그때 이득쪽 계기(gold-칸 창출 — 표본 2 · 코퍼스는 §1f-5 #4 미측정)와 [[70]] 절충표를 짠다.
+지금 수치로 절충을 논하면 버그를 비용으로 계상하는 오류다.
 그리고 그 assistant 쪽의 우리-층 채널이 **재생성**이다(x751 · GEN_TRACE 전수): «초안 tool_calls=0 → 재생성 >0» 전환
 **96건/캠페인** (claimprov 47 · unified_regen 24 · followup_chain 12 · uncalled_unlock 8 · 기타 5).
 pass 태스크 32 · fail 태스크 53. 6-sim 정독 표본(§1f-1)에서 그 전환의 산출은 **gold 밖 write 7 :
