@@ -7,82 +7,78 @@
 
 ---
 
-## ★ 리뷰 진입점 (2026-09-04 마감 시점)
+## ★ 리뷰 진입점 (2026-09-04 최종)
 
-### 이 문서의 상태
+### ⛔⛔ 먼저 읽을 한 문단 — 이 문서의 결론이 바뀌었다
+
+**이 캠페인은 어떤 것도 판정하지 못했다.** `§1e` 가 전역 부정통제를 돌린 결과다:
+
+```
+flip 바닥(scaffold 0개인 base 팔을 두 번 돌렸을 때 뒤집히는 비율)  = **18.8%** (16쌍)
+  실증: task_008 (x599 1.0 -> x644 0.0) · task_012 (1.0->0.0) · task_017 (0.0->1.0)
+  사용자 축자 "원래 25% 정도는 pass/fail 을 반복했다" 와 정합
+
+회귀 10/42 = 23.8%   =>  flip 바닥 **안**.  P(X>=10) = 0.255 (vs 18.8%) · 0.629 (vs 25%)
+그리고 결정적으로: **base-PASS 42 태스크가 전부 n_sims = 1** 이다
+  => 42개의 단일 베르누이 시행 위에서 "회귀" 라는 서술은 만들어질 수 없다
+회복 13/29 = 44.8% (base 바닥 대비 P=0.0012) 이지만 ours 팔 flip 43.2% 와 겹친다 => 미판정
+부호검정 (10 잃고 13 얻음) **p = 0.678**  =>  팔 전체의 순효과는 **0과 구분되지 않는다**
+
+188 기전 전수 검정 + 라벨 순열 300회:
+  관측 p<0.05 = **6**   우연 기대치 = 7.4   순열에서 6 이상 나온 비율 = **0.200**
+  => **어떤 기전도 우연 이상으로 pass/fail 을 가르지 못한다**
+```
+
+⇒ **`§1d`(회귀 태스크 단위 귀속)와 `§1c`·`§1b` 의 태스크별 판정은 "이 sim 에서 무슨 일이 있었나"
+의 기록으로만 읽어라. *"우리가 깼다"* 의 근거로 쓰지 마라.**
+⇒ **reward 를 근거로 살아남은 수리 후보는 지금 하나도 없다.** 남은 근거는 전부
+[[23]](gold 무참조 위반) · [[64]](거절이 처방을 못 준다) · **계기 무결성** 쪽이다.
+
+### 등급 (2026-09-04 최종)
+
+```
+[[23]]/[[64]] 근거로 유지 (reward 대응은 전부 미판정)
+    D12  user_action_feedback 오부착 — t2_gate_patch.py:10524·10961
+    D13  정책 근거 없는 [ORDER] 강제 — gate.json:4653 이 스스로 "정책 문장은 없다" 고 자백
+    D8   claimprov None 문면  ⚠양화 재작성 필수 (kind 는 코퍼스 상수 100% ⇒ "22/22" 는 무정보)
+계기 (레버 아님 · 선행)
+    D9   폐기 원문 원장 — **강화**. [BLOCKED] 희생자 이름이 영속 궤적 0/133 ⇒ D4 는 D9 없이 판정 불가
+    D10  declaration failed — ⛔**강등**. 자연 실험이 아니었다(OFF 팔 n=0) · 남는 근거는 토큰 누수뿐
+표적 재정의 후 상향
+    D4   [BLOCKED] -> **unlock 경로로 좁히면** 코퍼스 최대 신호와 겹친다
+         (unlock_* 차단자 1/6 p=0.057  ↔  T2_UNCALLED_UNLOCK 3/11 p=0.018 · 독립 수렴)
+    L2   recommend_formalize — T2_FB_VIEW 40/75 · 50.0% (Δ-24.3pp · p=0.036)
+⛔ 강등
+    D1(겨눈 기전이 pass 쪽 +29pp) · D2 · D6(자격 1런 · x548 --target 051 필수) ·
+    D7(발화 12/12 이 회복 · reward 근거 없음) · D10
+중립·측정 불가
+    D3(본체 표본부족 · 계열은 강화) · D11(단위가 sim 이 아니라 재생성 호출) · L1(기대수익 0)
+```
+
+### 이 문서의 절
 
 | 절 | 내용 | 상태 |
 |---|---|---|
-| §0 | 선행 확인(grep 경로) | 확정 |
-| §1 | 원인 진술 — task_049 종결-후 표면화 | **분모 주의 붙음**(한 태그·n=2·§1c 에서 재현 0) |
-| §1b | 실패 20건 전수 + **§1b-refute**(자기 CONFIRMED 철회) | 확정 |
-| §1c | 새 실패 3건(059·064·088) per-step | 확정 · **D7·D8·D9 여기서 나왔다** |
-| §1d | 회귀 10건 per-step (9건 + `1d-055`) | 확정 · **D11·D12·D13 여기서 나왔다 · D6 강등** |
-| §1e | **기전 인구조사**(태스크가 아니라 병증) | ⏳ 진행 중 — 아래 참조 |
-| §2 | 수리 후보 D1~D4·D6~D9 + L1·L2 + (철회)D5 | 리뷰 반영 완료 |
-| §3~§8 | 프로브 · 스모크 · 실험 규격 · 중단 조건 · 순서 · 기준선 | 리뷰 반영 완료 |
+| §0 | 선행 확인 | 확정 |
+| §1 | task_049 원인 진술 | 분모 주의(한 태그·n=2) |
+| §1b | 실패 20건 + **자기 CONFIRMED 철회** | 기록으로만 |
+| §1c | 새 실패 3건 · D7·D8·D9 출처 | 기록으로만 |
+| §1d | 회귀 10건 per-step · D11·D12·D13 출처 · **D6 강등** | 기록으로만 |
+| **§1e** | **기전 인구조사 + 전역 부정통제** | ★**판정의 근거는 여기다** |
+| §2~§8 | 후보·프로브·스모크·실험 규격·순서 | 1차 리뷰 반영 완료 · **§1e 로 재정렬 필요** |
 
-### 2026-09-04 리뷰(1차)에 대한 응답 — 커밋 `e5976454`
+### 1차 리뷰(2026-09-04)에 대한 응답 — 커밋 `e5976454`
 
-`B1`(D1 술어 외연) · `B2`(팔 구성) · `B3`([[05]] 3질문 stale) · `C1`(P6c 사정거리) ·
-`C2`(221건 부호를 배선 전 게이트로) · `C3`(D7 이 C581/C582 미인용) · `D1~D5 약점` ·
-`D6-op`(A 가 정의 안 됨) · `D7-op`(L1 전제) · **§7 순서 10단 교체** — **전부 반영했다.**
-`B1` 은 제 손으로 재현했고 **리뷰보다 나쁘게** 나왔다(§2 「B1 실측과 수리」) —
-`decision`·`retention_offer` 가 `tool` 이 아니라 **`tool_any`** 라 외연이 구현 세부에 매달리고,
-`credit_card_closure_retention` 은 실행 가능한 terminal 이 **둘**이라 다중-terminal 위험이 **활성**이다.
+`B1 B2 B3 · C1 C2 C3 · D1~D5 약점 · D6-op · D7-op · §7 10단 교체` 전부 반영. `B1` 은 제 손으로
+재현했고 **리뷰보다 나쁘게** 나왔다(§2 「B1 실측과 수리」).
 
-### ⛔ 리뷰 전에 알아야 할 두 가지 — 이 문서의 큰 틀이 흔들렸다
+### 리뷰에서 봐 주었으면 하는 것 (최종)
 
-**⑴ 회귀는 사실이지 인과가 아니다** (§1d 머리말)
-`task_055` 는 같은 seed·같은 sha·같은 gold 에서 **ours 가 통과한 런이 있다**
-(`bank_x725_t3prime_A_20260901` reward 1.0) ⇒ Q38+ours 에서 **1/3**. `059` 도 같은 이유로 등급이
-내려갔다. ⇒ **n=1 회귀로 "우리 스캐폴드가 base-pass 를 깼다" 고 말할 수 없다.**
-
-**⑵ 분석 단위가 태스크가 아니다** (사용자 지시 2026-09-04 · §1e 로 진행 중)
-축자: *"태스크별로 회귀를 따지는 게 아니라, 태스크의 **기전별로 per step 별로** 따져야 한다.
-여러 병증이 태스크별로 **돌아가면서 돌아다닌다**."* 그리고 *"원래 **25% 정도는 pass/fail 을
-반복**했다."*
-⇒ **회귀 10/42 = 23.8% 는 flip 25% 바닥 안일 수 있다.** 그렇다면 회귀 수 자체가 잡음과 구분되지
-않는다. `§1e` 가 flip 을 **부정통제로 먼저 재고**([[57]]) 기전별로 pass/fail 을 가르는지 판정한다.
-⇒ ⚠**`§1d`(태스크 단위 귀속)는 `§1e` 가 나오면 격이 내려갈 수 있다.** 리뷰 비중을 그쪽에 크게
-두지 마라.
-
-### 지금 확정된 등급
-
-```
-CONFIRMED 우리-층 :  D7(grounding 접두) · D8(claimprov None) · D12(014 · user_action_feedback 오부착)
-                    D13(064 · 정책 근거 없는 [ORDER] 강제) · D11 은 015/038 에서 PLAUSIBLE
-계기(레버 아님)    :  D9(폐기 초안 원장) · D10(declaration failed 침묵)
-가설              :  D1(외연 1~3/6) · D2([[63]] 과 어긋남) · D3(문면만 확정) · D4(약화)
-⛔**강등**         :  **D6 — CONFIRMED 에서 「미판정」으로 내린다**(§1d-6). 이유 셋:
-                    ① 지운 두 번째 submit 은 **어떤 채점 단위도 잃지 않았다**(ours 051_7 match=True).
-                       실제 결손 051_8·051_9 는 turn 60 의 `[T2_PIN_READ]` 화이트리스트 + 강제
-                       `tool_choice` 로 **선택 불가**였다 — DUPLICATE-WRITE 가 아니다.
-                    ② 그 노출은 **런 이전에 소스에 적혀 있었다** — `t2_gate_patch.py:12263-12264` 축자
-                       *"알려진 노출: 051 은 gold 가 거절·상환 뒤 같은 인자 재제출을 요구한다 … 이
-                       가드는 그것도 막는다 … 051 은 코퍼스 전 sim 이 0점이라 실제로 잃은 점수는 없다."*
-                       ⇒ 내 발견은 **재발명**이고, 바뀐 것은 그 전제뿐이다(base x644 051 reward 1.0 이
-                       2026-08-30 코퍼스에 들어와 *"잃은 점수 없다"* 가 거짓이 됐다).
-                    ③ 내가 *"부정통제가 없다"* 고 쓴 것도 **거짓**이다 — `x548_dup_deny_iso.py`(444줄·팔 5)가
-                       2026-08-26 부터 있고 **051 케이스 빌더까지 있다(:284)**. 없는 것은 **051 행**뿐 ⇒ [[74]] 위반.
-                    ⇒ 결정적 시험: `x548_dup_deny_iso.py --target 051` · 창은 base m52 · 모델을 **Q38 로 맞춰서**
-조사              :  L1(꺼진 열거 레버 · 기대수익 약화) · L2
-측정만            :  파생값 17칸(compute_ops 는 2026-08-19 에 일부러 삭제됨) · 오선택 14칸(②범주)
-```
-
-⚠**등급은 전부 「이 짝에서」의 등급이다.** 코퍼스 전량 통과 횟수를 실제로 붙인 것은 **051 하나뿐**이고
-나머지 8건은 **미측정**이다 ⇒ `055` 처럼 **한 번의 통과 런이 나오면 즉시 강등된다**([[57]] 후속작업).
-
-### 리뷰에서 특히 봐 주었으면 하는 것
-
-1. **§2 B1 실측** — 술어 (b)를 *"노드가 tool/tool_any 를 가진다"* 로 바꾼 것이 맞나. 종결의 의미가
-   *"DB 를 바꿨다"* 가 아니라 *"이 절차에서 더 할 일이 없다"* 라는 근거로 충분한가.
-2. **§5 팔** — 지금 *"격리 통과분 전부 합성"* 으로 열어 뒀다. 무엇을 끄려면 그것이 판정이어야 한다는
-   [[19]]/[[60]] 해석이 맞나.
-3. **§2 C2 + §1d-6** — 221건 부호를 배선 전 게이트로 올린 것은 유효하나, **D6 자체가 강등**됐다.
-   `x548 --target 051` 을 Q38 로 돌리는 것이 D6 의 생사 시험이다. 그 전에 배선 금지.
-4. **§1c-5 의 D7·D8 4칸 계약** — 특히 D8 은 *"런 전역 22/22"* 인데 인과는 미판정이다. 격리 설계가
-   [[57]] 부정통제를 갖췄나.
+1. **§1e-0 의 flip 바닥이 옳게 잡혔나** — base 팔 16쌍은 얇다. 이 바닥이 판정 전체를 좌우한다.
+2. **§1e-2 순열 부정통제** — 상관 구조를 보존한 라벨 순열이 맞는 설계인가.
+3. **§1e-5 재정렬** — *"가르지 못하는 기전을 겨눈 후보는 강등"* 규칙이 과한가.
+   D12·D13 처럼 **reward 가 아니라 [[23]]/[[64]] 로 서는 후보**를 어떻게 다룰 것인가.
+4. **§1e-6** — 무엇을 더 재야 판정이 서는가. 특히 **태스크당 n 을 늘리는 것**([[57]]).
 
 ---
 
@@ -1407,6 +1403,630 @@ EXTRA 가 0 인 근거: m71 손님 호출은 **에러로 죽었다**(m72 *"Error
 
 **주요 경로** — 리모트: `/home/woori/scratch/tau2-bench/data/simulations/bank_k8143long3_20260904_0839/results.json` · `/home/woori/scratch/logs/bank_k8143long3_20260904_0839.log`(:296·758·803-806·829·881·902·928·1417) · `fb_bank_k8143long3_20260904_0839.jsonl` · `/home/woori/scratch/logs/bank_x725_t3prime_A_20260901.log:207` · `bank_k8143med1_20260904_0135.log:896` · `/home/woori/scratch/regrun/v055*.py` · `.perstep_simindex.json` · `sim_results/bank_x617_iso_q38_bank20_20260830.results.json.gz`
 로컬: `C:\workspace\ba-frft\reports\facet_rft_2026\x506_hard0_rootcause_2026_08_24.json` · `…\x509_axis_queue_2026_08_24.json:82,183,256` · `…\DEFECT_LEVER_COVERAGE_2026_08_23.md:344,356,361` · `…\tasks__20260824\TASK_055.md:80` · `…\x738_q38_base97_census_2026_09_04.md:34-36,63-71` · `C:\workspace\ba-frft\scripts\distill\tau2\go_stack.sh:134,279` · `…\test_terse_schema.py` · `…\test_guided_schema_conflict.py`
+
+---
+
+### 1e. 기전 인구조사 — 태스크가 아니라 병증을 센다 (2026-09-04)
+
+#### 1e-0. 왜 단위를 바꿨나 — 그리고 flip 바닥이 회귀를 삼키는가
+
+**사용자 지시 (2026-09-04 · 축자)**
+
+> *"회귀가 아니라 시나리오가 달라져서 pass 못한 거면, 기존 레버의 원인과 같은 건지 아닌지를 판단하면 된다. 태스크별로 회귀를 따지는 게 아니라, 태스크의 **기전별로 per step 별로** 따져야 한다. 여러 병증이 태스크별로 **돌아가면서 돌아다닌다**."*
+> *"원래 **25% 정도는 pass/fail 을 반복**했다."*
+
+**실증 2건 (이 지시의 근거)**
+
+| 사실 | 값 |
+|---|---|
+| `task_055` 는 같은 seed·gold 에서 ours 통과 런이 있다 | `x725_t3prime_A_20260901` **1.0** / `night2p1_t3prime_20260901` 0.0 / `k8143long3_20260904` 0.0 ⇒ **1/3** |
+| `task_059` gold 문자열은 코퍼스 14 sim 중 1회 | (§1c-1) |
+
+⇒ 회귀 명단에 오른 태스크가 **같은 팔에서 통과한 기록**을 갖는다. 태스크 단위 서술은 이 코퍼스에서 성립하지 않는다.
+
+**★flip 바닥 (부정통제 · [[57]]) — 먼저 잰다**
+
+모집단: `sim_results/` 573→746 results.gz 중 `domain=banking_knowledge ∧ llm=Qwen3.8-27B-FP8` = 70 런. ours/base 판별자는 런 로그의 `[T2_` 마커 유무(`x738_q38_base97_census_2026_09_04.md:66` 축자: *"판별자: 런 로그의 `[T2_` 마커 유무."*). ours 62 런 · 채점 156 sim.
+
+| 층 | 값 | n | 95% CI (Wilson) |
+|---|---|---|---|
+| **base 팔 flip 바닥 (쌍 단위 · scaffold 0개)** | **18.8%** | 16 쌍 | [6.6, 43.0] |
+| base 팔 flip (태스크 단위) | 21.4% | 14 | [7.6, 47.6] |
+| base 런 내부 trial 반복 | **0.0%** | 2 | — |
+| 같은 `engine_sha` · 다른 런 | 0.0% | 1 | — |
+| **sha 가로지름** | **36.0%** | 111 쌍 | — |
+| ours 태스크 단위 flip | 43.6% | 39 | [29.3, 59.0] |
+| ours 시행 단위 소수파 | 18.1% | 105 | [11.9, 26.5] |
+
+base flip 실증 3건: `task_008` (x599=1.0 → x644=0.0) · `task_012` (1.0→0.0) · `task_017` (x599=0.0 → x617=1.0). **scaffold 를 하나도 켜지 않아도 같은 base 를 두 번 돌리면 3/16 이 뒤집힌다.** 사용자 축자 *"25% 정도"* 와 정합한다.
+
+⛔ **sha 층화는 이 코퍼스에서 원리적으로 불가능하다.** `engine_sha` 를 남긴 24 런이 **24/24 `dirty=True`** 다 — 축자(`bank_010ctl_20260904_0007.log.gz`):
+
+```
+[t2_run] provenance -> data/simulations/bank_010ctl_20260904_0007/provenance.json (engine_sha=a208c8e0 dirty=True ctx=131072)
+```
+
+⇒ sha 동일 ≠ 코드 동일. 그래서 바닥을 **다른 축**(scaffold 0개 팔)에서 잡았다.
+
+**⇒ 판정 — 회귀 10/42 는 flip 바닥 안이다 (CONFIRMED)**
+
+| 대조 | 값 | 이항/z |
+|---|---|---|
+| 회귀 관측 | **10/42 = 23.8%** [13.5, 38.5] | — |
+| vs base 팔 flip 바닥 18.8% | | P(X≥10) = **0.255** |
+| vs ours 시행 단위 소수파 18.1% | | P(X≥10) = **0.218** |
+| vs base 팔 태스크 flip 21.4% | | P(X≥10) = **0.410** |
+| vs 사용자 인용 25% | | P(X≥10) = **0.629** |
+
+그리고 결정적인 것은 통계 이전의 **설계**다:
+
+```
+campaign covers base-PASS tasks n=42 -> ours fail(all sims) 10  => REGRESSION 10/42 = 23.8%
+   regressed: ['task_007','task_014','task_015','task_038','task_051','task_054','task_055','task_059','task_064','task_079']
+  -> of the 10, 10 were judged on a SINGLE sim
+  base-PASS coverage in campaign: n_sims histogram Counter({1: 42})
+```
+
+**base-pass 42 태스크 전체가 `n_sims=1` 이다.** 42개의 단일 베르누이 시행 위에서 "회귀"라는 서술은 만들어질 수 없다. 반복이 있는 유일한 건(`055`)은 1/3 로 통과한다 ⇒ 그 한 건은 회귀가 아니라 flip 이다.
+
+**⇒ 반대편 — 회복은 바닥 밖이지만 바닥의 선택에 걸린다 (미판정)**
+
+| | 값 | vs base 바닥 18.8% | vs ours base-FAIL flip 43.2% |
+|---|---|---|---|
+| 회복 (base-FAIL → ours pass) | **13/29 = 44.8%** [28.4, 62.5] | P(X≥13) = **0.0012** | 겹친다 |
+
+**부호검정 (10 잃고 13 얻음, 불일치 23):** p = **0.678**. ⇒ **팔 전체의 순효과는 0과 구분되지 않는다.** 어느 바닥이 옳은지(base 팔 18.8% 냐 ours 팔 43.2% 냐)는 이 코퍼스가 결정하지 못한다 — ours 팔 flip 에는 레버 변화가 섞여 있고 base 팔은 쌍이 16 개다. **[미판정]**
+
+⇒ ⚠**`§1d`(태스크 단위 귀속)의 격을 내린다.** §1d 의 10건 귀속은 전부 n=1 위에 서 있고, 그 개수 자체가 잡음과 구분되지 않는다. §1d 는 *"이 sim 에서 무슨 일이 있었나"* 의 기록으로만 읽어라 — *"우리가 깼다"* 의 근거로 쓰지 마라.
+
+---
+
+#### 1e-1. 인구조사표 — 기전 × sim
+
+**모집단** (정본 `/home/woori/scratch/mechrun/census/mech_census.py` · 경로 결의는 `t2_forensic.path_for / log_text / sidecar_rows / simtag` 위임 · 사본 0 [[67]])
+
+```
+arm=viewmax2 · banking_knowledge · driver 로그 mtime >= 2026-09-03
+런(arm 일치) 29 · sim>0 런 18 · **채점 sim 75** · 태스크 73 · pass 46 (61.3%) / fail 29
+사이드카 present 런 26 / absent 3 — 채점 sim 75/75 전량이 present 런 소속
+탈락: {'no_results_file': 2, 'unscored': 9} · 로그없음 [] · simtag 충돌 0
+태스크당 sim 수: {3: 1, 1: 72}  → 반복이 있는 태스크는 ['task_010'] 뿐
+종료사유: {'user_stop': 75}   (max_steps 0)
+기전 총 188 종 · {'M': 103, 'LEVER': 48, 'DENY': 18, 'DET': 11, 'FB': 5, 'REGEN_CALL': 1, 'DECLFAIL': 1, 'TRUNC': 1}
+```
+
+⛔ 영속 `.results.json.gz` 가 빈 껍데기인 런 9개가 있다(`bank_c55_s1_viewmax2` 영속 0 sim ↔ 라이브 98,018 B). `t2_forensic` 위임이 없으면 모집단이 무너진다.
+
+**① 상존 16종 — 변별 정보 0**
+
+`DET:claimprov_window_resign · FB:reminder-assistant · FB:subcall · LEVER:T2_GUIDED · M:T2_A2_VARIANT · M:T2_ACTIONREQ · M:T2_CLAIMPROV · M:T2_GEN_TRACE · M:T2_GUIDED · M:T2_LEVER · M:T2_SCAFFOLD_GET · M:T2_SELFDECL · M:T2_SUBWIN · M:T2_TOOL_OBS · M:T2_WINDOW · REGEN_CALL` — 75/75 sim 발화 ⇒ pass% 가 정의상 기저 61.3%. **이 16종을 겨눈 판정은 원리적으로 불가능하다.**
+
+**② 변동 기전 (2 ≤ n_sim ≤ 45) 상위 — 돌아다님 내림차순**
+
+```
+기전                                sim/분모  task     ev  pass  fail    p%   Δ기저  roam
+M:T2_RESOLVE                         40/75     40    264    21    19   52%    -9%  1.00
+M:T2_FB_VIEW                         40/75     38    153    20    20   50%   -11%  0.95
+M:T2_MATERIAL_GATE                   38/75     37     91    25    13   66%    +4%  0.97
+M:T2_UNAVAIL                         30/75     30     68    14    16   47%   -15%  1.00
+DENY:BLOCKED                         28/75     28    133    16    12   57%    -4%  1.00
+M:T2_TOOL_SIGNATURE                  23/75     23     55    14     9   61%    -0%  1.00
+M:T2_PROCEDURE                       22/75     22    637    18     4   82%   +20%  1.00
+LEVER:T2_USER_TOOL_NOTE              19/75     19     19    10     9   53%    -9%  1.00
+M:T2_SG_ISOLATE                      19/75     19    162    16     3   84%   +23%  1.00
+DENY:POLICY GATE GB2_NOTICE_BEFORE_T 19/75     18     22    12     7   63%    +2%  0.95
+M:T2_SOURCE / M:T2_ARBITRATE         18/75     18  86/111    11     7   61%    -0%  1.00
+LEVER:T2_GATE_REGEN/usertoolnote     18/75     18     18    10     8   56%    -6%  1.00
+LEVER:T2_GIVE_QUOTE / M:T2_GIVE_EXEC 17/75     17  17/17     9     8   53%    -8%  1.00
+DENY:SIGNATURE                       17/75     17     41     9     8   53%    -8%  1.00
+M:T2_TRANSFER_LEAVES_STEPS           17/75     16     24    10     7   59%    -3%  0.94
+```
+
+**③ 희소 기전 (n_sim ≤ 12) — 사용자가 말한 "돌아다니는 병증" 구간**
+
+```
+M:T2_SEARCH_EXHAUST                  12/75     12     22     7     5   58%    -3%
+M:T2_PIN_READ_STEPS                  12/75     12     18     9     3   75%   +14%
+M:T2_PROC_ABSENT                     12/75     12     36     9     3   75%   +14%
+M:T2_SG_GROUND / DET:grounding_warn  12/75     12   24/18     9     3   75%   +14%
+M:T2_DEFERRED / LEVER:T2_DEFERRED    11/75     11     12     6     5   55%    -7%
+M:T2_UNCALLED_UNLOCK                 11/75     11     11     3     8   27%   -34%   ★
+M:T2_SUB_RECORDS                     11/75     11     93     4     7   36%   -25%   ★
+DET:gen_at_cap_8192                  11/75     11     19     8     3   73%   +11%
+DECLFAIL:T2_CLAIMPROV                11/75     11     18     8     3   73%   +11%
+M:T2_FAILDUMP                        10/75     10     19     8     2   80%   +19%
+M:T2_DISPATCH_LEDGER                 10/75     10     13     9     1   90%   +29%
+M:T2_FOLLOWUP                         9/75      9     30     7     2   78%   +16%
+M:T2_ARG_EMPTY / DENY:ARG-EMPTY       9/75      9     13     7     2   78%   +16%
+M:T2_TRANSCRIBE                       9/75      9     12     8     1   89%   +28%
+M:T2_SG_BYREF                         9/75      9     23     8     1   89%   +28%
+M:T2_CALLABLE_FRONTIER / CALL_FORM    8/75      8     40     3     5   38%   -24%   ★
+```
+
+**④ tool-deny 문면 머리 전수 (18종)**
+
+```
+DENY:(no-marker) resolve the flagged  61/75  59   79  35/26  57%
+DENY:BLOCKED                          28/75  28  133  16/12  57%
+DENY:POLICY GATE GB2_NOTICE_BEFORE_T  19/75  18   22  12/ 7  63%
+DENY:SIGNATURE                        17/75  17   41   9/ 8  53%
+DENY:OPERATOR-SCOPE                   14/75  14   16   7/ 7  50%
+DENY:ARG-EMPTY                         9/75   9   13   7/ 2  78%
+DENY:POLICY GATE GB1_VERIFY_BEFORE_A   8/75   8    8   6/ 2  75%
+DENY:ACTION 6 · WRITE-EVIDENCE 5 · PROVENANCE 4 · PROCEDURE 4 · REFERENCE 2 · PRESCRIPTION 2
+DENY:DUPLICATE-WRITE 1 (0/1) · OPERATOR-PROVENANCE 1 · E-PLAN 1
+```
+
+⚠**최대 deny(`resolve the flagged` 61/75)에는 머리 표지가 없다.** 어느 게이트가 냈는지 이 계기로는 안 갈린다 — 이것이 1e-3 의 `[BLOCKED]` 철회 사유와 같은 뿌리다.
+
+**돌아다님 — 수치로, 그리고 왜 이 코퍼스에서 못 쓰는가**
+
+| 기전 | n_sim | n_task | roam = task/sim | 최다 태스크 점유 | 발생 런 | 최다 런 점유 |
+|---|---|---|---|---|---|---|
+| `M:T2_GUIDED` (상존 계기) | 75 | 73 | 0.97 | 4.0% | 18 | — |
+| `DENY:BLOCKED` (판정 대상) | 28 | 28 | 1.00 | 3.6% | 13 | 25.0% |
+| `DET:grounding_warning` | 12 | 12 | 1.00 | 8.3% | 8 | 33.3% |
+| `M:T2_UNCALLED_UNLOCK` | 11 | 11 | 1.00 | 9.1% | 7 | 45.5% |
+| `DECLFAIL:T2_CLAIMPROV` | 11 | 11 | 1.00 | 9.1% | 9 | 18.2% |
+
+⛔ **roam·집중도(HHI)는 이 코퍼스에서 잴 수 없는 양이다.** 태스크당 sim 이 73 중 72 가 1 이므로 `n_task ≈ n_sim` 이 되어 roam 이 구조적으로 ~1.00 에 붙는다. **항상 켜진 상존 계기와 판정 대상이 같은 값을 낸다** ⇒ *"돌아다니므로 태스크 성질이 아니다"* 라는 논증은 **무내용**이다. 그 자리를 대신하는 것은 **⑧ 발생 런 수**다.
+
+**⑧ 런-교락**: 기전당 발생 런 수 분포 `{1:29, 2:23, 3:12, 4:22, 5:12, 6:8, 7:5, 8:8, 9:7, 10:8, 11:6, 12:2, 13:3, 14:1, 15:2, 16:9, 17:2, 18:29}`. 변동 기전 상위 34종의 최다 런 점유는 8~45% ⇒ 런과 분리된다. 반대로 **29/188 종은 단일 런에서만** 찍혔고 그 돌아다님은 런과 분리되지 않는다(`DENY:DUPLICATE-WRITE · DENY:E-PLAN · DENY:REFERENCE · TRUNC · M:T2_DUP_WRITE · M:T2_SG_SCHEMA · LEVER:T2_CALLABLE_HINT · LEVER:T2_DUP_WRITE …`).
+
+**⑥ 태스크당 기전 수 분포**
+
+```
+태스크 73 · min 24 · p25 44 · median 53 · p75 58 · max 75 · mean 51.8 · sd 10.4
+  20-24 :  1  #            50-54 : 14  ##############
+  35-39 :  9  #########    55-59 : 17  #################
+  40-44 : 10  ##########   60-64 :  7  #######
+  45-49 :  7  #######      65-69 :  4  ####   70-74 : 3 ###   75-79 : 1 #
+최소 5: t007=24 · t003=35 · t002=35 · t070=35 · t034=36
+최대 5: t102=75 · t023=74 · t016=72 · t010=70 · t022=68
+sim 당 기전 수: pass n=46 median 53 mean 50.7 ↔ fail n=29 median 52 mean 52.7
+```
+
+⇒ **pass sim 과 fail sim 의 기전 수 분포가 사실상 같다.** *"병증이 많아서 실패했다"* 는 이 코퍼스에서 성립하지 않는다.
+
+**⑤ 지목 기전 점호** (사용자가 준 후보 목록)
+
+```
+DET:claimprov_kind_None      74/75 · task 72 · ev 3262 · 45/29 (61%)
+DET:claimprov_window_resign  75/75 · task 73 · ev  368 · 46/29 (61%)
+DET:claimprov_pending_None   56/75 · task 56 · ev  125 · 34/22 (61%)
+DET:claimprov_regen_empty    48/75 · task 48 · ev   65 · 31/17 (65%)
+DET:claimprov_regen_rejected  7/75 · task  7 · ev    7 ·  5/2  (71%)
+DET:grounding_warning        12/75 · task 12 · ev   18 ·  9/3  (75%)
+DET:gen_at_cap_8192          11/75 · task 11 · ev   19 ·  8/3  (73%)
+DECLFAIL:T2_CLAIMPROV        11/75 · task 11 · ev   18 ·  8/3  (73%)
+M:T2_PHASE_PRECEDE           61/75 · task 59 · ev  406 · 35/26 (57%)
+M:T2_TOOL_SIGNATURE          23/75 · task 23 · ev   55 · 14/9  (61%)
+M:T2_WRITE_EVIDENCE           5/75 · task  5 · ev    8 ·  2/3  (40%)
+DET:readloop_turn             2/75 · DET:sibling_paren 2/75 · DET:truncated_tool_call 2/75
+M:T2_DUP_WRITE                1/75 · TRUNC 1/75 · DET:truncguard_fired 1/75
+M:T2_WRITE_ARG_ENUM          **발화 0** · M:T2_READLOOP **발화 0**
+```
+
+⚠ **표지 단위로만 세면 후보 절반이 "발화 0" 으로 오독된다.** `readloop-turn`·`GROUNDING WARNING`·`kind=None`·상한도달 `gen=8192` 는 대괄호 표지가 아니라 **표지 문면 안쪽**이다 — `M:T2_READLOOP` 은 0 인데 `readloop-turn counted as resignation` 은 실재한다. DET 계열 11종은 그래서 만들었다. 축자(검산 완료):
+
+```
+bank_049ctl2_20260904_0534.log.gz
+  [sim=task_049#s373753] [T2_FOLLOWUP] readloop-turn counted as resignation
+bank_010ctl_20260904_0007.log.gz
+  [sim=task_010#s626729] [T2_CLAIMPROV] kind-index rescued: kind=None tool='verify_identity' 원장에 있다
+  [sim=task_010#s626729] [T2_CLAIMPROV] tool-miss fallback: kind=None tool='transfer_to_human_agents' 원장 밖 — kind 색인으로 강등
+  [sim=task_010#s626729] [T2_SELFDECL] declared=(none — no-op)
+bank_lost5_viewmax2_20260903_1610.log.gz
+  [sim=task_093#s626729] [T2_TOOL_OBS] id=chatcmpl-tool- err=False -> [GROUNDING WARNING] 3 input value(s) could not be
+  verified against the account records / knowledge base and were dropped: base=4.0 (source not found in the knowledge base); …
+```
+
+`M:T2_WRITE_ARG_ENUM` 발화 0 은 **검색 경로 3개 전부**에서 확인했다 — 로그 정규식 `(?i)write_arg_enum` 0줄/18런 · `[T2_WRITE_ARG_ENUM]` 0 · 사이드카 DENY 머리 18종에 없음. `LEVER_ROSTER_CANONICAL` 의 *"attested 54 에 없다"* 와 정합 ⇒ **L1 전제 CONFIRMED**.
+
+---
+
+#### 1e-2. ★전역 부정통제 — 188 기전 전수 검정 + 라벨 순열 (신규 · 이 절의 최대 산출)
+
+기전을 **하나씩** 골라 2×2 를 내면 다중비교가 숨는다. 188 종 전부를 같은 방식으로 검정하고, 그 결과를 **reward 라벨 순열**과 비교했다(기전 동시발생 구조는 그대로 두고 라벨만 섞는다 ⇒ 상관 구조 보존).
+
+```
+검정 가능한 기전 수(2 <= n_sim <= 74): 148 / 전체 188
+관측 p<0.05: 6    p<0.01: 0    최소 p: 0.0183
+우연 기대치(148 × 0.05) = 7.4
+라벨 순열 300회: p<0.05 개수 median 2 · p90 8 · max 23
+                최소 p median 0.0233 · p10 0.0038 · min 0.00011
+순열에서 관측(6) 이상 나온 비율 = **0.200**
+순열 최소p 가 관측 최소p(0.0183) 이하인 비율 = **0.370**
+```
+
+**⇒ CONFIRMED: 이 코퍼스에서 reward 를 가르는 기전은 없다.** *"어떤 기전이든 하나는 가른다"* 라는 가족단위 가설의 p 는 **0.37** 이다. 관측된 유의 칸 6개는 라벨을 무작위로 섞어도 20% 의 확률로 나온다. 그리고 p<0.01 은 **한 칸도 없다**.
+
+(순열 중앙값이 7.4 가 아니라 2인 이유: 기전들이 강하게 공기(共起)해 유효 독립 검정 수가 148 보다 훨씬 작다. 즉 **실제 다중비교 보정은 Bonferroni 148 보다 관대하고, 그런데도 관측이 순열 안에 있다.**)
+
+**그럼에도 순위는 산출이다** — 아래 6칸이 이 코퍼스가 고른 상위 후보다(전부 **[미판정]**, 인과 아님):
+
+| 기전 | present | pass | pass% | Δ기저 | Fisher | 태스크 | 런 | 최다런 |
+|---|---|---|---|---|---|---|---|---|
+| `M:T2_UNCALLED_UNLOCK` | 11 | 3 | 27.3% [10,57] | **−39.9pp** | **0.018** | 11 | 7 | 5 |
+| `M:T2_PROCEDURE` | 22 | 18 | 81.8% [61,93] | **+29.0pp** | 0.021 | 22 | 10 | 5 |
+| `M:T2_LEDGER` | 47 | 24 | 51.1% [37,65] | −27.5pp | 0.027 | 45 | 16 | 6 |
+| `M:T2_SG_ISOLATE` | 19 | 16 | 84.2% [62,94] | **+30.6pp** | 0.028 | 19 | 10 | 4 |
+| `M:T2_FB_VIEW` | 40 | 20 | 50.0% [35,65] | −24.3pp | 0.036 | 38 | 14 | 5 |
+| `M:T2_VALUE_ACQUIRE` | 8 | 2 | 25.0% [7,59] | **−40.7pp** | 0.049 | 8 | 7 | 2 |
+
+⛔ **이 상위 6칸 중 어느 것도 §1b~§1d 포렌식이 조사한 기전이 아니다.** 조사된 6종(claimprov-None · declaration failed · grounding 접두 · DUP/REFERENCE · BLOCKED · readloop/표면화)은 전부 이 순위 밖에 있다. 축자(발화 확인):
+
+```
+bank_k8141med1_20260903_2256.log.gz
+  [sim=task_079#s626729] [T2_UNCALLED_UNLOCK] surface order_debit_card_5739
+  [sim=task_079#s626729] [T2_STACK] audit route=[('출처 근거 확보','claim','T2_CLAIM_PROV'), …]
+                                    chose=[('resolve_write','order_debit_card')] differs=True suppressed=['T2_UNCALLED_UNLOCK']
+bank_g97151p11_viewmax2_20260903_1924.log.gz
+  [sim=task_036#s626729] [T2_VALUE_ACQUIRE] consumers card_last_4_digits=1
+```
+
+`M:T2_UNCALLED_UNLOCK` 태스크 명단 `014,016,033,041,049,053,061,062,079,092,102`.
+
+**이 표의 한계 (원인 진술에 쓰지 마라)**: ⑴ 태스크 난이도 미보정 ⑵ 자격 분모 미적용 ⑶ 11 sim 전부 n=1 ⑷ 전역 순열이 null 이므로 개별 p 는 **선택 후 순위**이지 유의성이 아니다.
+
+---
+
+#### 1e-3. 기전별 판정 — 가른다 / 안 가른다 / 표본 부족 / **철회**
+
+| 기전 | 관측 (present pass/n) | Δ기저 | Fisher | 판정 | 등급 |
+|---|---|---|---|---|---|
+| claimprov-None (V1 rescued) | 45/74 | −39.2pp* | 1.000 | **검정 불가** (absent n=1) | 미판정 |
+| claimprov-None (V2 tool-miss) | 13/25 (52.0%) | −14.0pp | 0.316 | **미탐지** (근거 교체) | 미판정 |
+| claimprov-None (V3/V4) | 36/59 · 8/11 | −1.5 / +13.4 | 1.000 / 0.513 | 안 가른다 | 미판정 |
+| `declaration failed (no-op)` | 8/11 (72.7%) | **+13.4pp** | 0.513 | **미탐지 · 부호 반대** | 미판정 |
+| grounding 접두 드롭 | 9/12 (75.0%) | +16.3pp | 0.349 | ⛔**철회 — 분모 오류** | 미판정 |
+| `[REFERENCE]` reference-unmatched | 2/11 (18.2%) | −31.0pp → **+4.2pp** (태스크 고정) | 0.113 | 안 가른다 (MH Σ(a−E)=+0.00) | 미판정 |
+| `[DUPLICATE-WRITE]` | 0/1 | — | 1.000 | **표본 부족** (자격 1 런) | 미판정 |
+| `[BLOCKED]` 부수차단 | 16/28 (57.1%) | −6.7pp | 0.628 | ⛔**철회 — 별칭 누락** | 미판정 |
+| readloop-turn | 0/2 | −63.0pp | 0.146 | ⛔**철회 — 채점 검열** | 미판정 |
+| 절차 표면화 잔존 (B_core) | 9/12 (75.0%) | +16.3pp | 0.349 | 안 가른다 (base 도 9/12) | 미판정 |
+
+<sub>* V1 은 74/75 발화라 absent 칸이 1 sim(`task_050` reward 1.0)뿐 — 부호는 무의미.</sub>
+
+**⛔ 철회 3건 — 무엇이 무너졌나 (반증 결과 · 그대로 남긴다)**
+
+**⑴ grounding 접두 드롭 — *"안 가른다 / 닫아도 얻을 게 없다"* 를 철회한다.**
+absent 칸의 **91%가 "안 났다"가 아니라 "날 수 없다"** 였다. 게이트 축자 (`t2_scaffold_get.py:2759`):
+
+```
+if os.environ.get("T2_SG_GROUND") == "1" and d.get("ground"):
+```
+
+A2 `ground` 선언 도구는 10개 중 **5개**(`check_rebate_qualification · get_correct_savings_apy · get_interest_correction · check_card_closure_eligibility · check_card_application_fit`)뿐이고, **그 도구를 한 번이라도 부른 sim 은 18/78 (23.1%)** 이다.
+
+```
+GW (분모 전체)      present 12 (9/3) 75.0%   absent 66 (37/29) 56.1%   Δ=+18.9pp  p=0.340
+GW (분모 자격 sim)  present 12 (9/3) 75.0%   absent  6 ( 5/ 1) 83.3%   Δ= −8.3pp  p=1.000
+자격 없는 60 sim 의 pass = 32/60 = 53.3%   ← 이들이 absent 칸을 끌어내렸다
+```
+
+⇒ 자격을 맞추면 **부호가 뒤집히고** absent 는 n=6 이 되어 검정 자체가 성립하지 않는다. **[미판정]** 로 내린다. (같은 자격 검사를 `[BLOCKED]`(다중호출 턴 보유 77/78)와 `declaration failed`(`agent_claimprov` 호출 78/78)에 걸면 분모가 안 줄어든다 ⇒ 이 둘은 통과.)
+
+**⑵ `[BLOCKED]` 부수차단 — 하나의 코드 경로가 두 이름으로 나간다.** 축자 (`t2_gate_patch.py`, 로컬 미러 재확인):
+
+```
+:12786   _FB_GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
+:12861       content = _FB_GENERIC
+:12902   if content == _FB_GENERIC and os.environ.get("T2_KEEP_DENY_BODY") == "1":
+:12903       _flag8 = next((x for x in (am.tool_calls or []) …), None)
+:12910           _body8 = _sibling_wait("BLOCKED", _flag8, "what to fix")
+:4536    return ("Error: [%s] this call was not run because another call in the same turn was blocked: "
+                 "'%s' (see its own error for %s). Fix that one first, then re-issue this call."
+go_stack.sh:816   export T2_KEEP_DENY_BODY=1
+```
+
+같은 `else` 로 떨어진 호출이 **형제 객체 `_flag8` 을 찾으면 `[BLOCKED]`, 못 찾으면 이름 없는 문면**으로 나간다. 기존 판정은 앞쪽만 세고 뒤쪽을 absent 에 넣었다:
+
+```
+[BLOCKED] 발화 sim 30 · 이름없는 _FB_GENERIC 발화 sim 64 · 둘 다 29 · 어느 것도 없음 13
+★기존 absent 48 sim 중 35 (73%) 가 같은 코드 경로의 이름없는 출구를 갖고 있다
+
+BLOCKED (기존 정의)   present 30 (16/14) 53.3%  absent 48 (30/18) 62.5%  Δ= −9.2pp  p=0.482
+합집합 (코드 경로)     present 65 (35/30) 53.8%  absent 13 (11/ 2) 84.6%  Δ=−30.8pp  p=0.062
+```
+
+⇒ **−9.2pp 가 −30.8pp 로 바뀐다.** ⚠자인: 합집합의 absent 13 sim 은 *"게이트 마찰이 0인 sim"* 과 분리되지 않고, p=0.062 는 1e-2 의 전역 순열을 통과하지 못한다(그리고 사후 재정의다). **[미판정]** — 그러나 *"안 가른다"* 는 **정의 선택의 산물**이었다는 것은 확정이다.
+
+부수 — repo 자신이 남긴 용량 주장은 **이 코퍼스에서 재현되지 않는다**. `t2_gate_patch.py:12871` 축자 *"실측(3 런·30 sim): 그 문구가 한 sim 에 3회 이상 나온 6건은 **6/6 전부 실패**"* ↔ 실측:
+
+```
+이름없는 문구 >= 3회   present 4 (2/2) 50.0%  absent 74 (44/30) 59.5%  Δ=−9.5pp p=1.000
+   task_037 bank_k8143long3 gen=3 reward=0.0   /   task_047 bank_k8143med2 gen=3 reward=1.0
+```
+
+**⑶ readloop — 판정이 검열의 산물이다.** 로그에 등장한 (run,sim) 130 중 채점 78 (60.0%) · **미채점 52 (40.0%)** (`{'no_row': 44, 'reward_null': 8}` — 44건은 `results.json` 에 행 자체가 없다).
+
+```
+mech         scored/sim  unscored/sim   ratio
+readloop           0.06        1.83     28.50x   ★
+PROCEDURE          8.49        8.37      0.99x
+gate_deny          1.05        0.92      0.88x
+GW                 0.54        0.10      0.18x
+BLOCKED            0.45        0.12      0.26x
+lines            368.05      217.19      0.59x
+미채점에만 존재하는 태스크 8: 027,048,063,067,068,069,077,084
+```
+
+⇒ readloop 은 미채점 sim 에서 **28.5배** 난다(`bank_049ctl2` 는 결과 파일에 sim 0개, `task_048` 은 24줄인데 행이 없다). **`n=2` 는 기전의 희소성이 아니라 채점 파이프라인의 결과다.** 길이 대리 가설은 같은 표에서 깨진다(`PROCEDURE 0.99x` · `gate_deny 0.88x` · 줄 수 0.59x). ⇒ **판정 불가(계기 결손)**. GW·BLOCKED·declfail 은 반대로 채점층에 몰려 있어 이 공격을 통과한다.
+
+**⑷ claimprov V2 — 결론은 서지만 근거를 교체한다.** V2 의 present 태스크는 base 팔에서 **더 쉬운** 집합이다(base 기대 pass 59.6% ↔ absent 51.9%). 난이도 보정 시 Δ 가 −14.0pp → **−21.2pp 로 커지고**, base 난이도 2층 층화에서 **두 층 부호가 같다**(base-PASS −10.9pp · base-FAIL −32.9pp · **MH OR 0.349**). 즉 기존 보고는 *"flip 바닥과 비교"* 를 하면서 **교락으로 축소된 쪽**을 썼다. 그럼에도 p 는 여전히 0.05 밖이고 전역 순열 안이다 ⇒ **미탐지**.
+
+**⑸ 검출력 자인 — 여섯 판정 모두 *"안 가른다"* 를 발화할 자격이 없다.** 각 present n 을 고정하고 해악 방향으로 p<0.05 가 되는 최대 pass 를 역산하면:
+
+```
+기전                    관측 present    배제된 최소 해악   탐지에 필요한 여분 실패
+claimprov V2           13/25 = 52.0%   −26.0pp            6.5 건
+DECLFAIL                8/11 = 72.7%   −41.2pp            4.5 건
+GROUNDING(전체분모)      9/12 = 75.0%   −42.1pp            5.0 건
+REFERENCE               2/11 = 18.2%   −38.2pp            4.2 건
+BLOCKED                16/28 = 57.1%   −28.1pp            7.9 건
+표면화 B_core            9/12 = 75.0%   −42.1pp            5.0 건
+readloop                0/ 2 =  0.0%   해악 방향 어떤 값도 p<0.05 불가 = **검출력 0**
+```
+
+설명해야 하는 크기는 **회귀 10건**이다. present 12 sim 기전이 여분 실패 3건(회귀의 30%)을 냈다면 관측은 `present 8/12 vs absent 37/63, p=0.752` — *"안 가른다"* 라고 쓴 바로 그 칸이다. ⇒ **이 표본에서 쓸 수 있는 결론은 「미탐지」뿐이고, `안 가른다`·`원인이 아니다`·`닫아도 얻을 게 없다` 는 데이터가 지지하지 않는다.** 1e-2 의 전역 순열만이 *"전체로서 가르는 것이 없다"* 를 말할 수 있다.
+
+**⑹ 살아남은 것 — 기저율 함정은 실재한다 (CONFIRMED)**
+
+| 관측 | 값 |
+|---|---|
+| `declaration failed` 11건 중 **pass 8** | 72.7% (기저 61.3% 위) |
+| GW 발화 12 sim 이 **전부 회복** — `064` GW×4 → ok×10 · `093` GW×2 → ok×2 | 12/12 |
+| 동일 차단자 `give_discoverable_user_tool(submit_cash_back_dispute_0589)` 부수차단 | 7 태스크 **7/7 통과** (`task_022` 는 18회 받고 reward 1.0) |
+| `[REFERENCE]` 7 태스크의 **base 팔** pass | 1/7 = 14.3% (원래 어려운 태스크) |
+| pass sim 의 기전 수 median 53 ↔ fail sim median 52 | 차이 없음 |
+
+---
+
+#### 1e-4. 자연 실험 — `declaration failed` 는 A/B 가 아니었다
+
+**설계 의도**: 선언 파싱이 실패하면 claimprov 가 no-op 이 되므로 *"레버가 꺼진 sim"* 이 공짜로 생긴다 ⇒ ON/OFF 자연 실험.
+
+**결과: 잴 대상이 없었다. OFF 팔의 n = 0.**
+
+```
+total agent_claimprov gen calls: 420
+  parsed OK (window hit(...)): 390     declaration failed: 18     gen **TRUNC**: 17
+sims with ZERO successful claimprov window: **0**  []
+
+sim                run                                      rew   ok fail empty claims  unb
+task_005#s626729   bank_k151med1_20260903_2257              1.0    8    1     1     35    3
+task_008#s626729   bank_re8143p11_20260904_1053             1.0   12    1     1    108    0
+task_015#s626729   bank_k8143med1_20260904_0135             0.0    4    3     3     18    0
+task_022#s626729   bank_lost5_viewmax2_20260903_1610        1.0   10    1     1    215    0
+task_081#s626729   bank_g97151p11_viewmax2_20260903_1924    1.0    8    4     4    128    0
+task_102#s626729   bank_g97151p11_viewmax2_20260903_1924    0.0    3    2     2     21    0
+```
+
+**⇒ declfail 은 sim 배정이 아니라 창(window) 단위 4.3% 결손(18/420)이다.** sim 을 "있음/없음"으로 가르면 *"창 하나를 놓친 sim"* 을 *"레버가 꺼진 sim"* 으로 오분류한다.
+
+**코드가 그 이유를 정한다 — 창은 다시 열린다 (CONFIRMED 우리-층 사실)**
+
+```
+t2_gate_patch.py:14875   print("[T2_CLAIMPROV] declaration failed (no-op): %r" % (_ce2,), …)
+t2_gate_patch.py:14877   if not _cl and not _pd:
+t2_gate_patch.py:14878       print("[T2_CLAIMPROV] window hit claims=%s pending=%s" % (_cl, _pd), …)
+t2_gate_patch.py:14979   self._t2_claimprov = getattr(self, "_t2_claimprov", 0) + 1   ← break 하류·`if _unbacked or _unb_p:` 안
+```
+
+예산 카운터가 오르지 않으므로 다음 사임 턴에 창이 그대로 재개된다. 로그가 교대를 보여준다(`bank_k8143med1_20260904_0135`, 축자 검산 완료):
+
+```
+[sim=task_015#s626729] [T2_GEN_TRACE] call=agent_claimprov max_tokens=8192 tb=None tool_choice=None [TERSE]
+                                      -> gen=8192 prompt=22765 **TRUNC** reason=0B content=29666B tool_calls=0
+[sim=task_015#s626729] [T2_CLAIMPROV] declaration failed (no-op): JSONDecodeError("Expecting ',' delimiter: line 1 column 29646 (char 29645)")
+[sim=task_015#s626729] [T2_CLAIMPROV] declaration failed (no-op): JSONDecodeError("Expecting ',' delimiter: line 1 column 31224 (char 31223)")
+```
+
+**한계 (4종)**
+
+1. **OFF 팔 n=0** ⇒ 자연 실험으로는 영영 안 된다. 스위치는 이미 있다: `t2_gate_patch.py:14853` `if (os.environ.get("T2_CLAIM_PROV") == "1" and (_resign or _cpv_transfer) …` ⇒ **선언적 A/B 짝 런**이 유일한 길이다.
+2. **`TRUNC 1:1` 은 정확히는 틀렸다** — 18 중 17. 반례 2개: `task_028` 은 모집단 최장 프롬프트(102,566)에서 **절단 없이** 실패(`gen=7197 content=29669B`), `task_021` 은 `agent_selfdecl` 이 **절단됐는데 파싱 성공**. 진짜 불변량은 절단이 아니라 **선언 blob 28.2~39.1 KB 폭주**다. 폭주는 claimprov 질문에 특이적이다: `agent_response` TRUNC 0/1891 · `agent_claimprov` 17/420 (4.0%) · `agent_selfdecl` 1/395 (0.3%).
+3. **컨텍스트 길이로 층화할 수 없다** — TRUNC 호출의 프롬프트 중앙값(38,178)이 비-TRUNC(40,752)보다 **짧다**.
+4. **층화해도 n 이 안 남는다** — DECLFAIL 11 sim 이 전부 서로 다른 태스크의 단일 시행이고, 관측 fail율 27.3% [9.7, 56.6] 은 flip 바닥 18.8% 와 기저 fail율 38.7% **사이**에 있다.
+
+**부수 산출 — 계기가 죽어 있다 (CONFIRMED · 별건)**
+
+- **kind 는 이 코퍼스에서 상수다.** `kind-index rescued` 3262/3262 · `tool-miss fallback` 100/100 이 전부 `kind=None`. 선언 arm 은 09-01 이전에만 존재(`bank_x721_t1B_ctl_20260901_0945` nonNone=100/None=0 ↔ `night1p1_t3prime_20260901_2337` 이후 전 런 None-only). ⇒ **D8 의 *"런 전역 22/22"* 는 분모가 상수라 무정보다.**
+- **`[T2_TRANSCRIBE]` deny 가 자기 로그 줄에서 죽는다.** 축자(코드 · 로컬 재확인):
+
+```
+t2_gate_patch.py:9674     _bad = _TR.mismatches(_sp, _args_dict(c), _byid)
+t2_gate_patch.py:9683     _msg = _TR.note(_trs.get("_feedback"), _bad, getattr(c, "name", None))
+t2_gate_patch.py:9685-9691  if not _msg:  _unk = _TR.unknown_ids(...)  →  _msg 재설정   ← _bad 는 여전히 []
+t2_gate_patch.py:9716         % (getattr(c, "name", None), len(_bad), _bad[0][:2]),      ← IndexError
+t2_gate_patch.py:9722-9723  tr_fb = None ;  print("[T2_TRANSCRIBE] error (no-op): %r" % (_tre,), …)
+```
+
+로그 축자(검산 완료 · 3회 발화):
+
+```
+[sim=task_024#s626729] [T2_TRANSCRIBE] live tool=get_reward_discrepancies rows=1 records=0
+[sim=task_024#s626729] [T2_TRANSCRIBE] error (no-op): IndexError('list index out of range')
+```
+
+`records=0` ⇒ `_byid` 공집합 ⇒ `mismatches()==[]` ⇒ unknown-id 분기 확정. 모집단 18런에서 `[T2_TRANSCRIBE] deny` 발화 **0회**. **이름 있는 수리**([[64]]): `:9716` 을 `_bad[0][:2] if _bad else None` 로. 한 줄. 등급 **CONFIRMED 우리-층 (계기 · reward 원인 아님)**.
+
+---
+
+#### 1e-5. 수리 후보 재정렬 — 인구조사가 강화/약화/중립 한 것
+
+> 규칙: **가르지 못하는 기전(또는 가름을 잴 수 없는 기전)을 겨눈 후보는 등급을 내린다.** 등급을 유지하는 것은 근거가 reward 가 아니라 [[23]]·[[64]]·계기 무결성인 경우뿐이다.
+
+| 후보 | 겨눈 기전 (census 값) | 인구조사 효과 | 새 등급 |
+|---|---|---|---|
+| **D1** 절차 종결 후 표면화 중지 | `M:T2_PROCEDURE` 22/75 **82% (+29pp)** · `M:T2_PROC_ABSENT` 12/75 75% · `DET:readloop_turn` 2/75 (검열) | ⛔**강등** — 겨눈 기전이 **pass 쪽으로 기운다**. base 팔도 같은 12 태스크에서 9/12. readloop 다리는 판정 불가(28.5x 검열) | PLAUSIBLE → **미판정 (보류)** |
+| **D2** 읽기 루프에 이름·출구 | `M:T2_SEARCH_EXHAUST` 12/75 58% (−3pp) · readloop(검열) | **약화 재확인** — 겨눈 칸이 중립이고 근거 다리는 검열됐다. [[63]] 과 어긋난다는 기존 지적 유지 | 약화 → **미판정 (보류)** |
+| **D3** reference-filter 문면·술어 일치 | `DENY:REFERENCE` 2/75 · `M:T2_RESOLVE` 40/75 52.5% (p=0.104) | **중립.** 본체는 표본 부족. 계열 주장(*"문면이 검사한 것과 다르다"*)은 1e-3 ⑵ 의 `[BLOCKED]`/`_FB_GENERIC` 별칭이 **새 독립 사례**로 강화 | 계열 CONFIRMED / 본체 **미판정** |
+| **D4** `[BLOCKED]` 을 의존 호출로만 | `DENY:BLOCKED` 28/75 (−6.7pp, p=0.628) → **별칭 합집합 65/78 (−30.8pp, p=0.062)** | ⚠**강등이 아니라 재정의.** 표적을 부수차단 전반에서 **`unlock` 경로**로 좁히면 이 코퍼스의 최대 신호와 겹친다: 하위분류 `unlock_*` 차단자 **1/6 (p=0.057)** ↔ census `M:T2_UNCALLED_UNLOCK` **3/11 (p=0.018 · Δ−39.9pp)** — 서로 독립 계기에서 같은 곳을 가리킨다 | **미판정 · 표적 재정의 후 우선순위 상향** |
+| **D5** (철회됨) | — | 변화 없음 | 철회 유지 |
+| **D6** DUP-WRITE 창 리셋 | `DENY:DUPLICATE-WRITE` 1/75 · `M:T2_DUP_WRITE` 1/75 | ⛔**강등 확정.** 자격 자체가 1 런이다 — `go_stack.sh:695 export T2_DUP_WRITE=0` 이고 `bank_k8143med1_20260904_0135` 한 런이 덮었다. 축자: `[sim=task_051#s626729] [T2_DUP_WRITE] deny tool=submit_credit_limit_increase_request (앞선 성공 msg=23)`. 인구조사는 §1d-6 의 강등을 **표본 부족**으로 재확인한다 | 미판정 유지 · **배선 전 `x548 --target 051` 필수** |
+| **D7** grounding 접두 | `DET:grounding_warning` 12/75 **75% (+14pp)** · 자격분모 18 → Δ−8.3pp p=1.000 (absent n=6) | ⛔**강등.** 발화 12/12 sim 이 뒤이어 회복하고(`064` GW×4→ok×10), 실패 3건의 MISSING/WRONGARG 은 **GW 를 내지 않은 write 도구** 위에 있다. **reward 근거는 없다** — 남는 근거는 [[64]](거절이 처방을 못 준다)·[[23]] 뿐 | CONFIRMED(문면) → **미판정 (reward 무관) · 우선순위 하향** |
+| **D8** claimprov `None` 금지 | `DET:claimprov_kind_None` 74/75 (**검정 불가**) · V2 26/78 (−13.5pp, 보정 후 −21.2pp · MH OR 0.349) | **중립 + 양화 정정.** *"22/22"* 는 kind 가 코퍼스 상수(100% None)라 무정보다. V2 만이 유일한 잔여 후보이고 그마저 전역 순열 안. 코드상 발화의 **3262/3362 (97.0%)** 는 kind 를 읽기 전에 찍히는 불활성 로그 | CONFIRMED(문면) 유지 / **인과 미판정 · 양화 재작성 필수** |
+| **D9** 폐기 원문 원장 | — | **강화.** `[BLOCKED]` 희생자 이름이 영속 궤적 **0/133**, 사이드카 `tool-deny` 행에 `call_name` 이 **없다**(키 `channel,kind,len,sha,sim,simtag,text,turn`) ⇒ **부수차단의 표적은 측정 불가**. D4 의 판정이 D9 에 걸려 있다 | CONFIRMED · **선행 순위 유지** |
+| **D10** declaration failed 침묵 | `DECLFAIL:T2_CLAIMPROV` 11/75 **73% (+11pp)** | ⛔**강등 + 근거 교체.** 부호가 반대이고, no-op 은 예산을 안 태운다(카운터가 `break` 하류 · `081×4`·`015×3` 반복 실증) ⇒ *"꺼진 것과 같다"* 는 **거짓**. 남는 근거는 reward 가 아니라 **토큰**: 18회 × ~8192 디코드가 아무 감사 없이 버려진다 | 계기 → **비용 누수 (reward 근거 없음)** |
+| **D11** 재생성이 env-변이 호출 잃으면 기각 | `LEVER:T2_GATE_REGEN/usertoolnote` 18/75 56% (−6pp) · `givequote` 10/75 60% (−1pp) | **중립 · 단위 불일치.** D11 의 단위는 sim 이 아니라 **재생성 호출**(DROP 4/6 vs 5/35)이므로 sim 단위 인구조사는 판정할 수 없다. 인구조사는 이 후보를 **지지도 반박도 못 한다** | PLAUSIBLE 유지 · **측정 단위 별도 명시 필요** |
+| **D12** `user_action_feedback` 오부착 | `M:T2_ACTIONREQ` **75/75 상존** | **중립 (측정 불가).** 상존 계기라 pass% 가 정의상 기저다. n=1 태스크 귀속이고 인구조사가 확인해 줄 것이 없다 | CONFIRMED(문면) 유지 / **reward 대응 미판정** |
+| **D13** 정책 근거 없는 `[ORDER]` 강제 | `M:T2_SCAFFOLD_GET` **75/75 상존** | **중립 (측정 불가).** 근거는 [[23]] 뿐 — *"그 체인을 요구하는 정책 문장은 없다"*(`banking_knowledge.gate.json:4653`) | CONFIRMED([[23]] 위반) 유지 / **reward 대응 미판정** |
+| **L1** 꺼진 열거 레버 | `M:T2_WRITE_ARG_ENUM` **발화 0** (3경로 확인) | **전제 CONFIRMED 재확인 / 기대수익 0 재확인.** 배선 회귀는 사실이고, 켜도 059·064 를 못 산다는 기존 판정은 그대로 | 전제 CONFIRMED / 기대수익 0 |
+| **L2** `recommend_formalize` 격리 | `M:T2_FB_VIEW` 40/75 **50.0% (−24.3pp · p=0.036)** | ⚠**강화.** 뷰 주입 경로가 1e-2 상위 6칸 중 하나다. L2 의 오답이 이 경로로 전달된다 ⇒ 인구조사가 **독립적으로 같은 곳을 가리킨다**. 단 `T2_FB_VIEW` 는 L2 전용이 아니므로 귀속 아님 | 조사 · **우선순위 상향** |
+
+**신규 후보 (인구조사가 고른 것 · 4칸 미충족 ⇒ 아직 후보 아님 · [미판정])**
+
+| 축 | census | 왜 봐야 하나 |
+|---|---|---|
+| `M:T2_UNCALLED_UNLOCK` | 11/75 · **3/8 (27%)** · p=0.018 · 7런 | 코퍼스 최대 |Δ| 이고 **D4 하위분류(`unlock_*` 1/6)와 독립 수렴**. 축자: `[T2_UNCALLED_UNLOCK] surface order_debit_card_5739` · 같은 sim 에서 `[T2_STACK] … suppressed=['T2_UNCALLED_UNLOCK']` |
+| `M:T2_VALUE_ACQUIRE` | 8/75 · 2/6 (25%) · p=0.049 · 7런 | 값 획득 경로. 축자: `[T2_VALUE_ACQUIRE] consumers card_last_4_digits=1` |
+| `M:T2_LEDGER` | 47/75 · 51.1% · p=0.027 · 16런 | n 이 커서 자격분모·난이도 보정을 견딜 유일한 칸 |
+| `M:T2_SUB_RECORDS` | 11/75 · 36% (Δ−25pp) | `[REFERENCE]` 와 **12/12 완전 공기** ⇒ 두 기전은 이 코퍼스에서 분리 불가 |
+
+---
+
+#### 1e-6. 다음에 재야 할 것 — 무엇이 더 있어야 판정되는가
+
+**⑴ 반복 (n) — 이것 없이는 어떤 공격도 최종 방어 불가**
+- base-PASS 42 태스크를 **같은 sha·같은 레버로 최소 3회**. 지금 코퍼스에 같은 조건 반복 쌍은 **3개**(같은 런 2 + 같은 `engine_sha` 1)뿐이고 그 3쌍의 불일치는 0/3 이다.
+- 목표 검출력: 1e-3 ⑸ 의 "여분 실패 4.2~7.9건"을 잡으려면 **팔당 sim 수를 3배**로. 예: `[BLOCKED]` 의 6.7pp 를 flip 위에서 80% 검정력으로 잡으려면 팔당 약 **834 sim** — 즉 **그 크기의 효과는 영영 못 잰다. 재려면 표적을 좁혀야 한다.**
+
+**⑵ 조건 식별자 — sha 가 못 쓴다**
+24/24 런이 `dirty=True`. **레버 선언 스냅샷(`levers_on` 전량 + 표면형 문법 + `max_tokens`)을 `provenance.json` 에 남기는 것이 다음 런의 선결 조건**이다([[54]]·[[84]]).
+
+**⑶ 채점 파이프라인 — 40%를 삼킨다**
+미채점 52 (`no_row` 44 · `reward_null` 8). readloop 계열은 이걸 고치기 전에는 **판정 불가**다. `task_048`·`task_049`·`task_053` 을 채점되게 돌리는 것이 선결.
+
+**⑷ 자격 분모를 모든 2×2 에 붙인다 (신규 계약)**
+- GW = `ground` 선언 도구 호출 sim **18/78**
+- DUP-WRITE = `T2_DUP_WRITE=1` 런 **1/18**
+- V2 = `agent_claimprov` 호출 sim 78/78 (분모 안 줄어듦)
+⇒ 자격 없는 sim 을 absent 에 넣으면 부호가 뒤집힌다(GW 실증: +18.9pp → −8.3pp).
+
+**⑸ 기전은 문자열이 아니라 코드 경로로 정의한다 (신규 계약)**
+`[BLOCKED]`/`_FB_GENERIC` 처럼 한 `else` 가 두 이름으로 나가는 자리가 최소 하나 실재한다. `t2_stack.TAG_TO_FLAG` 를 **저작 지점(파일:줄) 축**으로 재색인해야 한다.
+
+**⑹ 격리 ([[78]]) — 지금 무료로 칠 수 있는 것 3개**
+- **P-declfail**: `agent_claimprov` 만 `max_tokens` 를 올려 파싱률 전후 비교(격리 프로브 하나). [[82]] 재측정(Q3.8 정상 p99=385 토큰인데 이 서브콜만 4.0% 폭주).
+- **P-unlock**: `M:T2_UNCALLED_UNLOCK` 11 태스크에서 `[T2_STACK] suppressed` 가 무엇을 눌렀는지 per-step. D4 재정의의 exit.
+- **P-transcribe**: `:9716` 한 줄 수리 + 래칫. deny 0/18런 → 발화 확인.
+
+**⑺ 부정통제 계약 ([[57]]) — 앞으로 모든 기전 판정에 의무**
+① flip 바닥(base 팔) 대조 ② 자격 분모 ③ 태스크 난이도 보정(base 팔 기대치) ④ 동반 기전 분리칸 크기 ⑤ **1e-2 라벨 순열** — 개별 p 를 발화하기 전에 전역 순열을 먼저 통과해야 한다.
+
+---
+
+#### 1e-7. 원인 진술 4칸 ([[77]])
+
+**(1) 주장 + 양화**
+banking·Qwen3.8·arm=viewmax2·2026-09-03 이후 채점 sim **75**(29런 중 sim>0 18런 · 73 태스크 · pass 46 = 61.3%)에서, **188 기전 중 검정 가능한 148 종 어느 것도 reward 를 가르지 못한다**: p<0.05 가 6칸(기대 7.4) · p<0.01 **0칸** · 최소 p 0.0183 인데, reward 라벨을 300회 순열하면 **20%** 가 6칸 이상을 내고 **37%** 가 그보다 작은 최소 p 를 낸다 ⇒ 가족단위 p = **0.37**. 그 위에서 캠페인 회귀 **10/42 = 23.8%** [13.5, 38.5] 는 scaffold 를 끈 base 팔의 flip 바닥 **3/16 = 18.8%** [6.6, 43.0] 과 구분되지 않고(P(X≥10)=0.255 · 사용자 인용 25% 기준 P=0.629), **회귀 10건이 전부 n=1 sim** 이며 base-PASS 42 태스크의 채점 횟수 히스토그램이 `Counter({1: 42})` 다. 유일하게 반복이 있는 `055` 는 ours 에서 **1/3** 로 통과한다. 반대편 회복 13/29 = 44.8% 는 base 바닥으로 재면 밖(P=0.0012)이지만 ours 팔 base-FAIL flip 43.2% 와 겹치고, 팔 전체의 순효과는 부호검정 **p=0.678** 로 0과 구분되지 않는다. 개별 기전 판정 6종 중 **3종(grounding 접두·`[BLOCKED]` 부수차단·readloop)은 분모·정의·검열 오류로 철회**되고, 나머지 3종은 *"안 가른다"* 가 아니라 **"미탐지"** 다(검출력이 26~58pp).
+
+**(2) 근거 — 축자 + 파일:줄 (전량 재검산)**
+
+```
+소스 (로컬 미러 C:\workspace\ba-frft\scripts\distill\tau2\ · sed 로 줄 확인)
+  t2_gate_patch.py:4536   return ("Error: [%s] this call was not run because another call in the same turn was blocked: "
+  t2_gate_patch.py:12786  _FB_GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
+  t2_gate_patch.py:12902  if content == _FB_GENERIC and os.environ.get("T2_KEEP_DENY_BODY") == "1":
+  t2_gate_patch.py:12910      _body8 = _sibling_wait("BLOCKED", _flag8, "what to fix")
+  t2_gate_patch.py:12264  "051 은 코퍼스 전 sim 이 0점이라 실제로 잃은 점수는 없다."      <- Q38 base 1.0 으로 거짓
+  t2_gate_patch.py:12871  "실측(3 런·30 sim): 그 문구가 한 sim 에 3회 이상 나온 6건은 **6/6 전부 실패**"  <- 재현 실패(2/4)
+  t2_gate_patch.py:14875  print("[T2_CLAIMPROV] declaration failed (no-op): %r" % (_ce2,), …)
+  t2_gate_patch.py:14979  self._t2_claimprov = getattr(self, "_t2_claimprov", 0) + 1    <- break 하류 = cap 미소진
+  t2_gate_patch.py:13741  if (os.environ.get("T2_FOLLOWUP_READLOOP") == "1" and not _resign
+  t2_gate_patch.py:13760      print("[T2_FOLLOWUP] readloop-turn counted as resignation", …)
+  t2_gate_patch.py:9674   _bad = _TR.mismatches(_sp, _args_dict(c), _byid)
+  t2_gate_patch.py:9716       % (getattr(c, "name", None), len(_bad), _bad[0][:2]),      <- IndexError
+  t2_scaffold_get.py:2759 if os.environ.get("T2_SG_GROUND") == "1" and d.get("ground"):
+  t2_scaffold_get.py:3267 _txt = ("[GROUNDING WARNING] %d input value(s) could not be verified against the "
+  go_stack.sh:229  export T2_FOLLOWUP_REQUIRED=1 T2_FOLLOWUP_FORCE=1 T2_FOLLOWUP_READLOOP=1
+  go_stack.sh:695  export T2_DUP_WRITE=0            go_stack.sh:816  export T2_KEEP_DENY_BODY=1
+
+로그 (746 gz + 1160 plain 전수 스캔 · 전부 존재 확인 · 파일명 명시)
+  bank_010ctl_20260904_0007.log.gz
+    [t2_run] provenance -> data/simulations/bank_010ctl_20260904_0007/provenance.json (engine_sha=a208c8e0 dirty=True ctx=131072)
+    [sim=task_010#s626729] [T2_CLAIMPROV] kind-index rescued: kind=None tool='verify_identity' 원장에 있다      (전량 988줄)
+    [sim=task_010#s626729] [T2_CLAIMPROV] tool-miss fallback: kind=None tool='transfer_to_human_agents' 원장 밖 — kind 색인으로 강등
+    [sim=task_010#s626729] [T2_SELFDECL] declared=(none — no-op)
+    [sim=task_010#s373753] [T2_TOOL_OBS] id=chatcmpl-tool- err=True -> Error: resolve the flagged call(s) first; do not call this tool yet.
+  bank_049ctl2_20260904_0534.log.gz
+    [sim=task_049#s373753] [T2_FOLLOWUP] readloop-turn counted as resignation                                    (전량 7840줄)
+    [sim=task_049#s373753] [T2_TOOL_OBS] … -> Error: [BLOCKED] this call was not run because another call in the same
+      turn was blocked: 'call_discoverable_agent_tool(get_closure_reason_history_8293)' (see its own error for what to fix).
+    [sim=task_049#s373753] [T2_PROCEDURE] checklist proc=credit_card_closure_retention nodes=6 done=0
+      left=['disputes','pending_replacement','prior_attempts','log_reason','retention_offer','close']
+  bank_k8143med1_20260904_0135.log.gz
+    [sim=task_015#s626729] [T2_GEN_TRACE] call=agent_claimprov max_tokens=8192 … -> gen=8192 prompt=22765 **TRUNC** content=29666B tool_calls=0
+    [sim=task_015#s626729] [T2_CLAIMPROV] declaration failed (no-op): JSONDecodeError("Expecting ',' delimiter: line 1 column 29646 (char 29645)")
+    [sim=task_051#s626729] [T2_DUP_WRITE] deny tool=submit_credit_limit_increase_request (앞선 성공 msg=23)
+  bank_g97151p11_viewmax2_20260903_1924.log.gz
+    [sim=task_041#s626729] [T2_RESOLVE] deny reference-unmatched param=transaction_id (치환 폐기·표면화 배달)
+    [sim=task_036#s626729] [T2_VALUE_ACQUIRE] consumers card_last_4_digits=1
+  bank_k8141med1_20260903_2256.log.gz
+    [sim=task_079#s626729] [T2_UNCALLED_UNLOCK] surface order_debit_card_5739
+    [sim=task_024#s626729] [T2_TRANSCRIBE] live tool=get_reward_discrepancies rows=1 records=0
+    [sim=task_024#s626729] [T2_TRANSCRIBE] error (no-op): IndexError('list index out of range')
+  bank_lost5_viewmax2_20260903_1610.log.gz
+    [sim=task_093#s626729] [T2_TOOL_OBS] … -> [GROUNDING WARNING] 3 input value(s) could not be verified against the
+      account records / knowledge base and were dropped: base=4.0 (source not found in the knowledge base); …
+
+정본 문서
+  x738_q38_base97_census_2026_09_04.md:13  "정본 = bank_x644_q38base_bank78_20260830  (78 태스크)"
+                                     :17  "pass 42 · fail 55"
+                                     :66  "판별자: 런 로그의 `[T2_` 마커 유무."
+  x737_next_run_plan_2026_09_04.md:121     "§1c 의 3 sim 에서 이 병리(절차 정체·readloop)는 재현되지 않았다"
+```
+
+**(3) 반증 조건 (동시 기재)**
+
+- **R1** — base-PASS 42 태스크를 **같은 sha·같은 레버로 3회 이상** 재채점했을 때 회귀 10건이 3/3 로 재현되면 잡음 귀속이 무너지고 진짜 회귀가 된다. 지금은 10/10 이 1/1 이다.
+- **R2** — base 팔 flip 3건(`008`·`012`·`017`)이 x599 의 **다른 서빙 조건**(포트·concurrency·모델 이어받기 [[30]])에서 온 것이면 18.8% 바닥은 과대평가이고 23.8% 가 신호가 된다. ⇒ **x599 의 `/v1/models` 대조 로그 확인이 선결**.
+- **R3** — 라벨 순열을 **런 안에서만**(런을 층으로 고정) 돌렸을 때 관측 6칸이 순열 상위 5% 밖으로 나가면 1e-2 의 전역 null 은 무너진다. 현재 순열은 런 구조를 깨므로 이 검사가 남아 있다.
+- **R4** — 자격 분모와 태스크 난이도를 동시에 보정한 뒤 `M:T2_UNCALLED_UNLOCK` 이 여전히 p<0.05 면 그 칸은 **가른다**로 승격된다. 지금은 두 보정 모두 안 걸렸다.
+- **R5** — `[BLOCKED]`/`_FB_GENERIC` 이 서로 다른 원인이라는 것을 코드로 보이면(= `_flag8` 이 None 인 칸이 다른 게이트에서 온다는 증명) 별칭 철회가 무너진다. `:12903` 의 후보 집합은 `denied_by_objid ∪ main_prov ∪ _SRC8` 하나뿐이라 현재 반례가 없다.
+- **R6** — 미채점 52 sim 이 채점된 것과 **같은 기전 분포**를 가지면 readloop 철회는 약해진다. 다만 같은 표에서 `PROCEDURE 0.99x`·`gate_deny 0.88x` 로 길이 대리 가설은 이미 깨진다.
+- **R7 (분모 표류)** — 이 절의 census 는 75 sim, 반증 재계산은 78 sim 이다(런이 진행 중 3건 추가). **도는 런 위에서 잰 표**이므로 모든 절대 수치가 다시 움직인다([[54]]: 도는 런의 조건은 바꾸지 않되, 그 위에서 잰 표는 재잰다).
+
+**(4) 선행 확인 (실제로 찾아본 경로)**
+
+```
+ls   reports/facet_rft_2026/ | grep 2026_09        -> x737_next_run_plan · x738_q38_base97_census (2건)
+read reports/facet_rft_2026/x737_next_run_plan_2026_09_04.md:10-90, 600-712, 1166-1280   (D1~D13·L1·L2 정의·등급)
+read reports/facet_rft_2026/x738_q38_base97_census_2026_09_04.md:1-90                    (정본 base 42/55 · 팔 판별자)
+grep -rn "10/42|회귀 10|23.8"  reports/facet_rft_2026/*.md  _cdp_private_local/*.md      -> repo 문서에 없음(라이브 집계뿐)
+grep -rn "declaration failed" --include=*.py .   -> 저작 3곳 (14760 WRITEPROV / 14875 CLAIMPROV / 15082 SELFDECL)
+grep -rn "not run because another call" --include=*.py .   -> t2_gate_patch.py:4536 단일 저작 지점
+grep -n  "_sibling_wait" t2_gate_patch.py        -> 정의 4498 · 호출 5자리(PROVENANCE/ARG-SCHEMA/DISAMBIGUATE/POLICY GATE/BLOCKED)
+grep -n  "_gflags" t2_scaffold_get.py            -> 6회 전수 · **침묵 드롭 경로 0** (드롭 ⟺ 플래그 ⟺ 접두)
+grep -n  "_bad" t2_gate_patch.py                 -> 9674 대입 ↔ 9716 사용 사이 재대입 없음
+grep -n  "T2_DUP_WRITE|T2_KEEP_DENY_BODY|T2_FOLLOWUP_READLOOP|T2_PROCEDURE=|T2_PROC_ABSENT" go_stack.sh
+a2/*.gate.json 전수에서 `ground` 선언 추출        -> scaffold_get_tools 10개 중 5개
+로그 전수 스캔 (746 gz + 1160 plain · 19 패턴)     -> 인용 축자 19/19 존재 확인 (파일·줄 예시 첨부)
+정본 계기 위임: t2_forensic.path_for / log_text / sidecar_rows / simtag / mutation_diff / reward_basis  (사본 0 · [[67]])
+```
+
+---
+
+#### 재현 산출물 (리모트 절대경로)
+
+```
+/home/woori/scratch/mechrun/census/   mech_census.py · mech_report.py · census.json · report.txt   (인구조사 정본)
+/home/woori/scratch/mechrun/vq/       vq.py(축자 19패턴 전수 검산) · fx3.py(148 기전 Fisher) · fx4.py(★라벨 순열 300회)
+                                      vq.out (축자 검산 원장)
+/home/woori/scratch/mechrun/flip/     prefilter.py · extract.py · final.py · rewards.json · esha.json   (flip 바닥)
+/home/woori/scratch/mechrun/cp/       claimprov V1~V4 (recon/main/step2~step7)
+/home/woori/scratch/mechrun/declfail/ declfail 2×2 (grab/an/db/mut/fin)
+/home/woori/scratch/mechrun/declfail2/ ★자연 실험 (s2·s4·s6·s7·s8) — OFF 팔 n=0 증명
+/home/woori/scratch/mechrun/gpd/      grounding (gpd·gpd5 궤적권위·gpd2·gpd3·gpd6)
+/home/woori/scratch/mechrun/dupref/   DUP-WRITE / REFERENCE (extract·report·report2·r4)
+/home/woori/scratch/mechrun/blk/      BLOCKED 부수차단 (lit·main·mut·vict·mh·sub)
+/home/woori/scratch/mechrun/rs/       readloop / 표면화 (x901~x910)
+/home/woori/scratch/mechrun/atk/      ★반증 (p1 모집단구멍 · p4 자격분모 · p6 검출력 · p9 별칭 · p10 검열 · p11 난이도 · p12 MH)
+```
+
+**한 줄 판정**: 이 코퍼스에서 **가르는 기전은 하나도 확인되지 않았고, 회귀 10/42 는 flip 바닥과 구분되지 않는다.** 인구조사가 실제로 산출한 것은 기전의 인과가 아니라 ⑴ **판정 계약**(자격 분모 · 난이도 보정 · 코드 경로 정의 · 전역 순열)과 ⑵ **순위**(`unlock` 경로 · `FB_VIEW` · `LEDGER`)와 ⑶ **계기 결손 3건**(채점 40% 유실 · `dirty=True` 100% · `[T2_TRANSCRIBE]` IndexError)이다. 반복(n≥3)과 자격 분모 없이는 다음 런도 같은 자리에 선다.
 
 ---
 
