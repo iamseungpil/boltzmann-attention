@@ -17,7 +17,7 @@
 | §1 | 원인 진술 — task_049 종결-후 표면화 | **분모 주의 붙음**(한 태그·n=2·§1c 에서 재현 0) |
 | §1b | 실패 20건 전수 + **§1b-refute**(자기 CONFIRMED 철회) | 확정 |
 | §1c | 새 실패 3건(059·064·088) per-step | 확정 · **D7·D8·D9 여기서 나왔다** |
-| §1d | 회귀 10건 — **`1d-055` 만 들어와 있다** | ⏳ 나머지 9건 종합 진행 중 |
+| §1d | 회귀 10건 per-step (9건 + `1d-055`) | 확정 · **D11·D12·D13 여기서 나왔다 · D6 강등** |
 | §1e | **기전 인구조사**(태스크가 아니라 병증) | ⏳ 진행 중 — 아래 참조 |
 | §2 | 수리 후보 D1~D4·D6~D9 + L1·L2 + (철회)D5 | 리뷰 반영 완료 |
 | §3~§8 | 프로브 · 스모크 · 실험 규격 · 중단 조건 · 순서 · 기준선 | 리뷰 반영 완료 |
@@ -50,12 +50,28 @@
 ### 지금 확정된 등급
 
 ```
-CONFIRMED 우리-층 :  D6(중복 억제 · 선행조건 3개 미충족) · D7(grounding 접두) · D8(claimprov None)
-계기(레버 아님)    :  D9(폐기 초안 원장 — 다른 판정 둘이 여기 걸림) · D10(declaration failed 침묵)
+CONFIRMED 우리-층 :  D7(grounding 접두) · D8(claimprov None) · D12(014 · user_action_feedback 오부착)
+                    D13(064 · 정책 근거 없는 [ORDER] 강제) · D11 은 015/038 에서 PLAUSIBLE
+계기(레버 아님)    :  D9(폐기 초안 원장) · D10(declaration failed 침묵)
 가설              :  D1(외연 1~3/6) · D2([[63]] 과 어긋남) · D3(문면만 확정) · D4(약화)
+⛔**강등**         :  **D6 — CONFIRMED 에서 「미판정」으로 내린다**(§1d-6). 이유 셋:
+                    ① 지운 두 번째 submit 은 **어떤 채점 단위도 잃지 않았다**(ours 051_7 match=True).
+                       실제 결손 051_8·051_9 는 turn 60 의 `[T2_PIN_READ]` 화이트리스트 + 강제
+                       `tool_choice` 로 **선택 불가**였다 — DUPLICATE-WRITE 가 아니다.
+                    ② 그 노출은 **런 이전에 소스에 적혀 있었다** — `t2_gate_patch.py:12263-12264` 축자
+                       *"알려진 노출: 051 은 gold 가 거절·상환 뒤 같은 인자 재제출을 요구한다 … 이
+                       가드는 그것도 막는다 … 051 은 코퍼스 전 sim 이 0점이라 실제로 잃은 점수는 없다."*
+                       ⇒ 내 발견은 **재발명**이고, 바뀐 것은 그 전제뿐이다(base x644 051 reward 1.0 이
+                       2026-08-30 코퍼스에 들어와 *"잃은 점수 없다"* 가 거짓이 됐다).
+                    ③ 내가 *"부정통제가 없다"* 고 쓴 것도 **거짓**이다 — `x548_dup_deny_iso.py`(444줄·팔 5)가
+                       2026-08-26 부터 있고 **051 케이스 빌더까지 있다(:284)**. 없는 것은 **051 행**뿐 ⇒ [[74]] 위반.
+                    ⇒ 결정적 시험: `x548_dup_deny_iso.py --target 051` · 창은 base m52 · 모델을 **Q38 로 맞춰서**
 조사              :  L1(꺼진 열거 레버 · 기대수익 약화) · L2
 측정만            :  파생값 17칸(compute_ops 는 2026-08-19 에 일부러 삭제됨) · 오선택 14칸(②범주)
 ```
+
+⚠**등급은 전부 「이 짝에서」의 등급이다.** 코퍼스 전량 통과 횟수를 실제로 붙인 것은 **051 하나뿐**이고
+나머지 8건은 **미측정**이다 ⇒ `055` 처럼 **한 번의 통과 런이 나오면 즉시 강등된다**([[57]] 후속작업).
 
 ### 리뷰에서 특히 봐 주었으면 하는 것
 
@@ -63,7 +79,8 @@ CONFIRMED 우리-층 :  D6(중복 억제 · 선행조건 3개 미충족) · D7(g
    *"DB 를 바꿨다"* 가 아니라 *"이 절차에서 더 할 일이 없다"* 라는 근거로 충분한가.
 2. **§5 팔** — 지금 *"격리 통과분 전부 합성"* 으로 열어 뒀다. 무엇을 끄려면 그것이 판정이어야 한다는
    [[19]]/[[60]] 해석이 맞나.
-3. **§2 C2** — 221건 부호를 배선 전 게이트로 올린 것. 무료 산정법(①051형 ↔ ②088형)이 결정론인가.
+3. **§2 C2 + §1d-6** — 221건 부호를 배선 전 게이트로 올린 것은 유효하나, **D6 자체가 강등**됐다.
+   `x548 --target 051` 을 Q38 로 돌리는 것이 D6 의 생사 시험이다. 그 전에 배선 금지.
 4. **§1c-5 의 D7·D8 4칸 계약** — 특히 D8 은 *"런 전역 22/22"* 인데 인과는 미판정이다. 격리 설계가
    [[57]] 부정통제를 갖췄나.
 
@@ -737,6 +754,544 @@ _029  "PREMIUM TIER: ... (delivery_fee: $0 for both STANDARD and EXPEDITED) - Ru
 >
 > 채점 단위는 DB 변이다([[69]]). `1d-055` 가 그 실증도 겸한다 — **base 도 `action_checks` 2칸이
 > False 인데 reward 1.0** 이다.
+
+
+> **범위**: 위 머리말의 회귀 10건 중 `1d-055` 를 뺀 **9건** — `007 014 015 038 051 054 059 064 079`.
+> 전부 **base PASS ↔ ours FAIL** 이다(회귀 집합의 정의는 머리말 · `x738:34-36` 교집합).
+> 9건 각각에 **독립 반증 서브 1개**를 붙였다. 아래는 원 대조 보고가 아니라 **그 반증을 통과한 것만** 남긴 결과다.
+>
+> ⛔⛔ **머리말의 교훈을 여기에도 그대로 적용한다 — 회귀는 사실이지 인과가 아니다.**
+> 「코퍼스 전량에서 ours 가 이 태스크를 몇 번 통과했나」를 실제로 붙일 수 있었던 것은 **051 뿐**이다
+> (전 롤아웃 42 중 `db_match=True` **0건**, 그중 41 이 Qwen2.5-32B 레거시 ⇒ **Q38 비교쌍은 1:1**). 나머지
+> 8 건은 **미측정**이다 ⇒ 아래 등급은 전부 *"이 짝에서"* 의 등급이고, 055 처럼 **한 번의 통과 런이 나오면
+> 즉시 강등된다**. ★[[57]] 후속작업으로 남긴다.
+
+#### 1d-0. 서술 단위와 판정 계약
+
+**서술 단위는 DB 변이다** ([[69]]). 9건 중 **8건이 `reward_basis: ['DB']`** 이고, 예외는 **`task_014` 하나뿐**
+(`reward_basis: ['ACTION']` · `reward_breakdown: {'ACTION': 0.0}` · `compare_args: ["reason"]`). 따라서 아래는
+전부 **MISSING / WRONGARG / EXTRA** 로 세고, `action_checks` 는 어디서도 실패 단위로 쓰지 않는다.
+079 는 evaluator 를 그대로 재현해 `gold d4984a97f7daf847… / base 동일(match True) / ours d6996ccc376de19e…`
+를 재생산한 뒤 DeepDiff 로 변이를 뽑았고, 038 은 궤적 재실행 DB 를 표별로 diff 한 뒤 **인자 한 칸만 뒤집는
+반사실**(`EXPEDITED=T match True`)까지 돌렸다 ⇒ 이 둘의 실패 단위는 **추론이 아니라 측정**이다.
+
+**귀속 4조건** (이 절의 계약 · 넷을 다 못 채우면 `unknown`):
+
+| | 조건 |
+|---|---|
+| (a) | 첫 분기점을 **메시지 단위로** 특정한다 |
+| (b) | 그 분기 **직전에** 우리 층 발화(tool-deny · `[T2_*]` 표면화 · 재생성)가 있었다 |
+| (c) | 그 발화가 **base 가 실제로 한 행동**을 금지·전환시켰음을 축자로 보인다 |
+| (d) | 같은 sim 안에 **같은 게이트 아래 통과한 형제 호출이 없다** |
+
+**등급 어휘** — `CONFIRMED`(반증을 걸었고 살아남음) · `PLAUSIBLE`(사슬은 서지만 반례가 인과를 약화) ·
+`우리층 무관`(반증이 우리 층 쪽을 죽임) · `미판정`(4칸 미충족 · 추정으로 yes 를 쓰지 않는다).
+
+⛔ **태그를 합산하지 마라.** ours 팔은 네 태그에 흩어져 있다 — `bank_k8141med1_20260903_2256`(007·059·064) ·
+`bank_k8141med2_20260903_2256`(038) · `bank_k8143med1_20260904_0135`(015·051·054·079) ·
+`bank_re151med1_20260904_0255`(014). base 대조본이 `bank_x644_q38base_bank78_20260830` 임을 **축자로 확인한
+것은 007·014·051 세 건**이고, 나머지는 머리말의 base PASS 42 집합에 의존한다.
+
+---
+
+#### 1d-1. 판정 표
+
+| 태스크 | 첫 분기 msg | 분기 **직전** 우리 층 발화 | DB 실패 단위 (변이 집합) | 최종 귀속 | 수리 후보 |
+|---|---|---|---|---|---|
+| **007** | **m1** (user-sim 개시 발화 · 에이전트 행동 **이전**) | **없음** (m33 생성에 deny 0·regen 0) | MISSING 1 = `007_0 apply_for_credit_card`(requestor=user, write) | **우리층 무관** (표적 레버 채널) · 상시 guidance 버스는 **미판정** | L2 (n↑) · reward 대응 **없음** |
+| **014** | **turn 43** (transfer 초안 1·2라운드) | **있음** — `[ACTION] 'submit_referral' … do not transfer for this.` | ⚠**ACTION 채점** · MISSING 1 = `014_0 transfer_to_human_agents` | **CONFIRMED 우리층**(gold 호출 제거) + **미판정**(제거가 없었으면 1.0 이었나) | **D12(신규)** |
+| **015** | **t26** (pre-give 재생성) | **있음** — `usertoolnote`·`givequote` 재생성 | MISSING 2 = `get_referral_link` 가 만드는 `referrals` 행 + `user_discoverable_tool_calls` 행 | **PLAUSIBLE** (기전은 CONFIRMED · (d) 런 수준 붕괴) | **D11(신규)** · D9 |
+| **038** | **m45** (배송속도 양보) | **없음** (trace turn=40 단일 생성 · deny 0·regen 0) | WRONGARG 1 = `credit_card_orders/ccord_6ed1a491c036/expedited_shipping` `False`↔`True` (측정) | **미판정** (채점 칸) · 별건 **CONFIRMED 우리층** 1건 | **D11(신규)** · [[70]] SIGNATURE 절충표 |
+| **051** | **turn 60 / m61** | **있음** — `[T2_DUP_WRITE] deny` ×4 + `[T2_PIN_READ]` + 강제 `tool_choice` | MISSING 2 = `051_8 unlock approve_credit_limit_increase_5847` · `051_9 call approve…{"new_credit_limit":5000}` (DB 델타 `credit_limit 4000→5000`) | **미판정** (두 기전 모두 4칸 미충족) | **D6 전제 재검토(필수)** · x548 `--target 051` |
+| **054** | **m34** (ours) ↔ **m31** (base) | **없음** (t33 fb 0행 · `[T2_CLAIMPROV] reserve window: no action-kind claim — skip`) | MISSING 2 = `submit_credit_limit_increase_request_7392` · `approve_credit_limit_increase_5847` (키 자체 부재) | **우리층 무관** (근거 교체) · 별건 **CONFIRMED 우리층** 1건 | D8 (n↑) · reward 대응 **없음** |
+| **059** | **turn 27** (recommendation-offer deny) → 하류 m68 | **있음** (간접) — deny 로 갈아끼운 m29 → m31 `cat` → m32 | WRONGARG 1 = `account_class` `"Green Account (savings)"` ↔ gold `"Green Account"` | **미판정** ((a)(b)(c) 충족 · **(d) 불충족**) | §T-8 게이트(`T2_SIBLING_PAREN`) · L2 (n↑) |
+| **064** | **t30** (초안 폐기) → m35 (점수 추궁 착지) | **있음** — `[ACTION]+[ORDER]` 1262자 + `[ARG-EMPTY] credit_score` | WRONGARG 2 = `account_class` `"Silver Account"`↔`"Gold Plus Account"` · `card_type` `"EcoCard"`↔`"Gold Rewards Card"` | **CONFIRMED 우리층**(분기 **개시**) + **PLAUSIBLE**(두 값의 반사실 원인) | **D13(신규)** · L2 (n↑) · D8 (n↑) |
+| **079** | **turn 44 → m45** (branch B) | **있음** — `T2_UNCALLED_UNLOCK` + `T2_GATE_REGEN claimprov` | **branch A** MISSING 8칸(freeze/unfreeze 6 + `agent_discoverable_tools` 2행) · **branch B** EXTRA 2 + WRONGARG(order 4필드) + MISSING(`btxn… -35.0`, `dcord RUSH/PREMIUM/35`) | **CONFIRMED 우리층 (branch B)** / **미판정 (branch A)** / 태스크 수준 **복구 불가** | **없음** (D8 로 안 잡힘 · [[70]] 부호표 선행) · D9 |
+
+---
+
+#### 1d-2. task_007 — 분기가 에이전트 행동보다 앞에 있다 (**우리층 무관**)
+
+**(a) 첫 분기 = m1.** 양팔 m0 은 바이트 동일(`Hi! How can I help you today?`)이고 그 다음 **user-sim 개시
+발화**가 갈린다 — base m1 은 `I'm Jordan Mitchell` 로 이름을 대고, ours m1 은 끝까지 대지 않는다. **에이전트
+입력이 동일한 지점에서 갈렸다** ⇒ 롤아웃 사건.
+
+**(c) 는 유보가 아니라 반증됐다.** base 의 승리 수는 m17 클로징 *"Would you like me to: 1. Walk you through
+how to apply for the **EcoCard**…"* 하나인데, ours 는 **deny 전에도 후에도 그 수를 둔 적이 없다** — 폐기 초안
+(fb `sha=1fa092bc3374`, len=1781)의 클로징도 배달된 m33 의 클로징도 똑같이 *"personal or business"* 자격
+질문 2개다. **우리 층이 없앤 것이 없다.**
+
+**런-내 부정통제([[57]]).** 같은 런 12 sim 중 `recommendation-offer deny` 가 난 7 sim 에서 **reward 1.0 이 4건**
+(003·006·024·025). deny 는 실패의 필요조건도 충분조건도 아니다.
+
+**⛔ 철회 (원 대조 보고)**
+
+| 철회 | 왜 |
+|---|---|
+| *"m33 의 오답 승격은 우리 reminder 가 문맥에 남긴 결과"* | **토큰 산수로 기각.** GEN_TRACE `prompt=` 3연 = 초안 `34616` → 재생성 `35256`(+640) → **m33 생성 `34682`(+66)**. +66 은 m31 shell 호출 + m32 `(no output)` 뿐 ⇒ reminder 도 폐기 초안도 m33 프롬프트에 **없다** |
+| *"첫 구조적 분기 = m5"* | 진짜 첫 분기는 **m1** (위) |
+| *"EcoCard 를 $20 로 깎은 것이 실패 요인"* | base 도 축자로 똑같이 깎고(`the bonus is modest`) **이겼다** |
+| *"(c) 는 판단 유보"* | (c) 는 **반증**이다 (위) |
+
+**남는 CONFIRMED 우리-층 결함 2종 (reward 원인 아님 · L2 로 접는다)**
+① `recommend_formalize` 게이트에 **"구별 질문을 던진다"는 탈출구가 없다** — card_type 을 정하는 데 필요한
+personal/business 를 묻는 정당한 초안을 `only describing options in text (or deflecting)` 로 규정해 폐기했다.
+② 같은 turn 배터리 안에서 `recommend_formalize(applies=true)` 와 `intent_operator_formalize({"tool":"none"})`
+가 **서로 모순**한다. 그 결과 성공 4건에서 2~4회 발화한 `[T2_RESOLVE] user-action instruct` 가 **007 에서만 0회**다.
+③ reminder 이행률 **0/1** — *"Offer it now by calling 'give_discoverable_user_tool'…"* 에 모델은
+`shell grep "apply_for_credit_card"` 로 답했다(m31→m32 `(no output)`).
+
+**계기 결손(별건)**: `perstep_diff.py` 의 sim 필터가 **메시지-레벨 deny 를 못 본다** — fb 행이 `"sim": "nouser"` /
+`"sim": "ab42bebb3d8a"` 이고 task_007 은 `simtag` 에만 있다. §[5]/[6] 에 메시지 deny 채널을 추가해야 한다.
+
+---
+
+#### 1d-3. task_014 — 우리 문면이 **자기가 말하지 않은 도구**를 죽였다 (**CONFIRMED 제거 / 미판정 복구**)
+
+이 9건에서 **유일한 ACTION 채점**이다. `action_checks=[{action_id:"014_0", name:"transfer_to_human_agents",
+compare_args:["reason"], action_match:false}]` 이고 ours 21 tool_calls 전수 스캔에서 `transfer*` **0건**.
+
+**(b)(c) 충족 — 3라운드의 실물.**
+```
+1R  trace L905 turn=40 GEN_TRACE tool_calls=1 → L908 [T2_MATERIAL_GATE] stop=other_lever(gate) calls=transfer_to_human_agents
+                                              → L911 [T2_TOOL_OBS] err=True [POLICY GATE GB2_NOTICE_BEFORE_TRANSFER]
+2R  L933 agent_response_unified_regen tool_calls=1 · L935 [T2_REQUIRE_DOC] surface transfer_to_human_agents
+                                              → L949 Error: [ACTION] 'submit_referral' … do not transfer for this.
+3R  L971 tool_calls=0 · L972 stop=resolve_cap(정체 3회) prose=True
+```
+**결정적 배선 2줄(로컬 재확인)** — `t2_gate_patch.py:10524` 기본 `user_action_feedback` 문면에
+`"and do not transfer for this. "` 가 **조건 없이** 들어 있고, `t2_gate_patch.py:10961`
+`rw_fb = ((am.tool_calls or [None])[0], _ufb) if _ufb else None` 이 그 문면을 **초안의 첫 tool_call 이 무엇이든**
+그 호출의 오류 관측으로 붙인다. 그래서 `submit_referral` 얘기가 `transfer_to_human_agents` 를 죽였다.
+
+**완화 레버가 켜져 있었는데 조건이 안 걸렸다** — `provenance.json.levers_on` 에 `T2_ACTIONREQ_GROUNDED` 가
+있는데도 *"에이전트가 직접 할 수 있는 일이 남아 있지 않다 …(target=submit_referral)"* 가 **10회** 찍혔다.
+원인은 `t2_gate_patch.py:3151 _delivered_unused_agent_tools` 가 **discoverable 레지스트리만** 본다는 것이다
+(로컬 확인: `reg = _agent_discoverable(...)`). 손님이 명시적으로 요구한 미실행 이관도구가 있는데 집합이 비어
+"남은 일 없음"으로 오판됐다 — 같은 파일 `:3175 _transfer_tools(a2)` 가 **이미 그 집합을 A2 에서 도출한다**.
+
+**⛔ 철회**
+
+| 철회 | 왜 |
+|---|---|
+| *"(d) GB2 도 [ACTION] 도 이 sim 에서 단 한 번도 통과를 허용하지 않았다"* | **거짓.** 2R 에는 `stop=other_lever(gate)` 도 GB2 오류도 없다 — 모델이 GB2 복구지시를 이행했고(`TRANSFER NOTICE: …` 축자 포함) **게이트가 열렸다**. 치명적 deny 는 **한 번**이고 그것은 GB2 가 아니라 [ACTION] 이다 |
+| *"(d) 형제 통과 0건"* | **거짓.** m24 `get_referrals_by_user` · m29 `unlock_discoverable_agent_tool` · m31 `get_credit_card_accounts_by_user` 가 같은 레버 활성 중 통과 |
+| *"인자까지 맞을 궤도였다"* | **근거 없음.** 모델이 낸 `reason` 값은 results/fb/trace/log **어디에도 없고**, `tools.py:48-68 TransferReasonLiteral` 은 **19지 enum** 이며 TIER-1 경쟁 코드가 존재한다 ⇒ *"우리 층이 1.0 을 앗았다"* 는 성립하지 않고, 성립하는 것은 *"그 자리의 유일한 기회를 없앴다"* 까지다 |
+| *"m43 전송 거부가 우리 문면 때문"* | **절반 무너짐.** `doc_credit_cards_..._009` 축자 *"Do not transfer to a human in these cases."* 를 **양팔이 모두 회수**했고, **base 는 우리 층 0 으로 같은 거절을 스스로 썼다**(base m24) ⇒ 거부는 모델의 자율 레퍼토리 안에 있다 |
+| *"git 은 base 와 동일 `fc0055dc4e0a`"* | **오독.** `engine_sha: a208c8e0` · **`engine_dirty: true`** · `bench_sha_cwd: fc0055d`(tau2-bench 쪽) |
+| *"세 이름이 m18·m24·m29 로 그대로 실행됐다"* | 셋째 거짓 — m29 는 **unlock 만** 했다(`[UNLOCKED-NOT-CALLED]` 리마인더 → m35 사과) |
+| *"turn 14 분기가 load-bearing"* | 아니다. 궤적이 재수렴한다(ours m37≈base m22 · ours m38≈base m23/25). 실효 비용은 **손님 턴 1칸** |
+
+⇒ **등급: CONFIRMED(우리 층이 gold 호출을 제거) + 미판정(제거가 없었으면 1.0 이었는지).** (d) 미충족.
+**계기 선행수리**: `[T2_MATERIAL_GATE]` 가 `calls=` 옆에 **인자 해시/값**을 남기지 않으면 이 태스크의 인과는
+영원히 미판정이다.
+
+---
+
+#### 1d-4. task_015 — pre-give 재생성이 호출을 삼킨다 (**PLAUSIBLE · 기전은 CONFIRMED**)
+
+**우리 층이 조건을 만든 것은 CONFIRMED** — `"has not been given to you"` 에러는 **base 78 sim 에 0건**이고
+ours 두 sim 에만 있다.
+
+**그러나 원 보고가 지목한 원인은 틀렸다.** `T2_TOOL_SIGNATURE deny` 는 이 런에서 **3 sim** 에 났고
+**task_020 1.0 · task_021 1.0 · task_015 0.0** ⇒ 런 수준 base rate 1/3. 진짜 표적은 **pre-give 재생성이
+tool_call 을 보존하지 않는다**는 것이다(런 전체 집계):
+
+```
+agent_response_usertoolnote     DROP(1->0)=2  KEEP(>=1)=1
+agent_response_givequote        DROP(1->0)=2  KEEP(>=1)=1
+agent_response_unified_regen    DROP(1->0)=5  KEEP(>=1)=30
+```
+SIGNATURE 와 독립인 사례도 있다 — `task_020 t31 agent_response_claimprov(tc=1) -> agent_response_givequote(tc=0)`
+(그 sim 의 deny 는 t35·t54 뿐). **task_015 이 유일하게 진 이유 = give 를 두 번 연속 잃은 유일한 sim** 이다:
+
+| | t26 usertoolnote | t28 givequote | 결과 |
+|---|---|---|---|
+| task_015 | `tool_calls=0` | `retract=1 (give_present_after_reask=0)` | 거짓 진술 **2회** · 에러 2회 · 손님 재시도 **없음** |
+| task_021 | `tool_calls=0` | `retract=0 (give_present_after_reask=1)` | 거짓 진술 1회 · 에러 2회 · 손님 **실행 → 1.0** |
+
+**⛔ 철회**
+
+| 철회 | 왜 |
+|---|---|
+| *"SIGNATURE deny 가 치명타"* | 같은 게이트 3 sim 중 2건이 **reward 1.0**. deny 는 원인이 아니라 **배수** — 재생성 캐스케이드를 한 번 더 열어 2/3 확률의 주사위를 다시 굴리게 한다 |
+| *"우리가 유발한 env 에러 2번이 손님을 포기시켰다"* | **완전 대조군 task_021** 이 같은 에러 2회 + 거의 축자 동일한 복구 문구 뒤에 **복구했다**(1/2) |
+| *"(c) 우리 게이트 전제가 환경 사실과 어긋난다"* | 절반 오류. env 는 관대하지만(`tools.py:533-534` `arguments` 선언) **정책은 반대**다 — `additional_instructions.md:15,17` 이 give 를 **1인자**로 두 번 적었다 ⇒ 게이트는 정책상 옳다([[23]] 통과) |
+| *"`(no arguments)` 라 손님이 못 돌렸다"* | **경험적 기각.** task_021 m38 이 `Arguments: (no arguments)` 인데 m41/m43 이 성공했다 |
+
+⇒ **등급: PLAUSIBLE.** (a)(b)(c) 충족 · **(d) 는 sim 내부로만 성립**하고 런 수준에서 무너진다. 마지막 한 칸
+(손님 미재시도)은 **shared** 로 내린다. 남는 CONFIRMED 는 **기전**(D11)이지 reward 귀속이 아니다.
+
+---
+
+#### 1d-5. task_038 — 채점 칸에는 우리 층이 발화한 적이 없다 (**미판정** + 별건 CONFIRMED)
+
+**실패 단위는 측정이다.** DB 표별 diff 결과 **다른 칸이 하나뿐**이고(`expedited_shipping pred=False gold=True`),
+그 인자만 뒤집어 재실행하면 `EXPEDITED=T match True`. ⇒ **WRONGARG 1 · MISSING 0 · EXTRA 0.**
+
+**yes 로 못 미는 이유** — 양보가 일어난 m45 는 `trace turn=40 [T2_GEN_TRACE] call=agent_response … tool_calls=0`
+**단 한 줄**이다(deny 0 · regen 0). fb 의 `expedited` 17히트는 **전부 `kind=subcall` 프롬프트 payload**,
+trace 0, 런 로그 0 ⇒ **우리 층이 배송속도를 언급한 횟수 = 0.** 정책 축자
+(*"strongly recommend expedited shipping"*)는 양팔 다 회수했고 base 만 되받았다.
+**no 로 못 미는 이유** — 선택지를 제시한 m43 자체가 `[SIGNATURE] deny → unified_regen → givexec → claimprov`
+캐스케이드의 산물이다. **무대는 우리가 만들었고 대사는 모델이 썼다.**
+
+**⛔ 철회**
+
+| 철회 | 왜 |
+|---|---|
+| *"(d) 형제 통과 있음 → 인과 약함"* | **shape 혼동.** deny 된 네 번은 전부 `arguments` 를 실은 give 이고 **0/4 통과**, 실행된 give 2회는 **인자 없는 별개 형태**다 ⇒ [SIGNATURE] 에 대해 (d) 는 **충족** |
+| *"(c) 우리 발화가 base 행동을 금지하지 않았다"* | **좁은 축으로만 검사했다.** base m31/m37 은 `arguments` 를 실은 give 를 실제로 했고 우리가 그것을 4회 금지했다 ⇒ **give 축에서는 (c) 충족**(채점 칸 축에서는 여전히 불충족) |
+| *"[SIGNATURE] 은 채점을 위해 필요하다"* | `t2_signature.py:10-11` 의 근거는 **action_checks 논거**다. env 의 give 는 DB 에 `{"tool_name","status"}` 두 칸만 쓰므로(`tools.py:582-585`) `arguments` 는 **원리적으로 DB 해시를 못 움직인다** ⇒ DB-basis 태스크에서 이 레버는 **채점축에 아무 것도 사주지 않으면서** 16 메시지를 팔았다([[70]]) |
+
+**별건 CONFIRMED 우리-층 결함** — turn 28 에서 `usertoolnote` 재생성이 **이미 규격에 맞는(=gold `038_1` 과
+동일 형태) give 호출을 파괴**했다. 대가 = 6 메시지 우회 + `Unknown discoverable tool 'retrieve_last4'` /
+`'get_card_last4'` **2회**. ⇒ **015 와 같은 기전이 다른 태그에서 재발**했다 ⇒ **D11.**
+
+---
+
+#### 1d-6. task_051 — 이 절의 최대 산출은 **D6 의 출시 전제가 거짓이 됐다**는 것 (**미판정**)
+
+**실패 단위**는 base/ours `action_checks` 를 전 항목 대조해 좁혔다: `051_0`~`051_7` 은 **두 팔 값이 완전히
+동일**하고 갈리는 것은 `051_8`·`051_9` 뿐(DB 델타 `credit_limit 4000→5000`, base m64 축자
+*"Previous Limit: $4000.00 - New Limit: $5000.00"*). 지운 두 번째 submit 은 **어떤 채점 단위도 잃지 않았다**
+(`ours 051_7 action_match=True`).
+
+**⛔ D6 에 직접 걸리는 것 (로컬에서 내 손으로 재확인)**
+
+1. `t2_gate_patch.py:12263-12264` 축자 — *"⚠**알려진 노출**: 051 은 gold 가 거절·상환 뒤 같은 인자 재제출을
+   요구한다 … 이 가드는 그것도 막는다 … **051 은 코퍼스 전 sim 이 0점이라 실제로 잃은 점수는 없다.**"*
+   ⇒ **그 출시 전제가 지금 거짓이다.** `base x644 task_051 reward=1.0`(2026-08-30)이 코퍼스에 들어왔다.
+2. `t2_gate_patch.py:12256-12257`·`go_stack.sh:692-694` 는 부정통제를 *"재발행 4/4 → 0/4 … 이름 없는 거절(4/4)·
+   같은 길이 무관 문장(4/4)은 못 막는다"* 로 인용하는데, **정본 JSON 은 그 숫자를 담고 있지 않다** —
+   `x548_dup_deny_iso_2026_08_26.json` 의 유일한 행(`rows` 길이 **1** · `target:"074"` · n=4) tally 는
+   `A_live/B_bare/C_proceed/D_escape 전부 {reissue:0, acted:0}` · `N_len {reissue:0, acted:4}` 다.
+   **팔을 가르는 양은 `reissue` 가 아니라 `acted`(출시 문면 0/4 ↔ 길이 맞춘 통제 4/4)** 이고, `4/4` 기준선은
+   파일에 없다 ⇒ **인용 수치 정정 필요**([[40]]).
+3. **배선 불일치([[81]]·[[54]])** — 정본은 `go_stack.sh:695 export T2_DUP_WRITE=0`(기본 OFF)인데, 라이브
+   런처는 전부 `=1` 이다: `run_ours_task.sh:128` · `run_night_ab.sh:65` · `run_t7363_night.sh:57` ·
+   `run_t7364.sh:64` · `run_t7365.sh:63`(로컬 grep). **이 회귀 런은 정본 스택이 아니다.**
+
+**⛔ 철회**
+
+| 철회 | 왜 |
+|---|---|
+| *"현재 없는 부정통제다([[57]])"* | **거짓.** `x548_dup_deny_iso.py`(444줄 · 팔 5개)가 2026-08-26 부터 있고 **051 케이스 빌더까지 이미 있다**(`:284`). 없는 것은 프로브가 아니라 **051 행**이다 ⇒ [[74]] 위반 |
+| *"가장 싼 수리 = 문구를 다음 행동 지명으로 바꾼다"* | **이미 저작됐고 0/4 로 실패했다** — `DENY_ESCAPE` 축자 존재 · `D_escape {reissue:0, acted:0}` ⇒ [[40]] 재유도 |
+| *"CONFIRMED / 강등 논쟁"* | 노출은 **런 이전에 소스에 적혀 있었다**(위 1) ⇒ 재발명 |
+| *"deny 8건 / route 5회"* | 계수 오류. DUPLICATE-WRITE 는 `tool-deny` 8 중 **4**(turn 61·63·65·67) · route `dup_write` **4** · trace deny **4** |
+| *"분기 직전 우리 층 발화 없음"* | 놓쳤다. turn 60 에 `[T2_DUP_WRITE] deny` + `[T2_PIN_READ] pinned call_discoverable_agent_tool(agent_tool_name=[4개])` + **강제 `tool_choice`** 가 동시 발화했고, 결손 gold `051_8` 은 그 화이트리스트에 **없다** ⇒ 그 turn 에 **디코딩 제약으로 선택 불가**였다 |
+| *"git 은 base 와 동일 `fc0055dc4e0a`"* | `git cat-file -t` → `fatal: Not a valid object name` ⇒ **검증 불가** |
+
+**4칸 판정** — dup_write 기전: (a)✅ (b)✅ (c)**협의만**(지운 호출은 DB 0행) (d)✅ / PIN_READ 기전: (a)✅ (b)✅
+(c)**하드 충족** (d)**❌**(`unlock_discoverable_agent_tool` 이 turn 42·52·57 에서 자유 통과). ⇒ **미판정.**
+**결정적 시험은 이제 싸고 인프라도 있다**: `x548_dup_deny_iso.py --target 051`, 창을 base m52 로 잡고
+모델을 **Qwen3.8-27B-FP8 로 맞춰서**(기존 x548 은 Qwen2.5-32B).
+
+---
+
+#### 1d-7. task_054 — 결론은 살고 **근거가 통째로 교체됐다** (**우리층 무관**)
+
+**(b)(c) 불충족은 재검증됐다** — t33 fb 비-subcall 0행, `[T2_CLAIMPROV] reserve window: no action-kind claim —
+skip` · `[T2_UNAVAIL] promised tools not available: []`, 그리고 t33 의 `agent_response` GEN_TRACE 는 **1회뿐**
+(`content=1042B` ≈ m34 1048B). **m34 시점 컨텍스트에 영속하는 우리 층 문자열은 KB 출력 꼬리의
+`[axis] matches: 4 documents …` 건수 한 줄뿐**이다(m0~m34 전수 스캔 히트 0).
+
+**⛔ 철회**
+
+| 철회 | 왜 |
+|---|---|
+| *"유저 질문이 base m30 과 같은 취지로 m33 에 왔다"* | **축자로 거짓 — 대조의 전제가 깨진다.** base m30 은 CLI 질문 **하나만** 담았고, ours m33 은 *"Please go straight to disputing it."* + *"send the replacement card to …"* 라는 **사기 처리 명령 2건이 선행**하고 CLI 질문은 맨 끝 부록이다. 이것이 분기의 가장 강한 대안설명이다 |
+| *"재생성 없음"* | **turn 33 만 참.** sim 전체로는 t6·t9·t11 에서 우리 층이 모델 텍스트(715B·587B·521B)를 버리고 도구호출로 교체했다 |
+| *"잔여 채널은 axis note 와 guided grammar 둘뿐"* | 열거 누락(`T2_SURFACE_BUS guidance:attached` ×2 · `T2_A2_VARIANT` · 매 턴 서브 5종) |
+| *사전 판정* *"우리 [OPERATOR-SCOPE] 가 그 오선택을 지적했다"* | **틀렸다.** deny 는 t36 이고 갈래는 m34/m35 에서 이미 끝났으며, deny 가 지목한 두 도구는 gold `054_13~054_16` 이 전부 `match=True` 인 **정답 도구**다 |
+
+**내가 세웠다가 스스로 죽인 대안가설 2건** — ① *"우리 층이 shell 을 억제했다"*: base **471회/58태스크(74%)**
+↔ ours **52회/9태스크(75%)** ⇒ 억제 없음. ② *"CLI 적격 사실을 몰랐다"*: ours m34 축자 *"**Yes, technically we
+could do the CLI first.**"* ⇒ 지식 결손이 아니라 판단 차이.
+
+**별건 CONFIRMED 우리-층 결함 (D8 강화 · reward 원인 아님)** — claimprov 가 **`unbacked=0` 인데** 3회 발화해
+텍스트를 폐기했고, 전송 문면의 항목 이름이 전부 `None` 이다: *"…never actually executed: **None: None; None:
+None**"* / *"…are in YOUR OWN tool list, not the customer's: **None** (tool: get_credit_card_transactions_by_user)"*.
+강제된 산출물은 손님이 말한 적 없는 `customer_name="Alex Morgan"` ×3 → 전부 `No records found in 'users'.`
+(읽기 전용 · DB 무영향 · 111초). **reward 원인은 아니다** — 두 팔 모두 신원확인이 m14 에 착지하고 m16~m30 이
+도구 정체 기준 완전 일치한다.
+
+---
+
+#### 1d-8. task_059 — `no` 에서 **`미판정`** 으로 올린다 (간접 사슬 (a)(b)(c) 충족 · (d) 불충족)
+
+§1c-1 과 같은 sim 이다. **직접 인과는 여전히 없다** — m68 을 만든 생성 직전의 우리 층 발화는 `[COMPUTED FACTS]`
+원장 주입뿐이고 상품명·`account_class` 를 말하지 않는다. 그러나 **간접 경로가 축자로 선다**:
+
+```
+turn=27 [T2_RESOLVE] recommendation-offer deny
+turn=27 GEN_TRACE agent_response            content=2772B tool_calls=0   ← 폐기된 원본
+turn=27 GEN_TRACE agent_response_unified_regen content=138B tool_calls=1  ← 살아남은 m29
+```
+폐기된 2772B 는 fb 에 남아 있고(`sha a87199805434`) *"## My recommendation … **Green Savings Account + Silver
+Rewards Card**"* 다 — **base 가 실제로 한 행동**(base m24 추천 → m25 손님 실행)과 같은 수다. ours 궤적에는 그
+메시지가 **한 줄도 없다**(`"My recommendation"` 등 3종 문자열 0건). 그 자리에 들어간 m29 는
+`KB_search_bm25("apply for credit card tool apply_for_credit_card …")` 였고 → m31 `cat …general__001` →
+**m32 에 두 팔 통틀어 유일한 줄**이 들어온다: *"- Personal checking account_class options must use the full
+official name ending with 'Account' (e.g., 'Blue Account', **'Green Account (checking)'**)."*
+(`account_class options` = **BASE 0건 / OURS 1건**).
+
+**⛔ 철회** — *"분기 직전 우리 층 발화 없음"*(→ `[T2_FB_VIEW]` 원장 주입이 turn 63·65·67 **3회**, 큐잉과
+주입을 혼동했다) · *"우리 층 발화 3건(deny)은 전부 다른 자리"*(→ 재생성 **6회**, 그중 2회가 추천 국면을 통째로
+삭제) · *"첫 분기는 m2 retrieval coin-flip 이고 무게가 없다"*(→ turn 27 에 무게 있는 분기가 따로 있다).
+
+**그럼에도 (d) 가 불충족이고, 대안 설명이 셋 살아 있다**: ① 괄호 노출 자체는 원인이 아니다(base 도 m3·m4·m5·
+m10·m19·m20 에서 반복 봤고 자기 추천문에도 썼는데 m41 은 `"Green Account"` 였다) ② **정답 규칙이 같은 메시지
+안에 있었다**(*"It must be the full official name ending with \"Account\""*) ③ m32 → m68 사이 거리가 **37
+메시지**이고 그 사이 이 인자를 향한 계기가 0이다 ④ 같은 게이트가 turn 54 에 `passed` 로 통과했다.
+⇒ **미판정.** 넷 중 셋만 충족.
+
+**부수 (우리 층 오답 · [[25]] 위반)** — `recommend_formalize` 가 turn 29·43 에 두 번 다
+`{"applies": true, "card_type": "Gold Rewards Card"}` 를 내고 *"'card_type=Gold Rewards Card' is the match.
+**Offer it now**"* 로 명령형 주입했다. gold·base 는 **Silver Rewards Card** 다. 모델이 무시해 reward 손해가
+없었을 뿐 ⇒ **L2 의 n 을 3(007·059·064)으로 올린다.**
+
+**`T2_SIBLING_PAREN` 은 계기다(레버 아님)** — `t2_gate_patch.py:13311` 의 `in ("log","deny")` 본문은
+`print(..., file=stderr)` 한 줄뿐이고, 배선 grep 은 `arms/*.env` 4건 + 검정 1건이며 **`go_stack.sh` 0건**.
+런 전체 발화 **정확히 1회**(task_059) ⇒ [[81]] 사례. **승격 여부는 §1c-5 대로 `FAILURE_AXIS_AND_FIX_ORDER
+_2026_08_15.md` §T-8 이 정한 게이트를 따른다. 새 후보로 올리지 않는다.**
+
+---
+
+#### 1d-9. task_064 — 분기의 **개시자는 우리가 주입한 도구**다 (**CONFIRMED 개시 / PLAUSIBLE 값**)
+
+**⛔ 철회 (원 대조 보고의 핵심 축)** — *"t30 이전 우리 층 발화는 없다 / 신용점수 질문은 모델 자신의 것"*:
+**무너졌다.** `[T2_SCAFFOLD_GET] injected name=check_card_application_fit … params=[… 'credit_score' …]` 이
+sim 시작부터 서 있었고, 그 설명 첫 문장이 `banking_knowledge.gate.json:3254` 축자
+*"**MANDATORY before recommending or applying for ANY credit card**: formalize the customer's stated
+constraints (… **their credit score** …) and call this tool."* 다. 모델이 **m17 reasoning(t30 보다 55분 전)**
+에서 *"**The check_card_application_fit tool requires formalizing the constraints.**"* 로 그 도구를 이름으로
+지목한다. base 78/78 에는 이 문자열이 **0건**이다.
+
+**부정통제가 반대 방향으로 결정적이다** — 같은 KB·같은 seed·같은 모델·같은 인덱스에서 정반대 결정:
+base m44 *"**I can't check their credit score; the application will handle that.**"* ↔
+ours m28 *"**I need to ask about their credit score to confirm eligibility.**"*
+
+**사슬 6단(전부 축자)** — ①주입 → ②채택(m17) → ③삭제(t30 `[ACTION]+[ORDER]` 1262자가 *"🏆 Best combination:
+Gold Plus savings + Gold Rewards Card"* 초안 2481자를 지움) → ④강제(`[ARG-EMPTY] … 'credit_score' … Re-issue
+the call with … filled in` → 모델이 `credit_score="850"` 을 **지어냄**) → ⑤박탈(`[GROUNDING WARNING] …
+credit_score=850 (the customer never mentioned this…)`) → ⑥착지(m35 점수 추궁 → m36 손님 거절 → m81
+*"let's go with \"1\" — open the **Silver Account**"* → m84/m87 두 WRONGARG).
+
+**그 [ORDER] 게이트는 정책 근거가 없다 — 우리 정본이 자백한다.** `banking_knowledge.gate.json:4653`
+`_note_require_tool_before` 축자(로컬 재확인): *"나머지 체인(`apply_for_credit_card ←
+check_card_application_fit` 등)의 **선행 도구는 우리가 만든 scaffold GET 도구**이고, **그 체인을 요구하는
+정책 문장은 없다** … ⇒ **[[23]] 소급 대상**"*. ⇒ **D13.**
+
+**⛔ 그 밖 철회** — *"(c) 는 단계를 추가한 것"*(범주 오류 — base 가 한 행동은 *추천 발화 송출*이고 우리가 그
+발화를 지웠다 ⇒ (c) 충족) · *"(d) `SIBLING apply_for_credit_card passed_before=[73]`"*(**grep 자기매칭 위양성**
+— m73 은 shell 이고 명령에 그 문자열이 들어 있다; `[ORDER]` 태그는 이 sim 전체에서 **1회**뿐 ⇒ (d) 충족).
+**계기 정정 2건**: *"m40 의 4회는 [READ-FIRST] 로 반려"* → 실제는 `[ARG-EMPTY]×1 + [BLOCKED]×3` ·
+*"`check_card_application_fit` 29회"* → **문자열 등장 수**이고 **호출은 1회(m30)**.
+
+**값까지 yes 로 확장하지 않는 이유** — 지워진 t30 초안의 마지막 줄이 이미
+*"**roughly what's your credit score**, and do you already have a Rho Bank Plus subscription?"* 였고,
+페르소나 검증정보에 **신용점수가 없다**(Name/Phone/Email/DOB/Address/Annual Income 뿐). 초안이 그대로
+착지했어도 같은 거절이 왔을 개연성이 높다. 게다가 m80 은 Gold Plus 를 숫자째 유지했는데도 손님이 "1"을 골랐다.
+⇒ **분기 개시 = CONFIRMED · 두 값의 반사실 원인 = PLAUSIBLE.**
+
+**별건**: `[RECOMMEND-OFFER]` 가 t86 에 *"'card_type=EcoCard' is the match. Offer it now"* 로 **gold 와 반대
+값을 승인**했다(L2 n↑) · claimprov `None` 렌더 결함 2건(D8 n↑).
+
+---
+
+#### 1d-10. task_079 — **우리 층이 실패 변이를 직접 만들었지만, 우리 층만 고쳐도 통과하지 못한다**
+
+evaluator 를 재현해 `base match True / ours match False` 를 재생산한 뒤 DeepDiff 로 갈랐다. 변이가 **두
+branch** 이고 **각 branch 가 단독으로 `db_match=False`** 를 만든다(AND 채점).
+
+**branch B = 우리 층 (CONFIRMED).** 두 자리에서 모델의 원안은 **도구 없는 말-턴**이었고 우리 재생성이
+도구-턴으로 바꿨다:
+```
+turn=35 agent_response content=1965B tool_calls=0 → [T2_CLAIMPROV] window hit(resign) → agent_response_claimprov content=178B tool_calls=2
+turn=44 agent_response content=1227B tool_calls=0 → [T2_UNCALLED_UNLOCK] surface order_debit_card_5739
+                                                  → agent_response_claimprov content=217B tool_calls=1
+```
+영속 m45(217자 축자 일치): *"**You're right — I should have executed the orders immediately rather than
+waiting.**"* — **그 "You're right" 의 수신자는 우리 층뿐이다**(m38↔m53 사이 user 메시지 **0건**;
+fb turn=45 *"[UNLOCKED-NOT-CALLED] … call it now with its arguments"* · *"Do the promised work NOW …"*).
+base 는 같은 자리에서 정책을 되묻고(m60) 손님 확인을 받은 뒤(m61) **RUSH/PREMIUM/$35** 로 발주했다(m67).
+ours 는 확인 없이 **3건을 Standard/Classic 로** 질렀다(m47/49/51) — 그러고 **m55 에서 스스로 정답을 말한다**
+(*"the quickest option … is **RUSH** … **$35 fee**. I already placed your Evergreen order with expedited."*).
+
+**branch A 는 강등한다 — `no` → 미판정.** freeze/unfreeze 8칸의 원인으로 지목했던 "손님 발화 차이"의 그
+손님 발화(m6)가 답한 상대 메시지 **m5 자체가 claimprov 재생성 산출물**이다(`turn=3 agent_response 749B tc=0
+→ agent_response_claimprov 462B tc=0`, 영속 m5 = 462자). **원안 749B 가 유실돼 방향을 증명할 수 없다**(D9).
+
+**⛔ 철회** — *"분기 직전 우리 층 발화 없음"*(fb 만 보고 내렸다. **claimprov·channel 재생성은 fb 에 흔적을 남기지
+않는다** — trace 를 봐야 한다) · *"원안 복원 불가라 부차가설 기각"*(부분 거짓 — **본문은 없지만 `tool_calls` 수와
+바이트는 남아 있고** 그 둘이 0→N 을 증명한다) · *"WRONGARG 는 검색 결손 때문"*(보조 원인일 뿐. m55 축자가 반박).
+
+**D9 의 사정거리를 좁힌다** — 없는 것은 *존재*가 아니라 **본문**이다. `T2_GEN_TRACE` 는 `content=B tool_calls=N`
+을 채널별로 남기므로 **호출 집합의 변화는 사후 판정 가능**하다. D9 의 요구는 *"폐기 원문"* 에 한정한다.
+
+⇒ **등급: branch B CONFIRMED 우리층 / branch A 미판정 / 태스크 수준 = 우리 층 수리로 복구 불가(CONFIRMED).**
+**수리 후보는 만들지 않는다** — branch B 를 막는 술어(*"실행 압박 재생성이 새 write 를 만들지 않는다"*)는
+claimprov 의 존재 이유를 통째로 파는 것이라 [[70]] 절충이지 결함 수리가 아니다. 선행은 **claimprov ON/OFF
+태스크별 부호표**다. (런 전체 base rate: claimprov 재생성 18회 중 원안 0콜 15회, 그중 **8/15 가 0→≥1**.)
+
+---
+
+#### 1d-11. ⇒ 회귀 9건 중 **우리 층 수리로 되돌릴 수 있는 것은 몇 건인가**
+
+**지금 근거로 확정할 수 있는 것은 `0`건이다.** 하나도 "고치면 1.0 이 돌아온다"를 반증까지 통과시키지 못했다.
+그 아래를 이유별로 가른다:
+
+| 구획 | 건수 | 태스크 | 근거 |
+|---|---|---|---|
+| **A. 되돌릴 수 있음이 확정** | **0** | — | 9건 중 (a)(b)(c)(d) 를 다 채운 채 **반사실까지 확인된 것이 없다** |
+| **B. 시험을 통과하면 돌아올 수 있는 후보** | **5** | 014 · 015 · 038 · 051 · 059 | 각각 결정적 시험이 아래에 있다. 전부 **미검증** |
+| **C. 우리 층 무관** | **2** | 007 · 054 | 분기가 **에이전트 행동 이전**(007 m1)이거나 **분기 자리에 우리 층 발화 0**(054 t33). 054 는 손님 턴 내용 자체가 갈렸다 |
+| **D. 우리 층 개시는 CONFIRMED 이나 반사실이 부정적** | **1** | 064 | 지워진 초안이 **이미 신용점수를 묻고 있었고** 페르소나에 그 값이 없다 ⇒ 삭제를 되돌려도 같은 거절이 올 개연성이 높다 |
+| **E. 우리 층을 고쳐도 통과 불가** | **1** | 079 | branch A(freeze 8칸)가 **단독으로 `db_match=False`** 를 만든다. branch B 만 고쳐도 0.0 |
+
+**B 5건의 결정적 시험 (전부 [[57]] 부정통제 · 무료 격리가 먼저)**
+
+| 태스크 | 시험 | 통과 판정 |
+|---|---|---|
+| 014 | `[ACTION] user-action feedback` **만** 끈 팔로 turn 43 재생성 + **`reason` 값 기록** | transfer 가 나가고 `reason` 이 gold `unconfirmed_external_communication` 이면 A 로 승격. **선행 수리**: `[T2_MATERIAL_GATE]` 에 인자 값/해시 기록(없으면 영구 미판정) |
+| 015 | D11 을 넣어 pre-give 재생성 보존율을 100% 로 만든 뒤 **같은 sha·seed** 재실행 | `has not been given to you` 0건 + `get_referral_link` 실행이면 A. 쌍둥이 021 이 1/2 로 복구했으므로 **n=1 로는 못 세운다** |
+| 038 | `T2_TOOL_SIGNATURE=0` **만** 끈 대조 팔(seed 626729) | `expedited=true` 로 끝나면 A, `false` 면 **C 로 확정**(우리층 무관) |
+| 051 | `x548_dup_deny_iso.py --target 051`, 창=base m52, **모델 Qwen3.8-27B-FP8** | `C_proceed` 가 base 의 m59→m61 전환을 얼리면 B 유지·수리 표적 확정. 그리고 **D6 의 출시 전제(*"051 은 잃을 점수가 없다"*)를 문서에서 먼저 정정한다** |
+| 059 | §T-8 게이트대로 `T2_SIBLING_PAREN` 반대 팔 A/B + 반려 후 괄호 제거율 부호표 | 한 칸이 reward 0→1 이고 런 전체 발화 1회라 부작용 위험은 실측상 최소. **§T-8 밖에서 승격 금지** |
+
+---
+
+#### 1d-12. 신규 수리 후보 3개 — 4칸 계약 ([[77]])
+
+> ⛔ 셋 다 **격리 프로브 전에는 배선하지 않는다**([[62]]·[[78]]). 셋 다 도메인 리터럴 0 · 값 선택 0 ·
+> gold 미접촉([[05]]·[[23]]·[[59]]).
+
+##### D11 — 재생성이 원본의 **env-변이 호출을 잃으면 교체를 기각**한다 (015 · 038)
+
+1. **주장 + 양화** — pre-give 재생성 두 채널이 초안의 `give_discoverable_user_tool` 을 떨군다.
+   `bank_k8143med1_20260904_0135` 전역: `usertoolnote` DROP(1→0)=2 / KEEP=1 · `givequote` DROP=2 / KEEP=1
+   (= **pre-give 4/6 = 66.7%**) · `unified_regen` DROP=5 / KEEP=30(14.3%). SIGNATURE 와 **독립인 사례 1건**
+   (`task_020 t31`). 다른 태그(`bank_k8141med2`)의 **038 에서 같은 형태가 재발**했다(deny 4회 전부 arguments
+   실은 give · 0/4 통과 · 재발행된 규격 give 를 `usertoolnote` 가 파괴).
+2. **근거 (축자 + 파일:줄 · 로컬 재확인)** — `t2_gate_patch.py:15207-15224`
+   `_new5 = _ap_regen("Note: " + _tpl5.format(tool=_want5), "usertoolnote")` / `if _new5 is not None: am = _new5`
+   ⇒ **호출을 잃어도 무조건 교체**. `:15335-15364` 도 같은 구조(`am = _new1p`)이고 바로 아래에
+   `print("[T2_GIVE_QUOTE] retract=%d (give_present_after_reask=%d)")` — **계기가 그 손실을 이미 세고 있는데
+   아무 것도 하지 않는다**. 실측 축자: `t26 agent_response_usertoolnote … content=1428B tool_calls=0` ·
+   `t28 retract=1 (give_present_after_reask=0)` ↔ `task_021 t32 retract=0 (…=1)` · 038 `t28
+   agent_response_unified_regen (required STRIPPED) content=0B tool_calls=1` → `agent_response_usertoolnote
+   content=419B tool_calls=0`. 하류: `Error: Unknown discoverable tool 'retrieve_last4'` / `'get_card_last4'` ·
+   `has not been given to you`(**base 78 sim 0건**).
+   **규칙(닫힌 술어)**: *재생성 전 `tool_calls` 의 env-변이 부분집합 ⊄ 재생성 후 `tool_calls` → 교체 기각*
+   (도구 이름 열거 0 · 변이 집합은 A2 도출).
+3. **반증 조건** — ⑴ 격리에서 pending give 를 실은 프롬프트로 두 채널을 돌려 **보존율이 이미 100%** 면 결손이
+   없다. ⑵ 보존형으로 고친 뒤 같은 sha·seed 에서 015 가 여전히 `db_match=False` 면 이 후보는 015 를 못 산다
+   (038 도 동일). ⑶ 038 turn 28 의 `unified_regen` 산출 `tool_calls=1` 이 give 가 **아니었음**을 보이면 038
+   사례가 무너진다(현재는 게이트 가드가 give 를 요구하고 로그가 그 인자 `_want5='get_card_last_4_digits'` 를
+   출력했으므로 성립). ⑷ 교체 기각이 SIGNATURE 문면을 무력화해 `arguments` 실은 give 가 다시 늘면
+   [[70]] 절충으로 내려간다.
+4. **선행 확인** — `t2_gate_patch.py:15207-15224·15335-15364`(로컬) · `t2_signature.py:10-11`(레버 자기 근거가
+   **action_checks** 논거임) · env `tools.py:533-534·582-585·4149·4245·4517-4566` ·
+   `banking_knowledge/prompts/components/additional_instructions.md:15,17,27` · [[81]] ·
+   **아직 안 한 것**: `git log -S "_ap_regen"` + `LEVER_ROSTER_CANONICAL` 대조 = **[미판정]**.
+
+##### D12 — `user_action_feedback` 를 **초안의 아무 호출에나 붙이지 않는다** (014)
+
+1. **주장 + 양화** — n=1 sim(`task_014#s626729`)에서 `submit_referral` 을 겨눈 문면이
+   `transfer_to_human_agents` 초안에 붙어 **gold 호출을 궤적에서 0회로 만들었다**. 같은 sim 에서 그 문면 안의
+   무조건절이 **fb 4행(13·28·38·117)에 전부** 실렸다(substring 검산 소스 True). 부수로 `[T2_ACTIONREQ]
+   침묵 안 함 …(target=submit_referral)` 이 **10회** 오판됐다.
+2. **근거 (축자 + 파일:줄 · 로컬 재확인)** — ⓐ `t2_gate_patch.py:10524` 기본 문면에
+   `"and do not transfer for this. "` 가 **조건 없이** 들어 있다. ⓑ `t2_gate_patch.py:10961`
+   `rw_fb = ((am.tool_calls or [None])[0], _ufb) if _ufb else None` ⇒ **첫 tool_call 이 무엇이든** 그 호출의
+   오류 관측으로 붙는다. ⓒ `t2_gate_patch.py:3151 _delivered_unused_agent_tools` 가 `_agent_discoverable`
+   레지스트리만 보므로 **미실행 이관도구**가 침묵 자격 계산에서 빠진다 — 같은 파일 `:3175 _transfer_tools(a2)`
+   가 이미 그 집합을 A2 에서 도출한다. 실측 축자: `fb…jsonl:117 turn=43 kind=tool-deny`
+   *"Error: Error: [ACTION] 'submit_referral' … do not transfer for this."*
+   **규칙(닫힌 술어)**: ⓐ 그 절을 `_utgt` 조건절로 좁히거나 삭제 · ⓑ `_ufb` 는 `_utgt` 계열 호출에만 부착
+   (특히 `_transfer_tools(a2)` 원소에는 금지) · ⓒ 침묵 자격 집합에 `_transfer_tools(a2)` ∩ 손님 요구분 포함.
+3. **반증 조건** — ⑴ ⓐⓑ 를 고친 팔에서도 turn 43 에 transfer 가 안 나가면 원인은 다른 곳이다.
+   ⑵ 나갔는데 `reason` 이 gold 와 다르면 **수리해도 reward 는 안 돌아온다**(19지 enum · TIER-1 경쟁 코드
+   `customer_demands_after_unavailable_offer_refusal` 존재) ⇒ 수리 근거는 유지하되 회귀 복구 주장은 폐기.
+   ⑶ ⓒ 를 넓혔더니 `[T2_ACTIONREQ]` 침묵이 과도해져 다른 태스크에서 user-action 지목이 사라지면 [[70]] 절충.
+4. **선행 확인** — `grep -rl "do not transfer for this" reports/` → `refute_2026_08_24/refute_016.json` ·
+   `refute_072.json` · `refute_073.json` · `x505_TASK_073_t7348_perstep.md` ⇒ **같은 결함 가족이 이미 CONFIRMED
+   로 박제돼 있다**(072/073: `intent_operator_formalize` 오바인딩 + 동일 문면). **014 는 그 가족의 새 표적이지
+   새 축이 아니다.** · `x509_axis_queue_2026_08_24.json.per_task_required` 에 **014 없음**(축 재발명 아님) ·
+   `N97_TASK_ROOT_CAUSE_2026_08_06.md:276` 의 014 진단은 **다른 실패 모드**(이번 런은 링크를 주지 않았다).
+
+##### D13 — **정책 근거 없는 scaffold-GET 선행조건**을 `[ORDER]` 로 강제하지 않는다 (064)
+
+1. **주장 + 양화** — n=1 sim(`task_064#s626729`)에서 `[ORDER]` 가 *"the prior read(s) this action requires have
+   been done (do it with: **check_card_application_fit**)"* 로 정답 추천 초안(2481B)을 지웠고, 이어진
+   `[ARG-EMPTY]` 가 **`credit_score` 를 채우라고 강제**해 모델이 값을 **지어냈으며**(`"850"`),
+   `[GROUNDING WARNING]` 이 그것을 되돌려 **손님에게 묻는 것 외에 길이 없게** 만들었다. 이 도구는
+   base 78/78 에 **0회** 등장한다. `[ORDER]` 태그는 이 sim 전체에서 **1회**(t30) ⇒ (d) 충족.
+2. **근거 (축자 + 파일:줄 · 로컬 재확인)** — `a2/banking_knowledge.gate.json:4653` `_note_require_tool_before`
+   축자: *"정책 축자로 licensing 되는 것은 **unlock→call 순서**뿐이다 … 나머지 체인(`apply_for_credit_card ←
+   check_card_application_fit` 등)의 **선행 도구는 우리가 만든 scaffold GET 도구**이고, **그 체인을 요구하는
+   정책 문장은 없다** … ⇒ **[[23]] 소급 대상**"*. 같은 파일 `:3254` 도구 설명: *"**MANDATORY before
+   recommending or applying for ANY credit card** … **their credit score** …"*. 모델 채택 축자 m17
+   *"The check_card_application_fit tool requires formalizing the constraints."*
+   **규칙(닫힌 술어)**: `require_tool_before` 의 선행 노드가 **`scaffold_get_tools` 원소**이면
+   `[ORDER]` deny 를 **표면화로 강등**한다(정책 축자로 licensing 된 `unlock→call` 만 deny 로 남긴다).
+   부속: 그 도구의 `description` 에서 `MANDATORY` 및 정책 미근거 필수 파라미터 문구를 뺀다.
+3. **반증 조건** — ⑴ `apply_for_credit_card ← check_card_application_fit` 를 요구하는 **정책·KB 축자를 실제로
+   찾으면** 이 후보는 폐기다(그때 `:4653` 의 자백을 지운다). ⑵ 강등한 팔에서 070·099 계열의 gold MISS 가
+   되살아나면(구 주석이 근거로 든 관측) [[70]] 절충으로 내리고 표면화 문면을 손본다.
+   ⑶ 강등해도 064 가 여전히 손님에게 점수를 물으면(초안이 이미 묻고 있었다) **회귀 복구 주장은 성립하지
+   않는다** — 그때도 [[23]] 준수 근거만으로 수리는 유지한다.
+4. **선행 확인** — `banking_knowledge.gate.json:3254·4653`(로컬) · `[T2_SCAFFOLD_GET] injected` 로그 ·
+   `grep -rn check_card_application_fit --include=*.py --include=*.json`(repo) · [[23]]·[[05]]·[[66]] ·
+   **아직 안 한 것**: `reports/` 에 이 체인의 정책 근거를 찾는 grep(`require_tool_before` 계열 판정) =
+   **[미판정]** ⇒ 프로브 exit 의 첫 칸으로 둔다.
+
+---
+
+#### 1d-13. 기존 후보에 미치는 영향 (표)
+
+| 후보 | 이 9건의 효과 | 등급 |
+|---|---|---|
+| **D1** (종결 후 표면화 중지) | **중립** — 9건 어디에도 §1 의 절차 정체·`readloop-turn` 이 재현되지 않았다 | PLAUSIBLE (적용 폭은 049 계열로 좁다) |
+| **D2** (읽기 루프에 이름·출구) | **중립~약화** — 결손이 읽기 부족인 사례가 없다. 054 는 shell 억제 가설이 실측으로 기각됐다(base 74% ↔ ours 75%) | 약화 |
+| **D3** (문면·술어 일치) | **계열 강화** — 014 의 *"do not transfer for this"* 오부착이 **가장 강한 사례**다(문면이 검사한 것과 다른 호출을 죽였다). 059·054·064 의 `None` 문면도 같은 계열 | 계열 CONFIRMED / 본체 미판정 |
+| **D4** (`[BLOCKED]` 좁히기) | **약화 재확인** — 051 turn 14 의 `[BLOCKED]` 는 gold 를 죽이지 않았고, 064 turn 40 의 3건도 m59/64/77 에 재발행 통과 | PLAUSIBLE |
+| **D6** (중복 창 리셋) | ⛔**전제 붕괴 — 선행조건이 하나 더 는다.** ①출시 노출 문구(*"051 은 잃을 점수가 없다"*)가 **거짓이 됐다**(base x644 051 = 1.0) ②소스·`go_stack` 이 인용한 부정통제 수치가 **정본 JSON 에서 재현되지 않는다** ③정본 OFF ↔ 라이브 런처 전부 ON([[81]]·[[54]]) | **배선 전 문서 정정 필수** |
+| **D7** (grounding 접두) | **중립** — 9건에서 재발 없음(064 는 grounding 이 **의도대로** 지어낸 값을 되돌린 사례다) | 유지 |
+| **D8** (claimprov `None` 금지) | **강화 · n 증가** — 054(3발화 `[None, None]` · `unbacked=0`) · 064(2건) · 079(부분: `['record_update', None, None]`) ⇒ **079 는 D8 로 안 잡힌다**(식별 가능한 항목이 1개 있다) | CONFIRMED · 사정거리 정정 |
+| **D9** (폐기 초안 원장) | **강화 + 사정거리 축소** — 079·054·051 에서 (c) 판정이 폐기 원문 부재에 걸렸다. 단 **`T2_GEN_TRACE` 가 `content=B tool_calls=N` 을 채널별로 남기므로 호출 집합 변화는 사후 판정 가능** ⇒ D9 의 요구는 **본문**에 한정 | CONFIRMED (범위 축소) |
+| **D10** (선언 실패 fail-open 침묵) | **중립** — 9건에서 별도 사례를 세지 않았다 | 유지 |
+| **L1** (꺼진 열거 레버) | **기대수익 0 재확인** — 059 의 오답 `"Green Account (savings)"` 도 064 의 `"Silver Account"` 도 **KB 실재 이름**이라 *'실재하는 이름인가'* 술어를 통과한다 | 전제 CONFIRMED / 기대수익 0 |
+| **L2** (`recommend_formalize` 격리) | **n 을 3으로 올린다 — 007 · 059 · 064.** 셋 다 서브가 **확언으로 오답**을 냈고(007 은 `intent_operator_formalize` 와 **서로 모순**), 007 에서는 그 게이트에 **구별 질문 탈출구가 없어** 정당한 초안을 폐기했다 | 조사 · 우선순위 상향 |
+
+---
+
+#### 1d-14. 이 절의 한계 (원인 진술에 쓰지 마라)
+
+- **8/9 건에 「코퍼스 통과 횟수」가 없다.** 055 가 보여준 대로 **한 번의 통과 런이 나오면 등급이 즉시 내려간다.**
+  051 만 붙였다(0/42 · 41 레거시).
+- **014 의 `reason` 값**, **079 branch A 의 원안 749B**, **051 초안 인자 원문** — 전부 **영구 복구 불가**(D9).
+- **007 의 상시 guidance 버스**(도구 10개 주입 · `[T2_GUIDED] guided applied`)는 [[57]] 부정통제 없이 분리
+  불가 ⇒ `미판정`. 038 도 같은 이유로 `no` 로 못 민다.
+- **분석 단위 경고 재확인** — 머리말 ⑵ 대로 이 절은 **태스크 단위**다. `§1e`(기전별 per-step · flip 25% 바닥
+  부정통제)가 나오면 **B 구획 5건의 상당수가 잡음으로 흡수될 수 있다.** 리뷰 비중은 §1e 에 둬라.
+
+**주요 경로** — 리모트 ours: `/home/woori/scratch/tau2-bench/data/simulations/{bank_k8141med1_20260903_2256,
+bank_k8141med2_20260903_2256, bank_k8143med1_20260904_0135, bank_re151med1_20260904_0255}/results.json` ·
+`/home/woori/scratch/logs/{<tag>.log, fb_<tag>.jsonl, trace_<tag>.jsonl}` ·
+재현 스크립트 `/home/woori/scratch/regrun/{xr038_db.py, xr038_cf.py, z4.py, xz051_dump.py, xz051b.py, xz548b.py,
+x054_*.py, g1.py–cc.py}` · 덤프 `/home/woori/scratch/regrun/x014/{ours_014.txt, base_014.txt, fb014.txt, tr014.txt}`
+· base gz `reports/facet_rft_2026/sim_results/bank_x644_q38base_bank78_20260830.results.json.gz`
+로컬(이 절에서 내가 직접 재확인한 것): `scripts\distill\tau2\t2_gate_patch.py:3151,3175,10524,10961,12256-12264,
+15207-15224,15335-15364` · `scripts\distill\tau2\go_stack.sh:689-695` ·
+`scripts\distill\tau2\{run_ours_task.sh:128, run_night_ab.sh:65, run_t7363_night.sh:57, run_t7364.sh:64,
+run_t7365.sh:63}` · `scripts\distill\tau2\a2\banking_knowledge.gate.json:3254,4653` ·
+`scripts\distill\tau2\x548_dup_deny_iso.py:86,284` · `reports\facet_rft_2026\x548_dup_deny_iso_2026_08_26.json`
+(`rows` 길이 1 · target 074 · tally 확인)
+
+---
 
 ##### 1d-055 — 유일하게 미분석이던 회귀 (base PASS ↔ ours FAIL)
 
