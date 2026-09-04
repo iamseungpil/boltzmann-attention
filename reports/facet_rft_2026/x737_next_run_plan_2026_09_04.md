@@ -69,13 +69,24 @@ base 는 x760 base091 재실행으로 미측정 0 · ours 는 완료 sim 101 로
            ★**D8 은 계기 전용이 아니다** — `_desc3` 의 산출이 `_cpv["feedback"]` 의 `{claims}` 로
            치환돼 **모델에게 실제로 전달되는 문면**이다(전 `None: None` → 후 실제 주장). 즉 큐 S5 의
            게이트 *"라이브 거동이 바뀐 수리가 최소 1건"* 을 **충족한다**. D9 만 계기 전용이다.
+         ✅**라이브 발화 확인 2026-09-05 (짝지은 전후 대조)** — `bank_d8v080_20260905_0247` turn 5,
+           claimprov 채널 전송 문면 축자: *"[CLAIM-PROVENANCE] tool ownership — … **Freeze all five
+           cards after verification** (tool: **freeze_debit_card_3892**)"*. `what` 도 `tool` 도 채워졌다.
+           대조: 캠페인 `fb_bank_relane2a_20260904_1614` = `None: None` **9행** / CLAIM-PROVENANCE 13행
+           ↔ 수리 후 같은 기전이 발화한 런 = `None: None` **0행**.
+           ⚠먼저 돌린 스모크(007·018·032)는 `CLAIM_PROV` **0 발화**라 그 런의 `None: None`=0 은
+           증거가 아니었다 — **발화 0 위의 0을 수리 증거로 쓰지 마라**([[77]]).
 계기 (레버 아님 · 선행)
     D9   폐기 원문 원장 — **강화**. [BLOCKED] 희생자 이름이 영속 궤적 0/133 ⇒ D4 는 D9 없이 판정 불가
          ✅**수리 배선 완료 2026-09-05** — ⑴`_ap_regen` 이 폐기 원문(`am`)을 **모든 채널**에 남긴다
            (구판은 `unified_regen` 한 채널뿐이라 claimprov·channel·searchexhaust 턴의 원본이 없었다)
            ⑵`record_many(id_to_name=…)` 로 `tool-deny` 행에 `call_name` 을 싣는다(희생자 이름).
            단위검정 = `t2_fbsidecar.py` selftest 4)5) · 부정통제 = 맵 미제공 시 바이트 동일.
-           ⚠[[81]] **첫 런에서 발화 확인 필수** — 새 필드가 0건이면 경로가 틀린 것이다.
+         ✅**라이브 발화 확인 2026-09-05** — `reminder-assistant` 채널 분포가 갈라졌다:
+           `unified_regen` 5 · **`followup_chain` 1 · `verdict_surface` 1**(스모크) · **`claimprov` 1**(080).
+           수리 전 실측은 **53/53 전부 `unified_regen`** 이었다. `tool-deny` 는 **4행 중 4행**에 `call_name`
+           (실물: `"call_name": "get_current_time"` · task_018#s626729 turn 8).
+           ⇒ 폐기 원문과 희생자 이름이 둘 다 원장에 남는다. D4 판정의 선행조건이 풀렸다.
     D10  declaration failed — ⛔**강등 · 자연실험 철회 확정**. OFF 팔 n=0 이었고, 채점된 sim 만
          다시 재니 declfail 7 @0.5714 ↔ 정상 42 @0.5714 = **차이 정확히 0**(로컬 재현).
          남는 근거는 토큰 누수뿐. ⚠D8 과 혼동 금지 — D8 은 **파싱 성공 판**의 결손이다
