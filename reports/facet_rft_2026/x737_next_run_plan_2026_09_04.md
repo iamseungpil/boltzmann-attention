@@ -380,7 +380,7 @@ A2 축자 `_note_write_once_keys`:
 ⚠ [[70]] 무엇을 파는가: **아직 선언되지 않았지만 반복하면 해로운 write** 가 보호를 잃는다.
 완화책은 창을 여는 게 아니라 **선언을 채우는 것**이다. ⇒ **P6a 로 실제 감사했다(아래).**
 
-#### P6a 결과 — 감사 완료 (2026-09-04) · **채워야 할 선언 0개**
+#### P6a 결과 (1차) — ⛔**아래 결론은 P6c 가 반증했다. 정정은 이 절 끝에 있다.**
 
 **주장 + 양화 (WRITE 도구 n=42 · KB 문서 전수)**: banking 도메인의 write 도구 42개 중 KB 가
 유일성을 말하는 것은 **`apply_checking_account_credit_5829` 하나뿐이고, 그것은 이미 선언돼 있다.**
@@ -420,8 +420,93 @@ A2 축자 `_note_write_once_keys`:
 `documents/doc_bank_accounts_bank_accounts_(general)_017.json` · A2 `write_once_keys`(1건) ·
 `_note_write_once_keys` · `env_surface.json`(banking 엔 유일성 문면 없음 · retail 만 2건).
 
-⇒ **P6a 통과: D6 을 켜도 정책이 보호하라고 한 것은 전부 보호된다.** 남은 관문은 P6b(051 이
-승인까지 가는가) · P6c(선언된 진짜 중복은 여전히 막히는가)다.
+#### ⛔P6a 결론 철회 — P6c 가 반증했다 (2026-09-04 · 워크플로 `wf_63c350dd`)
+
+> 위 *"채울 선언 0개 · D6 으로 잃는 보호는 없다"* 는 **거짓이다.** 지우지 않고 남겨 둔다 —
+> 내가 쓴 반증 조건(*"검색어가 놓친 표현이 있으면 이 0개는 거짓"*)이 그대로 성립했다.
+
+**주장 + 양화 (미선언 유일성 write n=3 · 노출 12 태스크)**: banking KB 에 유일성을 말하는 write
+도구가 **최소 3개 더** 있고 전부 `write_once_keys` 에 없다. 선언된 1건의 노출이 3 태스크인데
+미선언 3건의 노출은 **12 태스크**다.
+
+**근거 — 축자 + 파일:줄**
+```
+request_temporary_debit_card_limit_increase_8374
+  doc_bank_accounts_bank_accounts_(general)_040.json:13
+    "- **Frequency**: Only one temporary increase per 24-hour period per card"
+  tools.py:4124  "- Only one temporary increase is allowed per 24-hour period"
+  env 자체 가드: **없음** (본문 3986-4185 에 재호출 차단 분기 0)      노출 1 태스크(089)
+
+order_replacement_credit_card_7291
+  doc_credit_cards_credit_card_replacements_004.json:2
+    "- You cannot submit another replacement while an existing request is still being processed."
+  env 가드 부분적 — tools.py:1468 "Error: Order may have already been placed ..."
+    단 `reason` 만 바꾸면 우회                                        노출 8 태스크
+      (036·037·038·039·054·077·080·081)
+
+deposit_check_3847
+  doc_bank_accounts_bank_accounts_(general)_011.json:40
+    "- Duplicate deposit detected: Do not attempt to redeposit."
+  env 가드 **0건** ⇒ `_mut_key_of` 가 **유일한 보호**였다               노출 3 태스크(055·057·061)
+```
+**내 1차 감사가 놓친 이유**: 정규식에 `only once` · `ONCE per` · `one per` 는 넣었으나
+**`only one` · `cannot submit another` · `duplicate deposit`** 을 넣지 않았다.
+
+**증거 등급의 역전(부수 발견)**: 유일하게 선언된 `apply_checking_account_credit` 의
+`_note_source_` 는 출처를 *"도구 설명 축자(env 출력)"* 라 적었는데 `tools.py` 에
+`ONCE per checking` 은 **0건**이고 그 축자는 KB `doc_..._017:48` 에만 있다. 반면 `_040` 건은
+**KB + env 양쪽**에 있다 — 선언된 사례보다 근거가 하나 더 많은 write 가 미선언 상태다.
+
+#### D6 은 공짜가 아니다 — 반사실 재현 (실 sim n=9,468 · 2026-08-29 이후)
+
+```
+총 deny   현행 309  →  D6 88        **221건(71.5%) 소멸**
+  정당한 회복: submit_credit_limit_increase_request 24 (051 계열)
+  그 외:      open_bank_account 45 · update_transaction_rewards 17 · order_debit_card 15 …
+once-키만 잡는 것도 실재: apply_checking_account_credit 49건 중 **18건** (mut_hit=False)
+retail 도 exchange_delivered_order_items 23 · modify_pending_order_items 12 가 once 전용
+```
+
+#### P6c 좁은 질문은 PASS (실측)
+
+리모트에서 repo 모듈을 `importlib` 로 직접 불러 돌린 프로브(`/home/woori/scratch/p6crun/x_p6c_keys.py`
+· 모듈 sha `0b7d703` · HEAD 와 `t2_gate_patch.py` diff 없음 · 모델 0 · GPU 0):
+```
+(1) 선언 케이스 A(amount 14.5) vs B(30.0) 의 once-key 동일?   True  -> 계속 막힌다
+(2) 다른 계좌 C 의 once-key 는 다른가?                        True  -> 오차단 없음
+(3) 미선언 write D1/D2 의 once-key 가 None 인가?              True  -> 051 통과
+★ A.mut != B.mut  — 지금의 전체-인자 키는 "같은 계좌·다른 금액"을 **못 잡는다**.
+  once-키만 잡는다 ⇒ D6 는 막던 것을 잃지 않는다.
+```
+관련 위치: `t2_gate_patch.py:6121`(등록) · `:12278`(조회) · `:12285-12286`(문면 분기) ·
+`:6065` docstring *"선언이 없으면 None 을 돌려 종전 거동(인자 전체 키)을 그대로 둔다 = fail-open"*.
+⛔`_mut_key_of` **함수 자체를 무력화하면 안 된다** — `:12101` 이 `T2_WRITE_ARG_TYPE` 의 sim-당 cap
+키로 별개 사용 중이고, 무력화하면 2026-08-28 에 고친 t7376 task_040 회귀가 되돌아온다.
+
+#### 반증에서 살아남지 못한 우려들 (= 기우였다)
+
+중첩 JSON 파싱은 **된다**(실 궤적 `apply_checking_account_credit` 호출 325/325 가 `account_id`
+담은 키 생성 · `:6080-6081`) · `_a2_of` 도달함(`unlock_`/`give_` deny 0건 · `:3637-3648`) ·
+등록/조회 접두가 달라 충돌 불가 · **레버는 라이브에 켜져 있다**(`/proc/<pid>/environ` 에
+`T2_DUP_WRITE=1`; 정본 `go_stack.sh:695` 는 `0` 인데 `run_ours_task.sh:128` 이 덮어쓴다).
+
+#### ⇒ 판정: **PASS-with-precondition**
+
+```
+선행조건 1  미선언 3건을 write_once_keys 에 추가한다 (키 선정은 KB/env 축자로 따로 정당화 · [[23]])
+            우선순위: deposit_check_3847 (env 가드 0)
+선행조건 2  airline 은 선언 **0건**이다. run_t7390_airline.sh:58 이 T2_DUP_WRITE=1 로 돌리므로
+            D6 이후 그 도메인에서 이 레버는 **전면 무발화**가 된다.
+            airline KB 에 유일성 문면이 있는지 — **모른다. 확인 안 했다.**
+선행조건 3  [[70]] 부호표: 221건 손실 중 무엇이 정당한 회복이고 무엇이 보호 상실인지 태스크별로.
+```
+
+**반증 / refutation**: 위 3건 외에 또 다른 표현이 나오면 이 목록도 여전히 불완전하다.
+airline·telecom KB 를 같은 방식으로 훑기 전에는 *"banking 만 3건"* 이라고 말할 수 없다.
+
+**선행 확인**: 워크플로 `wf_63c350dd` 저널 · `x901_census.py`/`x902_dump.py`/`x903_writexkb.py`/
+`x707.py`(반사실) · `grep -rn "T2_DUP_WRITE" scripts/distill/tau2/`(go_stack.sh:695 · run_ours_task.sh:128
+· run_t7389.sh:61 · run_t7390_airline.sh:58 · run_t7391_retail.sh:52).
 
 **반증 / refutation**: gold `051_7` 이 `051_2` 와 인자가 달랐다면 이 귀속은 무너진다 —
 **동일하다**(위 축자). 재신청이 `DUPLICATE-WRITE` 아닌 다른 이유로 막혔다면 무너진다 —
@@ -870,9 +955,14 @@ task_064 의 생성 호출 분해 (bank_k8141med1_20260903_2256.log · [T2_GEN_T
 [ ] 3c. P4 L1 격리 (언제 꺼졌나 · 재발행하는가 · CAP fail-open)
 [ ] 3d. P5 파생값 17칸 측정 (P5-iso: KB 축자를 앞쪽에 두고 격리 · 부정통제) — **수리 아님**
 [ ] 3e. P6 D6 격리 — 세 칸
-       P6a  ✅ 2026-09-04 완료 — write 42개 중 KB 유일성 문면은 1건뿐이고 이미 선언됨. 채울 선언 0개.
+       P6a  ⛔1차 결론 철회 — 미선언 유일성 write 최소 3건 발견(노출 12 태스크)
+            request_temporary_debit_card_limit_increase_8374 · order_replacement_credit_card_7291
+            · deposit_check_3847(env 가드 0 · _mut_key_of 가 유일 보호)
+       P6a' 그 3건을 write_once_keys 에 선언한다 (키는 KB/env 축자로 정당화)
+       P6a'' airline·telecom KB 도 같은 방식으로 훑는다 (airline 선언 0건 = D6 시 전면 무발화)
        P6b  선언-only 억제로 바꿨을 때 051 의 재신청이 통과하고 승인까지 가는가
-       P6c  apply_checking_account_credit 의 진짜 중복은 **여전히 막히는가**(회귀 검사)
+       P6c  ✅ 2026-09-04 완료 — PASS(3/3). A.mut != B.mut 이라 D6 은 막던 것을 잃지 않는다.
+            단 반사실 재현에서 deny 309→88(221건 소멸) — 부호표 필수
 [ ] 4. 통과분만 배선 + go_stack.sh 등재 + 단위테스트
 [ ] 5. 스모크 게이트 5칸
 [ ] 6. x509 큐에 단계 등재 (정본 갱신 — 새 문서 만들지 마라)
