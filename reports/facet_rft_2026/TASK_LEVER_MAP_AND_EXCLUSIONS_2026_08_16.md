@@ -33,6 +33,7 @@
 |---|---|---|---|
 | **task_005** | gold `verification_history` 행이 **전 필드 센티널** `9K2X7M4P1N8Q3R5T6A` — 하네스가 실제 로드하는 태스크 객체에 **7회** 등장. 어떤 행동으로도 그 행을 만들 수 없고, 안 만들어도 DB 해시 불일치 | `get_tasks()` 로 로드 후 표지 검색 | **원리상 통과 불가**(2026-07-28 `DAY5_FULL_FORENSIC` §5.2 최초 발견 → 오늘 1.0.1 에서 **여전히 존재** 확인) |
 | **task_102** | `reward_basis = [DB, **NL_ASSERTION**]` · NL 축자: *"…recognizing that **Ember Analytics exceeds the 4-year company age limit**…"*. 그런데 **`db.json` 에 `Ember` 언급 0회 · `founded/established/company_age` 필드 0개**. 손님은 *"incorporated in late 2022(약 3년)"* 라 **틀리게** 말하고, 진짜 2020 은 **에이전트가 먼저 정정했을 때만** 흘린다(시나리오 11번 분기) ⇒ 참값의 **출처가 env 에 없다** | `db.json` 전문 검색 + 시나리오 분기 직독 | **출처 부재**(upstream **#432 OPEN**·2026-08-07 포기 결정 → 오늘 **1.0.1 에서도 동일** 확인) |
+| **task_053** | `reward_basis = [DB]` (full-DB strict 해시). gold 액션 **16개 전부 `requestor=assistant`** 이고 `get_card_last_4_digits` 는 목록에 **없다**; 14번째 액션이 `give_discoverable_user_tool` 로 **건네는 데서 멈춘다**. 그런데 user_scenario 축자는 *"(If the agent provides you with the get_card_last_4_digits tool, use it to retrieve the number."* — 대본이 유저에게 **실행을 명령**하고, 그 호출은 해시에 포함되는 `user_discoverable_tool_calls` 에 기록된다. gold 리플레이는 그 칸을 결코 쓰지 않는다. 게다가 분쟁 접수에 `card_last_4_digits`(gold 레코드 `'2791'`)가 필수라 디지트 취득이 **우회 불가**다 | `dbdiff_task.py <tag> task_053` **4 태그 교차** — ⑴주는 팔(`bank_re8141p11_20260904_1100` Q3.8 ours · `bank_x732_qB_t3prime_20260901_1621`): 에이전트 쓰기 **전부 일치**, 유일 차이 = `ONLY-PRED .user_discoverable_tool_calls.data…{'tool_name': 'get_card_last_4_digits', 'status': 'CALLED'}` ⑵안 주는 팔(`bank_all97_nt1_v2_20260718` · `c4bank_base`): `ONLY-GOLD .user_discoverable_tools.data…{'tool_name': 'get_card_last_4_digits', 'status': 'GIVEN'}`. + `evaluation_criteria.actions` 직독(16/16 requestor·last_4 매치 `[]`) + 전 simulations 전수 스캔 **36 sim · pass 0**(2026-07-18~09-04 · 모든 모델·팔) | **원리상 통과 불가 — 두 뿔이 다 닫힘**(주면 CALLED 로 깨지고 안 주면 GIVEN 이 빈다). 2026-09-05 확정. ⚠**반증 조건**: 유저가 도구를 받고도 **안 부르는** 궤적이 db_match=True 를 내면 철회 — 36 sim 에서 실현 0 |
 
 ### 🚫 2-B. **표적 금지**(레버를 만들면 [[23]] 위반) — 단 분모에는 남긴다
 
@@ -58,7 +59,7 @@
 | **task_074** | *"gold 가 정책과 모순"* | **1.0.1 에서 수정됨**($8.00 → **$14.50**, *"policy-faithful $14.50 refunds now pass"*) ⇒ 정상 표적 |
 | **task_072·073** | — | 1.0.1 이 **정답 누설 주석**을 제거했다(*"(SHOULD BE FREE - 1ST OF 2)"* 등 12행). 채점 불변이나 **난이도는 올라갔다** |
 
-⇒ **실효 분모 = 97 − 2 = 95**(005·102 제외). 069 는 분모에 남고 표적에서만 뺀다.
+⇒ **실효 분모 = 97 − 2 = 95**(005·102 제외) → ⛔**2026-08-29 정정으로 005 복귀 · 2026-09-05 053 추가** ⇒ 현행 **97 − 2 = 95**(102·053 제외). 아래 §정정·§053 참조. 069 는 분모에 남고 표적에서만 뺀다.
 
 ---
 
@@ -179,6 +180,9 @@ log_verification(name=9K2X7M4P1N8Q3R5T6A, user_id=9K2X7M4P1N8Q3R5T6A, address=�
 ### 처리
 
 - **task_005 를 제외 명부에서 뺀다.** 실효 분모는 **97 − 1 = 96**(102 만 제외).
+  ⇒ **2026-09-05 갱신**: 053 이 §2-A 에 등재되어 실효 분모는 **97 − 2 = 95**(102·053 제외).
+  ⚠이 변경은 **성적 분모를 움직인다** — base 42/95 · ours 51/95 로 재표기해야 하고, 96 분모로 적힌
+  과거 수치(x738 · x737 · RESEARCH_MASTER)는 **소급 재표기 대상**이다.
 - ⚠**102 는 재검증하지 않았다.** 같은 종류의 오류가 있을 수 있으므로 **102 도 실측으로 재확인**해야 한다
   (근거: 005 가 *"env 에 0건"* 이 아니라 *"손님이 말해 준다"* 였듯, 102 의 *"env 0건"* 도 채널을 다시 봐야 한다).
 - 005 를 분모에서 뺀 채 계산한 **과거 수치들은 소급 재검토 대상**이다.
