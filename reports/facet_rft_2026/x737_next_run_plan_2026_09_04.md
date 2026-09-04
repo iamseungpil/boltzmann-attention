@@ -2341,6 +2341,54 @@ D12 무증거 0/6 · D10 1건 · L1 기대수익 0 재확인 · L2 연결 축자
 충족·정상 산출)·068(None 반환 = 술어 작동) 에서 **미재현** — 발현 n=1 이라 §1f-5 #7 단독 측정
 대상으로 유지.
 
+#### 1f-7c. 미분류 8건 분류 확정 — 040 053 056 066 071 078 082 085 (워크플로 wf_e364035a · 9에이전트 · 축자 검산 18/18)
+
+## wf_e364035a — 8건 A/B/C/D 분류 (§1f-7b 덧붙임용)
+
+**분모 규율 확인**: 8/8 전부 `reward_basis=['DB']`·`db_match=false`. action_checks 는 지도로만 썼고 args_equal 필터 적용(040_4/5 는 공백 직렬화 거짓음성 — 실호출 msg42/44 인자 gold 축자 동일·실행 성공 → 변이집합에서 제외). 085 sim1 은 `infrastructure_error`·msgs 0·reward None(내용 없음 — 채점 sim 은 sim0 뿐). ⛔전건 n=1 — 회귀·인과 서술 없음([[85]]).
+
+### 8행 표
+
+| 태스크 | 군 | 축/결함 | 한 줄 근거 (갈림 msg · 직전 우리층 발화 · 축자) |
+|---|---|---|---|
+| 040 | **B** | 파생값 선택(provisional 자격 2칸) | 8/8 dispute 실행·6/8 전칸 일치, 잔여=`eligible_for_provisional_credit` 2칸(e503·e510 True↔gold False — gold 는 «prior 1건+제출 누적>2» 누적 계수 의미론, 모델은 정적 계수+사유범주만 적용). 갈림 msg49 직전 우리층 발화 **«없음»**(t38 이후 FB 0건). 정책 축자 실재: *"has not filed more than 2 disputes in the past 12 months"*(msg4) |
+| 053 | **D** | 미판정(DB diff 필드 미확정) | gold 16/16 이 인자 **바이트 동일**로 실행됨(dispute 14키 전칸·CLI 7500→22500 일치·전 호출 무오류) — MISSING 0·WRONGARG 0. 잔여 후보=유저 `get_card_last_4_digits` 실행 1회(msg50·gold 는 give 까지만·대본 §4 *"If the agent provides you with the get_card_last_4_digits tool, use it"* 로 실행 강제) — 이 EXTRA 의 DB 효과는 env 소스 리모트라 로컬 검증 불가. 반증조건: 리모트 `dbdiff_task.py <tag> task_053` 1회가 확정한다 |
+| 056 | **B** | 값-선택(저축상품) + 요건 미유도 | 갈림 msg61: *"My recommendation: Emerald Saver"* — 현재 이체액 $3,200 에 정박해 Silver Plus 를 *"❌ Below minimum"* 으로 배제. 대본 §7 예치 요건(*"I can probably put $5,000-$10,000 in there to start"*)은 msg49→61 사이 미발화(agent 미질의). 이체 오목적지(dc2e…)는 동일 선택의 연쇄. 직전 우리층 발화 **«없음»**(t45-89 FB 는 t48 claimprov 뿐) |
+| 066 | **B** (+C 병존) | 값-선택(카드) · D-계열 SIBLING_PAREN 미무장 | 카드칸: EcoCard↔gold Silver Rewards — genesis 는 모델 자신 msg63(푸시 이전), t75 `[RECOMMEND-OFFER] "'card_type=EcoCard' is the match"` 는 동방향 재지목(서브 LLM 산출·레버 OFF 반사실에서도 갈림 유지 → 락은 레버가 아님). 병존 C: t58 `T2_SIBLING_PAREN` 이 *"'Green Account (savings)' 에서 '(savings)' 를 빼라"* 로 고칠 값까지 댔으나 전 arm `=log`(x737:445 — 집행 0) — 닫힌 술어·단 **단독 수리 매수 0**(카드칸 잔존) |
+| 071 | **B** | 값-선택(상품) + 자발 EXTRA write | `account_class` Lime Green↔gold Sky Blue(msg59) + gold 에 없는 transfer $3,000(msg66) — 이체는 모델의 자발 제안 msg62 *"Would you like me to transfer an opening deposit…?"* 을 유저심이 수락(대본 §7 에 자금이체 없음). 두 갈림 모두 직전 우리층 내용성 발화 **«없음»**(t56/58 FB_VIEW 는 원장 사실 주입 — 059 선례상 상품 무관 D1 계열) |
+| 078 | **B** | 절차 선택(freeze-first 생략) — 우리층 반대방향 관철 | 유저 msg1 축자 *"I need to freeze all of them right away and get replacements."* 에도 lb·green 은 freeze/unfreeze 5액션 전량 미실행·직행 close. 갈림(t36-39 close 시도)에서 우리층 `[OPERATOR-SCOPE]` 가 **반대방향**으로 freeze/close 범위를 표면화·반려했으나 모델이 재발행 관철. close 자체는 gold 내 액션이라 cap 통과가 오답을 낳은 구조(③축) 아님 |
+| 082 | **B** (+A①′ 병존) | Reg E 파생값 4칸 지배 · 푸시 조기-제출 부수 | `customer_max_liability_amount` 4/4 오답(500·89.99·100·500↔gold 50 — 085 동형·푸시 무관 기전) 이 단독으로도 r=0. 병존 ①′ 실측: t41 claimprov·t43 `[UNLOCKED-NOT-CALLED]` 푸시 직후 msg41 *"I'll use reasonable defaults for the few details I was still confirming (you still have both cards in your possession…)"* → 유도 4칸(possession·pin·discovery×2) 추가 오염 — ①′ 부호표 «잃는 편» 짝으로 등재 |
+| 085 | **B** | Reg E 파생값(50) 3칸 + provisional 1칸 | msg41/47/64 dispute 3건 모두 id·범주·날짜 정확, 오답은 `customer_max_liability_amount` 3칸(=disputed_amount 복사)+`provisional_credit_eligible` 1칸(085_7 False↔gold True·반대방향). 우리층 `T2_DISTINCT_ARGS` 가 3회 정확 탐지(*"== disputed_amount (100.0) — 선언상 달라야 한다"*)했으나 **trace 전용 — turns 38-66 FB 전달 0건**(x737:2330 «write-point 전달 레버 기본 OFF» 정합). 대본 §5/§6 금액-불일치 조건절은 정확 항행(3번 스킵·4번 $14.99 제출) |
+
+### 정정 목록
+
+1. **A①축 반대편(040·085) 등재 — 확인 + 한정 정정**: 오지목은 현행 런에도 실재한다(040: t26·26·28·32·34·36 `formalized_target=submit_transaction` **7회** / 085: t61 **1회**) 그러나 **전량 `T2_ACTIONREQ_GROUNDED` 침묵** — 축자 *"침묵: formalized_target=submit_transaction 가 이 대화 축자에 0회 — 근거 없는 지목은 하지 않는다 (TASK_072 §7-2)"*. ⇒ go_stack:747 의 29건 반대편 **실측 등재는 유지**하되, 두 태스크의 **현행 락 분류는 A① 이 아니라 B** — 억제 술어(집합 소속+축자 대조·닫힌)가 이미 그 편을 지키고 있고 잔여 실패는 파생값 칸이다. §2398 괄호를 태스크 자체의 군 배정으로 읽으면 오독.
+2. **040 선행(FAILURE_MASTER:220) 대비 차이**: t7346 의 `address` 7/8·`issue_noticed_date` 8/8 오답 축은 이번 런에서 **소멸**(8/8 전부 gold 일치) — 잔여가 `eligible` 2칸으로 수렴. «issue_noticed_date 단독 수리 매수 0» 판정과 정합(그 축이 사라져도 r=0).
+3. **085 선행(x737 §1f-7·3329-65) 대비 차이**: 3+1칸 목록은 동일 sim 의 기지 사실 — 신규 실측은 ① write-window 우리층 **전달 0건**(탐지-미전달 확정) ② t61 오지목 침묵. «다시 계산하면 [[23]]·[[62]] 위반» 판시에 따라 B 유지.
+4. **D 남발 점검**: D 는 053 하나 — gold 전 액션 바이트-일치를 확인하고도 DB 갈림 필드를 로컬 재료로 못 닫는 경우라 «모른다» 가 정답([[77]]). 유일 후보(유저 도구 실행 EXTRA·give 는 gold 에 있음)와 반증 절차(리모트 dbdiff 1회)를 명기했다. 참고로 gold 가 give 만 두고 실행을 안 두는데 대본이 실행을 강제하므로, 유저 실행이 해시에 든다면 **대본-정합 궤적으로는 통과 불능**(env/gold 정합성 문제) — dbdiff 로 확정할 것.
+5. **판별식 일관성(검산 ②)**: 닫힌 갈림인데 A 로 간 것 0건·열린 갈림인데 C 로 간 것 0건. C-성 결함은 066 SIBLING_PAREN(닫힌·수리처 명명됨) 하나였으나 병존 B 칸 때문에 군은 B(+C 병존·단독 수리 매수 0) — C600 «버그를 트레이드오프로 부르지 마라» 와 «매수 0 이면 락이 아님» 둘 다 충족. A-성 병존은 082 의 ①′ 뿐이며 부호표 짝으로만 등재.
+6. **축자 검산(검산 ①)**: 인용 18개 전부 표본 재개봉 substring PASS(18/18).
+7. **관찰(원인 아님·[[84]] D8 계열)**: claimprov 빈 문면 *"None: None"* 이 8건 중 6건 런에 상존(040 t5·056 t48·066 t54·071 t66·078 t36·082 t5/32/41) — 078 에선 원장이 promised=[close×2, freeze_lg] 를 알고 있었으므로 문면이 채워졌어도 같은 오경로를 밀었을 것(인과 아님 확인), 그러나 렌더 결함 자체는 살아 있다.
+
+파일: 번들 `…\scratchpad\x742\task_{040,053,056,066,071,078,082,085}.json.gz` · 검산 스크립트 `…\x742\verify_quotes.py`·`diffgen.py` · 선행 `C:\workspace\ba-frft\reports\facet_rft_2026\x737_next_run_plan_2026_09_04.md:2394-2419,3329-3365,430-460` · `FAILURE_MASTER__20260822.md:220` · `C:\workspace\ba-frft\scripts\distill\tau2\go_stack.sh:735-760` · `t2_gate_patch.py:7483,13306-13322` · `dbdiff_task.py:8-15`.
+
+**★접기 두 건 (내가 보탠다)**:
+- **078 = 080-핀의 두 번째 표적**: 유저 축자 *"I need to freeze all of them right away"* 에 직행
+  close + [OPERATOR-SCOPE] 반려를 모델이 재발행 관철 — C601 핀(가역/비가역 선택의 고객-회부·자답
+  금지 = P11)의 사정권. 군은 B 유지(현행 레버 기준)·P11 부호표 «사는 편» 짝으로 등재.
+- **053 의 D 는 벤치-정합성 후보**: gold 는 give 까지만 두는데 대본 §4 가 유저 실행을 강제 —
+  유저 실행 행이 해시에 들면 **대본-정합 궤적으로는 통과 불능**. §1f-5 #17 로: 리모트
+  `dbdiff_task.py <tag> task_053` 1회가 확정한다(env/gold 층 판정 — [[21]]/[[68]] 절차).
+
+**§1f-7b 최종 계수 (실패 42 기준 · 083/087/097 비행 제외)**:
+```
+A 내재절충 10 (010 027 029 038 039 041 048 060 061 084)
+B 원리락  20 (007 026 037 040 046 054 055 056 063 064 066 067 069 071 077 078 082 085 086 101)
+C 버그     5 (014 015 051 068 092)     D 미판정 2 (053 059)
+M 측정중   1 (049)                     E 분모제외 1 (102)
+판별식-통과 후보(핀 대기) 1 (080 · P11 — 078 이 부호표 짝)
+```
+
 #### 1f-9. task_010 — 캠페인 0/5 정밀 포렌식 (워크플로 10에이전트 · `wf_bfb0cc8f` · 반증 감사 반영)
 
 > 대상 = ctl×2(viewmax2) · treat×2(viewmax2_actdemand) · g97×1, 대조 = night2p1(09-01 ·
