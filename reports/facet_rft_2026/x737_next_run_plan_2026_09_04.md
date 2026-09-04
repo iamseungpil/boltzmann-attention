@@ -46,6 +46,9 @@ flip 바닥(scaffold 0개인 base 팔을 두 번 돌렸을 때 뒤집히는 비�
          029: 모델의 옳은 거절을 넛지 3연발이 뒤집어 **금지 write 5건 커밋**(오프라인 재실행 5/5 DENY).
          ⚠반사실 reward 예측 0 — 수리 근거는 [[25]](자기 금지 우회 금지)다. §1f-2
     D15  신설(약화) — deny 처방 <-> dedup 억제 상호모순 (039 · 인과 불성립 · §1f-2)
+    D16  신설(1f-9 · 010) — **[ACTION] 선언 불완결(referent 무구속)**: 인자명만 주고 «누구의
+         user_id 인가»를 안 묶어 유일한 §7-무장 fail 을 죽였다. CONFIRMED·선재(07-22~08-10 도입).
+         수리 = env 축자 스니펫 동봉([[71]]/[[23]]/[[58]] 안전) · P10 격리 후 배선
     D8   ★**원인 확정 · 승격** — 이름이 빈 게 아니라 **출력 스키마가 소비부 이름과 어긋났다**
          (`f6224e26` 09-01: `what`->`claim` 개명 · pending 에서 `kind` 제거).
          전송 문면 **73/73 이 "None: None"** · unb_p>=1 **158/158** · 날짜 절벽 09-01↔09-03.
@@ -2337,6 +2340,56 @@ D12 무증거 0/6 · D10 1건 · L1 기대수익 0 재확인 · L2 연결 축자
 **D16 승격 기각**: 063 의 자격술어-부재(get_correct_savings_apy 가 최소잔액 검사 0)는 067(자격
 충족·정상 산출)·068(None 반환 = 술어 작동) 에서 **미재현** — 발현 n=1 이라 §1f-5 #7 단독 측정
 대상으로 유지.
+
+#### 1f-9. task_010 — 캠페인 0/5 정밀 포렌식 (워크플로 10에이전트 · `wf_bfb0cc8f` · 반증 감사 반영)
+
+> 대상 = ctl×2(viewmax2) · treat×2(viewmax2_actdemand) · g97×1, 대조 = night2p1(09-01 ·
+> viewmax2 동족 · PASS) · x723(다른 팔 · PASS). prior 2/3 ↔ 캠페인 0/5 (초기하 P=3/28≈10.7% ·
+> 반우연은 약함). 반증 감사가 **1차 분석의 주장 7건을 죽이거나 정정**했다 — 아래는 생존분만.
+
+**한 줄**: gold 010_1 은 «유저-쓰기»(user 가 **본인 id** 로 `submit_referral`)다. 0/5 는
+**레버 회귀가 아니라** ①모델층이 duplicate 조항(platinum_008 — 지원 중복 조항)을 referral
+재제출에 오적용 + 발명 규칙(*"attribution before application"* — pass 에도 존재) →
+*"retrying is possible"* 을 부정 → ②**user-sim 스크립트 §7 의 전건이 소멸**(*"…and retrying
+is possible, go ahead and submit a new referral"*) → escalation 기본값(###TRANSFER### ×4 ·
+장외 이탈 ×1)의 사슬이다. pass 는 유저심이 §7 전건을 날짜 산수로 **자가충족한 관대 적용**
+(에이전트가 *"permanently lost"* 라 했는데도 제출).
+
+**레버 회귀 기각의 근거** — 창(09-01 23:41→09-04 00:07) 내 엔진 커밋 19개 전수 diff:
+referral/ACTIONREQ/[ACTION]/digest/GB2 경로 커밋 **0건**. 유일한 전-팔 거동 커밋
+`39e541a0`(PROBE_MAX_TOKENS 2048→8192)은 갈림 턴 4/5 가 우리층 무개입 순수 prose 라 인과
+경로 미성립. ⚠단서: engine_sha 24/24 dirty([[85]]) — 커밋 이력 기준 배제이지 작업트리 증명
+아님. / ⚠[[54]] 단서: fail 번들에만 `seed` 키 실재 — user-sim 하니스 델타 가능성 미해소
+(§아래 재측정 #1이 판정 전제).
+
+**우리층 인과는 5 중 1 (idx1 ctl-t1) — 단 회귀 아닌 선재 결함**:
+M1 재생성 ×3(t23/27/29)이 모델의 거부 초안을 안내로 전환(방향은 gold 편!)했는데, 산출물이
+`user_id` 의 referent 를 **«친구 id»로 오지정** — 직전 reasoning 축자 *"Which user_id? Could
+be referred person's? Or referrer? Need infer."* 유저심 §5 는 본인 id 를 스크립트했으므로 이
+오지정 하나가 §7-무장 유일 fail 을 죽였다(손님이 친구 이메일 받으러 ###STOP### 이탈).
+
+**⇒ D16 신설 — «[ACTION] 선언 불완결 (referent 무구속)»** (CONFIRMED · **선재**: 도입
+`a84041e1` 07-22 · `cff28b00` 08-03 · `839c10a4` 08-10 — 전부 창 밖):
+`t2_gate_patch.py:10560` *"Arguments of {tool}: {args}"* 가 **인자명만** 주고 referent 를 안
+묶는다. 수리 = 그 도구를 언급하는 **env 문서 축자 스니펫**(예: doc_009 *"Tell the customer to
+pass their own user_id"*) 동봉 — 엔진은 읽어 전달만([[71]]) · 출처 env 뿐([[23]]) · 원장-표면화라
+[[58]] 안전. ⚠[[31]]: `t2_levers.py` 정본 원장에 동종 항목 유무 대조 후 번호 확정. 격리 프로브
+(P10: 같은 t27 재료 + 스니펫 동봉 뷰) 통과 후 배선.
+
+**[[64]] 일반 규칙 수리 후보 — 무명 계수 transfer notice**: GB2/WORK-INCOMPLETE 가
+*"7 item(s) … 0 acted on"* 을 세면서 **미이행 유저-행동 도구명을 안 댄다**(종결부 4/5 개입 —
+반증 A2 정정: idx0 도 turn46 발화·transfer 종결). pending_user 원장은 env 소유권표 유래라
+[[23]] 안전. 부기: env doc_009 는 *"Do not transfer to a human in these cases"* 라 적어
+무전송을 문서로 승인 — 이 조항 표면화도 같은 수리의 재료.
+
+**관찰 (원인 아님)**: idx4 의 `[T2_ACTIONREQ] 침묵: …대화 축자에 0회` — formalize 가
+submit_referral 을 만들고도 침묵(5/5 반복 공백 · [[64]] 방향 보강 후보). ⚠원인이 아닌 이유:
+instruct 가 실제로 발화한 idx1 도 r=0.0 (referent 오지정으로). / ctl↔treat 의 T2_CALC
+발화 여부가 갈림 — A/B 1-변수 규격 깨짐([[54]] · 별도 보고).
+
+**다음에 재야 할 것**: #1 user-sim 동일성 대조(최우선·판정 전제 — `seed` 키 델타) ·
+#2 t3prime 팔 현행 sha n≥5 재발사([[09]] 승인 필요 — ≥3/5 pass 면 «요행» 기각·0/N transfer-동형이면
+회귀 재개) · #3 idx1 t27 뷰 실측 diff([[78]] — doc_009 문면이 뷰에 있었나) · #4 P10 격리.
 
 #### 1f-8. P9 프로브 신설 (§3 에 편입)
 
