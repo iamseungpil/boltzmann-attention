@@ -1,0 +1,283 @@
+{
+ "_meta": {
+  "domain": "airline",
+  "strand": "state (kind=preconditions)",
+  "probe": "x765",
+  "date": "2026-09-05",
+  "status": "DRAFT - NOT WIRED. a2/ was not written to. Read-only audit of a2/airline.*.",
+  "sources_used": [
+   "airline policy.md, 167 lines, extracted verbatim from a2/env_surface_airline_retail.json['airline']['policy']",
+   "airline tool schemas, 14 tools, same file, ['airline']['tools']"
+  ],
+  "sources_NOT_opened": [
+   "gold",
+   "evaluation_criteria",
+   "tasks.json",
+   "*.results.json.gz"
+  ],
+  "quote_check": "26/26 verbatim substring PASS, 0 FAIL (includes the 6 out-of-strand quotes)",
+  "engine_contract": "gate_interpreter.py:392-407 (kind==\"preconditions\") + resolvers_from_env.resolve_field = producer_tool(**{id_arg: args[id_arg]}) -> record -> ONE top-level field -> `cur in chk['allow']`. That is the whole closed operation available to this strand.",
+  "retail_reference": "a2/retail.gate.json G5_STATUS_PRECONDITION - 4 tools, 2 checks, one field (`status`), one producer (get_order_details)."
+ },
+ "gates": [],
+ "_note_gates_empty_": "0 of 12 candidates cleared all three gates. This is the result, not a stub. Adding any of the 12 anyway would either false-block (C02, C08, C09), never fire (C05, C12), or silently require a new engine checker - which is [[58]] case-legislation and [[05]] engine modification.",
+ "_funnel_": {
+  "candidates": 12,
+  "gate1_source_pass": 12,
+  "gate2_target_pass": 11,
+  "gate3_closure_pass": 0,
+  "adopted": 0
+ },
+ "_rejection_ledger_": [
+  {
+   "id": "C01",
+   "tool": "book_reservation",
+   "state_of": "flight-date record",
+   "quotes": [
+    "If the status is **delayed** or **on time**, the flight has not taken off, cannot be booked.",
+    "If the status is **flying**, the flight has taken off but not landed, cannot be booked."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS (book_reservation exists; get_flight_status exists)",
+   "g3_closure": "FAIL",
+   "g3_why": "resolve_field calls the producer with exactly one argument; get_flight_status needs two (date, flight_number). The gated value also lives inside args['flights'] (a list of segments), not in a scalar id argument. No set-comparison over a single top-level field can express it.",
+   "unlock_op": "multi_arg_producer + per-element iteration over a list argument"
+  },
+  {
+   "id": "C02",
+   "tool": "update_reservation_flights",
+   "state_of": "reservation record",
+   "quotes": [
+    "Basic economy flights cannot be modified.",
+    "In other cases, all reservations, including basic economy, can change cabin without changing the flights."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "tool-operation polysemy. One write tool performs BOTH 'change flights' (forbidden while cabin is basic economy) and 'change cabin' (explicitly permitted for basic economy by the second quote). A tool-level allow-set on the reservation's cabin therefore FALSE-BLOCKS the permitted operation. Telling the two operations apart requires diffing the `flights` argument against the stored flights = a new checker. Secondary defect: the reservation-level cabin field name is not attested by any allowed source (see _unknown_).",
+   "unlock_op": "operation-discriminator (arg-vs-record diff) so a polysemous write tool can carry per-operation preconditions",
+   "near_miss_note": "An `applies_when {arg:'cabin', in:['basic economy']}` + `allow:['economy','business']` encoding fits the existing declaration slots and would not false-block. It is HELD, not adopted: its condition (the call keeps cabin unchanged, therefore the caller is changing flights) is an inference, not a verbatim policy statement, so the declaration fails gate 1 even though the sentence it leans on passes."
+  },
+  {
+   "id": "C03",
+   "tool": "update_reservation_flights",
+   "state_of": "flights nested inside the reservation record",
+   "quotes": [
+    "Cabin cannot be changed if any flight in the reservation has already been flown."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "existential quantifier over a nested list. resolve_field returns one top-level field; membership in `allow` cannot express 'no element of reservation.flights has status flown'.",
+   "unlock_op": "exists_where / all_where over a nested list field"
+  },
+  {
+   "id": "C04",
+   "tool": "update_reservation_baggages",
+   "state_of": "reservation record",
+   "quotes": [
+    "The user can add but not remove checked bags."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "order comparison between an argument (total_baggages) and stored state. The engine has membership only; the `constraints` kind ops are {disjoint, equal_len} and both compare two ARGUMENTS, never an argument against a record.",
+   "unlock_op": "ge_record (arg >= resolved record field)"
+  },
+  {
+   "id": "C05",
+   "tool": "(none)",
+   "state_of": "reservation record",
+   "quotes": [
+    "The user cannot add insurance after initial booking."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "FAIL",
+   "g3_closure": "n/a",
+   "g2_why": "No tool to gate. Across the full 14-tool airline inventory, `insurance` appears as an argument of book_reservation ONLY. There is no post-booking insurance tool, so a declaration here would point at nothing and could never fire. This is the airline instance of the banking failure mode (11 of 38 A3 rows aimed at absent tools).",
+   "unlock_op": "none - the rule is env-mirrored by the absence of the tool"
+  },
+  {
+   "id": "C06",
+   "tool": "update_reservation_passengers",
+   "state_of": "reservation record",
+   "quotes": [
+    "The user can modify passengers but cannot modify the number of passengers.",
+    "Even a human agent cannot modify the number of passengers."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "length equality between an argument list and a stored list. `equal_len` exists but compares two arguments; there is no arg-vs-record form.",
+   "unlock_op": "equal_len_record (len(arg) == len(resolved record field))"
+  },
+  {
+   "id": "C07",
+   "tool": "cancel_reservation",
+   "state_of": "flights nested inside the reservation record",
+   "quotes": [
+    "If any portion of the flight has already been flown, the agent cannot help and transfer is needed."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "existential quantifier over a nested list, same shape as C03.",
+   "unlock_op": "exists_where / all_where over a nested list field"
+  },
+  {
+   "id": "C08",
+   "tool": "cancel_reservation",
+   "state_of": "reservation record + user utterance",
+   "quotes": [
+    "Otherwise, flight can be cancelled if any of the following is true:",
+    "- The booking was made within the last 24 hrs",
+    "- The flight is cancelled by airline",
+    "- It is a business flight",
+    "- The user has travel insurance and the reason for cancellation is covered by insurance."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "four-way disjunction. `allow` is a NECESSARY condition (deny when cur not in allow), so encoding any single disjunct false-blocks the other three. The disjunction also mixes a time computation (created_time vs now, 24 hrs) and an OPEN predicate (whether the stated reason is covered by insurance - a judgement, LLM territory per [[52]]/[[22]]).",
+   "unlock_op": "allow_any_of over several resolver paths - and even then one disjunct stays open"
+  },
+  {
+   "id": "C09",
+   "tool": "send_certificate",
+   "state_of": "user record + reservation record",
+   "quotes": [
+    "Only compensate if the user is a silver/gold member or has travel insurance or flies business.",
+    "Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS (send_certificate + get_user_details both exist)",
+   "g3_closure": "FAIL",
+   "g3_why": "three-way disjunction spanning TWO records (user.membership, reservation.insurance, reservation.cabin) while a check names exactly one resolver_path. `allow:['silver','gold']` on [user_id, get_user_details, membership] is closed and tempting, but it is one disjunct, not the necessary condition: it would deny a regular member who holds travel insurance, whom the policy explicitly permits to be compensated.",
+   "unlock_op": "allow_any_of across multiple resolver paths (multi-record disjunction)"
+  },
+  {
+   "id": "C10",
+   "tool": "update_reservation_flights",
+   "state_of": "reservation record",
+   "quotes": [
+    "Other reservations can be modified without changing the origin, destination, and trip type."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "argument-vs-record equality on three fields, and worse: update_reservation_flights takes only (cabin, flights, payment_id, reservation_id) - origin, destination and trip type are not call arguments at all, so they would first have to be DERIVED from the flights list. Derivation is not set comparison.",
+   "unlock_op": "unchanged_fields (arg-derived vs record) - requires a derivation step first"
+  },
+  {
+   "id": "C11",
+   "tool": "book_reservation / update_reservation_flights / update_reservation_baggages",
+   "state_of": "user record",
+   "quotes": [
+    "All payment methods must already be in user profile for safety reasons.",
+    "The payment method must already be in user profile for safety reasons."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "member_of: an argument value must belong to a SET resolved from another record. The engine compares a resolved value against a literal allow-list; the direction is reversed and the right-hand side is dynamic. retail's own G7 note already records this exact op as excluded (payment member_of = derived field, [[05]] risk, not included).",
+   "unlock_op": "member_of_record (arg in resolved record field)"
+  },
+  {
+   "id": "C12",
+   "tool": "update_reservation_flights",
+   "state_of": "reservation record",
+   "quotes": [
+    "Cabin class must remain the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible."
+   ],
+   "g1_source": "PASS",
+   "g2_target": "PASS",
+   "g3_closure": "FAIL",
+   "g3_why": "vacuous / env-mirrored. update_reservation_flights takes a single scalar `cabin` for the whole call, so no call can express a per-segment cabin. A gate here would never fire. A declaration that cannot fire is worse than none - it inflates A2 volume without changing a single message, which is this strand's whole premise (banking bought a 46x A2 for a 4x delivery).",
+   "unlock_op": "none - already enforced by the tool signature"
+  }
+ ],
+ "_out_of_strand_": [
+  {
+   "quote": "Each reservation can have at most five passengers.",
+   "kind": "constraints",
+   "tool": "book_reservation",
+   "why": "pure-argument cardinality; belongs to the `constraints` gate kind, not `preconditions`. Would need a max_len op."
+  },
+  {
+   "quote": "Each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards.",
+   "kind": "constraints",
+   "tool": "book_reservation",
+   "why": "pure-argument typed counting; needs a count_by_type op the engine does not have."
+  },
+  {
+   "quote": "Cabin class must be the same across all the flights in a reservation.",
+   "kind": "constraints",
+   "tool": "book_reservation",
+   "why": "env-mirrored by the single scalar `cabin` argument (same reason as C12)."
+  },
+  {
+   "quote": "then send the message 'YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.' to the user.",
+   "kind": "notice",
+   "tool": "transfer_to_human_agents",
+   "why": "ADJACENT GAP, reported not adopted: retail declares this as G4_TRANSFER_MSG (kind=notice) and airline does not, although the airline policy carries the identical sentence and the engine's notice machinery is domain-general. This is the `notice` strand, not the state strand - handed off, not authored here."
+  },
+  {
+   "quote": "The API does not check that cancellation rules are met, so the agent must make sure the rules apply before calling the API!",
+   "kind": "meta",
+   "tool": "(none)",
+   "why": "the policy itself states the environment does NOT enforce the cancellation rules. That is exactly the condition under which a scaffold gate pays - and exactly the rule (C08) that gate 3 rejects. Recorded because it names what is being left on the table."
+  },
+  {
+   "quote": "The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!",
+   "kind": "meta",
+   "tool": "(none)",
+   "why": "same, for the Change-flights rules (C02/C10)."
+  }
+ ],
+ "_op_demand_histogram_": {
+  "exists_where / all_where over a nested list field": [
+   "C03",
+   "C07"
+  ],
+  "allow_any_of over several resolver paths (disjunction)": [
+   "C08",
+   "C09"
+  ],
+  "member_of_record (arg in resolved record field)": [
+   "C11"
+  ],
+  "ge_record (arg >= resolved record field)": [
+   "C04"
+  ],
+  "equal_len_record (len(arg) == len(resolved list))": [
+   "C06"
+  ],
+  "multi_arg producer + per-element list iteration": [
+   "C01"
+  ],
+  "unchanged_fields (arg-derived vs record)": [
+   "C10"
+  ],
+  "operation-discriminator for a polysemous write tool": [
+   "C02"
+  ],
+  "(none - env-mirrored or no tool exists)": [
+   "C05",
+   "C12"
+  ]
+ },
+ "_note_op_demand_": "No single closed op unlocks more than 2 of the 12. Retail's four state rules all collapse to ONE op (scalar field in allow-set) because retail names one tool per lifecycle state (cancel_pending_*, modify_pending_*, return_delivered_*, exchange_delivered_*). Airline routes several operations with opposite preconditions through one write tool and keeps its state in nested lists. The axis does not fail to transfer for lack of a declaration - it is eight checkers away.",
+ "_unknown_": [
+  {
+   "question": "What are the top-level field names of the airline reservation record (is reservation-level cabin literally `cabin`)?",
+   "answer": "모른다.",
+   "searched": [
+    "C:/workspace/ba-frft/scripts/distill/tau2/a2/env_surface_airline_retail.json - holds tool ARGUMENT names only, no return schema",
+    "grep -o for cabin over C:/workspace/ba-frft/scripts/distill/tau2/a2/airline.*.json -> 1 hit, in airline.grounding.json, where `cabin` is the explode key of a FLIGHT SEARCH result, not a reservation field",
+    "find /c -maxdepth 6 -type d -name 'tau2*' -> no tau2-bench package on this host; data/tau2/domains/airline/ is not present locally",
+    "C:/workspace/ba-frft/reports/facet_rft_2026/sim_results/trace_bank_t7390_airline_smoke_20260829.jsonl.gz -> sidecar marks only (keys line/mark/sim/turn); carries no tool return values"
+   ],
+   "note": "The airline policy's own Reservation attribute list (reservation id, user id, trip type, flights, passengers, payment methods, created time, baggages, travel insurance information) does NOT include cabin. The existing G3_RESERVATION_OWNER attests only that `user_id` is a top-level reservation field. Not opened, by 철칙 [[23]]: gold / evaluation_criteria / tasks.json / *.results.json.gz."
+  }
+ ]
+}

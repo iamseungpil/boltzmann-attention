@@ -1,0 +1,1696 @@
+### FILE=bank_010ctl_20260904_0007.results.json.gz sim_id=1c37ebc4-9c77-43f0-b079-f0b8dc11ed05 trial=1 seed=373753 reward=0.0 nmsgs=33 term=user_stop
+### reward_breakdown={"reward": 0.0, "db_check": {"db_match": false, "db_reward": 0.0}, "env_assertions": [], "action_checks": [{"action": {"action_id": "010_0", "requestor": "assistant", "name": "log_verification", "arguments": {"name": "Wei Chen", "user_id": "76ad9cc60e", "address": "88 Harbor View Court, Boston, MA 02110", "email": "wei.chen.boston@gmail.com", "phone_number": "617-555-0834", "date_of_birth": "04/17/1979", "time_verified": "2025-11-14 03:40:00 EST"}, "info": null, "compare_args": null}, "action_match": true, "action_reward": 1.0, "tool_type": "write"}, {"action": {"action_id": "010_1", "requestor": "user", "name": "submit_referral", "arguments": {"user_id": "76ad9cc60e", "account_type": "Platinum Rewards Card"}, "info": null, "compare_args": null}, "action_match": false, "action_reward": 0.0, "tool_type": "write"}], "nl_assertions": null, "communicate_checks": null, "reward_basis": ["DB"], "info": {"env": null, "nl": null, "communicate": {"note": "No communicate_info to evaluate"}, "action": null}}
+
+==========================================================================================
+[msg 0] role=assistant turn_idx=0 tool_call_id=None
+--- content ---
+Hi! How can I help you today?
+
+==========================================================================================
+[msg 1] role=user turn_idx=1 tool_call_id=None
+--- content ---
+Hi — I referred four friends to sign up for your Rho-Bank credit cards, and all four of them actually signed up. But I only received the referral/bonus money for two of them. Can you tell me why I didn’t get the bonus for the other two?
+
+==========================================================================================
+[msg 2] role=assistant turn_idx=2 tool_call_id=None
+--- content ---
+
+
+I can look into that for you. Since this requires accessing your referral history, I'll first need to verify your identity. Could you please provide:
+
+1. Your full name or user ID (so I can locate your account), and
+2. Any **two** of the following: date of birth, email address, phone number, or mailing address.
+
+==========================================================================================
+[msg 3] role=user turn_idx=3 tool_call_id=None
+--- content ---
+Full name: Wei Chen.
+
+For verification, here are two:
+- Email: wei.chen.boston@gmail.com  
+- Phone: 617-555-0834
+
+==========================================================================================
+[msg 4] role=assistant turn_idx=4 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-b957d7a17ec6d371", "name": "get_user_information_by_name", "arguments": {"customer_name": "Wei Chen"}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 5] role=tool turn_idx=5 tool_call_id=None
+--- content ---
+Found 1 record(s) in 'users':
+
+1. Record ID: 76ad9cc60e
+   name: Wei Chen
+   user_id: 76ad9cc60e
+   address: 88 Harbor View Court, Boston, MA 02110
+   email: wei.chen.boston@gmail.com
+   phone_number: 617-555-0834
+   date_of_birth: 04/17/1979
+
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 6] role=assistant turn_idx=6 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-a32ff10ca6a61e50", "name": "verify_identity", "arguments": {"provided": "{\"email\": \"wei.chen.boston@gmail.com\", \"phone_number\": \"617-555-0834\"}"}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 7] role=tool turn_idx=7 tool_call_id=None
+--- content ---
+VERIFIED — 2 identity values match the account record (phone_number, email); you may now call log_verification. Its time_verified argument must be the CURRENT time: FIRST call get_current_time, wait for its result, then copy that exact timestamp into time_verified — do not ask the customer for the time and do not make one up.
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 8] role=assistant turn_idx=8 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-844150e250daa22e", "name": "get_current_time", "arguments": {}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 9] role=tool turn_idx=9 tool_call_id=None
+--- content ---
+The current time is 2025-11-14 03:40:00 EST.
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 10] role=assistant turn_idx=10 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-be4eb1dcf95a521b", "name": "log_verification", "arguments": {"name": "Wei Chen", "user_id": "76ad9cc60e", "address": "88 Harbor View Court, Boston, MA 02110", "email": "wei.chen.boston@gmail.com", "phone_number": "617-555-0834", "date_of_birth": "04/17/1979", "time_verified": "2025-11-14 03:40:00 EST"}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 11] role=tool turn_idx=11 tool_call_id=None
+--- content ---
+Verification logged successfully.
+  - User: Wei Chen (ID: 76ad9cc60e)
+  - Verified at: 2025-11-14 03:40:00 EST
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 12] role=assistant turn_idx=12 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-8cd2e02397f508bd", "name": "get_referrals_by_user", "arguments": {"user_id": "76ad9cc60e"}, "requestor": "assistant"}
+{"id": "chatcmpl-tool-84587cebc7735c95", "name": "KB_search_bm25", "arguments": {"query": "credit card referral bonus program requirements eligibility referred friend signed up", "k": 10}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 13] role=tool turn_idx=13 tool_call_id=None
+--- content ---
+Found 4 record(s) in 'referrals':
+
+1. Record ID: a1b2c3d4e5f67890
+   referral_id: a1b2c3d4e5f67890
+   referrer_id: 76ad9cc60e
+   referred_account_type: Bronze Rewards Card
+   referral_status: COMPLETE
+   date: 10/20/2025
+
+2. Record ID: b2c3d4e5f6789012
+   referral_id: b2c3d4e5f6789012
+   referrer_id: 76ad9cc60e
+   referred_account_type: Gold Rewards Card
+   referral_status: COMPLETE
+   date: 10/22/2025
+
+3. Record ID: c3d4e5f678901234
+   referral_id: c3d4e5f678901234
+   referrer_id: 76ad9cc60e
+   referred_account_type: Silver Rewards Card
+   referral_status: IN_PROGRESS
+   date: 11/05/2025
+
+4. Record ID: d4e5f67890123456
+   referral_id: d4e5f67890123456
+   referrer_id: 76ad9cc60e
+   referred_account_type: Platinum Rewards Card
+   referral_status: REJECTED
+   date: 10/25/2025
+
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 14] role=tool turn_idx=14 tool_call_id=None
+--- content ---
+1. Refer a Friend to Rho-Bank and Earn Rewards
+   ID: doc_credit_cards_credit_cards_(general)_020
+   Score: 22.8163
+   Content: Do you love your Rho-Bank credit card? Share the love with friends and family, and you could both earn rewards! Our referral program makes it easy to invite the people you care about to join Rho-Bank, and when they're approved for a new card and meet the program requirements, you'll both be rewarded.
+
+## How It Works
+
+Participating in our referral program is simple. When you refer someone to apply for a Rho-Bank credit card and they're approved, you may be eligible to receive a referral bonus. The specific bonus amount and requirements vary depending on which credit card you're referring them to—some cards offer cash back bonuses, while others may offer bonus points or statement credits.
+
+## Getting Your Referral Link
+
+To refer a friend, you'll need to generate a unique referral link that's tied to your account. You can do this through the Rho-Bank mobile app, online banking portal, or by contacting our customer service team. Once you have your link, simply share it with friends and family via email, text, or social media. When they use your link to apply and are approved, the referral will be tracked to your account.
+
+## Important Things to Know
+
+To ensure the referral program remains fair for all participants, there are a few guidelines to keep in mind:
+
+- **Weekly Limit**: You can earn referral bonuses for up to 2 successful referrals per week. This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.
+- **Eligibility**: Not all credit cards participate in the referral program. Before sharing your link, make sure the card you're referring has an active referral offer.
+- **Bonus Requirements**: Each referral program has specific requirements that your friend must meet to trigger the bonus, such as making a certain amount of purchases within a specified timeframe after account opening.
+
+## Check Your Referral Status
+
+You can track the status of your referrals at any time through the Rho-Bank mobile app or by contacting customer service. We'll also send you notifications when your referrals are approved and when you earn your bonus.
+
+If you have any questions about the referral program or want to confirm the current offer for your card, please reach out to our customer service team at 1-800-RHO-BANK. We're always happy to help!
+
+2. Platinum Rewards Card: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_platinum_rewards_card_008
+   Score: 22.1955
+   Content: ## How It Works
+- Share your referral through your account to invite friends to apply.
+- For each friend who is approved and meets the qualifying spend, you earn a referral bonus of $100.
+
+## Qualifying Spend Requirement
+- The referred friend must spend at least $1,500 within 90 days of account opening to qualify you for the bonus.
+
+## Annual Limits
+- You can earn up to 7 referral bonuses per calendar year.
+
+## Steps to Refer
+1. Open the referrals section in your account.
+2. Send your referral using the available sharing options.
+3. Track the status of pending referrals in your dashboard.
+
+## Payout Timing and Eligibility
+- Bonuses are typically credited after the referred applicant is approved and meets the $1,500 spend requirement within 90 days.
+- Self-referrals or duplicate applications do not qualify.
+
+## Tips
+- Share with friends who are likely to benefit from the card's features.
+- Remind your referral to meet the $1,500 spend threshold within 90 days.
+- Ensure your account is in good standing to receive bonuses promptly.
+
+3. Business Gold Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_gold_rewards_card_010
+   Score: 20.1615
+   Content: ## How the Referral Bonus Works
+- Earn $200 for each successful referral who is approved and meets the qualifying spend.
+- You can earn up to 8 referral bonuses per calendar year.
+
+## Qualifying Spend Requirement
+- The referred business must spend $7,500 within 90 from account opening to qualify your bonus.
+
+## Program Timeline
+- The referral program accepts new referrals until 2025-09-15. Referrals submitted after this date are not eligible.
+
+## How to Refer
+- Generate your unique referral link from your account’s referral center.
+- Share the link directly with businesses that consent to receive it.
+- Track application status and eligibility in the referral dashboard.
+
+## Payouts
+- Once the referred account is approved and completes $7,500 within 90, your $200 is queued for issuance to your account.
+
+## Rules and Best Practices
+- Self-referrals are not permitted.
+- Share referral invitations only with contacts who have given permission to receive them.
+- If a referral applies without your link, the referral may not be attributed.
+- Program terms, eligible industries, and promotional availability may change without notice prior to 2025-09-15.
+
+4. Silver Zoom Card: Referral Program - Earn Rewards for Referring Logistics Businesses
+   ID: doc_business_credit_cards_silver_zoom_card_011
+   Score: 19.6102
+   Content: ## How the referral program works
+- Earn a referral bonus of $150 for each referred logistics business that is approved and meets the qualifying spend requirement
+- Bonuses are capped at 10 per calendar year
+
+## Qualifying activity for your referral
+- The referred business must complete purchases totaling $7,500 within 90 days of account opening
+- Only one referrer is credited per approved account
+
+## Program timing
+- No new referrals are accepted after 2025-10-01
+
+## How to refer
+- Share your referral link or submit the referral through your account portal before the referred business applies
+- Ensure the referred business uses your link or is otherwise properly attributed during application
+- Track referral status within your account until the qualifying spend threshold of $7,500 is met
+
+## Payout details
+- Bonuses are typically issued to the referrer after the referred business satisfies the $7,500 requirement within 90 days
+- If the referred business returns purchases or does not meet the requirement, no bonus is issued
+
+5. Business Silver Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_silver_rewards_card_013
+   Score: 19.5747
+   Content: ## What you can earn
+- Earn $100 for each successful referral that is approved and meets the qualifying spend requirement
+- You can earn up to 10 referral bonuses per calendar year
+
+## Qualifying spend requirement
+- The referred business must spend at least $3,000 within 90 days of account opening for you to receive the bonus
+
+## How to refer
+- Share a referral through the official referral channel so applications are tracked correctly
+- Ensure the referred business uses your referral details when applying
+
+## Tracking and payout
+- After the referred business is approved and completes the qualifying spend, your $100 bonus will be processed according to program rules
+- If a referral does not appear, contact support with the referred business name and application date so it can be investigated
+
+6. Credit Card Referral Offers and Restrictions
+   ID: doc_credit_cards_credit_cards_(general)_002
+   Score: 19.0326
+   Content: ## Program scope
+- Each credit card type has its own referral bonus and eligibility requirements that are not detailed here.
+
+## Weekly referral limit
+- You can receive at most 2 referral bonuses in any rolling 7-day window.
+- If you attempt to receive more than 2 referrals in a single week, the third referral (and any subsequent referrals that week) will be automatically denied.
+- This limit applies across all credit card types; referrals from different cards still count toward the same weekly cap.
+
+## Practical guidance
+- Track the timing of your last two successful referral bonuses before sending additional referrals.
+- A rolling 7-day window means the count is evaluated based on the exact timestamps of your most recent referral bonuses, not calendar weeks.
+- Auto-denied referrals due to the limit cannot be reinstated within the same 7-day window.
+- If a referral is denied for hitting the limit, wait until enough time has passed to drop under the cap before attempting another.
+
+7. Beige Account Referral Program
+   ID: doc_business_checking_accounts_beige_012
+   Score: 18.7333
+   Content: ## Enterprise referral program
+
+Refer other enterprise-level businesses to the Beige Account and earn premium referral rewards.
+
+### Premium rewards
+- **Your reward**: $500 for each qualifying referral
+- **Their reward**: $350 welcome bonus
+- **Annual maximum**: 15 referral bonuses per calendar year
+
+### Qualification criteria
+To earn a referral bonus:
+1. Referrer tenure requirement: 120 days since opening your first checking account with us.
+2. The referred enterprise must open a Beige Account
+3. They must deposit at least $100,000 within 120 days
+
+### Referral details
+| Detail | Amount |
+|---|---|
+| Referrer bonus | $500 |
+| Referred bonus | $350 |
+| Maximum per year | 15 |
+| Required deposit | $100,000 |
+| Deposit window | 120 days |
+| Minimum tenure | 120 days |
+
+### How to participate
+1. Contact your dedicated relationship manager for referral materials
+2. Introduce qualified enterprises to the Beige Account benefits
+3. Your relationship manager can facilitate introductions and track referrals
+4. Bonuses are credited after all qualification requirements are confirmed
+
+### Enterprise considerations
+- Referrals must be for new Beige Account relationships
+- Both enterprises must maintain accounts in good standing
+- Premium referral bonuses reflect the enterprise-level relationship value
+
+8. Business Platinum Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_platinum_rewards_card_012
+   Score: 18.4385
+   Content: ## How the Referral Bonus Works
+- Share your referral through the designated channel. When the referred business is approved and completes qualifying spend of $15,000 within 135 days from account opening, you earn a bonus of $300.
+
+## Annual Limits
+- You can earn up to 11 referral bonuses per calendar year.
+
+## Qualification Tips
+- Encourage the referred business to use the card for eligible purchases promptly after activation to meet $15,000 within the allowed period.
+- Ensure the referral is submitted before the application so it is properly attributed.
+
+## Payout and Compliance
+- Bonuses are credited to your account after verification that approval and qualifying spend requirements have been met.
+- Referrals should comply with applicable marketing and solicitation rules; only share referral information with contacts who have consented to receive it.
+
+9. EcoCard: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_ecocard_011
+   Score: 18.2420
+   Content: ## What You Earn
+- Receive 50 for each successful referral
+- You can earn up to 7 referral bonuses per calendar year
+
+## What Your Referral Must Do
+- The referred person must be approved and spend at least $500 within 60 days of account opening
+
+## How to Refer
+1. Share your referral link or code with friends and family
+2. Ensure they apply using your link or code so the referral is tracked
+3. You'll be notified when the referral meets the qualifying spend requirement
+
+## Payout Timing
+- Your bonus typically posts within one to two billing cycles after the referred account meets the $500 requirement
+
+## Program Tips
+- Remind your referral to activate their card promptly and add recurring bills to help them meet $500 within 60 days
+- Track your annual count to stay within the 7 limit
+
+10. Silver Rewards Card: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_silver_rewards_card_011
+   Score: 18.2420
+   Content: ## What You Earn
+- Receive 75 for each successful referral
+- You can earn up to 7 referral bonuses per calendar year
+
+## What Your Referral Must Do
+- The referred person must be approved and spend at least $750 within 60 days of account opening
+
+## How to Refer
+1. Share your referral link or code with friends and colleagues
+2. Ensure they apply using your link or code so the referral is tracked
+3. You’ll be notified when the referral meets the qualifying spend requirement
+
+## Payout Timing
+- Your bonus typically posts within one to two billing cycles after the referred account meets the $750 requirement
+
+## Program Tips
+- Remind your referral to activate their card promptly and add recurring bills to help them meet $750 within 60 days
+- Track your annual count to stay within the 7 limit
+
+
+[Timing: retrieval=2ms, reranking=0ms, total=2ms]
+[axis] matches: no document contains all of these words; 26 shown by ranking
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 15] role=assistant turn_idx=15 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-a87064ffaa20a530", "name": "KB_search_bm25", "arguments": {"query": "referral status REJECTED reason denied weekly limit rolling 7-day", "k": 10}, "requestor": "assistant"}
+{"id": "chatcmpl-tool-94c897cffaea00f9", "name": "KB_search_dense", "arguments": {"query": "why a credit card referral was rejected, referral status meanings, checking the reason for a rejected referral", "k": 10}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 16] role=tool turn_idx=16 tool_call_id=None
+--- content ---
+1. Credit Card Referral Offers and Restrictions
+   ID: doc_credit_cards_credit_cards_(general)_002
+   Score: 36.9160
+   Content: ## Program scope
+- Each credit card type has its own referral bonus and eligibility requirements that are not detailed here.
+
+## Weekly referral limit
+- You can receive at most 2 referral bonuses in any rolling 7-day window.
+- If you attempt to receive more than 2 referrals in a single week, the third referral (and any subsequent referrals that week) will be automatically denied.
+- This limit applies across all credit card types; referrals from different cards still count toward the same weekly cap.
+
+## Practical guidance
+- Track the timing of your last two successful referral bonuses before sending additional referrals.
+- A rolling 7-day window means the count is evaluated based on the exact timestamps of your most recent referral bonuses, not calendar weeks.
+- Auto-denied referrals due to the limit cannot be reinstated within the same 7-day window.
+- If a referral is denied for hitting the limit, wait until enough time has passed to drop under the cap before attempting another.
+
+2. Generating a Credit Card Referral Link (Internal)
+   ID: doc_credit_cards_credit_cards_(general)_009
+   Score: 24.6826
+   Content: ## Pre-check before providing the referral tool
+- Search the knowledge base to confirm the specific card has a documented referral program.
+- Verify the customer’s understanding of referral terms. If the customer cites terms that do not match any documented program, clarify the discrepancy.
+- If no referral program is documented for the requested card, or if the user’s claimed terms are incorrect, or if there is reason to believe the referral will be automatically rejected, explain why and do not provide a referral link tool. Do not transfer to a human in these cases.
+
+## How the user generates their referral link
+- Provide the customer with this tool and instruct them to run it themselves:
+  - `get_referral_link(user_id: str, card_name: str)`
+- Tell the customer to pass their own user_id and the exact card name (for example, 'Gold Rewards Card').
+- When the tool is called successfully, a referral record is created with status 'NO_PROGRESS'. The referred person can then use the generated link to apply.
+
+## Important reminders
+- Weekly limit: Customers can receive at most 2 referral bonuses in any rolling 7-day window; the third and subsequent referrals in that window are automatically denied.
+- Agents must not generate the link on the customer’s behalf.
+- Reiterate the correct referral terms as documented to prevent confusion and complaints.
+
+3. Internal: Checking Account Referral Program Terms and Restrictions
+   ID: doc_bank_accounts_bank_accounts_(general)_047
+   Score: 21.5992
+   Content: ## Program overview
+Each checking account type has its own referral bonus amounts and qualification requirements. This document covers the general terms and restrictions that apply to all checking account referral programs. Before giving any recommendations or information on referral terms, you must check that the user is eligible to submit referrals first, as users who are not eligible to submit referrals while being given recommendations by the agent tend to leave dissatisfactory reviews. 
+
+## Rolling window limit
+- You can receive at most 2 referral bonuses in any rolling 9-day window.
+- If you attempt to receive more than 2 referrals in a single 9-day period, the third referral (and any subsequent referrals in that window) will be automatically denied.
+- This limit applies across all checking account types; referrals from different accounts count toward the same 9-day cap.
+- A rolling 9-day window means the count is evaluated based on the exact timestamps of your most recent referral bonuses, not calendar weeks.
+- Auto-denied referrals due to the limit cannot be reinstated within the same 9-day window.
+
+## Eligibility restrictions
+- The referred person must be a new Rho-Bank customer with no existing checking, savings, or closed accounts within the past 12 months.
+- The referrer and referred person cannot be registered at the same address.
+- The referred person must be 18 years or older, except for the Light Green Account which allows minors with a guardian.
+- For business accounts: The referred business must have a different primary owner than any existing Rho-Bank business account, based on the SSN of the primary authorized signer.
+
+## Referrer tenure policy
+- Every referral program requires the referrer to meet a tenure threshold before participating.
+- This threshold is calculated from when you first became a Rho-Bank checking customer—specifically, the date your earliest checking account was opened.
+- The type of account you currently hold is irrelevant to this calculation. Whether you have a basic or premium product, the tenure measurement remains the same.
+- Consequently, holding one account type does not prevent you from referring someone to a different account type, as long as the duration since your first account meets or exceeds the program's stated minimum.
+
+## Bonus conditions
+- The qualifying deposit must be new money and cannot be transferred from another Rho-Bank account.
+- The qualifying deposit must remain in the account for at least 30 days after the qualifying period ends.
+- If the referred account is closed within 90 days of opening, the referral bonus may be reversed (clawback provision).
+
+## Stacking restrictions
+- The referral bonus cannot be combined with other new account promotions or sign-up bonuses.
+- Only one referral code can be applied per new account.
+
+## Referral status definitions
+- COMPLETE — The referred person has successfully opened a new account and met the criteria to receive the referral bonus.
+- IN_PROGRESS — The referred person has successfully opened a new account and is working toward meeting the qualifying deposit requirement.
+- NO_PROGRESS — The referred person has not applied yet; no progress has been made.
+- APPLIED — The referred person has submitted an application and is awaiting a decision.
+- REJECTED — The referral has been denied (e.g., rolling window limit exceeded, ineligible referral).
+- ERROR — A system error occurred during the referral process.
+
+## Practical guidance
+- Track the timing of your last two successful referral bonuses before sending additional referrals.
+- If a referral is denied for hitting the rolling window limit, wait until enough time has passed to drop under the cap before attempting another.
+- Both accounts must remain in good standing for bonuses to be paid.
+
+4. FAQ: Checking Account Referrals
+   ID: doc_bank_accounts_bank_accounts_(general)_048
+   Score: 19.0151
+   Content: ## Frequently asked questions about checking account referrals
+
+### How many people can I refer at once?
+You can have multiple referrals in progress, but you can only receive a maximum of 2 referral bonuses in any rolling 9-day window. If you exceed this limit, additional referrals will be automatically denied until enough time passes.
+
+### Can I refer someone who used to have a Rho-Bank account?
+No. The referred person must be a new Rho-Bank customer with no existing or closed accounts within the past 12 months. Former customers must wait 12 months after their last account closure before being eligible as a referral.
+
+### Can I refer someone who lives at the same address as me?
+No. The referrer and referred person cannot be registered at the same address. This restriction helps prevent abuse of the referral program.
+
+### What counts as a qualifying deposit?
+The qualifying deposit must be new money brought into Rho-Bank. Transfers from another Rho-Bank account do not count. The deposit can come from an external bank transfer, direct deposit, mobile check deposit, or cash/check deposit at a branch.
+
+### What happens if the person I referred closes their account early?
+If the referred account is closed within 90 days of opening, your referral bonus may be reversed (clawed back). Both accounts must remain in good standing for bonuses to be retained.
+
+### Can I combine the referral bonus with other promotions?
+No. The referral bonus cannot be combined with other new account promotions or sign-up bonuses. Only one promotional offer can be applied per new account.
+
+### What do the referral statuses mean?
+- **COMPLETE**: The referral was successful and bonuses will be paid.
+- **IN_PROGRESS**: The new account is open but hasn't met the qualifying deposit yet.
+- **NO_PROGRESS**: The referred person hasn't started an application.
+- **APPLIED**: An application has been submitted and is being reviewed.
+- **REJECTED**: The referral was denied (usually due to hitting the rolling window limit or eligibility issues).
+- **ERROR**: A system error occurred; try again later or contact support.
+
+### Why was my referral rejected?
+Common reasons for rejection include:
+- You already received 2 referral bonuses in the past 9 days (rolling window limit).
+- The referred person already has or recently had a Rho-Bank account.
+- You and the referred person are registered at the same address.
+- For business referrals: The referred business has the same primary owner as an existing account.
+
+### How long do I have to wait after a rejection to refer again?
+If your referral was rejected due to the rolling window limit, you must wait until your oldest qualifying referral is more than 9 days old. The limit is based on a rolling window, so you become eligible again as older referrals age out.
+
+### Can I refer someone for a business checking account?
+Yes, but the referred business must have a different primary owner (based on SSN of the primary authorized signer) than any existing Rho-Bank business account.
+
+### Do I need to have the same account type to refer someone for it?
+No. Referrer eligibility hinges on how long you've been a Rho-Bank checking customer, not which product you currently use. The tenure threshold is measured from when you opened your very first checking account with us. Someone with a Navy Blue account can refer others for World Blue, True Blue, or any other checking product—provided they've met the duration requirement.
+
+### How long does the referred person have to make the qualifying deposit?
+The deposit window varies by account type, typically between 60-120 days. Check the specific account's referral terms for the exact timeframe. After the deposit is made, it must remain in the account for at least 30 additional days.
+
+5. Refer a Friend to Rho-Bank and Earn Rewards
+   ID: doc_credit_cards_credit_cards_(general)_020
+   Score: 14.3235
+   Content: Do you love your Rho-Bank credit card? Share the love with friends and family, and you could both earn rewards! Our referral program makes it easy to invite the people you care about to join Rho-Bank, and when they're approved for a new card and meet the program requirements, you'll both be rewarded.
+
+## How It Works
+
+Participating in our referral program is simple. When you refer someone to apply for a Rho-Bank credit card and they're approved, you may be eligible to receive a referral bonus. The specific bonus amount and requirements vary depending on which credit card you're referring them to—some cards offer cash back bonuses, while others may offer bonus points or statement credits.
+
+## Getting Your Referral Link
+
+To refer a friend, you'll need to generate a unique referral link that's tied to your account. You can do this through the Rho-Bank mobile app, online banking portal, or by contacting our customer service team. Once you have your link, simply share it with friends and family via email, text, or social media. When they use your link to apply and are approved, the referral will be tracked to your account.
+
+## Important Things to Know
+
+To ensure the referral program remains fair for all participants, there are a few guidelines to keep in mind:
+
+- **Weekly Limit**: You can earn referral bonuses for up to 2 successful referrals per week. This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.
+- **Eligibility**: Not all credit cards participate in the referral program. Before sharing your link, make sure the card you're referring has an active referral offer.
+- **Bonus Requirements**: Each referral program has specific requirements that your friend must meet to trigger the bonus, such as making a certain amount of purchases within a specified timeframe after account opening.
+
+## Check Your Referral Status
+
+You can track the status of your referrals at any time through the Rho-Bank mobile app or by contacting customer service. We'll also send you notifications when your referrals are approved and when you earn your bonus.
+
+If you have any questions about the referral program or want to confirm the current offer for your card, please reach out to our customer service team at 1-800-RHO-BANK. We're always happy to help!
+
+6. Internal: Understanding Credit Card Referral Statuses.
+   ID: doc_credit_cards_credit_cards_(general)_001
+   Score: 12.8070
+   Content: ## Referral status meanings
+
+- COMPLETE — the referred person has successfully opened a new account and met the criteria to get the referral bonus
+- IN_PROGRESS — the referred person has successfully opened a new account and is in progress to meet the criteria for the referral bonus
+- NO_PROGRESS — the referred person has not applied yet, no progress has been made
+- APPLIED — the referred person has sent in the application and is waiting for a decision
+- REJECTED — the user has too many referral processes going on
+- ERROR — an error has occurred throughout the process
+
+### How to interpret and act
+- COMPLETE: The bonus will be granted per the applicable referral program terms.
+- IN_PROGRESS: No action required; monitor until criteria are met.
+- NO_PROGRESS: You may remind the referrer that the invitee has not started an application.
+- APPLIED: Await the application decision; no manual intervention is needed.
+- REJECTED: Do not retry immediately; review the user’s existing referral activity before advising next steps.
+- ERROR: Retry later or escalate internally if the condition persists.
+
+7. Business Gold Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_gold_rewards_card_010
+   Score: 7.9470
+   Content: ## How the Referral Bonus Works
+- Earn $200 for each successful referral who is approved and meets the qualifying spend.
+- You can earn up to 8 referral bonuses per calendar year.
+
+## Qualifying Spend Requirement
+- The referred business must spend $7,500 within 90 from account opening to qualify your bonus.
+
+## Program Timeline
+- The referral program accepts new referrals until 2025-09-15. Referrals submitted after this date are not eligible.
+
+## How to Refer
+- Generate your unique referral link from your account’s referral center.
+- Share the link directly with businesses that consent to receive it.
+- Track application status and eligibility in the referral dashboard.
+
+## Payouts
+- Once the referred account is approved and completes $7,500 within 90, your $200 is queued for issuance to your account.
+
+## Rules and Best Practices
+- Self-referrals are not permitted.
+- Share referral invitations only with contacts who have given permission to receive them.
+- If a referral applies without your link, the referral may not be attributed.
+- Program terms, eligible industries, and promotional availability may change without notice prior to 2025-09-15.
+
+8. EcoCard: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_ecocard_011
+   Score: 7.6318
+   Content: ## What You Earn
+- Receive 50 for each successful referral
+- You can earn up to 7 referral bonuses per calendar year
+
+## What Your Referral Must Do
+- The referred person must be approved and spend at least $500 within 60 days of account opening
+
+## How to Refer
+1. Share your referral link or code with friends and family
+2. Ensure they apply using your link or code so the referral is tracked
+3. You'll be notified when the referral meets the qualifying spend requirement
+
+## Payout Timing
+- Your bonus typically posts within one to two billing cycles after the referred account meets the $500 requirement
+
+## Program Tips
+- Remind your referral to activate their card promptly and add recurring bills to help them meet $500 within 60 days
+- Track your annual count to stay within the 7 limit
+
+9. Silver Rewards Card: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_silver_rewards_card_011
+   Score: 7.6318
+   Content: ## What You Earn
+- Receive 75 for each successful referral
+- You can earn up to 7 referral bonuses per calendar year
+
+## What Your Referral Must Do
+- The referred person must be approved and spend at least $750 within 60 days of account opening
+
+## How to Refer
+1. Share your referral link or code with friends and colleagues
+2. Ensure they apply using your link or code so the referral is tracked
+3. You’ll be notified when the referral meets the qualifying spend requirement
+
+## Payout Timing
+- Your bonus typically posts within one to two billing cycles after the referred account meets the $750 requirement
+
+## Program Tips
+- Remind your referral to activate their card promptly and add recurring bills to help them meet $750 within 60 days
+- Track your annual count to stay within the 7 limit
+
+10. Silver Zoom Card: Referral Program - Earn Rewards for Referring Logistics Businesses
+   ID: doc_business_credit_cards_silver_zoom_card_011
+   Score: 7.6157
+   Content: ## How the referral program works
+- Earn a referral bonus of $150 for each referred logistics business that is approved and meets the qualifying spend requirement
+- Bonuses are capped at 10 per calendar year
+
+## Qualifying activity for your referral
+- The referred business must complete purchases totaling $7,500 within 90 days of account opening
+- Only one referrer is credited per approved account
+
+## Program timing
+- No new referrals are accepted after 2025-10-01
+
+## How to refer
+- Share your referral link or submit the referral through your account portal before the referred business applies
+- Ensure the referred business uses your link or is otherwise properly attributed during application
+- Track referral status within your account until the qualifying spend threshold of $7,500 is met
+
+## Payout details
+- Bonuses are typically issued to the referrer after the referred business satisfies the $7,500 requirement within 90 days
+- If the referred business returns purchases or does not meet the requirement, no bonus is issued
+
+
+[Timing: retrieval=2ms, reranking=0ms, total=2ms]
+[axis] matches: 1 documents contain all of these words; all 1 shown
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 17] role=tool turn_idx=17 tool_call_id=None
+--- content ---
+1. Internal: Understanding Credit Card Referral Statuses.
+   ID: doc_credit_cards_credit_cards_(general)_001
+   Score: 0.6123
+   Content: ## Referral status meanings
+
+- COMPLETE — the referred person has successfully opened a new account and met the criteria to get the referral bonus
+- IN_PROGRESS — the referred person has successfully opened a new account and is in progress to meet the criteria for the referral bonus
+- NO_PROGRESS — the referred person has not applied yet, no progress has been made
+- APPLIED — the referred person has sent in the application and is waiting for a decision
+- REJECTED — the user has too many referral processes going on
+- ERROR — an error has occurred throughout the process
+
+### How to interpret and act
+- COMPLETE: The bonus will be granted per the applicable referral program terms.
+- IN_PROGRESS: No action required; monitor until criteria are met.
+- NO_PROGRESS: You may remind the referrer that the invitee has not started an application.
+- APPLIED: Await the application decision; no manual intervention is needed.
+- REJECTED: Do not retry immediately; review the user’s existing referral activity before advising next steps.
+- ERROR: Retry later or escalate internally if the condition persists.
+
+2. Credit Card Referral Offers and Restrictions
+   ID: doc_credit_cards_credit_cards_(general)_002
+   Score: 0.5179
+   Content: ## Program scope
+- Each credit card type has its own referral bonus and eligibility requirements that are not detailed here.
+
+## Weekly referral limit
+- You can receive at most 2 referral bonuses in any rolling 7-day window.
+- If you attempt to receive more than 2 referrals in a single week, the third referral (and any subsequent referrals that week) will be automatically denied.
+- This limit applies across all credit card types; referrals from different cards still count toward the same weekly cap.
+
+## Practical guidance
+- Track the timing of your last two successful referral bonuses before sending additional referrals.
+- A rolling 7-day window means the count is evaluated based on the exact timestamps of your most recent referral bonuses, not calendar weeks.
+- Auto-denied referrals due to the limit cannot be reinstated within the same 7-day window.
+- If a referral is denied for hitting the limit, wait until enough time has passed to drop under the cap before attempting another.
+
+3. Business Bronze Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_bronze_rewards_card_011
+   Score: 0.5126
+   Content: ## What You Can Earn
+- Receive $75 for each successful referral.
+- You can earn up to 7 referral bonuses per calendar year.
+
+## What Makes a Referral Successful
+- The referred business must be approved for the card.
+- The referred business must complete at least $1,750 in net purchases within 90 days of account opening.
+
+## How to Refer
+1. Share your referral link or code with another business.
+2. Ensure they apply using your link or enter your code during their application.
+3. You will be notified when the referral is approved and has met the $1,750 requirement within 90 days.
+
+## Tracking Your Bonuses
+- Monitor referral status, qualifying spend progress, and paid bonuses in your account dashboard.
+- If a referred account is closed or reversed, any unpaid referral bonus may be canceled.
+
+## Best Practices
+- Encourage referrals to complete their initial purchases early to meet the $1,750 requirement within 90 days.
+- Remind referrals to use your link or code so your bonus is tracked correctly.
+
+4. Internal: Checking Account Referral Program Terms and Restrictions
+   ID: doc_bank_accounts_bank_accounts_(general)_047
+   Score: 0.5125
+   Content: ## Program overview
+Each checking account type has its own referral bonus amounts and qualification requirements. This document covers the general terms and restrictions that apply to all checking account referral programs. Before giving any recommendations or information on referral terms, you must check that the user is eligible to submit referrals first, as users who are not eligible to submit referrals while being given recommendations by the agent tend to leave dissatisfactory reviews. 
+
+## Rolling window limit
+- You can receive at most 2 referral bonuses in any rolling 9-day window.
+- If you attempt to receive more than 2 referrals in a single 9-day period, the third referral (and any subsequent referrals in that window) will be automatically denied.
+- This limit applies across all checking account types; referrals from different accounts count toward the same 9-day cap.
+- A rolling 9-day window means the count is evaluated based on the exact timestamps of your most recent referral bonuses, not calendar weeks.
+- Auto-denied referrals due to the limit cannot be reinstated within the same 9-day window.
+
+## Eligibility restrictions
+- The referred person must be a new Rho-Bank customer with no existing checking, savings, or closed accounts within the past 12 months.
+- The referrer and referred person cannot be registered at the same address.
+- The referred person must be 18 years or older, except for the Light Green Account which allows minors with a guardian.
+- For business accounts: The referred business must have a different primary owner than any existing Rho-Bank business account, based on the SSN of the primary authorized signer.
+
+## Referrer tenure policy
+- Every referral program requires the referrer to meet a tenure threshold before participating.
+- This threshold is calculated from when you first became a Rho-Bank checking customer—specifically, the date your earliest checking account was opened.
+- The type of account you currently hold is irrelevant to this calculation. Whether you have a basic or premium product, the tenure measurement remains the same.
+- Consequently, holding one account type does not prevent you from referring someone to a different account type, as long as the duration since your first account meets or exceeds the program's stated minimum.
+
+## Bonus conditions
+- The qualifying deposit must be new money and cannot be transferred from another Rho-Bank account.
+- The qualifying deposit must remain in the account for at least 30 days after the qualifying period ends.
+- If the referred account is closed within 90 days of opening, the referral bonus may be reversed (clawback provision).
+
+## Stacking restrictions
+- The referral bonus cannot be combined with other new account promotions or sign-up bonuses.
+- Only one referral code can be applied per new account.
+
+## Referral status definitions
+- COMPLETE — The referred person has successfully opened a new account and met the criteria to receive the referral bonus.
+- IN_PROGRESS — The referred person has successfully opened a new account and is working toward meeting the qualifying deposit requirement.
+- NO_PROGRESS — The referred person has not applied yet; no progress has been made.
+- APPLIED — The referred person has submitted an application and is awaiting a decision.
+- REJECTED — The referral has been denied (e.g., rolling window limit exceeded, ineligible referral).
+- ERROR — A system error occurred during the referral process.
+
+## Practical guidance
+- Track the timing of your last two successful referral bonuses before sending additional referrals.
+- If a referral is denied for hitting the rolling window limit, wait until enough time has passed to drop under the cap before attempting another.
+- Both accounts must remain in good standing for bonuses to be paid.
+
+5. Refer a Friend to Rho-Bank and Earn Rewards
+   ID: doc_credit_cards_credit_cards_(general)_020
+   Score: 0.5030
+   Content: Do you love your Rho-Bank credit card? Share the love with friends and family, and you could both earn rewards! Our referral program makes it easy to invite the people you care about to join Rho-Bank, and when they're approved for a new card and meet the program requirements, you'll both be rewarded.
+
+## How It Works
+
+Participating in our referral program is simple. When you refer someone to apply for a Rho-Bank credit card and they're approved, you may be eligible to receive a referral bonus. The specific bonus amount and requirements vary depending on which credit card you're referring them to—some cards offer cash back bonuses, while others may offer bonus points or statement credits.
+
+## Getting Your Referral Link
+
+To refer a friend, you'll need to generate a unique referral link that's tied to your account. You can do this through the Rho-Bank mobile app, online banking portal, or by contacting our customer service team. Once you have your link, simply share it with friends and family via email, text, or social media. When they use your link to apply and are approved, the referral will be tracked to your account.
+
+## Important Things to Know
+
+To ensure the referral program remains fair for all participants, there are a few guidelines to keep in mind:
+
+- **Weekly Limit**: You can earn referral bonuses for up to 2 successful referrals per week. This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.
+- **Eligibility**: Not all credit cards participate in the referral program. Before sharing your link, make sure the card you're referring has an active referral offer.
+- **Bonus Requirements**: Each referral program has specific requirements that your friend must meet to trigger the bonus, such as making a certain amount of purchases within a specified timeframe after account opening.
+
+## Check Your Referral Status
+
+You can track the status of your referrals at any time through the Rho-Bank mobile app or by contacting customer service. We'll also send you notifications when your referrals are approved and when you earn your bonus.
+
+If you have any questions about the referral program or want to confirm the current offer for your card, please reach out to our customer service team at 1-800-RHO-BANK. We're always happy to help!
+
+6. EcoCard: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_ecocard_011
+   Score: 0.5000
+   Content: ## What You Earn
+- Receive 50 for each successful referral
+- You can earn up to 7 referral bonuses per calendar year
+
+## What Your Referral Must Do
+- The referred person must be approved and spend at least $500 within 60 days of account opening
+
+## How to Refer
+1. Share your referral link or code with friends and family
+2. Ensure they apply using your link or code so the referral is tracked
+3. You'll be notified when the referral meets the qualifying spend requirement
+
+## Payout Timing
+- Your bonus typically posts within one to two billing cycles after the referred account meets the $500 requirement
+
+## Program Tips
+- Remind your referral to activate their card promptly and add recurring bills to help them meet $500 within 60 days
+- Track your annual count to stay within the 7 limit
+
+7. Silver Rewards Card: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_silver_rewards_card_011
+   Score: 0.4944
+   Content: ## What You Earn
+- Receive 75 for each successful referral
+- You can earn up to 7 referral bonuses per calendar year
+
+## What Your Referral Must Do
+- The referred person must be approved and spend at least $750 within 60 days of account opening
+
+## How to Refer
+1. Share your referral link or code with friends and colleagues
+2. Ensure they apply using your link or code so the referral is tracked
+3. You’ll be notified when the referral meets the qualifying spend requirement
+
+## Payout Timing
+- Your bonus typically posts within one to two billing cycles after the referred account meets the $750 requirement
+
+## Program Tips
+- Remind your referral to activate their card promptly and add recurring bills to help them meet $750 within 60 days
+- Track your annual count to stay within the 7 limit
+
+8. Platinum Rewards Card: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_platinum_rewards_card_008
+   Score: 0.4900
+   Content: ## How It Works
+- Share your referral through your account to invite friends to apply.
+- For each friend who is approved and meets the qualifying spend, you earn a referral bonus of $100.
+
+## Qualifying Spend Requirement
+- The referred friend must spend at least $1,500 within 90 days of account opening to qualify you for the bonus.
+
+## Annual Limits
+- You can earn up to 7 referral bonuses per calendar year.
+
+## Steps to Refer
+1. Open the referrals section in your account.
+2. Send your referral using the available sharing options.
+3. Track the status of pending referrals in your dashboard.
+
+## Payout Timing and Eligibility
+- Bonuses are typically credited after the referred applicant is approved and meets the $1,500 spend requirement within 90 days.
+- Self-referrals or duplicate applications do not qualify.
+
+## Tips
+- Share with friends who are likely to benefit from the card's features.
+- Remind your referral to meet the $1,500 spend threshold within 90 days.
+- Ensure your account is in good standing to receive bonuses promptly.
+
+9. Green Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_green_rewards_card_010
+   Score: 0.4874
+   Content: ## How the Referral Program Works
+- Share your referral link with a business contact.
+- When a referred business is approved and meets the qualifying spend, you earn 75.
+
+## Earning Limits and Timing
+- You can earn up to 7 referral bonuses per calendar year.
+- The referred business must spend at least $2,250 within 90 days from account opening to qualify your bonus.
+- Bonuses are credited after verification that the qualifying criteria have been met.
+
+## Qualifying Criteria
+- The referred business must apply through your unique referral link.
+- The application must be approved and the account must remain in good standing through the verification date.
+- Qualifying purchases exclude cash equivalents, certain fees, and returned transactions.
+
+## Tracking Your Referrals
+- View referral status in your rewards section, including approval state and qualifying spend progress.
+- You will be notified when a referral meets $2,250 within 90 days and your 75 is pending.
+
+## Tips for Successful Referrals
+- Share how the card’s sustainability features align with common business goals.
+- Encourage referrals to complete required steps promptly so their spend can count toward the qualification window.
+
+10. Business Silver Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_silver_rewards_card_013
+   Score: 0.4868
+   Content: ## What you can earn
+- Earn $100 for each successful referral that is approved and meets the qualifying spend requirement
+- You can earn up to 10 referral bonuses per calendar year
+
+## Qualifying spend requirement
+- The referred business must spend at least $3,000 within 90 days of account opening for you to receive the bonus
+
+## How to refer
+- Share a referral through the official referral channel so applications are tracked correctly
+- Ensure the referred business uses your referral details when applying
+
+## Tracking and payout
+- After the referred business is approved and completes the qualifying spend, your $100 bonus will be processed according to program rules
+- If a referral does not appear, contact support with the referred business name and application date so it can be investigated
+
+
+[Timing: retrieval=7ms, reranking=0ms, total=2120ms]
+[axis] matches: no document contains all of these words; 22 shown by ranking
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 18] role=assistant turn_idx=18 tool_call_id=None
+--- content ---
+
+
+Thanks, Wei — your identity is verified, and I've reviewed your referral history. Here's what I found for all four referrals:
+
+| Card referred | Date | Status |
+|---|---|---|
+| Bronze Rewards Card | 10/20/2025 | ✅ Complete — bonus paid |
+| Gold Rewards Card | 10/22/2025 | ✅ Complete — bonus paid |
+| Platinum Rewards Card | 10/25/2025 | ❌ Rejected |
+| Silver Rewards Card | 11/05/2025 | ⏳ In progress |
+
+**1. Platinum Rewards Card (10/25) — rejected due to the weekly limit**
+Rho-Bank allows a maximum of **2 referral bonuses in any rolling 7-day window**, across all card types. Your Bronze (10/20) and Gold (10/22) referrals both completed within that window, so the Platinum referral on 10/25 was the third one and was automatically denied — even though your friend did sign up.
+
+**2. Silver Rewards Card (11/05) — still in progress**
+Your friend opened the account, but the bonus hasn't triggered yet because the qualifying requirement hasn't been met: the referred person must **spend at least $750 within 60 days of account opening**. Once they hit that threshold, your $75 bonus typically posts within one to two billing cycles. No action is needed from you right now — you can track the progress in your referral dashboard.
+
+So in short: one bonus was blocked by the rolling 7-day limit, and the other is simply still pending your friend's qualifying spend. Is there anything else I can help with?
+
+==========================================================================================
+[msg 19] role=user turn_idx=19 tool_call_id=None
+--- content ---
+Okay, that explains the Platinum one, but it’s still pretty frustrating since they did sign up.
+
+Is there a way for me to **re-submit / re-send a Platinum Rewards Card referral now** (since we’re well past that 7‑day window), so I can still get the bonus for that friend? If yes, tell me what you need from me to trigger it.
+
+==========================================================================================
+[msg 20] role=assistant turn_idx=20 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-8343b907180cfa2e", "name": "KB_search_bm25", "arguments": {"query": "re-submit rejected referral after rolling 7-day window passes reinstate referral", "k": 10}, "requestor": "assistant"}
+{"id": "chatcmpl-tool-be3f78bb8084c49a", "name": "KB_search_dense", "arguments": {"query": "referral for a person who already opened the account, duplicate application, referred friend already has the card, can a new referral link be used by an existing customer", "k": 10}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 21] role=tool turn_idx=21 tool_call_id=None
+--- content ---
+1. Credit Card Referral Offers and Restrictions
+   ID: doc_credit_cards_credit_cards_(general)_002
+   Score: 30.6334
+   Content: ## Program scope
+- Each credit card type has its own referral bonus and eligibility requirements that are not detailed here.
+
+## Weekly referral limit
+- You can receive at most 2 referral bonuses in any rolling 7-day window.
+- If you attempt to receive more than 2 referrals in a single week, the third referral (and any subsequent referrals that week) will be automatically denied.
+- This limit applies across all credit card types; referrals from different cards still count toward the same weekly cap.
+
+## Practical guidance
+- Track the timing of your last two successful referral bonuses before sending additional referrals.
+- A rolling 7-day window means the count is evaluated based on the exact timestamps of your most recent referral bonuses, not calendar weeks.
+- Auto-denied referrals due to the limit cannot be reinstated within the same 7-day window.
+- If a referral is denied for hitting the limit, wait until enough time has passed to drop under the cap before attempting another.
+
+2. Internal: Checking Account Referral Program Terms and Restrictions
+   ID: doc_bank_accounts_bank_accounts_(general)_047
+   Score: 24.0610
+   Content: ## Program overview
+Each checking account type has its own referral bonus amounts and qualification requirements. This document covers the general terms and restrictions that apply to all checking account referral programs. Before giving any recommendations or information on referral terms, you must check that the user is eligible to submit referrals first, as users who are not eligible to submit referrals while being given recommendations by the agent tend to leave dissatisfactory reviews. 
+
+## Rolling window limit
+- You can receive at most 2 referral bonuses in any rolling 9-day window.
+- If you attempt to receive more than 2 referrals in a single 9-day period, the third referral (and any subsequent referrals in that window) will be automatically denied.
+- This limit applies across all checking account types; referrals from different accounts count toward the same 9-day cap.
+- A rolling 9-day window means the count is evaluated based on the exact timestamps of your most recent referral bonuses, not calendar weeks.
+- Auto-denied referrals due to the limit cannot be reinstated within the same 9-day window.
+
+## Eligibility restrictions
+- The referred person must be a new Rho-Bank customer with no existing checking, savings, or closed accounts within the past 12 months.
+- The referrer and referred person cannot be registered at the same address.
+- The referred person must be 18 years or older, except for the Light Green Account which allows minors with a guardian.
+- For business accounts: The referred business must have a different primary owner than any existing Rho-Bank business account, based on the SSN of the primary authorized signer.
+
+## Referrer tenure policy
+- Every referral program requires the referrer to meet a tenure threshold before participating.
+- This threshold is calculated from when you first became a Rho-Bank checking customer—specifically, the date your earliest checking account was opened.
+- The type of account you currently hold is irrelevant to this calculation. Whether you have a basic or premium product, the tenure measurement remains the same.
+- Consequently, holding one account type does not prevent you from referring someone to a different account type, as long as the duration since your first account meets or exceeds the program's stated minimum.
+
+## Bonus conditions
+- The qualifying deposit must be new money and cannot be transferred from another Rho-Bank account.
+- The qualifying deposit must remain in the account for at least 30 days after the qualifying period ends.
+- If the referred account is closed within 90 days of opening, the referral bonus may be reversed (clawback provision).
+
+## Stacking restrictions
+- The referral bonus cannot be combined with other new account promotions or sign-up bonuses.
+- Only one referral code can be applied per new account.
+
+## Referral status definitions
+- COMPLETE — The referred person has successfully opened a new account and met the criteria to receive the referral bonus.
+- IN_PROGRESS — The referred person has successfully opened a new account and is working toward meeting the qualifying deposit requirement.
+- NO_PROGRESS — The referred person has not applied yet; no progress has been made.
+- APPLIED — The referred person has submitted an application and is awaiting a decision.
+- REJECTED — The referral has been denied (e.g., rolling window limit exceeded, ineligible referral).
+- ERROR — A system error occurred during the referral process.
+
+## Practical guidance
+- Track the timing of your last two successful referral bonuses before sending additional referrals.
+- If a referral is denied for hitting the rolling window limit, wait until enough time has passed to drop under the cap before attempting another.
+- Both accounts must remain in good standing for bonuses to be paid.
+
+3. Generating a Credit Card Referral Link (Internal)
+   ID: doc_credit_cards_credit_cards_(general)_009
+   Score: 23.7681
+   Content: ## Pre-check before providing the referral tool
+- Search the knowledge base to confirm the specific card has a documented referral program.
+- Verify the customer’s understanding of referral terms. If the customer cites terms that do not match any documented program, clarify the discrepancy.
+- If no referral program is documented for the requested card, or if the user’s claimed terms are incorrect, or if there is reason to believe the referral will be automatically rejected, explain why and do not provide a referral link tool. Do not transfer to a human in these cases.
+
+## How the user generates their referral link
+- Provide the customer with this tool and instruct them to run it themselves:
+  - `get_referral_link(user_id: str, card_name: str)`
+- Tell the customer to pass their own user_id and the exact card name (for example, 'Gold Rewards Card').
+- When the tool is called successfully, a referral record is created with status 'NO_PROGRESS'. The referred person can then use the generated link to apply.
+
+## Important reminders
+- Weekly limit: Customers can receive at most 2 referral bonuses in any rolling 7-day window; the third and subsequent referrals in that window are automatically denied.
+- Agents must not generate the link on the customer’s behalf.
+- Reiterate the correct referral terms as documented to prevent confusion and complaints.
+
+4. FAQ: Checking Account Referrals
+   ID: doc_bank_accounts_bank_accounts_(general)_048
+   Score: 23.1751
+   Content: ## Frequently asked questions about checking account referrals
+
+### How many people can I refer at once?
+You can have multiple referrals in progress, but you can only receive a maximum of 2 referral bonuses in any rolling 9-day window. If you exceed this limit, additional referrals will be automatically denied until enough time passes.
+
+### Can I refer someone who used to have a Rho-Bank account?
+No. The referred person must be a new Rho-Bank customer with no existing or closed accounts within the past 12 months. Former customers must wait 12 months after their last account closure before being eligible as a referral.
+
+### Can I refer someone who lives at the same address as me?
+No. The referrer and referred person cannot be registered at the same address. This restriction helps prevent abuse of the referral program.
+
+### What counts as a qualifying deposit?
+The qualifying deposit must be new money brought into Rho-Bank. Transfers from another Rho-Bank account do not count. The deposit can come from an external bank transfer, direct deposit, mobile check deposit, or cash/check deposit at a branch.
+
+### What happens if the person I referred closes their account early?
+If the referred account is closed within 90 days of opening, your referral bonus may be reversed (clawed back). Both accounts must remain in good standing for bonuses to be retained.
+
+### Can I combine the referral bonus with other promotions?
+No. The referral bonus cannot be combined with other new account promotions or sign-up bonuses. Only one promotional offer can be applied per new account.
+
+### What do the referral statuses mean?
+- **COMPLETE**: The referral was successful and bonuses will be paid.
+- **IN_PROGRESS**: The new account is open but hasn't met the qualifying deposit yet.
+- **NO_PROGRESS**: The referred person hasn't started an application.
+- **APPLIED**: An application has been submitted and is being reviewed.
+- **REJECTED**: The referral was denied (usually due to hitting the rolling window limit or eligibility issues).
+- **ERROR**: A system error occurred; try again later or contact support.
+
+### Why was my referral rejected?
+Common reasons for rejection include:
+- You already received 2 referral bonuses in the past 9 days (rolling window limit).
+- The referred person already has or recently had a Rho-Bank account.
+- You and the referred person are registered at the same address.
+- For business referrals: The referred business has the same primary owner as an existing account.
+
+### How long do I have to wait after a rejection to refer again?
+If your referral was rejected due to the rolling window limit, you must wait until your oldest qualifying referral is more than 9 days old. The limit is based on a rolling window, so you become eligible again as older referrals age out.
+
+### Can I refer someone for a business checking account?
+Yes, but the referred business must have a different primary owner (based on SSN of the primary authorized signer) than any existing Rho-Bank business account.
+
+### Do I need to have the same account type to refer someone for it?
+No. Referrer eligibility hinges on how long you've been a Rho-Bank checking customer, not which product you currently use. The tenure threshold is measured from when you opened your very first checking account with us. Someone with a Navy Blue account can refer others for World Blue, True Blue, or any other checking product—provided they've met the duration requirement.
+
+### How long does the referred person have to make the qualifying deposit?
+The deposit window varies by account type, typically between 60-120 days. Check the specific account's referral terms for the exact timeframe. After the deposit is made, it must remain in the account for at least 30 additional days.
+
+5. Refer a Friend to Rho-Bank and Earn Rewards
+   ID: doc_credit_cards_credit_cards_(general)_020
+   Score: 18.7362
+   Content: Do you love your Rho-Bank credit card? Share the love with friends and family, and you could both earn rewards! Our referral program makes it easy to invite the people you care about to join Rho-Bank, and when they're approved for a new card and meet the program requirements, you'll both be rewarded.
+
+## How It Works
+
+Participating in our referral program is simple. When you refer someone to apply for a Rho-Bank credit card and they're approved, you may be eligible to receive a referral bonus. The specific bonus amount and requirements vary depending on which credit card you're referring them to—some cards offer cash back bonuses, while others may offer bonus points or statement credits.
+
+## Getting Your Referral Link
+
+To refer a friend, you'll need to generate a unique referral link that's tied to your account. You can do this through the Rho-Bank mobile app, online banking portal, or by contacting our customer service team. Once you have your link, simply share it with friends and family via email, text, or social media. When they use your link to apply and are approved, the referral will be tracked to your account.
+
+## Important Things to Know
+
+To ensure the referral program remains fair for all participants, there are a few guidelines to keep in mind:
+
+- **Weekly Limit**: You can earn referral bonuses for up to 2 successful referrals per week. This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.
+- **Eligibility**: Not all credit cards participate in the referral program. Before sharing your link, make sure the card you're referring has an active referral offer.
+- **Bonus Requirements**: Each referral program has specific requirements that your friend must meet to trigger the bonus, such as making a certain amount of purchases within a specified timeframe after account opening.
+
+## Check Your Referral Status
+
+You can track the status of your referrals at any time through the Rho-Bank mobile app or by contacting customer service. We'll also send you notifications when your referrals are approved and when you earn your bonus.
+
+If you have any questions about the referral program or want to confirm the current offer for your card, please reach out to our customer service team at 1-800-RHO-BANK. We're always happy to help!
+
+6. Internal: Understanding Credit Card Referral Statuses.
+   ID: doc_credit_cards_credit_cards_(general)_001
+   Score: 16.6302
+   Content: ## Referral status meanings
+
+- COMPLETE — the referred person has successfully opened a new account and met the criteria to get the referral bonus
+- IN_PROGRESS — the referred person has successfully opened a new account and is in progress to meet the criteria for the referral bonus
+- NO_PROGRESS — the referred person has not applied yet, no progress has been made
+- APPLIED — the referred person has sent in the application and is waiting for a decision
+- REJECTED — the user has too many referral processes going on
+- ERROR — an error has occurred throughout the process
+
+### How to interpret and act
+- COMPLETE: The bonus will be granted per the applicable referral program terms.
+- IN_PROGRESS: No action required; monitor until criteria are met.
+- NO_PROGRESS: You may remind the referrer that the invitee has not started an application.
+- APPLIED: Await the application decision; no manual intervention is needed.
+- REJECTED: Do not retry immediately; review the user’s existing referral activity before advising next steps.
+- ERROR: Retry later or escalate internally if the condition persists.
+
+7. Beige Account Referral Program
+   ID: doc_business_checking_accounts_beige_012
+   Score: 15.0905
+   Content: ## Enterprise referral program
+
+Refer other enterprise-level businesses to the Beige Account and earn premium referral rewards.
+
+### Premium rewards
+- **Your reward**: $500 for each qualifying referral
+- **Their reward**: $350 welcome bonus
+- **Annual maximum**: 15 referral bonuses per calendar year
+
+### Qualification criteria
+To earn a referral bonus:
+1. Referrer tenure requirement: 120 days since opening your first checking account with us.
+2. The referred enterprise must open a Beige Account
+3. They must deposit at least $100,000 within 120 days
+
+### Referral details
+| Detail | Amount |
+|---|---|
+| Referrer bonus | $500 |
+| Referred bonus | $350 |
+| Maximum per year | 15 |
+| Required deposit | $100,000 |
+| Deposit window | 120 days |
+| Minimum tenure | 120 days |
+
+### How to participate
+1. Contact your dedicated relationship manager for referral materials
+2. Introduce qualified enterprises to the Beige Account benefits
+3. Your relationship manager can facilitate introductions and track referrals
+4. Bonuses are credited after all qualification requirements are confirmed
+
+### Enterprise considerations
+- Referrals must be for new Beige Account relationships
+- Both enterprises must maintain accounts in good standing
+- Premium referral bonuses reflect the enterprise-level relationship value
+
+8. Dark Green Account Referral Program
+   ID: doc_checking_accounts_dark_green_account_010
+   Score: 14.2503
+   Content: ## Share the Dark Green experience
+
+Refer others to the Dark Green Account and earn rewards when they join.
+
+### Referral rewards
+- **Your bonus**: $40 for each qualifying referral
+- **Their bonus**: $30 welcome bonus
+- **Maximum per year**: 6 referral bonuses
+
+### Qualification criteria
+To qualify for the referral bonus:
+1. You must satisfy the 45-day minimum as a Rho-Bank checking customer.
+2. The person you refer must open a Dark Green Account
+3. They must deposit at least $1,000 within 60 days of opening
+
+### Program details
+| Aspect | Value |
+|---|---|
+| Referrer bonus | $40 |
+| Referred bonus | $30 |
+| Annual cap | 6 referrals |
+| Minimum deposit | $1,000 |
+| Deposit window | 60 days |
+| Tenure required | 45 days |
+
+### Bonus payment
+- Bonuses are credited within 5-7 business days after qualification
+- Both you and the new member must maintain your accounts in good standing
+
+9. Light Blue Account Referral Program
+   ID: doc_checking_accounts_light_blue_account_007
+   Score: 13.5143
+   Content: ## Earn rewards by referring friends
+
+Share the Light Blue Account with others and earn cash bonuses.
+
+### What you earn
+- Referral bonus: $30 for each successful referral
+- Maximum referrals: 5 per calendar year
+
+### What they receive
+- Welcome bonus: $20 when they open and fund their account
+
+### Requirements
+
+| Requirement | Detail |
+|---|---|
+| Qualifying deposit | $500 |
+| Deposit window | Within 60 days of account opening |
+| Referrer tenure | 30 days |
+
+### How it works
+1. Share your unique referral link with friends and family
+2. They open a Light Blue Account using your link
+3. They deposit at least $500 within 60 days
+4. You receive $30 and they receive $20
+
+### Eligibility
+- To qualify as a referrer, you must have been a Rho-Bank checking account holder for 30 days or longer.
+- You can earn up to 5 referral bonuses per calendar year
+
+10. Business Gold Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_gold_rewards_card_010
+   Score: 13.0225
+   Content: ## How the Referral Bonus Works
+- Earn $200 for each successful referral who is approved and meets the qualifying spend.
+- You can earn up to 8 referral bonuses per calendar year.
+
+## Qualifying Spend Requirement
+- The referred business must spend $7,500 within 90 from account opening to qualify your bonus.
+
+## Program Timeline
+- The referral program accepts new referrals until 2025-09-15. Referrals submitted after this date are not eligible.
+
+## How to Refer
+- Generate your unique referral link from your account’s referral center.
+- Share the link directly with businesses that consent to receive it.
+- Track application status and eligibility in the referral dashboard.
+
+## Payouts
+- Once the referred account is approved and completes $7,500 within 90, your $200 is queued for issuance to your account.
+
+## Rules and Best Practices
+- Self-referrals are not permitted.
+- Share referral invitations only with contacts who have given permission to receive them.
+- If a referral applies without your link, the referral may not be attributed.
+- Program terms, eligible industries, and promotional availability may change without notice prior to 2025-09-15.
+
+
+[Timing: retrieval=2ms, reranking=0ms, total=2ms]
+[axis] matches: no document contains all of these words; 24 shown by ranking
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 22] role=tool turn_idx=22 tool_call_id=None
+--- content ---
+1. Platinum Rewards Card: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_platinum_rewards_card_008
+   Score: 0.5774
+   Content: ## How It Works
+- Share your referral through your account to invite friends to apply.
+- For each friend who is approved and meets the qualifying spend, you earn a referral bonus of $100.
+
+## Qualifying Spend Requirement
+- The referred friend must spend at least $1,500 within 90 days of account opening to qualify you for the bonus.
+
+## Annual Limits
+- You can earn up to 7 referral bonuses per calendar year.
+
+## Steps to Refer
+1. Open the referrals section in your account.
+2. Send your referral using the available sharing options.
+3. Track the status of pending referrals in your dashboard.
+
+## Payout Timing and Eligibility
+- Bonuses are typically credited after the referred applicant is approved and meets the $1,500 spend requirement within 90 days.
+- Self-referrals or duplicate applications do not qualify.
+
+## Tips
+- Share with friends who are likely to benefit from the card's features.
+- Remind your referral to meet the $1,500 spend threshold within 90 days.
+- Ensure your account is in good standing to receive bonuses promptly.
+
+2. EcoCard: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_ecocard_011
+   Score: 0.5647
+   Content: ## What You Earn
+- Receive 50 for each successful referral
+- You can earn up to 7 referral bonuses per calendar year
+
+## What Your Referral Must Do
+- The referred person must be approved and spend at least $500 within 60 days of account opening
+
+## How to Refer
+1. Share your referral link or code with friends and family
+2. Ensure they apply using your link or code so the referral is tracked
+3. You'll be notified when the referral meets the qualifying spend requirement
+
+## Payout Timing
+- Your bonus typically posts within one to two billing cycles after the referred account meets the $500 requirement
+
+## Program Tips
+- Remind your referral to activate their card promptly and add recurring bills to help them meet $500 within 60 days
+- Track your annual count to stay within the 7 limit
+
+3. Refer a Friend to Rho-Bank and Earn Rewards
+   ID: doc_credit_cards_credit_cards_(general)_020
+   Score: 0.5548
+   Content: Do you love your Rho-Bank credit card? Share the love with friends and family, and you could both earn rewards! Our referral program makes it easy to invite the people you care about to join Rho-Bank, and when they're approved for a new card and meet the program requirements, you'll both be rewarded.
+
+## How It Works
+
+Participating in our referral program is simple. When you refer someone to apply for a Rho-Bank credit card and they're approved, you may be eligible to receive a referral bonus. The specific bonus amount and requirements vary depending on which credit card you're referring them to—some cards offer cash back bonuses, while others may offer bonus points or statement credits.
+
+## Getting Your Referral Link
+
+To refer a friend, you'll need to generate a unique referral link that's tied to your account. You can do this through the Rho-Bank mobile app, online banking portal, or by contacting our customer service team. Once you have your link, simply share it with friends and family via email, text, or social media. When they use your link to apply and are approved, the referral will be tracked to your account.
+
+## Important Things to Know
+
+To ensure the referral program remains fair for all participants, there are a few guidelines to keep in mind:
+
+- **Weekly Limit**: You can earn referral bonuses for up to 2 successful referrals per week. This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.
+- **Eligibility**: Not all credit cards participate in the referral program. Before sharing your link, make sure the card you're referring has an active referral offer.
+- **Bonus Requirements**: Each referral program has specific requirements that your friend must meet to trigger the bonus, such as making a certain amount of purchases within a specified timeframe after account opening.
+
+## Check Your Referral Status
+
+You can track the status of your referrals at any time through the Rho-Bank mobile app or by contacting customer service. We'll also send you notifications when your referrals are approved and when you earn your bonus.
+
+If you have any questions about the referral program or want to confirm the current offer for your card, please reach out to our customer service team at 1-800-RHO-BANK. We're always happy to help!
+
+4. Silver Rewards Card: Referral Program - Earn Rewards for Referring Friends
+   ID: doc_credit_cards_silver_rewards_card_011
+   Score: 0.5486
+   Content: ## What You Earn
+- Receive 75 for each successful referral
+- You can earn up to 7 referral bonuses per calendar year
+
+## What Your Referral Must Do
+- The referred person must be approved and spend at least $750 within 60 days of account opening
+
+## How to Refer
+1. Share your referral link or code with friends and colleagues
+2. Ensure they apply using your link or code so the referral is tracked
+3. You’ll be notified when the referral meets the qualifying spend requirement
+
+## Payout Timing
+- Your bonus typically posts within one to two billing cycles after the referred account meets the $750 requirement
+
+## Program Tips
+- Remind your referral to activate their card promptly and add recurring bills to help them meet $750 within 60 days
+- Track your annual count to stay within the 7 limit
+
+5. Business Bronze Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_bronze_rewards_card_011
+   Score: 0.5411
+   Content: ## What You Can Earn
+- Receive $75 for each successful referral.
+- You can earn up to 7 referral bonuses per calendar year.
+
+## What Makes a Referral Successful
+- The referred business must be approved for the card.
+- The referred business must complete at least $1,750 in net purchases within 90 days of account opening.
+
+## How to Refer
+1. Share your referral link or code with another business.
+2. Ensure they apply using your link or enter your code during their application.
+3. You will be notified when the referral is approved and has met the $1,750 requirement within 90 days.
+
+## Tracking Your Bonuses
+- Monitor referral status, qualifying spend progress, and paid bonuses in your account dashboard.
+- If a referred account is closed or reversed, any unpaid referral bonus may be canceled.
+
+## Best Practices
+- Encourage referrals to complete their initial purchases early to meet the $1,750 requirement within 90 days.
+- Remind referrals to use your link or code so your bonus is tracked correctly.
+
+6. Light Blue Account Referral Program
+   ID: doc_checking_accounts_light_blue_account_007
+   Score: 0.5315
+   Content: ## Earn rewards by referring friends
+
+Share the Light Blue Account with others and earn cash bonuses.
+
+### What you earn
+- Referral bonus: $30 for each successful referral
+- Maximum referrals: 5 per calendar year
+
+### What they receive
+- Welcome bonus: $20 when they open and fund their account
+
+### Requirements
+
+| Requirement | Detail |
+|---|---|
+| Qualifying deposit | $500 |
+| Deposit window | Within 60 days of account opening |
+| Referrer tenure | 30 days |
+
+### How it works
+1. Share your unique referral link with friends and family
+2. They open a Light Blue Account using your link
+3. They deposit at least $500 within 60 days
+4. You receive $30 and they receive $20
+
+### Eligibility
+- To qualify as a referrer, you must have been a Rho-Bank checking account holder for 30 days or longer.
+- You can earn up to 5 referral bonuses per calendar year
+
+7. FAQ: Checking Account Referrals
+   ID: doc_bank_accounts_bank_accounts_(general)_048
+   Score: 0.5251
+   Content: ## Frequently asked questions about checking account referrals
+
+### How many people can I refer at once?
+You can have multiple referrals in progress, but you can only receive a maximum of 2 referral bonuses in any rolling 9-day window. If you exceed this limit, additional referrals will be automatically denied until enough time passes.
+
+### Can I refer someone who used to have a Rho-Bank account?
+No. The referred person must be a new Rho-Bank customer with no existing or closed accounts within the past 12 months. Former customers must wait 12 months after their last account closure before being eligible as a referral.
+
+### Can I refer someone who lives at the same address as me?
+No. The referrer and referred person cannot be registered at the same address. This restriction helps prevent abuse of the referral program.
+
+### What counts as a qualifying deposit?
+The qualifying deposit must be new money brought into Rho-Bank. Transfers from another Rho-Bank account do not count. The deposit can come from an external bank transfer, direct deposit, mobile check deposit, or cash/check deposit at a branch.
+
+### What happens if the person I referred closes their account early?
+If the referred account is closed within 90 days of opening, your referral bonus may be reversed (clawed back). Both accounts must remain in good standing for bonuses to be retained.
+
+### Can I combine the referral bonus with other promotions?
+No. The referral bonus cannot be combined with other new account promotions or sign-up bonuses. Only one promotional offer can be applied per new account.
+
+### What do the referral statuses mean?
+- **COMPLETE**: The referral was successful and bonuses will be paid.
+- **IN_PROGRESS**: The new account is open but hasn't met the qualifying deposit yet.
+- **NO_PROGRESS**: The referred person hasn't started an application.
+- **APPLIED**: An application has been submitted and is being reviewed.
+- **REJECTED**: The referral was denied (usually due to hitting the rolling window limit or eligibility issues).
+- **ERROR**: A system error occurred; try again later or contact support.
+
+### Why was my referral rejected?
+Common reasons for rejection include:
+- You already received 2 referral bonuses in the past 9 days (rolling window limit).
+- The referred person already has or recently had a Rho-Bank account.
+- You and the referred person are registered at the same address.
+- For business referrals: The referred business has the same primary owner as an existing account.
+
+### How long do I have to wait after a rejection to refer again?
+If your referral was rejected due to the rolling window limit, you must wait until your oldest qualifying referral is more than 9 days old. The limit is based on a rolling window, so you become eligible again as older referrals age out.
+
+### Can I refer someone for a business checking account?
+Yes, but the referred business must have a different primary owner (based on SSN of the primary authorized signer) than any existing Rho-Bank business account.
+
+### Do I need to have the same account type to refer someone for it?
+No. Referrer eligibility hinges on how long you've been a Rho-Bank checking customer, not which product you currently use. The tenure threshold is measured from when you opened your very first checking account with us. Someone with a Navy Blue account can refer others for World Blue, True Blue, or any other checking product—provided they've met the duration requirement.
+
+### How long does the referred person have to make the qualifying deposit?
+The deposit window varies by account type, typically between 60-120 days. Check the specific account's referral terms for the exact timeframe. After the deposit is made, it must remain in the account for at least 30 additional days.
+
+8. Business Silver Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_silver_rewards_card_013
+   Score: 0.5213
+   Content: ## What you can earn
+- Earn $100 for each successful referral that is approved and meets the qualifying spend requirement
+- You can earn up to 10 referral bonuses per calendar year
+
+## Qualifying spend requirement
+- The referred business must spend at least $3,000 within 90 days of account opening for you to receive the bonus
+
+## How to refer
+- Share a referral through the official referral channel so applications are tracked correctly
+- Ensure the referred business uses your referral details when applying
+
+## Tracking and payout
+- After the referred business is approved and completes the qualifying spend, your $100 bonus will be processed according to program rules
+- If a referral does not appear, contact support with the referred business name and application date so it can be investigated
+
+9. Business Platinum Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_platinum_rewards_card_012
+   Score: 0.5189
+   Content: ## How the Referral Bonus Works
+- Share your referral through the designated channel. When the referred business is approved and completes qualifying spend of $15,000 within 135 days from account opening, you earn a bonus of $300.
+
+## Annual Limits
+- You can earn up to 11 referral bonuses per calendar year.
+
+## Qualification Tips
+- Encourage the referred business to use the card for eligible purchases promptly after activation to meet $15,000 within the allowed period.
+- Ensure the referral is submitted before the application so it is properly attributed.
+
+## Payout and Compliance
+- Bonuses are credited to your account after verification that approval and qualifying spend requirements have been met.
+- Referrals should comply with applicable marketing and solicitation rules; only share referral information with contacts who have consented to receive it.
+
+10. Business Gold Rewards Card: Referral Program - Earn Rewards for Referring Businesses
+   ID: doc_business_credit_cards_business_gold_rewards_card_010
+   Score: 0.5161
+   Content: ## How the Referral Bonus Works
+- Earn $200 for each successful referral who is approved and meets the qualifying spend.
+- You can earn up to 8 referral bonuses per calendar year.
+
+## Qualifying Spend Requirement
+- The referred business must spend $7,500 within 90 from account opening to qualify your bonus.
+
+## Program Timeline
+- The referral program accepts new referrals until 2025-09-15. Referrals submitted after this date are not eligible.
+
+## How to Refer
+- Generate your unique referral link from your account’s referral center.
+- Share the link directly with businesses that consent to receive it.
+- Track application status and eligibility in the referral dashboard.
+
+## Payouts
+- Once the referred account is approved and completes $7,500 within 90, your $200 is queued for issuance to your account.
+
+## Rules and Best Practices
+- Self-referrals are not permitted.
+- Share referral invitations only with contacts who have given permission to receive them.
+- If a referral applies without your link, the referral may not be attributed.
+- Program terms, eligible industries, and promotional availability may change without notice prior to 2025-09-15.
+
+
+[Timing: retrieval=4ms, reranking=0ms, total=489ms]
+[axis] matches: no document contains all of these words; 26 shown by ranking
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 23] role=assistant turn_idx=23 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-a3da82f89224c9c5", "name": "unlock_discoverable_agent_tool", "arguments": {"agent_tool_name": "get_all_user_accounts_by_user_id_3847"}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 24] role=tool turn_idx=24 tool_call_id=None
+--- content ---
+Tool unlocked: get_all_user_accounts_by_user_id_3847
+Description: Retrieve all accounts (checking, savings, credit cards) for a customer.
+
+Tool: get_all_user_accounts_by_user_id_3847
+Description: Retrieve all accounts (checking, savings, credit cards) for a customer.
+Parameters:
+  - user_id: string (required) - The customer's unique identifier in the system
+
+You can now use this tool by calling `call_discoverable_agent_tool` with agent_tool_name='get_all_user_accounts_by_user_id_3847' and the required arguments.
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 25] role=assistant turn_idx=25 tool_call_id=None
+--- tool_calls ---
+{"id": "chatcmpl-tool-be8871b86cb10579", "name": "call_discoverable_agent_tool", "arguments": {"agent_tool_name": "get_all_user_accounts_by_user_id_3847", "arguments": "{\"user_id\": \"76ad9cc60e\"}"}, "requestor": "assistant"}
+
+==========================================================================================
+[msg 26] role=tool turn_idx=26 tool_call_id=None
+--- content ---
+User accounts retrieved successfully.
+
+Executed: get_all_user_accounts_by_user_id_3847
+Accounts for user 76ad9cc60e:
+
+Bank Accounts:
+  No bank accounts found.
+
+Credit Card Accounts:
+Found 1 record(s) in 'credit_card_accounts':
+
+1. Record ID: cc_76ad9cc60e_gold
+   account_id: cc_76ad9cc60e_gold
+   user_id: 76ad9cc60e
+   card_type: Gold Rewards Card
+   date_of_account_open: 09/15/2024
+   current_balance: $127.43
+   reward_points: 318 points
+
+--- requestor: assistant
+--- error: False
+
+==========================================================================================
+[msg 27] role=assistant turn_idx=27 tool_call_id=None
+--- content ---
+
+
+Yes — because the Platinum record is **REJECTED** for the rolling-window reason (“too many referral processes going on”), not because the friend failed the Platinum criteria, you can try a **new Platinum referral now** if the prior window has cleared.
+
+To trigger it, I need:
+
+1. **The friend’s `user_id`** for the Platinum Rewards Card account, and  
+2. Confirmation that the account type is exactly: **`Platinum Rewards Card`**
+
+Then you run the customer tool:
+
+```text
+submit_referral(user_id="<friend_user_id>", account_type="Platinum Rewards Card")
+```
+
+If you don’t know the friend’s `user_id`, send me their **full name or email** and I can look it up.
+
+One important caveat: re-submitting starts a new referral process, but it does **not guarantee** the bonus — the friend still has to meet the Platinum referral criteria.
+
+==========================================================================================
+[msg 28] role=user turn_idx=28 tool_call_id=None
+--- content ---
+I don’t have my friend’s `user_id`, and I also don’t have it handy in my records.
+
+Is there another way to re-send the Platinum referral—like generating a fresh referral link from my account that I can forward to them—without needing their `user_id`?
+
+If not, what exactly should I ask them for so you can look them up (do you need the email they used to apply, or something else)?
+
+==========================================================================================
+[msg 29] role=assistant turn_idx=29 tool_call_id=None
+--- content ---
+
+
+No — I can’t generate a fresh referral link for them to click. Since your friend already signed up, the referral has to be attached to their existing Rho-Bank user/account, not to a new signup link.
+
+There is still a path without your friend giving you their `user_id`:
+
+1. Ask your friend for the **exact email address they used to apply** for the Platinum Rewards Card.  
+   - If they have since changed their email, I need the one used on the application.
+2. If you can, also ask for their **full name as it appears on the account** and, optionally, the **phone number used on the application**. Those help confirm the right person if the email is ambiguous, but the email is the main lookup key.
+3. Send me that email here. I can look up the user and confirm the Platinum application.
+4. If the lookup works, I can give you the `user_id` needed for the customer-side referral action.
+5. You would then trigger it with:
+
+```text
+submit_referral(user_id, "Platinum Rewards Card")
+```
+
+One important caveat: re-submitting will still be checked against the referral rules. The original Platinum referral was rejected because there were too many referral processes in the rolling window. If that window has cleared, the re-submission may go through; if it has not, it may be rejected again. I can check eligibility before you submit once I have the friend’s application email.
+
+==========================================================================================
+[msg 30] role=user turn_idx=30 tool_call_id=None
+--- content ---
+Got it. I’ll need to go back to my friend and ask for the exact email they used on the Platinum application.
+
+Before I do that: can you confirm whether **the rolling 7‑day window is definitely cleared now** on my end? The rejected one was 10/25/2025, and the earlier two that “used up” the window were 10/20 and 10/22. It’s obviously long past those dates, but I want to make sure there isn’t some other restriction still active on my account that would just cause a second rejection again.
+
+If you can’t confirm that from my account view, then yes — I’ll get their application email and come back.
+
+==========================================================================================
+[msg 31] role=assistant turn_idx=31 tool_call_id=None
+--- content ---
+
+
+I can confirm the rolling-window part, but I want to be straight with you about the rest so you don't get a second surprise rejection.
+
+**Rolling 7-day window — cleared ✅**
+Your two completed bonuses were 10/20 (Bronze) and 10/22 (Gold). As of today (11/14), both are well outside any rolling 7-day window. The Silver referral (11/05) is still *in progress*, so it doesn't count against the limit until it actually completes. So there's no active rolling-window restriction on your account right now.
+
+**Other restrictions I checked:**
+- **Platinum annual cap (7 per calendar year):** You've completed 2 this year, so there's room. Not a blocker.
+- **Account in good standing:** I can't fully verify this from my account view. Your Gold card shows a $127.43 balance, but I don't have a payment/delinquency flag to confirm "good standing," and the Platinum program ties prompt bonus payout to that. So I can't 100% rule this out.
+- **Duplicate application:** The Platinum program states "self-referrals or duplicate applications do not qualify." Because your friend has *already applied and been approved*, a re-submission for that same person/account could potentially be flagged as a duplicate. I can't guarantee it won't be.
+
+**Bottom line:** The rolling window is definitely cleared, and the annual cap isn't an issue. But I can't fully confirm "good standing" from my view, and there's a real residual risk that re-referring an already-approved account gets caught by the duplicate-application rule. So I can't promise a second submission won't be rejected.
+
+Your plan is the right call: get the **exact email your friend used on the Platinum application** (plus their full name as it appears on the account, if handy) and come back. Once I have that, I can look up their account, confirm the Platinum application, and we can attempt the re-submission with the best chance of it going through.
+
+==========================================================================================
+[msg 32] role=user turn_idx=32 tool_call_id=None
+--- content ---
+Thanks — that’s clear and at least answers the main question.
+
+I’ll contact my friend and get the exact application email (and their full name on the account if they can share it). Once I have that, I’ll come back here so you can look them up and we can try the re-submission.
+
+###STOP###

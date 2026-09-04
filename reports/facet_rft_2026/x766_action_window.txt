@@ -1,0 +1,171 @@
+
+##############################################################################################################
+# bank_010ctl_20260904_0007  — campaign ctl (viewmax2, engine_sha a208c8e0)
+
+  --- seed=626729 trial=0 reward=0.0 nmsgs=52 term=user_stop
+      [ACTION] fb entries: turns=[]  fb_sim_ids=[]
+
+  --- seed=373753 trial=1 reward=0.0 nmsgs=33 term=user_stop
+      [ACTION] fb entries: turns=[23, 27]  fb_sim_ids=['8111e6220a6a']
+      * [ACTION] at fb turn=23 :: Error: [ACTION] 'submit_referral' is run by the CUSTOMER, not by you. There is no agent-side procedure to look up for running it, so do not search for one and do not transfer for this. Once you have everything your recommendation rests on, tell the customer in your reply to run submit_referral themselves with their details, then confirm the result. If something you would base that recommendation o  …[clipped 183 chars]
+        [msg 23] role=assistant tool_calls=[{"name": "unlock_discoverable_agent_tool", "requestor": "assistant", "arguments": {"agent_tool_name": "get_all_user_accounts_by_user_id_3847"}}]
+        [msg 24] role=tool tool_calls=-
+           content: Tool unlocked: get_all_user_accounts_by_user_id_3847
+           Description: Retrieve all accounts (checking, savings, credit cards) for a customer.
+           
+           Tool: get_all_user_accounts_by_user_id_3847
+           Description: Retrieve all accounts (checking, savings, credit cards) for a customer.
+           Parameters:
+             - user_id: string (required) - The customer's unique identifier in the system
+           
+           You can now use this tool by calling `call_discoverable_agent_tool` with agent_tool_name='get_all_user_accounts_by_user_id_3847' and the required arguments.
+        [msg 25] role=assistant tool_calls=[{"name": "call_discoverable_agent_tool", "requestor": "assistant", "arguments": {"agent_tool_name": "get_all_user_accounts_by_user_id_3847", "arguments": "{\"user_id\": \"76ad9cc60e\"}"}}]
+      * [ACTION] at fb turn=27 :: Error: [ACTION] 'submit_referral' is run by the CUSTOMER, not by you. There is no agent-side procedure to look up for running it, so do not search for one and do not transfer for this. Once you have everything your recommendation rests on, tell the customer in your reply to run submit_referral themselves with their details, then confirm the result. If something you would base that recommendation o  …[clipped 183 chars]
+        [msg 27] role=assistant tool_calls=-
+           content: Yes — because the Platinum record is **REJECTED** for the rolling-window reason (“too many referral processes going on”), not because the friend failed the Platinum criteria, you can try a **new Platinum referral now** if the prior window has cleared.
+           
+           To trigger it, I need:
+           
+           1. **The friend’s `user_id`** for the Platinum Rewards Card account, and  
+           2. Confirmation that the account type is exactly: **`Platinum Rewards Card`**
+           
+           Then you run the customer tool:
+           
+           ```text
+           submit_referral(user_id="<friend_user_id>", account_type="Platinum Rewards Card")
+           ```
+           
+           If you don’t know the friend’s `user_id`, send me their **full name or email** and I can look it up.
+           
+           One important caveat: re-submitting sta  …[clipped 130 chars]
+        [msg 28] role=user tool_calls=-
+           content: I don’t have my friend’s `user_id`, and I also don’t have it handy in my records.
+           
+           Is there another way to re-send the Platinum referral—like generating a fresh referral link from my account that I can forward to them—without needing their `user_id`?
+           
+           If not, what exactly should I ask them for so you can look them up (do you need the email they used to apply, or something else)?
+        [msg 29] role=assistant tool_calls=-
+           content: No — I can’t generate a fresh referral link for them to click. Since your friend already signed up, the referral has to be attached to their existing Rho-Bank user/account, not to a new signup link.
+           
+           There is still a path without your friend giving you their `user_id`:
+           
+           1. Ask your friend for the **exact email address they used to apply** for the Platinum Rewards Card.  
+              - If they have since changed their email, I need the one used on the application.
+           2. If you can, also ask for their **full name as it appears on the account** and, optionally, the **phone number used on the application**. Those help confirm the right person if the email is ambiguous, but the email is the main lookup key.
+             …[clipped 675 chars]
+
+##############################################################################################################
+# bank_010treat_20260903_2152  — campaign treat (viewmax2_actdemand, engine_sha c9076674)
+
+  --- seed=626729 trial=0 reward=0.0 nmsgs=32 term=user_stop
+      [ACTION] fb entries: turns=[]  fb_sim_ids=[]
+
+  --- seed=373753 trial=1 reward=0.0 nmsgs=40 term=user_stop
+      [ACTION] fb entries: turns=[]  fb_sim_ids=[]
+
+##############################################################################################################
+# bank_g97151p11_viewmax2_20260903_1924  — campaign g97 (viewmax2, engine_sha a208c8e0)
+
+  --- seed=626729 trial=0 reward=0.0 nmsgs=42 term=user_stop
+      [ACTION] fb entries: turns=[]  fb_sim_ids=[]
+
+##############################################################################################################
+# bank_night2p1_t3prime_20260901_2341  — prior PASS (t3prime, no provenance line)
+
+  --- seed=626729 trial=0 reward=1.0 nmsgs=31 term=user_stop
+      [ACTION] fb entries: turns=[28]  fb_sim_ids=['1fa74380a040']
+      * [ACTION] at fb turn=28 :: Error: [ACTION] 'submit_referral' is run by the CUSTOMER, not by you. There is no agent-side procedure to look up for running it, so do not search for one and do not transfer for this. Once you have everything your recommendation rests on, tell the customer in your reply to run submit_referral themselves with their details, then confirm the result. If something you would base that recommendation o  …[clipped 183 chars]
+        [msg 28] role=user tool_calls=[{"name": "submit_referral", "requestor": "user", "arguments": {"user_id": "76ad9cc60e", "account_type": "Platinum Rewards Card"}}]
+        [msg 29] role=tool tool_calls=-
+           content: Referral request submitted successfully!
+             - Referral ID: fa2896839e417592
+             - Referrer ID: 76ad9cc60e
+             - Account Type: Platinum Rewards Card
+             - Status: NO_PROGRESS
+             - Date: 11/14/2025
+           
+           Share your referral ID with the person you're referring. They will need to use this when applying for their account.
+        [msg 30] role=user tool_calls=-
+           content: Got it. Since the 7‑day window has long passed, I went ahead and submitted a **new Platinum Rewards Card referral** on my end to try again (for a different friend who hasn’t applied yet).
+           
+           - **Referral ID:** fa2896839e417592  
+           - **Card type:** Platinum Rewards Card  
+           - **Status:** NO_PROGRESS
+           
+           I’ll share that referral ID with them before they apply.
+           
+           For the **Silver** one, thanks for confirming it’s based on the **account opening date** and that the **$75 bonus posts automatically** once they hit **$750 in purchases within 60 days**.
+           
+           ###STOP###
+
+##############################################################################################################
+# bank_x723_t3B_viewscale_max_20260901_1106  — prior PASS (t3B viewscale_max, engine_sha bd9dee5d)
+
+  --- seed=626729 trial=0 reward=1.0 nmsgs=51 term=user_stop
+      [ACTION] fb entries: turns=[30, 34, 47, 52]  fb_sim_ids=['b0a0f6a8bafc']
+      * [ACTION] at fb turn=30 :: Error: [ACTION] 'submit_referral' is run by the CUSTOMER, not by you. There is no agent-side procedure to look up for running it, so do not search for one and do not transfer for this. Once you have everything your recommendation rests on, tell the customer in your reply to run submit_referral themselves with their details, then confirm the result. If something you would base that recommendation o  …[clipped 183 chars]
+        [msg 30] role=assistant tool_calls=[{"name": "unlock_discoverable_agent_tool", "requestor": "assistant", "arguments": {"agent_tool_name": "get_all_user_accounts_by_user_id_3847"}}]
+        [msg 31] role=tool tool_calls=-
+           content: Tool unlocked: get_all_user_accounts_by_user_id_3847
+           Description: Retrieve all accounts (checking, savings, credit cards) for a customer.
+           
+           Tool: get_all_user_accounts_by_user_id_3847
+           Description: Retrieve all accounts (checking, savings, credit cards) for a customer.
+           Parameters:
+             - user_id: string (required) - The customer's unique identifier in the system
+           
+           You can now use this tool by calling `call_discoverable_agent_tool` with agent_tool_name='get_all_user_accounts_by_user_id_3847' and the required arguments.
+        [msg 32] role=assistant tool_calls=[{"name": "call_discoverable_agent_tool", "requestor": "assistant", "arguments": {"agent_tool_name": "get_all_user_accounts_by_user_id_3847", "arguments": "{\"user_id\": \"76ad9cc60e\"}"}}]
+      * [ACTION] at fb turn=34 :: Error: [ACTION] 'submit_referral' is run by the CUSTOMER, not by you. There is no agent-side procedure to look up for running it, so do not search for one and do not transfer for this. Once you have everything your recommendation rests on, tell the customer in your reply to run submit_referral themselves with their details, then confirm the result. If something you would base that recommendation o  …[clipped 183 chars]
+        [msg 34] role=assistant tool_calls=-
+           content: Yes — for the **Platinum Rewards Card**, the rejection was a **rolling-limit rejection**, not a permanent disqualification. The record shows that, at the time, you already had **2 referral processes within the 9-day window**, and the Platinum referral hit the limit of **2 in 9 days**. Your annual limit is **7**, and you have **4 total referrals**, so the annual cap is not the issue.
+           
+           ### What you can do for Platinum
+           Because the 9-day window has passed, you can **retry/re-submit** the Platinum referral now, provided your friend’s account is still within the referral eligibility period.
+           
+           **Exact action:** run the customer tool in this chat:
+           
+           ```text
+           submit_referral(user_id, account_type)
+           ```
+           
+             …[clipped 758 chars]
+        [msg 35] role=user tool_calls=[{"name": "submit_referral", "requestor": "user", "arguments": {"user_id": "76ad9cc60e", "account_type": "Platinum Rewards Card"}}]
+        [msg 36] role=tool tool_calls=-
+           content: Referral request submitted successfully!
+             - Referral ID: fa2896839e417592
+             - Referrer ID: 76ad9cc60e
+             - Account Type: Platinum Rewards Card
+             - Status: NO_PROGRESS
+             - Date: 11/14/2025
+           
+           Share your referral ID with the person you're referring. They will need to use this when applying for their account.
+      * [ACTION] at fb turn=47 :: Error: Error: [ACTION] 'submit_referral' is run by the CUSTOMER, not by you. There is no agent-side procedure to look up for running it, so do not search for one and do not transfer for this. Once you have everything your recommendation rests on, tell the customer in your reply to run submit_referral themselves with their details, then confirm the result. If something you would base that recommend  …[clipped 190 chars]
+        [msg 47] role=assistant tool_calls=-
+           content: I need to flag something important before I go further, because I want to be straight with you rather than hand you off on a false premise.
+           
+           **First, a correction on my part:** I should not have tried to just apply a $100 credit on my own. A goodwill credit is a **discretionary, case-by-case decision** — the bank's own policy says these are reviewed individually and can't be guaranteed. I overstepped by offering to auto-apply it, and the system correctly refused. So I'm not going to keep forcing that.
+           
+           **What I've actually resolved for you (so it's on the record):**
+           - ✅ **Why the two bonuses didn't pay** — Platinum was auto-rejected by the rolling 7-day limit; Silver is in progress.
+           - ✅ **Si  …[clipped 994 chars]
+        [msg 48] role=user tool_calls=-
+           content: ###TRANSFER###
+        [msg 49] role=assistant tool_calls=-
+           content: I can’t manually override the rolling-limit rejection or credit a duplicate Platinum referral in this channel. I’m transferring you to a human specialist who can review whether an exception/manual credit is possible.
+           
+           **Handoff summary for the specialist**
+           
+           - **Customer:** Wei Chen — verified in this chat.
+           - **Issue:** Platinum Rewards Card referral bonus not credited.
+           - **Original Platinum referral:**
+             - Date: **2025-10-25**
+             - Status: **REJECTED**
+             - Record/policy reason: **too many referral processes / rolling limit**
+             - Date check: there were **2 prior referrals within 9 days**, and the recorded allowance is **2 in 9 days**.
+           - **Re-submitted Platinum referral:**
+             - Referral ID: **fa  …[clipped 1210 chars]
+      * [ACTION] at fb turn=52 :: Error: Error: [ACTION] 'submit_referral' is run by the CUSTOMER, not by you. There is no agent-side procedure to look up for running it, so do not search for one and do not transfer for this. Once you have everything your recommendation rests on, tell the customer in your reply to run submit_referral themselves with their details, then confirm the result. If something you would base that recommend  …[clipped 190 chars]
+        [msg 52] OUT OF RANGE (nmsgs=51)
+        [msg 53] OUT OF RANGE (nmsgs=51)
+        [msg 54] OUT OF RANGE (nmsgs=51)

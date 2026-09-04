@@ -1,0 +1,215 @@
+== bank_010ctl_20260904_0007.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen3.8-27B-FP8", "llm_args": {"api_base": "http://localhost:8143/v1", "api_key": "dummy", "temperature": 0.
+   task_010 idx=0 sim_id=41fa15a6-56a4-45c5-93de-42dd96bf241a trial=0 reward=0.0 nmsgs=52 term=user_stop seed=626729
+   task_010 idx=1 sim_id=1c37ebc4-9c77-43f0-b079-f0b8dc11ed05 trial=1 reward=0.0 nmsgs=33 term=user_stop seed=373753
+== bank_010treat_20260903_2152.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen3.8-27B-FP8", "llm_args": {"api_base": "http://localhost:8143/v1", "api_key": "dummy", "temperature": 0.
+   task_010 idx=0 sim_id=73d3bc7d-ee9d-46c8-b491-825e4de2ff87 trial=0 reward=0.0 nmsgs=32 term=user_stop seed=626729
+   task_010 idx=1 sim_id=5d57a7e8-5910-4021-8d62-1641186fe2db trial=1 reward=0.0 nmsgs=40 term=user_stop seed=373753
+== bank_a3fill_20260810a.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=3 sim_id=a734812a-83a3-4103-b48a-2cf5ed50c87a trial=0 reward=0.0 nmsgs=48 term=user_stop seed=626729
+   task_010 idx=4 sim_id=4b82a38c-1d76-4803-a5d0-e2f6c99c4802 trial=1 reward=0.0 nmsgs=44 term=user_stop seed=373753
+== bank_all97_nt1_v2_20260718.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=7 sim_id=b5b5f9d8-49ef-4b5e-a305-e79e57c191f9 trial=0 reward=0.0 nmsgs=30 term=user_stop seed=626729
+== bank_alllevers_20260810.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=3 sim_id=d349b507-fde1-4b41-b970-4e38713969c1 trial=0 reward=1.0 nmsgs=44 term=user_stop seed=626729
+   task_010 idx=6 sim_id=57cfbd15-378f-422c-86b1-626ae22464d0 trial=1 reward=0.0 nmsgs=42 term=user_stop seed=373753
+   task_010 idx=12 sim_id=09258164-ae8b-44f1-a921-a3b891859e51 trial=3 reward=1.0 nmsgs=54 term=user_stop seed=1567
+   task_010 idx=13 sim_id=58a2ad6e-1b91-4f22-b4b9-e7886bfa5ca1 trial=2 reward=0.0 nmsgs=69 term=too_many_errors seed=361454
+== bank_anchorslot_20260809s.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=2 sim_id=40f62d30-690e-4845-9db4-8918d3a4f5f4 trial=0 reward=0.0 nmsgs=42 term=user_stop seed=626729
+   task_010 idx=5 sim_id=83001842-e7fd-40c2-a5ce-974f194e92c0 trial=1 reward=0.0 nmsgs=36 term=user_stop seed=373753
+== bank_anchorslot_20260809s14.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-14B-Instruct", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "temperature
+   task_010 idx=4 sim_id=69568618-c4b3-43ba-9127-2e773257bcc5 trial=0 reward=0.0 nmsgs=53 term=too_many_errors seed=626729
+   task_010 idx=7 sim_id=b3a2d581-ef24-4619-969f-38b1c3439cbc trial=1 reward=0.0 nmsgs=58 term=context_window_exceeded seed=373753
+== bank_anchorslot_20260809v010.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=0 sim_id=7cc0a76b-2e8e-4206-ac04-3626dcf74815 trial=0 reward=0.0 nmsgs=34 term=user_stop seed=626729
+   task_010 idx=1 sim_id=efce30d1-7db4-4f87-ab18-8dbe2eba270e trial=1 reward=0.0 nmsgs=46 term=user_stop seed=373753
+== bank_anchorslot_20260809x010.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=0 sim_id=0eed3d12-7fa5-4549-96e1-8dc871716c14 trial=0 reward=0.0 nmsgs=40 term=user_stop seed=626729
+== bank_anchorslot_20260809y010.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=0 sim_id=68da1daf-e1e9-4ca8-bfaa-1fec1d6e9f6d trial=1 reward=0.0 nmsgs=36 term=user_stop seed=373753
+   task_010 idx=1 sim_id=8856df25-ecd6-4003-b0e7-6dadc4ab13cf trial=0 reward=0.0 nmsgs=50 term=user_stop seed=626729
+== bank_ax32p1_gpu1_20260802.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=5 sim_id=9e584c7b-9b38-459c-b4fe-9a8e3f7d04b1 trial=0 reward=0.0 nmsgs=50 term=user_stop seed=626729
+== bank_ax32p2_gpu1_20260802.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=3 sim_id=e3d043ba-3695-4a1a-8f2b-6920c559da1d trial=0 reward=0.0 nmsgs=42 term=user_stop seed=626729
+== bank_ax33n_gpu1_20260803.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=94881d08-958f-412a-b7c9-a5b9767d0987 trial=0 reward=0.0 nmsgs=50 term=user_stop seed=626729
+== bank_ax33n_gpu1_20260803_partial.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=94881d08-958f-412a-b7c9-a5b9767d0987 trial=0 reward=0.0 nmsgs=50 term=user_stop seed=626729
+== bank_ax33n_gpu1_20260803g.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=3 sim_id=2b9fb390-c443-4c60-a3f2-50351039e8e3 trial=0 reward=0.0 nmsgs=24 term=user_stop seed=626729
+   task_010 idx=19 sim_id=165cdd01-8f0b-4c25-9069-75e80b4d40d0 trial=1 reward=0.0 nmsgs=18 term=user_stop seed=373753
+== bank_ax33sm3A_20260803.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=0 sim_id=f46674e4-93d3-4dce-b4fb-07e80ddaf760 trial=0 reward=0.0 nmsgs=46 term=user_stop seed=626729
+== bank_b4_gpu1_20260803h.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=3 sim_id=955dfe5a-52cb-4e0d-b3d5-c792c2e96abc trial=0 reward=0.0 nmsgs=32 term=user_stop seed=626729
+   task_010 idx=19 sim_id=cd090194-0736-4522-8631-dbfb895d8f52 trial=1 reward=0.0 nmsgs=30 term=user_stop seed=373753
+== bank_day2frontB_20260726.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=5 sim_id=052b31d7-9a72-4493-ac7e-52dbca4067e1 trial=0 reward=None nmsgs=0 term=infrastructure_error seed=626729
+== bank_day3frontB_20260726.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=87f9ea07-da6d-4ede-a640-c5c27bf4ebdb trial=0 reward=None nmsgs=0 term=infrastructure_error seed=626729
+== bank_day4bfrontB_20260727.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=d29a21b1-a2ca-438c-bc79-5ad5d3a1594d trial=0 reward=0.0 nmsgs=36 term=user_stop seed=626729
+== bank_day5frontB_20260728.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=dc32da00-fd77-4740-941e-b5087c9c6635 trial=0 reward=None nmsgs=0 term=infrastructure_error seed=626729
+== bank_day6frontB_20260728.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=23bcafd1-85ae-44c1-a73d-cfcffbfb7a86 trial=0 reward=0.0 nmsgs=34 term=user_stop seed=626729
+== bank_day7frontB_20260728.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=7a9a0dbf-62a3-4290-9021-8ba5a62fe48d trial=0 reward=0.0 nmsgs=60 term=user_stop seed=626729
+== bank_day8frontB_20260729.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=498528d7-bf23-46d9-a83d-3836d0a5ec7a trial=0 reward=0.0 nmsgs=42 term=user_stop seed=626729
+== bank_day9cfrontB_20260729.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=47bd67a7-3a33-4b46-a7bf-e908d92a5f80 trial=0 reward=0.0 nmsgs=42 term=user_stop seed=626729
+== bank_floor_bm_20260716.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=10 sim_id=f5772b8f-d5f9-414e-afa6-6a9c15c39167 trial=0 reward=1.0 nmsgs=31 term=user_stop seed=626729
+== bank_fs_bm_20260716.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=6 sim_id=efbf57c0-41ec-47e1-9c20-3c001494078c trial=0 reward=0.0 nmsgs=30 term=user_stop seed=626729
+== bank_g97151p11_viewmax2_20260903_1924.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen3.8-27B-FP8", "llm_args": {"api_base": "http://10.10.10.151:8141/v1", "api_key": "dummy", "temperature":
+   task_010 idx=1 sim_id=7fb685cb-1fe0-4eec-8dce-f4bb85ee6aaf trial=0 reward=0.0 nmsgs=42 term=user_stop seed=626729
+== bank_isoOFF_20260810.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=613e7e8f-1a74-4c9c-b43e-76a8e639d708 trial=1 reward=0.0 nmsgs=32 term=user_stop seed=373753
+   task_010 idx=5 sim_id=4656b0c8-6c4d-4b7c-8a43-69a21bdd1e85 trial=0 reward=0.0 nmsgs=48 term=user_stop seed=626729
+   task_010 idx=10 sim_id=853698b0-098d-404e-9dd0-1a2ac3f489e3 trial=2 reward=0.0 nmsgs=40 term=user_stop seed=361454
+== bank_isoON_20260810.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=f18e90b6-9cce-4c37-bfe0-96bb9e803683 trial=0 reward=0.0 nmsgs=53 term=too_many_errors seed=626729
+   task_010 idx=8 sim_id=fbf8ce7f-c8de-4f7d-ac84-6569247f8cc6 trial=2 reward=0.0 nmsgs=46 term=user_stop seed=361454
+   task_010 idx=10 sim_id=8eb99c97-1e65-45f2-9f45-f9a296c80df5 trial=1 reward=1.0 nmsgs=50 term=user_stop seed=373753
+== bank_judge6p_b_20260813p_results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=2 sim_id=21b15ca4-a98c-4754-89b0-09cb8c5b481e trial=1 reward=0.0 nmsgs=36 term=user_stop seed=373753
+   task_010 idx=3 sim_id=33fd10f6-310f-4931-b04f-fb39cc4928bb trial=0 reward=0.0 nmsgs=34 term=user_stop seed=626729
+   task_010 idx=6 sim_id=f5a9ef5b-2f6c-4123-afc6-f26b02cca6f1 trial=2 reward=0.0 nmsgs=32 term=user_stop seed=361454
+   task_010 idx=8 sim_id=f65c6629-05f5-4f02-b8c6-f50052354a0a trial=3 reward=0.0 nmsgs=38 term=user_stop seed=1567
+== bank_judge6q_b_20260813q_results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=2 sim_id=0971692d-2b81-4e37-a4f4-bfd0f670c47a trial=1 reward=0.0 nmsgs=34 term=user_stop seed=373753
+   task_010 idx=3 sim_id=a62273af-35c3-4372-859b-ba24ddb0d85a trial=0 reward=0.0 nmsgs=44 term=user_stop seed=626729
+   task_010 idx=6 sim_id=1364f33b-49a7-4747-b111-e20e21e39a77 trial=2 reward=1.0 nmsgs=36 term=user_stop seed=361454
+   task_010 idx=10 sim_id=b88d2222-0bc3-4101-a8e1-c227a7a7fd1f trial=3 reward=1.0 nmsgs=37 term=user_stop seed=1567
+== bank_kb_20260811.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=2 sim_id=f418bb37-8251-49a1-99af-748951549d68 trial=0 reward=1.0 nmsgs=36 term=user_stop seed=626729
+   task_010 idx=3 sim_id=db7ccc54-7ed8-4f53-b87d-7fd204ff420c trial=1 reward=0.0 nmsgs=67 term=user_stop seed=373753
+   task_010 idx=4 sim_id=0975b3f3-464f-4726-9761-05e6a2a02edc trial=2 reward=0.0 nmsgs=54 term=user_stop seed=361454
+== bank_n97_gpu0_main_20260804.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=5 sim_id=c38d7aa4-55e8-4d97-9b12-e4c85bafdd25 trial=0 reward=0.0 nmsgs=36 term=user_stop seed=626729
+   task_010 idx=41 sim_id=5e8775cf-97e3-40a5-b30b-fd4937a33bc4 trial=1 reward=1.0 nmsgs=46 term=user_stop seed=373753
+== bank_n97_gpu0_main_20260805.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=2a14a06d-16c0-496d-986a-65073188dcc8 trial=0 reward=0.0 nmsgs=32 term=user_stop seed=626729
+   task_010 idx=41 sim_id=e32b35dd-57fb-42f9-baa3-c9af545d567b trial=1 reward=0.0 nmsgs=32 term=user_stop seed=373753
+== bank_n97_gpu0_main_20260806.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=6 sim_id=c9156772-de75-408b-847d-e8fd8510d9e7 trial=0 reward=0.0 nmsgs=32 term=user_stop seed=626729
+   task_010 idx=42 sim_id=66e6d25e-fe9c-4182-936f-6829cd46a50b trial=1 reward=0.0 nmsgs=32 term=user_stop seed=373753
+== bank_night2p1_t3prime_20260901_2341.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen3.8-27B-FP8", "llm_args": {"api_base": "http://localhost:8143/v1", "api_key": "dummy", "temperature": 0.
+   task_010 idx=3 sim_id=4ac5e5ed-977f-4b48-b7a7-50ac9ad0fea1 trial=0 reward=1.0 nmsgs=31 term=user_stop seed=626729
+== bank_nightA_20260725.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=3 sim_id=11d4ced8-66c1-4e06-8625-5ed5f6dd08f2 trial=0 reward=0.0 nmsgs=38 term=user_stop seed=626729
+== bank_p1a_20260725_partial8.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=2 sim_id=7eb4ad12-4db9-4b7b-9dd4-304134ea9e5c trial=0 reward=0.0 nmsgs=39 term=user_stop seed=626729
+== bank_qp32p1_gpu1_20260802.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=df243eba-b7b8-42c2-8dfe-79d06697c59e trial=0 reward=0.0 nmsgs=44 term=user_stop seed=626729
+== bank_qp32p2_gpu1_20260802.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=5d84a39c-2358-4874-9952-66d915babe67 trial=0 reward=0.0 nmsgs=31 term=user_stop seed=626729
+== bank_t7295_a_20260815n_results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=1 sim_id=654a6091-3736-43aa-be4d-af62eee4b485 trial=0 reward=1.0 nmsgs=36 term=user_stop seed=626729
+   task_010 idx=12 sim_id=57106218-6661-4233-8d69-927f8165ae52 trial=1 reward=1.0 nmsgs=52 term=user_stop seed=373753
+   task_010 idx=21 sim_id=1b5fc7ad-dc35-43d2-951b-7bc953439ea2 trial=2 reward=0.0 nmsgs=40 term=user_stop seed=361454
+   task_010 idx=34 sim_id=6fefa9f7-3b40-415e-9208-843c7770d8d5 trial=3 reward=1.0 nmsgs=42 term=user_stop seed=1567
+== bank_uq_20260811.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=2 sim_id=4b6b9e73-8948-4721-8fa9-ee4010b2c142 trial=1 reward=1.0 nmsgs=40 term=user_stop seed=373753
+   task_010 idx=4 sim_id=58c17d22-5ea5-4cd6-94ac-1b0ddaf2fcc2 trial=0 reward=1.0 nmsgs=59 term=user_stop seed=626729
+   task_010 idx=5 sim_id=6bda0ba2-9a12-4410-bae9-ab44717f4522 trial=2 reward=0.0 nmsgs=49 term=too_many_errors seed=361454
+== bank_x599_q38base_banking_20260829.partial.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen3.8-27B-FP8", "llm_args": {"api_base": "http://localhost:8142/v1", "api_key": "dummy", "temperature": 0.
+   task_010 idx=8 sim_id=82f801a0-af0c-49c8-8762-ce9111227904 trial=0 reward=0.0 nmsgs=43 term=user_stop seed=626729
+== bank_x644_q38base_bank78_20260830.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen3.8-27B-FP8", "llm_args": {"api_base": "http://localhost:8143/v1", "api_key": "dummy", "temperature": 0.
+   task_010 idx=6 sim_id=751dd2f6-e608-48ef-b0b8-490d4bc6fa6f trial=0 reward=0.0 nmsgs=37 term=user_stop seed=626729
+== bank_x712_nightA_20260901.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen3.8-27B-FP8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "temperature": 0.
+   task_010 idx=0 sim_id=38829a13-e098-42c0-8f08-2ffd6c865838 trial=0 reward=0.0 nmsgs=78 term=user_stop seed=626729
+== bank_x723_t3B_viewscale_max_20260901_1106.results.json.gz
+   info: git=fc0055dc4e0a316c3f83133267fbd6faaa770992 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen3.8-27B-FP8", "llm_args": {"api_base": "http://localhost:8143/v1", "api_key": "dummy", "temperature": 0.
+   task_010 idx=1 sim_id=1c893f37-af7a-4412-9aa4-23a99cf9e072 trial=0 reward=1.0 nmsgs=51 term=user_stop seed=626729
+== bank_y1var_20260730.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=7 sim_id=666eab00-98bb-432e-b347-51209cb2a15b trial=0 reward=0.0 nmsgs=38 term=user_stop seed=626729
+   task_010 idx=43 sim_id=22e1558d-e7fd-459b-9594-61990ceec466 trial=1 reward=0.0 nmsgs=34 term=user_stop seed=373753
+== bank_y2b_gpu0_20260731.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=851c3e20-b0ac-40e9-8305-bb10d6ad48d7 trial=0 reward=0.0 nmsgs=34 term=user_stop seed=626729
+== bank_y2c2_gpu1_20260731.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=3 sim_id=67f2761e-6251-48c8-a20b-e9ce3f4a7cba trial=0 reward=0.0 nmsgs=26 term=user_stop seed=626729
+== bank_y2cp2_gpu1_20260801.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=23df4c49-1560-476b-ade3-f68c88c24424 trial=0 reward=0.0 nmsgs=42 term=user_stop seed=626729
+== bank_y2cp3_gpu1_20260801.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=4 sim_id=9e10cecb-9f7f-47c4-a477-7ce5edd3a439 trial=0 reward=0.0 nmsgs=40 term=user_stop seed=626729
+== bankar_floor_std97.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=10 sim_id=aca1b3dd-6274-47c1-baf6-3f97756363e0 trial=0 reward=0.0 nmsgs=34 term=user_stop seed=626729
+== bankar_floor_std97_partial43.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=10 sim_id=aca1b3dd-6274-47c1-baf6-3f97756363e0 trial=0 reward=0.0 nmsgs=34 term=user_stop seed=626729
+== bankxfer_floor_bank_t2.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8142/v1", "api_key": "dummy", "t
+   task_010 idx=16 sim_id=9d535ba5-d307-4efc-a4d5-4a2e6f38e515 trial=0 reward=0.0 nmsgs=42 term=user_stop seed=626729
+   task_010 idx=106 sim_id=191489a2-5e79-42c4-8358-a2cd39279087 trial=1 reward=1.0 nmsgs=34 term=user_stop seed=373753
+== bankxfer_floor_bank_t4.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8142/v1", "api_key": "dummy", "t
+   task_010 idx=16 sim_id=9d535ba5-d307-4efc-a4d5-4a2e6f38e515 trial=0 reward=0.0 nmsgs=42 term=user_stop seed=626729
+   task_010 idx=106 sim_id=191489a2-5e79-42c4-8358-a2cd39279087 trial=1 reward=1.0 nmsgs=34 term=user_stop seed=373753
+   task_010 idx=203 sim_id=cda2f6a7-9ad9-4773-b634-3796c573a11b trial=2 reward=0.0 nmsgs=40 term=user_stop seed=361454
+== bx_t10_base.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=5 sim_id=16e4ded0-1670-4120-96c0-7635dd351018 trial=0 reward=0.0 nmsgs=63 term=user_stop seed=626729
+== bx_t10_v2.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8141/v1", "api_key": "dummy", "t
+   task_010 idx=7 sim_id=de1149c2-0947-4507-810f-6b6fa8fca3b9 trial=0 reward=0.0 nmsgs=65 term=too_many_errors seed=626729
+== genv2_bank_smoke.results.json.gz
+   info: git=5ebebbe827b455b3ed04fcb9294235c6ef4e5fd6 ts= agent={"implementation": "llm_agent", "llm": "openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8", "llm_args": {"api_base": "http://localhost:8140/v1", "api_key": "dummy", "t
+   task_010 idx=5 sim_id=8c080188-4647-4b74-a2e4-39b189846c83 trial=0 reward=0.0 nmsgs=30 term=user_stop seed=626729
+
+TOTAL FILES SCANNED: 715 ; FILES WITH task_010: 59

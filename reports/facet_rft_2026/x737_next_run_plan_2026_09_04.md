@@ -4024,6 +4024,54 @@ pay_credit_card_from_checking 호출 36건 → 통과 34 · DENY 2
 ⚠남는 것은 §1f-5 #5 의 **넛지 개별 OFF 부정통제**(어느 넛지가 재생성을 열었나)뿐 — 그건 라이브 4팔이라
 무료가 아니다.
 
+### P10 — D16 격리 (010 referent) — ★**원인 진술이 반증됐다** (2026-09-05 · `x766_p10_d16_iso.py`)
+
+프로브는 지어졌고 격리는 라이브를 정확히 재현했다(**A 팔 산출 583자 == 라이브 축자 583자 · 바이트 일치**).
+팔은 요구대로 **선언 오버라이드 한 칸**(`/axis_notes/user_action_arglist` · diff 경로 1개)이고 낱말 저작 0
+(엔진 기본 템플릿을 sentinel 로 역회수). 부정통제도 성립했다 — 새 자리표시자를 만들면
+`t2_gate_patch.py:10562 except: pass` 가 KeyError 를 삼켜 문장이 통째로 사라진다.
+
+**그런데 반증 2인이 각각 치명 3건으로 무너뜨렸고, 그중 하나가 D16 자체를 뒤집는다.**
+
+**⛔D16 의 인과 서사가 회수 축자로 반증된다 (직접 검산 완료)**
+```
+user_scenario §5  "Use your user_id (76ad9cc60e) and corresponding account_type"
+user_scenario §7  "If the agent explains that a referral was rejected due to a temporary
+                   restriction that has now passed, and retrying is possible, go ahead and submit"
+```
+**유저는 §5 로 이미 본인 id 에 묶여 있고, §7 의 발동 술어에는 user_id 가 없다.** 그러므로 D16 축자
+*"인자명만 주고 «누구의 user_id 인가»를 안 묶어 유일한 §7-무장 fail 을 죽였다"* 는 **유저 쪽에서 성립하지
+않는다**. 실제로 죽은 자리는 다른 곳이다 — 에이전트가 **없는 선행조건을 요구**했다:
+```
+msgs[27] "To trigger it, I need: 1. The friend's `user_id` ... 2. Confirmation that the account type is..."
+msgs[28] "I don't have my friend's `user_id`"      → 결정 소멸 · 궤적 전체 submit_referral 호출 0건
+```
+⇒ **D16 은 결함으로는 살아 있으나 인과 사슬이 한 칸 어긋나 있었다.** 선언의 무구속이 유저의 행동을
+직접 죽인 게 아니라, **에이전트를 «친구 id 를 받아야 한다»로 오도**했다. 수리 방향은 유지되지만
+exit 와 기전 진술은 그에 맞춰 다시 써야 한다.
+
+**⛔B 팔이 무구속을 «오구속»으로 바꾼다 (배선 금지 사유)**
+env 원문 `user_id: Your user ID (the referrer)` 를 [ACTION] 문단에 이어 붙이면, 그 문단의 수신자가
+**에이전트**(`not by you` · `your reply` · `their details`)라 «Your» 가 **에이전트로 재결속**된다.
+같은 문단 안에서 `their details`(손님 것) ↔ `Your user ID`(에이전트 것)가 정면 모순이고, gold 는
+`requestor=user · user_id=76ad9cc60e`(손님 본인)이다. [[25]]/[[55]] 위반이며 **악화 가설이 성립**한다.
+프로브의 G3 는 바이트 존재만 보므로 이것을 못 잡는다 — 화자를 명시하는 인용 프레임 + 오구속 게이트가 필요하다.
+
+**⛔측정 무효 2건 (STAGE-2)**
+- `chat()` 이 **`tools` 를 안 보낸다** ⇒ «내가 호출한다» 선택지가 사라져 두 팔 차이가 구조적으로 0으로 압축.
+- 채점기가 **성공과 실패를 같은 칸**에 넣는다: 라이브 실패 `user_id="<friend_user_id>"` 도 UNBOUND,
+  정답 산문 *"run it yourself with your own user ID (76ad9cc60e)"* 도 filler 0 → UNBOUND.
+  엔진 문면(`:10525` *"tell the customer in your reply to run {tool} themselves"*)이 **요구하는 형태가 그 산문**이다.
+
+**⛔[[77]] 위반 자인**: 프로브가 *"회수 번들에 user-sim 재료가 없다"* 고 적었으나 **같은 번들에 있다** —
+`tasks[0].user_scenario.instructions`(3,035자) · `tasks[0].user_tools`. 프로브는 그 칸을 한 번도 열지 않았다
+(`grep -c user_scenario` = 0). 진짜 결손은 «재료 없음» 이 아니라 **«모델 대체»**다(user-sim 이 gpt-5.2).
+
+**⇒ 처분**: P10 은 **배선 금지 유지**. 다음 수는 프로브 수리가 아니라 **D16 재진술**이다 —
+경쟁 가설 ⒜referent 무구속 ⒝없는 선행조건 요구 를 가르는 계측이 없으면 어느 수리도 근거가 없다.
+
+---
+
 ### P26 — ★행동 권위 3계급 격리 (사용자 지시 2026-09-04 밤 · 근거 저작 완료 2026-09-05)
 
 > ⛔**번호 재배정 2026-09-05**: 이 절은 원래 P12 였는데 §1f-11 ⑤ 표가 **P12 = 037 지시어-날짜 정합**

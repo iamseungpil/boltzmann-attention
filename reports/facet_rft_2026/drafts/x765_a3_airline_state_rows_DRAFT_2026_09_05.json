@@ -1,0 +1,251 @@
+{
+ "_meta": {
+  "domain": "airline",
+  "strand": "state (kind=preconditions)",
+  "probe": "x765",
+  "date": "2026-09-05",
+  "status": "DRAFT - NOT WIRED. a2/ was not written to. Read-only audit of a2/airline.*.",
+  "sources_used": [
+   "airline policy.md, 167 lines, extracted verbatim from a2/env_surface_airline_retail.json['airline']['policy']",
+   "airline tool schemas, 14 tools, same file, ['airline']['tools']"
+  ],
+  "sources_NOT_opened": [
+   "gold",
+   "evaluation_criteria",
+   "tasks.json",
+   "*.results.json.gz"
+  ],
+  "quote_check": "26/26 verbatim substring PASS, 0 FAIL (includes the 6 out-of-strand quotes)",
+  "engine_contract": "gate_interpreter.py:392-407 (kind==\"preconditions\") + resolvers_from_env.resolve_field = producer_tool(**{id_arg: args[id_arg]}) -> record -> ONE top-level field -> `cur in chk['allow']`. That is the whole closed operation available to this strand.",
+  "retail_reference": "a2/retail.gate.json G5_STATUS_PRECONDITION - 4 tools, 2 checks, one field (`status`), one producer (get_order_details).",
+  "shape": "policy_facts rows (subject/axis/value/consumer/sources), axis=state_precondition"
+ },
+ "rows": [],
+ "_note_rows_empty_": "Same funnel as the A2 draft: an A3 row carries a `consumer` predicate, and gate 3 applies to that predicate exactly as it applies to a gate. 12 candidates -> 0 rows whose consumer the current engine can decide by set comparison alone.",
+ "_funnel_": {
+  "candidates": 12,
+  "gate1_source_pass": 12,
+  "gate2_target_pass": 11,
+  "gate3_closure_pass": 0,
+  "adopted": 0
+ },
+ "_rejected_rows_": [
+  {
+   "subject": "book_reservation",
+   "axis": "state_precondition",
+   "value": "If the status is **delayed** or **on time**, the flight has not taken off, cannot be booked.",
+   "consumer_that_would_be_required": "multi_arg_producer + per-element iteration over a list argument",
+   "verdict": "gate3_FAIL",
+   "why": "resolve_field calls the producer with exactly one argument; get_flight_status needs two (date, flight_number). The gated value also lives inside args['flights'] (a list of segments), not in a scalar id argument. No set-comparison over a single top-level field can express it.",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "If the status is **delayed** or **on time**, the flight has not taken off, cannot be booked."
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "If the status is **flying**, the flight has taken off but not landed, cannot be booked."
+    }
+   ]
+  },
+  {
+   "subject": "update_reservation_flights",
+   "axis": "state_precondition",
+   "value": "Basic economy flights cannot be modified.",
+   "consumer_that_would_be_required": "operation-discriminator (arg-vs-record diff) so a polysemous write tool can carry per-operation preconditions",
+   "verdict": "gate3_FAIL",
+   "why": "tool-operation polysemy. One write tool performs BOTH 'change flights' (forbidden while cabin is basic economy) and 'change cabin' (explicitly permitted for basic economy by the second quote). A tool-level allow-set on the reservation's cabin therefore FALSE-BLOCKS the permitted operation. Telling the two operations apart requires diffing the `flights` argument against the stored flights = a new checker. Secondary defect: the reservation-level cabin field name is not attested by any allowed source (see _unknown_).",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "Basic economy flights cannot be modified."
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "In other cases, all reservations, including basic economy, can change cabin without changing the flights."
+    }
+   ]
+  },
+  {
+   "subject": "update_reservation_flights",
+   "axis": "state_precondition",
+   "value": "Cabin cannot be changed if any flight in the reservation has already been flown.",
+   "consumer_that_would_be_required": "exists_where / all_where over a nested list field",
+   "verdict": "gate3_FAIL",
+   "why": "existential quantifier over a nested list. resolve_field returns one top-level field; membership in `allow` cannot express 'no element of reservation.flights has status flown'.",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "Cabin cannot be changed if any flight in the reservation has already been flown."
+    }
+   ]
+  },
+  {
+   "subject": "update_reservation_baggages",
+   "axis": "state_precondition",
+   "value": "The user can add but not remove checked bags.",
+   "consumer_that_would_be_required": "ge_record (arg >= resolved record field)",
+   "verdict": "gate3_FAIL",
+   "why": "order comparison between an argument (total_baggages) and stored state. The engine has membership only; the `constraints` kind ops are {disjoint, equal_len} and both compare two ARGUMENTS, never an argument against a record.",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "The user can add but not remove checked bags."
+    }
+   ]
+  },
+  {
+   "subject": "(none)",
+   "axis": "state_precondition",
+   "value": "The user cannot add insurance after initial booking.",
+   "consumer_that_would_be_required": "none - the rule is env-mirrored by the absence of the tool",
+   "verdict": "gate2_FAIL",
+   "why": "No tool to gate. Across the full 14-tool airline inventory, `insurance` appears as an argument of book_reservation ONLY. There is no post-booking insurance tool, so a declaration here would point at nothing and could never fire. This is the airline instance of the banking failure mode (11 of 38 A3 rows aimed at absent tools).",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "The user cannot add insurance after initial booking."
+    }
+   ]
+  },
+  {
+   "subject": "update_reservation_passengers",
+   "axis": "state_precondition",
+   "value": "The user can modify passengers but cannot modify the number of passengers.",
+   "consumer_that_would_be_required": "equal_len_record (len(arg) == len(resolved record field))",
+   "verdict": "gate3_FAIL",
+   "why": "length equality between an argument list and a stored list. `equal_len` exists but compares two arguments; there is no arg-vs-record form.",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "The user can modify passengers but cannot modify the number of passengers."
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "Even a human agent cannot modify the number of passengers."
+    }
+   ]
+  },
+  {
+   "subject": "cancel_reservation",
+   "axis": "state_precondition",
+   "value": "If any portion of the flight has already been flown, the agent cannot help and transfer is needed.",
+   "consumer_that_would_be_required": "exists_where / all_where over a nested list field",
+   "verdict": "gate3_FAIL",
+   "why": "existential quantifier over a nested list, same shape as C03.",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "If any portion of the flight has already been flown, the agent cannot help and transfer is needed."
+    }
+   ]
+  },
+  {
+   "subject": "cancel_reservation",
+   "axis": "state_precondition",
+   "value": "Otherwise, flight can be cancelled if any of the following is true:",
+   "consumer_that_would_be_required": "allow_any_of over several resolver paths - and even then one disjunct stays open",
+   "verdict": "gate3_FAIL",
+   "why": "four-way disjunction. `allow` is a NECESSARY condition (deny when cur not in allow), so encoding any single disjunct false-blocks the other three. The disjunction also mixes a time computation (created_time vs now, 24 hrs) and an OPEN predicate (whether the stated reason is covered by insurance - a judgement, LLM territory per [[52]]/[[22]]).",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "Otherwise, flight can be cancelled if any of the following is true:"
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "- The booking was made within the last 24 hrs"
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "- The flight is cancelled by airline"
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "- It is a business flight"
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "- The user has travel insurance and the reason for cancellation is covered by insurance."
+    }
+   ]
+  },
+  {
+   "subject": "send_certificate",
+   "axis": "state_precondition",
+   "value": "Only compensate if the user is a silver/gold member or has travel insurance or flies business.",
+   "consumer_that_would_be_required": "allow_any_of across multiple resolver paths (multi-record disjunction)",
+   "verdict": "gate3_FAIL",
+   "why": "three-way disjunction spanning TWO records (user.membership, reservation.insurance, reservation.cabin) while a check names exactly one resolver_path. `allow:['silver','gold']` on [user_id, get_user_details, membership] is closed and tempting, but it is one disjunct, not the necessary condition: it would deny a regular member who holds travel insurance, whom the policy explicitly permits to be compensated.",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "Only compensate if the user is a silver/gold member or has travel insurance or flies business."
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy."
+    }
+   ]
+  },
+  {
+   "subject": "update_reservation_flights",
+   "axis": "state_precondition",
+   "value": "Other reservations can be modified without changing the origin, destination, and trip type.",
+   "consumer_that_would_be_required": "unchanged_fields (arg-derived vs record) - requires a derivation step first",
+   "verdict": "gate3_FAIL",
+   "why": "argument-vs-record equality on three fields, and worse: update_reservation_flights takes only (cabin, flights, payment_id, reservation_id) - origin, destination and trip type are not call arguments at all, so they would first have to be DERIVED from the flights list. Derivation is not set comparison.",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "Other reservations can be modified without changing the origin, destination, and trip type."
+    }
+   ]
+  },
+  {
+   "subject": "book_reservation / update_reservation_flights / update_reservation_baggages",
+   "axis": "state_precondition",
+   "value": "All payment methods must already be in user profile for safety reasons.",
+   "consumer_that_would_be_required": "member_of_record (arg in resolved record field)",
+   "verdict": "gate3_FAIL",
+   "why": "member_of: an argument value must belong to a SET resolved from another record. The engine compares a resolved value against a literal allow-list; the direction is reversed and the right-hand side is dynamic. retail's own G7 note already records this exact op as excluded (payment member_of = derived field, [[05]] risk, not included).",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "All payment methods must already be in user profile for safety reasons."
+    },
+    {
+     "doc": "airline/policy.md",
+     "quote": "The payment method must already be in user profile for safety reasons."
+    }
+   ]
+  },
+  {
+   "subject": "update_reservation_flights",
+   "axis": "state_precondition",
+   "value": "Cabin class must remain the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.",
+   "consumer_that_would_be_required": "none - already enforced by the tool signature",
+   "verdict": "gate3_FAIL",
+   "why": "vacuous / env-mirrored. update_reservation_flights takes a single scalar `cabin` for the whole call, so no call can express a per-segment cabin. A gate here would never fire. A declaration that cannot fire is worse than none - it inflates A2 volume without changing a single message, which is this strand's whole premise (banking bought a 46x A2 for a 4x delivery).",
+   "sources": [
+    {
+     "doc": "airline/policy.md",
+     "quote": "Cabin class must remain the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible."
+    }
+   ]
+  }
+ ],
+ "_unknown_": [
+  {
+   "question": "What are the top-level field names of the airline reservation record (is reservation-level cabin literally `cabin`)?",
+   "answer": "모른다.",
+   "searched": [
+    "C:/workspace/ba-frft/scripts/distill/tau2/a2/env_surface_airline_retail.json - holds tool ARGUMENT names only, no return schema",
+    "grep -o for cabin over C:/workspace/ba-frft/scripts/distill/tau2/a2/airline.*.json -> 1 hit, in airline.grounding.json, where `cabin` is the explode key of a FLIGHT SEARCH result, not a reservation field",
+    "find /c -maxdepth 6 -type d -name 'tau2*' -> no tau2-bench package on this host; data/tau2/domains/airline/ is not present locally",
+    "C:/workspace/ba-frft/reports/facet_rft_2026/sim_results/trace_bank_t7390_airline_smoke_20260829.jsonl.gz -> sidecar marks only (keys line/mark/sim/turn); carries no tool return values"
+   ],
+   "note": "The airline policy's own Reservation attribute list (reservation id, user id, trip type, flights, passengers, payment methods, created time, baggages, travel insurance information) does NOT include cabin. The existing G3_RESERVATION_OWNER attests only that `user_id` is a top-level reservation field. Not opened, by 철칙 [[23]]: gold / evaluation_criteria / tasks.json / *.results.json.gz."
+  }
+ ]
+}
