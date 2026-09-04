@@ -13091,7 +13091,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if fb:
                 try:
                     import t2_fbsidecar as _fbsc
-                    _fbsc.record_many(fb, state.messages, channel="unified_regen")
+                    # ★D9 수리 (2026-09-05): `tool-deny` 행에 **무엇이 막혔는지**를 싣는다.
+                    #   구판 키는 channel,kind,len,sha,sim,simtag,text,turn 뿐이라 희생자 이름이
+                    #   없었고(영속 궤적에도 0/133), 그래서 D4(동반 차단)의 판정이 원리상 불가였다.
+                    _id2n = {}
+                    try:
+                        for _tc in (getattr(am, "tool_calls", None) or []):
+                            _id2n[getattr(_tc, "id", None)] = _eff_tool_name(_tc)
+                    except Exception:
+                        _id2n = {}
+                    _fbsc.record_many(fb, state.messages, channel="unified_regen",
+                                      id_to_name=_id2n)
                 except Exception:
                     pass
             work = work + fb
@@ -13844,7 +13854,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   "우리가 모순되게 말했다"를 가릴 수 없다. 궤적은 그대로 두고 파일에만 남긴다.
             try:
                 import t2_fbsidecar as _fbsc2
-                _fbsc2.record_many([_fb], state.messages, channel=tag)
+                # ★D9 수리 (2026-09-05): **폐기 원문**도 남긴다. 구판은 우리 문구(`_fb`)만 적어서
+                #   이 경로(claimprov · channel · searchexhaust · followup …)로 재생성된 턴의
+                #   원본이 어디에도 없었다 — 실측 `reminder-assistant` 53/53 이 전부
+                #   `channel=unified_regen` 이었고, 088 turn 65 의 `content=2325B` 원본은
+                #   **영구 복구 불가**가 됐다. 그 구멍 때문에 §1c-3 의 두 자리가 확증도 반증도
+                #   불가로 접혔다. 궤적은 그대로 두고 파일에만 남긴다(거동 불변).
+                _disc = [] if _t2_msg_empty(am) else [am]
+                _id2n2 = {}
+                try:
+                    for _tc2 in (getattr(am, "tool_calls", None) or []):
+                        _id2n2[getattr(_tc2, "id", None)] = _eff_tool_name(_tc2)
+                except Exception:
+                    _id2n2 = {}
+                _fbsc2.record_many(_disc + [_fb], state.messages, channel=tag,
+                                   id_to_name=_id2n2)
             except Exception:
                 pass
             # ★C207(리뷰 필수1): regen 프롬프트에 실리는 직전 응답을 **호출부가 대체**할 수 있게 한다.

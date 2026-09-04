@@ -387,17 +387,27 @@ def main():
             "agent_claimprov": {
                 "type": "object",
                 "properties": {
+                    # ★D8 수리 (2026-09-05) — 키 이름이 세 곳에서 어긋나 있었다.
+                    #   A2 질문(`gate.json` claim_prov.question)은 {"kind","what","tool"} 을 요구하고
+                    #   소비부(`t2_gate_patch` :14986 _desc3 · :15015 · :15026 · :15033 · :5218 · :5235 ·
+                    #   :5357)는 전부 `c.get("what")` 을 읽는데, **이 스키마만** `claim` 으로 묶고 있었다.
+                    #   guided decoding 은 스키마 밖 키의 생성 자체를 막으므로 `what` 은 영원히 None —
+                    #   실측 전송 문면 **73/73 이 `None: None`**, `unb_p>=1` 158/158, 날짜 절벽의 유일
+                    #   변경이 `f6224e26` 의 개명이었다. `pending` 은 `kind` 조차 없어 그쪽도 None 이었다.
+                    #   ⚠`t2_source.py:289` 의 `c.get("claim")` 은 **다른 프로브**(source_claim_formalize)라
+                    #   같은 낱말이어도 계약이 다르다 — 함께 바꾸지 않는다.
                     "claims": {"type": "array", "items": {
                         "type": "object",
-                        "properties": {"claim": {"type": "string"},
+                        "properties": {"what": {"type": "string"},
                                        "tool": {"type": "string"},
                                        "kind": {"type": "string"}},
-                        "required": ["claim"]}},
+                        "required": ["what"]}},
                     "pending": {"type": "array", "items": {
                         "type": "object",
-                        "properties": {"claim": {"type": "string"},
-                                       "tool": {"type": "string"}},
-                        "required": ["claim"]}},
+                        "properties": {"what": {"type": "string"},
+                                       "tool": {"type": "string"},
+                                       "kind": {"type": "string"}},
+                        "required": ["what"]}},
                 },
                 "required": ["claims", "pending"],
             },

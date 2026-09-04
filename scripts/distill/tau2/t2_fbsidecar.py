@@ -103,8 +103,17 @@ def record(kind, text, messages=None, **meta):
             print("[T2_FB_SIDECAR] 기록 실패(이후 무음): %r" % (e,), file=sys.stderr, flush=True)
 
 
-def record_many(items, messages=None, **meta):
-    """`fb` 리스트처럼 여러 건을 한 번에. items = [(kind, text), ...] 또는 메시지 객체 리스트."""
+def record_many(items, messages=None, id_to_name=None, **meta):
+    """`fb` 리스트처럼 여러 건을 한 번에. items = [(kind, text), ...] 또는 메시지 객체 리스트.
+
+    ★D9 수리 (2026-09-05) — `id_to_name`: tool_call id → 도구 이름.
+      `tool-deny` 행의 키는 `channel,kind,len,sha,sim,simtag,text,turn` 뿐이라 **무엇이 막혔는지**가
+      어디에도 없었다(사이드카 110 파일 · tool-deny 8,145 행 전부). 영속 궤적에도 안 남는다 —
+      우리 거절은 재생성 채널로 나가고 `_ap_regen` 이 원 메시지를 **교체**하기 때문이다. 그래서
+      `[BLOCKED]` 희생자 이름이 궤적 0/133 이었고 **D4 의 판정이 원리상 불가능**했다.
+      호출부가 이 맵을 주면 행에 `call_name` 이 실린다. 안 주면 종전과 바이트 동일(거동 불변).
+    """
+    _map = dict(id_to_name or {})
     for it in items or []:
         if isinstance(it, (tuple, list)) and len(it) == 2:
             record(it[0], it[1], messages, **meta)
@@ -114,8 +123,15 @@ def record_many(items, messages=None, **meta):
             if content is None and isinstance(it, dict):
                 content = it.get("content")
             err = bool(getattr(it, "error", False))
+            _meta = meta
+            if role == "tool":
+                _id = getattr(it, "id", None) or (it.get("id") if isinstance(it, dict) else None)
+                _nm = getattr(it, "name", None) or _map.get(_id)
+                if _nm:
+                    _meta = dict(meta)
+                    _meta["call_name"] = str(_nm)
             record("tool-deny" if role == "tool" and err else ("reminder-%s" % role),
-                   content, messages, **meta)
+                   content, messages, **_meta)
 
 
 if __name__ == "__main__":
@@ -154,6 +170,34 @@ if __name__ == "__main__":
     rows = [json.loads(l) for l in open(p, encoding="utf-8")]
     assert rows[-1].get("text") == "with text"
     print("3) TEXT=1 시 본문 저장: OK")
+
+    # ── ★D9 (2026-09-05): tool-deny 가 **무엇이 막혔는지** 싣는다 + 부정통제 ────────────
+    class T:                                     # id 를 가진 tool 메시지
+        def __init__(self, _id, content):
+            self.role, self.id, self.content, self.error = "tool", _id, content, True
+
+    _n0 = len(open(p, encoding="utf-8").readlines())
+    record_many([T("call_7", "Error: resolve the flagged call first")], msgs,
+                channel="unified_regen", id_to_name={"call_7": "close_debit_card_4721"})
+    _r = [json.loads(l) for l in open(p, encoding="utf-8")][_n0:]
+    assert len(_r) == 1 and _r[0]["kind"] == "tool-deny", _r
+    assert _r[0].get("call_name") == "close_debit_card_4721", "D9: 희생자 이름이 실려야 한다"
+
+    _n1 = len(open(p, encoding="utf-8").readlines())
+    record_many([T("call_9", "Error: nope")], msgs, channel="unified_regen")   # 맵 없음
+    _r2 = [json.loads(l) for l in open(p, encoding="utf-8")][_n1:]
+    assert "call_name" not in _r2[0], "부정통제: 맵을 안 주면 종전과 바이트 동일이어야 한다"
+    print("4) D9 tool-deny call_name 동봉 + 맵 없으면 불변: OK")
+
+    # 폐기 원문(assistant)과 우리 문구(user)가 같은 채널에 함께 남는가 — 일반 regen 경로의 모양
+    _n2 = len(open(p, encoding="utf-8").readlines())
+    record_many([M("assistant", "discarded draft 2325B"), M("user", "[REMINDER] do it now")],
+                msgs, channel="claimprov")
+    _r3 = [json.loads(l) for l in open(p, encoding="utf-8")][_n2:]
+    assert [x["kind"] for x in _r3] == ["reminder-assistant", "reminder-user"], _r3
+    assert all(x["channel"] == "claimprov" for x in _r3), "unified_regen 밖에서도 남아야 한다"
+    assert _r3[0]["text"] == "discarded draft 2325B", "D9: 폐기 원문 본문이 남아야 한다"
+    print("5) D9 폐기 원문이 unified_regen 밖 채널에도 남는다: OK")
 
     # simtag: thread-local sim 태그가 있으면 동봉·없으면 필드 자체가 없다 (양성+음성 대조)
     rows = [json.loads(l) for l in open(p, encoding="utf-8")]
