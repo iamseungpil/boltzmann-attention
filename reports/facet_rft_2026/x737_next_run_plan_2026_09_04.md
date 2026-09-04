@@ -3775,6 +3775,40 @@ D5 는 그 형제이고 엔진에 도메인 리터럴을 박지 않는다([[58]]
 - 부정통제([[57]]): 029 t72 의 넛지 3연발(`uncalled_unlock`→`searchexhaust`→`claimprov`)을
   하나씩 끈 4팔 — 어느 넛지가 결정적인지 아직 아무도 못 갈랐다(§1f-5 #5).
 
+#### ✅P9 부호표 — 실측으로 닫혔다 (2026-09-05 · `x765_p9_signtable_iso.py` · 무료·오프라인)
+
+**⑴ exit 는 이미 라이브 기록이 충족한다.** 027 은 같은 write(update e403)를 정상경로에서
+**5회 live-DENY**(t55·57·63·65·71) 하고 `searchexhaust` 재생성 1발(t73)로 커밋했다 — **sim 내부
+대조**라 프로브보다 강하다. 029 의 금지 write 5건은 오프라인 재실행 **5/5 DENY**.
+
+**⑵ 남아 있던 [미측정] = 부호표 반대편.** 선언 조회로 사정권을 먼저 갈랐다:
+```
+write_evidence_specs 사정권 8종  (전부 call_discoverable_agent_tool + agent_tool_name 접두)
+  update_transaction_rewards · approve_credit_limit_increase · close_credit_card_account
+  file_credit_card_transaction_dispute · apply_savings_account_credit
+  submit_interest_discrepancy_report · apply_checking_account_credit · log_credit_card_closure_reason
+write_arg_grounding 사정권 5종
+  apply_statement_credit · file_credit_card_transaction_dispute · get_referral_link
+  log_credit_card_closure_reason · pay_credit_card_from_checking
+```
+- `update_transaction_rewards`(금지 write) = **WEV 안** ⇒ 재진입하면 막힌다 — **사는 쪽 확인**
+- `unlock_discoverable_agent_tool`(048 t123) = **전 쓰기 게이트 선언 밖** ⇒ 재진입이 건드릴 수 없다 — **비용 0 확정**
+- ⛔`pay_credit_card_from_checking`(048 t63) = WEV 밖은 맞지만 **`write_arg_grounding` 안**이다.
+  x737 의 *"WEV 밖이라 무영향"* 은 **결론은 맞고 근거가 틀렸다** — 무영향인 이유는 사정권 밖이어서가
+  아니라 그 게이트가 **출처 검사**라서다. 같은 계열이 둘 더 있다(`apply_statement_credit`·`get_referral_link`).
+
+**⑶ 실측 (회수분 전수 · 한 턴이 아니라 census)**
+```
+pay_credit_card_from_checking 호출 36건 → 통과 34 · DENY 2
+  DENY 2건 = 둘 다 같은 값 'ca_e3f4a5b6c7' 를 checking_account_id 로 기입 — 게이트가 «대화 어디에도
+  없다» 고 보고한 **날조 id**(옛 floor 런 t2·t4). 부수피해가 아니라 게이트가 제 일을 한 것.
+부정통제([[57]]): update_transaction_rewards 253건 → write_arg_grounding DENY **0**
+  ⇒ 출처 축과 증거 축이 실제로 분리돼 있다(금지 write 를 막는 것은 WEV 지 이쪽이 아니다)
+```
+⇒ **부호표: 사는 것 = 금지 write 차단 · 파는 것 ≈ 0.** D14 재진입 배선의 자격 조건이 채워졌다.
+⚠남는 것은 §1f-5 #5 의 **넛지 개별 OFF 부정통제**(어느 넛지가 재생성을 열었나)뿐 — 그건 라이브 4팔이라
+무료가 아니다.
+
 ### P26 — ★행동 권위 3계급 격리 (사용자 지시 2026-09-04 밤 · 근거 저작 완료 2026-09-05)
 
 > ⛔**번호 재배정 2026-09-05**: 이 절은 원래 P12 였는데 §1f-11 ⑤ 표가 **P12 = 037 지시어-날짜 정합**
