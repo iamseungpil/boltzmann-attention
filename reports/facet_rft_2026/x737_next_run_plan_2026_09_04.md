@@ -3751,6 +3751,56 @@ D5 는 그 형제이고 엔진에 도메인 리터럴을 박지 않는다([[58]]
 - 부정통제([[57]]): 029 t72 의 넛지 3연발(`uncalled_unlock`→`searchexhaust`→`claimprov`)을
   하나씩 끈 4팔 — 어느 넛지가 결정적인지 아직 아무도 못 갈랐다(§1f-5 #5).
 
+### P12 — ★행동 권위 3계급 격리 (사용자 지시 2026-09-04 밤 · 근거 저작 완료 2026-09-05)
+
+> 사용자 축자: *"행동의 권위가 어디에 있는지를 기술해야 한다. 출처의 근거 오너쉽을 정한 것처럼 …
+> 카드 정지, 해지 등은 고객 동의 없이는 해서는 안된다. 고객이 직접 도구 부르는 것, 에이전트가
+> 직접 부르는 것, 외에 **고객이 동의해야지만 부르는 것**도 행동 절차에 있어야 한다."*
+> 그리고 *"위 문서만 정확히 주고 격리하면 제대로 해결될 수도 있지 않나? **격리부터** 실험해야 할거 같다."*
+
+**⑴ 근거는 실재한다 — 코퍼스 698문서 4-사면 스윕 (`wf_5adaa774` · hits 122 · 인용 133쌍 substring 검산 fail 0)**
+
+초안 산출물(⚠**미배선·미검증**): `drafts/x764_a2_action_authority_DRAFT_2026_09_05.json`(A2
+`action_authority` 키 · consent_required **24항** + irreversible 3) ·
+`drafts/x764_a3_action_authority_rows_DRAFT_2026_09_05.json`(A3 policy_facts 형 **38행**).
+
+```
+transfer_funds  "Ask the customer if they want you to transfer the opening deposit … If yes, use
+                 transfer_funds…" · "When to call: Only if the customer authorizes"      (general_002·004·010)
+close_debit_card "Use when card is confirmed lost/stolen or customer wants to cancel"
+                 + 비가역 고지 의무 "permanently deactivated and cannot be reactivated"      (general_025·026)
+freeze/unfreeze  "Use when customer misplaced the card or wants temporary security" ·
+                 "They can unfreeze at any time by calling customer service"               (general_026)
+PIN unlock       "Only unlock if customer confirms AND provides satisfactory explanation"  (general_041)
+분쟁 진술 boolean  "…if you agree." Set to true if the customer agrees                       (general_031)
+pay_credit_card  "Confirm the payment amount with the customer and obtain authorization"    (cc_logistics_009)
+교체 expedited    "Expedited_fee_acknowledgement: customer consent captured if a fee applies" (cc_replacements_001)
+CLI 제출          "Only the account owner or an authorized account manager may submit"        (cc_logistics_004)
+```
+⇒ **3계급이 문서에 이미 새겨져 있다**: ①user_owned ②agent_autonomous(읽기·내부 자격판정 —
+축자 *"Eligibility checks are internal"*) ③**consent_required**. 실패 실물과 맞물린다:
+**071**(자발 이체 EXTRA ← ask-first) · **078/080**(close ← 고객 의사 전건) · **040/085**(진술 boolean).
+
+**⑵ 프로브 설계 — 2팔로 갈라야 «재료 결손»과 «판단 결손»이 안 섞인다**
+
+- 팔 = 선언 오버라이드 한 칸(`action_authority = off/on`) · **프롬프트 저작 금지**([[78]] — 엔진 빌더를 부른다).
+- **P12a** = 그 sim 이 **실제로 회수했던 문서만** 그대로(=선언 부재가 원인인지 검사)
+- **P12b** = 해당 조항 스니펫 동봉(=전달 결손인지 검사)
+- 재료 = 078 · 080 · 071 의 결정 창 메시지 전량(축자 재생).
+- **exit**: off 에서 비가역 직행 재현 ∧ on 에서 고객-회부/보류 ⇒ 배선 자격.
+  **P12b 만 통과 = 결손은 전달** · **P12a 도 통과 = 결손은 선언 부재**.
+- ⛔[[70]] 부호표: **«동의 있음» 케이스를 같은 프로브에** — 고객이 이미 명시 요청한 close 가 함께
+  막히면 순손실이다. 파는 것 = 정당 즉시-실행의 확인 턴 1개.
+- ⛔**해제 술어 필수**(§1f-11 ④ 횡단 의무): (인자,값)쌍당 발화 1회 cap + 사후 상태별 fix 분기 —
+  «동의 확보 후 재요청되면 통과»가 없으면 W-5 형 18회 루프를 산다.
+- ⚠agent temperature = **0.0**(`t2_run_gated.py:321`) — 재현성은 프롬프트 동일성에 달렸다.
+
+**⑶ 미검증 (다음 세션 선결)**: 반증 감사 에이전트가 **세션 한도로 죽었다**(`agents_error 1`).
+초안은 인용 검산만 통과했고 ①[[23]] gold 유래 흔적 ②[[58]] 케이스 입법 누수 ③과잉/과소 포함
+④078/080 시뮬레이션(msg49 형 발화가 consent_form 을 만족하는가) 이 **미감사**다. **감사 전 배선 금지.**
+
+---
+
 ### 배선 조건
 
 ⛔**「P1·P2 를 통과한 것만」은 자기 후보 명단과 어긋나 있었다** — D3·D4·D6·D7·D8·L1 은
