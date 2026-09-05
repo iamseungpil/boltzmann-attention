@@ -50,17 +50,16 @@ for t in test_lever_wiring test_proc_regen_recheck test_sibling_paren test_dup_w
 done
 [ $BAD -ne 0 ] && { echo "[t7392] ⛔배터리 붉음 — 발사하지 않는다"; exit 1; }
 
-# ── 팔은 하나다. 이 런은 A/B 가 아니라 «자리가 서는가» 다 ────────────────
-env_arm() {
-  source ./go_stack.sh >/dev/null 2>&1
-  # 정본↔런처 불일치분을 **런처 쪽 문면 그대로** 재현한다(run_ours_task.sh:127-128).
-  export T2_ACTION_SUB=1 T2_KEEP_DENY_BODY=1 T2_CALL_FORM=1 T2_ARG_EMPTY=1 T2_SEARCH_AGENT=1
-  export T2_SG_DOCS=1 T2_SG_PROMPT_V2=1 T2_SPEC_AT_WRITE=1 T2_WRITE_ARG_TYPE=1
-  export T2_RULE_AT_WRITE=1 T2_DUP_WRITE=1
-  export T2_CARD_DOCS=1 T2_ACTIONREQ_GROUNDED=1 T2_SG_ROW_COUNT=1 T2_SG_CLOSE_SELF=1
-  export T2_PROMPT_DUMP=1 T2_PROMPT_DUMP_MAX=80000
-  export GO_MAX_STEPS=200
-}
+# ── ★경로 정정 (2026-09-05) — 첫 시도는 `t2_launch` 로 쐈고 즉사했다 ─────────
+#   `t2_launch` 는 `t2_run_gated.py` 를 직접 부른다 ⇒ 모델 프로필을 안 실어서
+#   `T2_MAX_MODEL_LEN` 이 비고, 그 자동탐지 블록이 `sys` 미임포트로 NameError 를 냈다
+#   (`b5d049ed` 가 08-31 에 넣은 코드 · t7389 는 08-29 라 그 전이었다).
+#   더 큰 것은 그 함수가 `--agent_model Qwen/Qwen2.5-32B...` 를 박아 두고 있었다는 것 —
+#   서버는 Q3.8 을 서빙한다([[84]]/[[30]]). 둘 다 이 sha 에서 고쳤다.
+#   ⇒ 이 스모크는 **캠페인이 실제로 탄 경로**로 간다([[54]] 비교 규격):
+#     run_ours_task.sh = 프로필 자동선택 + x704 표면 preflight + :127-128 환경줄.
+#   ⚠팔은 `viewmax2` — 캠페인 본 팔이고, 이 sha 에서 그 팔의 SIBLING_PAREN 을 strip 으로
+#     올렸다(log 로 되돌리고 있었다·[[81]]). 부정통제 팔 셋은 log 그대로다.
 
 PIDS=""
 for A in 0 1; do
@@ -69,9 +68,8 @@ for A in 0 1; do
   TAG="bank_t7392_${NAME}_${STAMP}"
   rm -rf "$SIMS/$TAG"
   (
-    env_arm; export GO_CONCURRENCY=1
-    echo "[$NAME $(date +%H:%M:%S)] $T nt=1 port=$ARM_PORT"
-    t2_launch "$TAG" "$ARM_PORT" "$T" 1 2>&1 | tee "$LOG/$TAG.log"
+    echo "[$NAME $(date +%H:%M:%S)] $T nt=1 port=$ARM_PORT arm=viewmax2"
+    bash ./run_ours_task.sh --arm viewmax2 --concurrency 1 --trials 1          "$TAG" "$ARM_PORT" "$T" 2>&1 | tee "$LOG/$TAG.log"
     echo "[$NAME $(date +%H:%M:%S)] done"
   ) > "$LOG/${TAG}_driver.log" 2>&1 &
   PIDS="$PIDS $!"

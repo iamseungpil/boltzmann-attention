@@ -373,7 +373,13 @@ t2_launch() {
   /home/woori/venvs/seka_env/bin/python -u "$GO_REPO/scripts/distill/tau2/t2_run_gated.py" \
     --domain "${GO_DOMAIN:-banking_knowledge}" ${_GO_RC:+--retrieval_config "$_GO_RC"} \
     --gate 1 \
-    --agent_model Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8 \
+    # 2026-09-05 - here sat a hardcoded Qwen2.5-32B, which is legacy ([[79]]).
+    #   The server has been serving Q3.8; a declaration naming a different model is
+    #   exactly [[84]], and the shape [[30]] recorded as "another model takes the port".
+    #   The canonical path is run_ours_task.sh (profile auto-select + x704 preflight);
+    #   this function is for places that cannot use it, so the model comes from a
+    #   declaration instead of a literal.
+    --agent_model "${GO_AGENT_MODEL:-Qwen/Qwen3.8-27B-FP8}" \
     --agent_base "http://localhost:${PORT}/v1" \
     --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 \
     --user_reasoning_effort "${GO_USER_EFFORT:-low}" \

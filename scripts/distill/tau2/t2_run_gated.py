@@ -10,6 +10,7 @@ Run: cd /home/woori/scratch/tau2-bench && PYTHONPATH=src:$REPO/scripts/distill/t
 """
 import argparse
 import os
+import sys
 
 
 def _install_failed_persist(env_cls):
