@@ -1278,6 +1278,17 @@ m10·m19·m20 에서 반복 봤고 자기 추천문에도 썼는데 m41 은 `"Gr
 런 전체 발화 **정확히 1회**(task_059) ⇒ [[81]] 사례. **승격 여부는 §1c-5 대로 `FAILURE_AXIS_AND_FIX_ORDER
 _2026_08_15.md` §T-8 이 정한 게이트를 따른다. 새 후보로 올리지 않는다.**
 
+> ★**정정 (2026-09-05 · 위 문단은 수리 전 상태다)** — §T-8 게이트가 요구한 부호표를 프로브
+> `x771_068_effect.py` 로 실측하고 **무장했다**(출력 = `x771_068_effect.out` 수리 전 ·
+> `x771_068_effect.armed.out` 배선 후 재실행, 수치 동일).
+> · 무장 = `t2_gate_patch.py:3777 sibling_paren_strip()` + 호출부 `:13444` (`strip` 모드에서만).
+>   `log`/`deny` 는 **거동 0 그대로**(`arms/*.env` 4개 보존) · ⛔`deny` 승격 안 함(W-5 재발화 루프).
+> · [[81]] 등재 = `go_stack.sh:909 export T2_SIBLING_PAREN=strip`.
+> · 부호표(회수분 전수 14,430 sim · 135,650 호출): 발화 103 · **갈림 3** · **해악 0** ·
+>   gold 액션 1,533 발화 0 · 통과 sim 발화 0/103 · 표면 = `open_bank_account_4821.account_class` 단일 쌍.
+> · ⚠**«어디서 켜지는지»** — 종전 grep 이 `.sh/.py/.json` 만 봐서 `.env` 를 놓쳤다. 켜지는 자리는
+>   `arms/t2prime.env`·`t3prime.env`·`t8log.env`·`viewmax2.env` 네 곳이었고 값은 전부 `log` 였다.
+
 ---
 
 #### 1d-9. task_064 — 분기의 **개시자는 우리가 주입한 도구**다 (**CONFIRMED 개시 / PLAUSIBLE 값**)
@@ -2375,7 +2386,7 @@ D12 무증거 0/6 · D10 1건 · L1 기대수익 0 재확인 · L2 연결 축자
 |---|---|---|---|---|
 | **027** | **CONFIRMED** | our_layer | MISSING 1 + **EXTRA 1** | ★**D14 신 사례(3번째)**: WEV 게이트가 같은 write(update e403)를 정상경로에서 **5회 live-DENY**(t55·57·63·65·71) 했는데 `searchexhaust` 재생성 1발(t73)이 WEV 재검 없이 **커밋**. MISSING(과다지급 e506 미분쟁)은 029 와 동일 패턴의 모델 판단(도구는 *"each needs a cash back dispute"* 로 4건 전부 나열) — 우리층무관. ⚠반사실 reward 미판정(EXTRA 막아도 MISSING 잔존) |
 | **067** | 우리층무관 | model | MISSING 1 (`apply_for_credit_card` · user) | 007 정확 재현(카드 미추천). **L2 자재결손 n↑**: 카드 로스터가 서브의 `ctx[-8:]` 창(t2_resolve.py:1076) 밖 → `applies=false` ×3 은 서브의 옳은 답이지만 재료가 없었다. 063 자격술어와 **무관 배제**($100k=Platinum Plus min 충족·7.3% 정상) |
-| **068** | 우리층무관 | model | WRONGARG 1 (`account_class`) | `'Green Account (checking)'` ↔ gold `'Green Account'` — **env-KB 함정**(msg7 이 괄호형을 유효 공식명 예시로 못박음). ★`T2_SIBLING_PAREN` 이 **정확히 탐지하고 수리값까지 지목**했는데 log-only 미무장([[81]]). 처방은 deny 가 아니라 **괄호 STRIP**(deny 는 재발화-루프 위험) — 무차별 STRIP 의 gold-손상은 §T-8 A/B 실측 전 미확정 |
+| **068** | 우리층무관 | model | WRONGARG 1 (`account_class`) | `'Green Account (checking)'` ↔ gold `'Green Account'` — **env-KB 함정**(msg7 이 괄호형을 유효 공식명 예시로 못박음). ★`T2_SIBLING_PAREN` 이 **정확히 탐지하고 수리값까지 지목**했는데 log-only 미무장([[81]]). 처방은 deny 가 아니라 **괄호 STRIP**(deny 는 재발화-루프 위험) — 무차별 STRIP 의 gold-손상은 §T-8 A/B 실측 전 미확정 <br>★**정정 2026-09-05** (`x771_068_effect.py`): ⑴ gold-손상 칸은 **실측됐다** — 회수분 전수 gold 문자열 3,590 중 `account_class` 괄호형 **0** · gold 액션 1,533 발화 0 · 통과 sim 발화 0/103 ⇒ **해악 0**, STRIP 무장 완료(`go_stack.sh:909`). ⑵ 단 **이 행의 귀속을 옮겨야 한다**: 로컬 `sim_results/` 462 결과파일 전수에서 괄호를 지닌 068 sim 은 `bank_x712_nightA_20260901` **하나뿐이고 그것은 `db_check=null`·`termination=max_steps` 미채점**이다(그 0.0 은 괄호가 아니라 max_steps). 오늘 채점된 068(`bank_d8ab8143_01_20260905_0402`)은 `'Purple Account'`/`'Gold Plus Account'` = **값-선택 실패**라 STRIP 이 못 고친다. **실측 표적은 065** — `bank_x721_t1A_viewscale_20260901_0945` 의 `action_match=False` 가 `065_2` 하나뿐이고 그것이 정확히 이 칸. ⚠§1f-7 이 적은 *"n=1·`['DB']`·WRONGARG 1"* 의 068 sim 이 무엇인지는 **모른다**(리모트 회수 경로 없음) |
 | **086** | 우리층무관 | model | WRONGARG 6 (4× `customer_max_liability` 0↔50 등) | **P5 파생값 측정 자리 신 sim**(085 쌍 · compute_ops 는 08-19 의도적 공집합). 정정: *"우리층이 안 닿았다"* 가 아니라 — `write_rules`(specific:10318 · 격리 20/20)·`distinct_args`(:10344) 레버가 **실재하되 write-point 전달 레버가 기본 OFF·미발화**([[81]] delivered-where) |
 
 **★코드 결합 발견 (P9 에 박제)**: `searchexhaust` 재생성은 `t2_gate_patch.py:14432`
@@ -2713,7 +2724,7 @@ to **investigate before closing**"*. CLOSE 의 실행 전건은 *"customer wants
 | 11 | **060** | D8 "None: None" 문면 재생성이 close 를 밀어 순서 파괴 — 7/7 action_match=True ∧ db_match=False(env "Account eligibility requirements not met") · PLAUSIBLE(D9 폐기 초안 소실) | **부분(조건부 닫힘)** — env 거부문이 전제조건 실재 자백·[[50]] 3조건 형이나, `close_bank_account` 가 `write_evidence_specs` 14키 밖 + [ORDER] 정책 문장 부재 자백(D13 · gate.json:4653) ⇒ env 축자 확보 전제로만 성립 · 인과는 D9 로 미확정 | ① D8 스키마 정합(`what`→`claim` — C군 기확정) ② D9 폐기 원문 원장(판정 전제·수리 1순위) ③ close 전제조건의 write_evidence_specs 등재(env 축자 출처 · 선언층 [[05]] 적법 · [[72]] 완결) | 전제 기충족 상태의 위양성 deny(턴 비용) + push 축 잔존(D14 수리 후에도) |
 | 12 | **063** | account_class 값-고정(Gold) — READ-FIRST 4건 정상 회수로 원인 배제 · 별건 자격술어(최소잔액) 미검사 | **열림(B 원리락)** — 범주 선택=모델 값-판단([[13]]) · 닫힌 근사 기측정-실패: x509 축자 "표를 줘도 057·063 0/6" · D5 철회 완료 — 더하기로 안 닫힘([[63]]) | pin 없음 — 유일 닫힌 잔여 = **제거형** 도구측 자격술어(잔액≥KB 최소 미달 시 확인 거절+부족액 실명 [[64]])는 발현 n=1·미재현으로 §1f-5 #7 **측정 선행** | what-if 문의 거절 → W-5 재발화 루프 · 기측정 0/6 경로 재제안 금지([[40]]/[[74]]) |
 | 13 | **067** | 자재-실재 — 카드 로스터가 서브 `ctx[-8:]` 창 밖(t2_resolve.py:1076) → `applies=false`×3 은 자재결손의 **옳은 답** → MISSING1 (007 정확 재현) | **부분(격리조건부)** — «선언 재료의 서브 도달» 술어는 닫힘([[71]] 선언 id→cat) · 갈림(재료↔판단 결손)은 **재격리가 판정**: 로스터+기준 주입 → Platinum 산출이면 닫힌 배선 결손([[78]]), 오답 지속이면 열림(B 락 · [[76]] 서브 수리) | 재격리 통과 시 = 선언 급양 배선(창 확장 아님). 승격 전 의무 인용: x509 ⑦ "x516·x517 둘 다 gold 0/39 ⇒ 경로 없음" + 차이 소명(모델 주입 아닌 **격리 서브 급양** — 소비부가 다름) · gate.json:271 DISCARD 선인용 | 컨텍스트/prefix 캐시 비용([[83]]) · 소명 실패 시 기실패 경로 재구매 |
-| 14 | **068** | WRONGARG1 'Green Account (checking)' ↔ gold 'Green Account' — env-KB 함정(msg7 이 괄호형을 유효 예시로 못박음) · `T2_SIBLING_PAREN` 정확 탐지+수리값 지목했으나 **log-only 미무장**([[81]] · :13306-13316) | **닫힘(기판정 유지 · C군 «STRIP»)** — 괄호↔무괄호 형제쌍 = DB 실명 대조 문자열 술어 · 정본 §T-8(FAILURE_AXIS :2476-2586) 재유도 금지 | 결정론 괄호-STRIP **무장**(deny 금지 — W-5 축자 "반려를 받고도 같은 값 … 최다 18회") · 무장 게이트 = §T-8 반대 팔 A/B + 반려 후 괄호 제거율 부호표 — **실측 전 무장 금지** | gold 가 괄호 포함 공식명을 요구하는 자리의 손상 — env 스스로 괄호형 유효를 못박아 반대편 실재 |
+| 14 | **068** | WRONGARG1 'Green Account (checking)' ↔ gold 'Green Account' — env-KB 함정(msg7 이 괄호형을 유효 예시로 못박음) · `T2_SIBLING_PAREN` 정확 탐지+수리값 지목했으나 **log-only 미무장**([[81]] · :13306-13316) | **닫힘(기판정 유지 · C군 «STRIP»)** — 괄호↔무괄호 형제쌍 = DB 실명 대조 문자열 술어 · 정본 §T-8(FAILURE_AXIS :2476-2586) 재유도 금지 | 결정론 괄호-STRIP **무장**(deny 금지 — W-5 축자 "반려를 받고도 같은 값 … 최다 18회") · 무장 게이트 = §T-8 반대 팔 A/B + 반려 후 괄호 제거율 부호표 — **실측 전 무장 금지** <br>★**2026-09-05 게이트 충족 → 무장 완료**: `x771_068_effect.py` 가 회수분 전수(14,430 sim·135,650 호출)로 반대 팔 A/B 를 냈다 — 발화 103 · 갈림 3 · **해악 0** · NC 3/3. 무장 = `t2_gate_patch.py:3777` + `:13444`(`strip` 모드 한정) · 등재 `go_stack.sh:909` · `deny` 는 쓰지 않는다 | gold 가 괄호 포함 공식명을 요구하는 자리의 손상 — env 스스로 괄호형 유효를 못박아 반대편 실재 <br>★**실측**: 회수분 gold 문자열 3,590 중 괄호형은 **2건뿐이고 둘 다 `transfer_to_human_agents.summary`**(049_14·092_20) — `account_class` gold 에 괄호형 **0**. 즉 반대편은 **회수분에 실재하지 않는다**. ⚠단 env-KB 가 궤적에서 `'Green Account (checking)'` 을 **182회** 상품명으로 못박으므로 «미래 gold 가 괄호를 요구할» 가능성은 반증되지 않았다 — 술어가 «형제 인자 값의 되풀이»로 좁혀진 것(무차별 괄호 제거가 **아님**)이 유일한 유계 근거다 |
 
 ### ② 집계 — «flip 바닥 중 압축 가능분» 첫 추정
 

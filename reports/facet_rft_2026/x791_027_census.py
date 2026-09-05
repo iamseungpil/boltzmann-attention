@@ -145,5 +145,8 @@ for p in PATHS:
             print("   RC   %s x%d" % (k, v))
         for k, v in fields.most_common(14):
             print("   FLD  %s x%d" % (k, v))
+        if os.environ.get("X791_FULL") == "1":
+            for ln in lines + ulines:
+                print("   RAW  %s" % ln[:240])
         sys.stdout.flush()
 print("DONE")

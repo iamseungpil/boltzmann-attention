@@ -3,6 +3,15 @@
  "date": "2026-08-28",
  "rows": [
   {
+   "tag": "re8143p11_20260904_1053",
+   "obs": 1,
+   "kind": 1,
+   "short": 1,
+   "over": 0,
+   "fired": 1,
+   "self_close": 1
+  },
+  {
    "tag": "t7370_radius_20260828",
    "obs": 15,
    "kind": 15,
@@ -82,15 +91,159 @@
    "over": 0,
    "fired": 0,
    "self_close": 2
+  },
+  {
+   "tag": "t7378_074_20260828",
+   "obs": 19,
+   "kind": 19,
+   "short": 0,
+   "over": 15,
+   "fired": 0,
+   "self_close": 19
+  },
+  {
+   "tag": "t7378_074_20260828_smoke",
+   "obs": 2,
+   "kind": 2,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 2
+  },
+  {
+   "tag": "t7379_072dump_20260828",
+   "obs": 6,
+   "kind": 6,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 6
+  },
+  {
+   "tag": "t7379_072dump_20260828_smoke",
+   "obs": 2,
+   "kind": 2,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 2
+  },
+  {
+   "tag": "t7380_074fix_20260828_smoke",
+   "obs": 2,
+   "kind": 2,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 2
+  },
+  {
+   "tag": "t7383_vsmoke_20260828",
+   "obs": 2,
+   "kind": 2,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 2
+  },
+  {
+   "tag": "t7383_vsmoke_20260828_smoke",
+   "obs": 1,
+   "kind": 1,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 1
+  },
+  {
+   "tag": "t7385_hA1_20260829",
+   "obs": 24,
+   "kind": 21,
+   "short": 0,
+   "over": 13,
+   "fired": 13,
+   "self_close": 24
+  },
+  {
+   "tag": "t7385_hA1_20260829_smoke",
+   "obs": 1,
+   "kind": 1,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 1
+  },
+  {
+   "tag": "t7386_hA2_20260829",
+   "obs": 36,
+   "kind": 33,
+   "short": 0,
+   "over": 26,
+   "fired": 26,
+   "self_close": 36
+  },
+  {
+   "tag": "t7386_hA2_20260829_smoke",
+   "obs": 1,
+   "kind": 1,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 1
+  },
+  {
+   "tag": "t7387_hB1_20260829",
+   "obs": 4,
+   "kind": 1,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 7
+  },
+  {
+   "tag": "t7387_hB1_20260829_smoke",
+   "obs": 2,
+   "kind": 2,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 2
+  },
+  {
+   "tag": "t7388_hB2_20260829",
+   "obs": 4,
+   "kind": 1,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 19
+  },
+  {
+   "tag": "t7388_hB2_20260829_smoke",
+   "obs": 2,
+   "kind": 2,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 2
+  },
+  {
+   "tag": "x712_nightA_20260901",
+   "obs": 30,
+   "kind": 13,
+   "short": 8,
+   "over": 3,
+   "fired": 11,
+   "self_close": 32
   }
  ],
  "totals": {
-  "obs": 58,
-  "kind": 53,
-  "short": 11,
-  "over": 16,
-  "fired": 8,
-  "self_close": 24
+  "obs": 197,
+  "kind": 163,
+  "short": 20,
+  "over": 73,
+  "fired": 59,
+  "self_close": 183
  },
  "limits": [
   "종류 선언 계기는 t7370 부터라 그 전 런은 분모가 없다.",
