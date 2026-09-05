@@ -621,7 +621,7 @@ export T2_RETURN_EMPTY=1
 #   ⇒ 산 것은 길이가 아니라 내용([[57]]) · A_asis 가 라이브 오답 키를 재현하므로 공정([[62]]2b).
 #   하는 일은 **전달 하나** — env 가 앞서 보낸 응답을 자르지도 고르지도 않고 되붙인다.
 #   값 선택은 전부 모델 몫이고 술어에 도메인 낱말이 0 이다([[05]] 전이).
-export T2_SPEC_AT_WRITE=0
+export T2_SPEC_AT_WRITE=${T2_SPEC_AT_WRITE:-0}
 export T2_SPEC_AT_WRITE_MIN=8     # 재료가 이만큼 뒤일 때만 — 바로 앞이면 되붙일 이유가 없다
 
 # ★스키마 enum 조회 (`T2_SCHEMA_ENUM`·기본 OFF·2026-08-25 선언 누락분 소급).
@@ -643,24 +643,24 @@ export T2_SG_PROMPT_V2=0
 #   — 085 접수 분쟁 **전건** · 040 은 gold 8건을 축자 접수하고도 `db_match=false`(8/8 어긋남).
 #   env 가 문자열을 받아 저장하므로 호출은 성공하고 채점만 조용히 실패한다.
 #   ⚠엔진은 값을 바꾸지 않는다 — 선언된 타입만 알리고 모델이 다시 낸다([[62]]③④).
-export T2_WRITE_ARG_TYPE=0
+export T2_WRITE_ARG_TYPE=${T2_WRITE_ARG_TYPE:-0}
 
 # ★선언된 절차 문장을 write 결정점에 (`T2_RULE_AT_WRITE`·기본 OFF·2026-08-25·격리 x537).
 #   창 그대로 0/12 ↔ 문장 한 줄 12/12 ↔ 같은 길이 무관 문장 0/12. 검색·순위 0(선언 읽기).
-export T2_RULE_AT_WRITE=0
+export T2_RULE_AT_WRITE=${T2_RULE_AT_WRITE:-0}
 
 # ★자리표시자로 채운 인자 (`T2_WRITE_ARG_FAB`·기본 OFF·2026-08-25).
 #   술어 셋 전부 **선언이거나 값의 모양**이고 이름 패턴 0: env 가 string 이라 선언 + 열거 아님
 #   + 자리표시자 모양(연속·동일 자릿수 4) + 문맥 부재. t7354 6배치 전수 실측 20건 전부 진짜
 #   날조(`card_last_4_digits='1234'` 12 · `transaction_id='TRXN123456789x'` 8)·오차단 0.
 #   ⚠이름 패턴판(`identifying_arg_types.digit`)은 2026-08-25 사용자 지적으로 **철회**했다.
-export T2_WRITE_ARG_FAB=0
+export T2_WRITE_ARG_FAB=${T2_WRITE_ARG_FAB:-0}
 
 # ★서브에게 주는 레코드 덤프의 순서 (`T2_SG_RECORD_ORDER`·기본 OFF·2026-08-25·격리 x536/x539).
 #   x536(4계좌×6팔×3=72샘플): 같은 6,752자 원문을 순서만 바꾸면 갈린다 —
 #   N_wire 17/17/17(기대 16) ↔ D_old_group 16/16/16 ↔ **N_scramble(무의미 순서)은 두 계좌를 부순다**
 #   ⇒ 산 것은 재렌더링이 아니라 순서의 내용([[57]] 통과). 엔진이 쓰는 문장 0·값 0·판단 0.
-export T2_SG_RECORD_ORDER=0
+export T2_SG_RECORD_ORDER=${T2_SG_RECORD_ORDER:-0}
 
 # ★전사 행 수 검산 (`T2_SG_ROW_COUNT`·기본 OFF·2026-08-28·닫힌 술어·[[22]]·[[25]]).
 #   술어 = 서브가 넘긴 배열 길이 < 원천에서 센 **선언된 종류**(`isolate.row_kind`)의 레코드 수.
@@ -773,7 +773,7 @@ export T2_EPLAN_ENUM_SUBTRACT=0
 
 export T2_PROCEDURE_LEFT=0
 
-export T2_ARG_POLICY_AT_WRITE=0
+export T2_ARG_POLICY_AT_WRITE=${T2_ARG_POLICY_AT_WRITE:-0}
 export T2_ARG_POLICY_CAP=4000
 
 # ★손님-측 도구 미전달 (`T2_GIVE_REQUIRED`·기본 OFF·2026-08-26).
