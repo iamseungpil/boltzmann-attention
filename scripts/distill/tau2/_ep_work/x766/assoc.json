@@ -1,0 +1,1227 @@
+{
+ "CLAIM-PROVENANCE": [],
+ "ISOLATED-FORMALIZATION": [],
+ "OPERATOR-SCOPE": [
+  {
+   "file": "t2_resolve.py",
+   "line": 118,
+   "near": [
+    [
+     "operands",
+     111
+    ]
+   ]
+  }
+ ],
+ "OPERATOR-PROVENANCE": [
+  {
+   "file": "t2_resolve.py",
+   "line": 215,
+   "near": []
+  }
+ ],
+ "SIGNATURE": [
+  {
+   "file": "t2_signature.py",
+   "line": 25,
+   "near": [
+    [
+     "tool_signatures",
+     6
+    ]
+   ]
+  }
+ ],
+ "VALUE-ACQUIRE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 2596,
+   "near": []
+  },
+  {
+   "file": "t2_speak.py",
+   "line": 6,
+   "near": [
+    [
+     "procedures",
+     35
+    ]
+   ]
+  }
+ ],
+ "UNLOCKED-NOT-CALLED": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14389,
+   "near": [
+    [
+     "follow_up_chains",
+     21
+    ],
+    [
+     "dispatcher_role_check",
+     40
+    ],
+    [
+     "search_exhaust_escalation",
+     131
+    ],
+    [
+     "scaffold_get_tools",
+     145
+    ]
+   ]
+  }
+ ],
+ "SEARCH-EXHAUST": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14514,
+   "near": [
+    [
+     "search_exhaust_escalation",
+     6
+    ],
+    [
+     "scaffold_get_tools",
+     20
+    ],
+    [
+     "follow_up_chains",
+     59
+    ],
+    [
+     "tool_unlock_hint",
+     91
+    ]
+   ]
+  }
+ ],
+ "WRITE-EVIDENCE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 1837,
+   "near": []
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 1980,
+   "near": []
+  }
+ ],
+ "WRITE-GROUNDING": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 2159,
+   "near": []
+  },
+  {
+   "file": "t2_handoff_ground.py",
+   "line": 108,
+   "near": []
+  }
+ ],
+ "PROCEDURE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 1904,
+   "near": []
+  },
+  {
+   "file": "t2_speak.py",
+   "line": 7,
+   "near": [
+    [
+     "procedures",
+     34
+    ]
+   ]
+  }
+ ],
+ "DISCOVERY-REQUIRED": [
+  {
+   "file": "t2_resolve.py",
+   "line": 333,
+   "near": [
+    [
+     "operands",
+     90
+    ],
+    [
+     "action_tools",
+     115
+    ]
+   ]
+  },
+  {
+   "file": "t2_resolve.py",
+   "line": 750,
+   "near": [
+    [
+     "eplan",
+     16
+    ],
+    [
+     "gates",
+     30
+    ],
+    [
+     "write_initiation",
+     34
+    ],
+    [
+     "dispatcher_role_check",
+     124
+    ],
+    [
+     "action_tools",
+     133
+    ]
+   ]
+  }
+ ],
+ "DISCOVERY-STEP2": [
+  {
+   "file": "t2_resolve.py",
+   "line": 354,
+   "near": [
+    [
+     "operands",
+     69
+    ],
+    [
+     "action_tools",
+     94
+    ],
+    [
+     "eplan",
+     140
+    ]
+   ]
+  },
+  {
+   "file": "t2_resolve.py",
+   "line": 364,
+   "near": [
+    [
+     "operands",
+     59
+    ],
+    [
+     "action_tools",
+     84
+    ],
+    [
+     "eplan",
+     130
+    ]
+   ]
+  }
+ ],
+ "ORDER": [
+  {
+   "file": "t2_dominance.py",
+   "line": 66,
+   "near": [
+    [
+     "gates",
+     36
+    ],
+    [
+     "arbitration",
+     52
+    ]
+   ]
+  },
+  {
+   "file": "t2_dominance.py",
+   "line": 125,
+   "near": [
+    [
+     "arbitration",
+     7
+    ],
+    [
+     "gates",
+     23
+    ]
+   ]
+  },
+  {
+   "file": "t2_dominance.py",
+   "line": 335,
+   "near": [
+    [
+     "arbitration",
+     24
+    ],
+    [
+     "gates",
+     74
+    ],
+    [
+     "scaffold_get_tools",
+     117
+    ]
+   ]
+  },
+  {
+   "file": "t2_pin_read.py",
+   "line": 119,
+   "near": [
+    [
+     "eplan",
+     119
+    ]
+   ]
+  },
+  {
+   "file": "t2_source.py",
+   "line": 367,
+   "near": [
+    [
+     "dispatcher_role_check",
+     3
+    ],
+    [
+     "arbitration",
+     32
+    ]
+   ]
+  },
+  {
+   "file": "t2_source.py",
+   "line": 371,
+   "near": [
+    [
+     "dispatcher_role_check",
+     7
+    ],
+    [
+     "arbitration",
+     36
+    ]
+   ]
+  },
+  {
+   "file": "t2_stack.py",
+   "line": 732,
+   "near": []
+  },
+  {
+   "file": "t2_stack.py",
+   "line": 1027,
+   "near": []
+  },
+  {
+   "file": "t2_window.py",
+   "line": 10,
+   "near": []
+  }
+ ],
+ "PROVENANCE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 1640,
+   "near": []
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 1652,
+   "near": []
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 1661,
+   "near": []
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 3302,
+   "near": [
+    [
+     "gates",
+     43
+    ],
+    [
+     "write_arg_enum",
+     97
+    ],
+    [
+     "choice_grounding",
+     112
+    ],
+    [
+     "recommendation_verify",
+     119
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 3311,
+   "near": [
+    [
+     "gates",
+     34
+    ],
+    [
+     "write_arg_enum",
+     88
+    ],
+    [
+     "choice_grounding",
+     103
+    ],
+    [
+     "recommendation_verify",
+     110
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 7263,
+   "near": []
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 13618,
+   "near": [
+    [
+     "follow_up_chains",
+     139
+    ]
+   ]
+  }
+ ],
+ "ARG-EMPTY": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 2206,
+   "near": []
+  }
+ ],
+ "TRANSFER-REASON": [],
+ "OFFICIAL-NAME": [],
+ "ACTION": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 10521,
+   "near": [
+    [
+     "action_tools",
+     150
+    ]
+   ]
+  },
+  {
+   "file": "t2_role.py",
+   "line": 7,
+   "near": []
+  }
+ ],
+ "ACTION-REQUIRED": [
+  {
+   "file": "t2_resolve.py",
+   "line": 313,
+   "near": [
+    [
+     "operands",
+     110
+    ],
+    [
+     "action_tools",
+     135
+    ]
+   ]
+  }
+ ],
+ "TOOL-CHANNEL": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 15154,
+   "near": [
+    [
+     "choice_grounding",
+     18
+    ],
+    [
+     "assertion_operands",
+     58
+    ],
+    [
+     "analysis_producers",
+     75
+    ]
+   ]
+  }
+ ],
+ "SOURCE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 5872,
+   "near": [
+    [
+     "policy_ontology",
+     65
+    ],
+    [
+     "eplan",
+     116
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 10583,
+   "near": [
+    [
+     "arbitration",
+     137
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 10904,
+   "near": []
+  },
+  {
+   "file": "t2_ledger.py",
+   "line": 21,
+   "near": [
+    [
+     "ledger_metrics",
+     93
+    ]
+   ]
+  },
+  {
+   "file": "t2_ledger.py",
+   "line": 1235,
+   "near": []
+  },
+  {
+   "file": "t2_source.py",
+   "line": 192,
+   "near": [
+    [
+     "dispatcher_role_check",
+     133
+    ],
+    [
+     "arbitration",
+     143
+    ]
+   ]
+  }
+ ],
+ "DUPLICATE-WRITE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 6129,
+   "near": [
+    [
+     "write_once_keys",
+     62
+    ],
+    [
+     "eplan",
+     141
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 6138,
+   "near": [
+    [
+     "write_once_keys",
+     71
+    ],
+    [
+     "eplan",
+     150
+    ]
+   ]
+  }
+ ],
+ "DUPLICATE-READ": [
+  {
+   "file": "t2_fbsidecar.py",
+   "line": 12,
+   "near": []
+  },
+  {
+   "file": "t2_forensic.py",
+   "line": 1102,
+   "near": []
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 7643,
+   "near": [
+    [
+     "eplan",
+     150
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 7909,
+   "near": [
+    [
+     "gates",
+     108
+    ],
+    [
+     "ledger_metrics",
+     121
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 7915,
+   "near": [
+    [
+     "gates",
+     102
+    ],
+    [
+     "ledger_metrics",
+     115
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14461,
+   "near": [
+    [
+     "follow_up_chains",
+     47
+    ],
+    [
+     "search_exhaust_escalation",
+     59
+    ],
+    [
+     "scaffold_get_tools",
+     73
+    ],
+    [
+     "dispatcher_role_check",
+     112
+    ],
+    [
+     "tool_unlock_hint",
+     144
+    ]
+   ]
+  },
+  {
+   "file": "t2_repeat_gov.py",
+   "line": 21,
+   "near": []
+  },
+  {
+   "file": "t2_repeat_gov.py",
+   "line": 25,
+   "near": []
+  }
+ ],
+ "E-PLAN": [
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 464,
+   "near": []
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 544,
+   "near": []
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 547,
+   "near": []
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 883,
+   "near": [
+    [
+     "gates",
+     30
+    ]
+   ]
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 887,
+   "near": [
+    [
+     "gates",
+     34
+    ]
+   ]
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 922,
+   "near": [
+    [
+     "gates",
+     69
+    ]
+   ]
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 928,
+   "near": [
+    [
+     "gates",
+     75
+    ]
+   ]
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 944,
+   "near": [
+    [
+     "gates",
+     91
+    ]
+   ]
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 950,
+   "near": [
+    [
+     "gates",
+     97
+    ]
+   ]
+  },
+  {
+   "file": "t2_eplan_patch.py",
+   "line": 961,
+   "near": [
+    [
+     "gates",
+     87
+    ]
+   ]
+  }
+ ],
+ "REFERENCE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 9410,
+   "near": [
+    [
+     "reference_filter",
+     16
+    ],
+    [
+     "compute_ops",
+     26
+    ],
+    [
+     "ref_iso",
+     32
+    ],
+    [
+     "eplan",
+     57
+    ],
+    [
+     "procedures",
+     62
+    ],
+    [
+     "discoverable_name_check",
+     83
+    ]
+   ]
+  }
+ ],
+ "PRESCRIPTION": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 11532,
+   "near": [
+    [
+     "dispatcher_role_check",
+     8
+    ],
+    [
+     "prescription_redirect",
+     20
+    ],
+    [
+     "nonlisted_tool_feedback",
+     43
+    ],
+    [
+     "eplan",
+     112
+    ],
+    [
+     "discoverable_name_check",
+     145
+    ]
+   ]
+  }
+ ],
+ "RECOMMEND-OFFER": [
+  {
+   "file": "t2_resolve.py",
+   "line": 999,
+   "near": [
+    [
+     "recommendation_verify",
+     115
+    ],
+    [
+     "action_tools",
+     116
+    ],
+    [
+     "eplan",
+     124
+    ],
+    [
+     "dispatcher_role_check",
+     125
+    ]
+   ]
+  }
+ ],
+ "WORK-INCOMPLETE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 9837,
+   "near": [
+    [
+     "require_doc_before",
+     53
+    ],
+    [
+     "withdrawn_row_check",
+     105
+    ]
+   ]
+  }
+ ],
+ "GIVE-EXEC": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14357,
+   "near": [
+    [
+     "dispatcher_role_check",
+     8
+    ],
+    [
+     "follow_up_chains",
+     53
+    ]
+   ]
+  }
+ ],
+ "KB DELIVERY": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 4365,
+   "near": [
+    [
+     "require_doc_before",
+     43
+    ]
+   ]
+  }
+ ],
+ "FOLLOW-UP": [],
+ "COVERAGE-FOLLOWUP": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14309,
+   "near": [
+    [
+     "dispatcher_role_check",
+     38
+    ],
+    [
+     "follow_up_chains",
+     101
+    ]
+   ]
+  }
+ ],
+ "UNAVAILABLE-CAPABILITY": [],
+ "PROTOCOL": [],
+ "VERDICT": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 177,
+   "near": [
+    [
+     "policy_ontology",
+     40
+    ],
+    [
+     "gates",
+     64
+    ],
+    [
+     "producers",
+     68
+    ],
+    [
+     "identifying_arg_types",
+     70
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14434,
+   "near": [
+    [
+     "follow_up_chains",
+     20
+    ],
+    [
+     "dispatcher_role_check",
+     85
+    ],
+    [
+     "search_exhaust_escalation",
+     86
+    ],
+    [
+     "scaffold_get_tools",
+     100
+    ]
+   ]
+  }
+ ],
+ "TRUNCATED": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14183,
+   "near": [
+    [
+     "dispatcher_role_check",
+     17
+    ]
+   ]
+  }
+ ],
+ "OPERATOR-SELECT": [
+  {
+   "file": "t2_resolve.py",
+   "line": 95,
+   "near": [
+    [
+     "operands",
+     88
+    ]
+   ]
+  }
+ ],
+ "DECIDE-FIRST": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 3557,
+   "near": [
+    [
+     "write_rules",
+     15
+    ],
+    [
+     "eplan",
+     125
+    ],
+    [
+     "completion_guard",
+     133
+    ],
+    [
+     "scaffold_get_tools",
+     134
+    ],
+    [
+     "recommendation_verify",
+     136
+    ],
+    [
+     "value_acquisition",
+     140
+    ]
+   ]
+  }
+ ],
+ "REF-VERIFY": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 2089,
+   "near": []
+  }
+ ],
+ "UNVERIFIED-FOLLOWUP": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14332,
+   "near": [
+    [
+     "dispatcher_role_check",
+     16
+    ],
+    [
+     "follow_up_chains",
+     78
+    ]
+   ]
+  }
+ ],
+ "WRITE-PROVENANCE": [],
+ "DECLARATION": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 6589,
+   "near": []
+  }
+ ],
+ "ARG-SCHEMA": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 7191,
+   "near": []
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 15479,
+   "near": [
+    [
+     "transfer_reason_policy",
+     75
+    ]
+   ]
+  }
+ ],
+ "ARG-AXIS": [
+  {
+   "file": "t2_resolve.py",
+   "line": 807,
+   "near": [
+    [
+     "gates",
+     27
+    ],
+    [
+     "eplan",
+     41
+    ],
+    [
+     "dispatcher_role_check",
+     67
+    ],
+    [
+     "action_tools",
+     76
+    ],
+    [
+     "write_initiation",
+     91
+    ]
+   ]
+  }
+ ],
+ "UNINSTRUCTABLE": [],
+ "UNKNOWN-TOOL REPEAT": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14255,
+   "near": [
+    [
+     "dispatcher_role_check",
+     16
+    ]
+   ]
+  }
+ ],
+ "TOOL-CALL ENVELOPE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 14160,
+   "near": [
+    [
+     "dispatcher_role_check",
+     40
+    ]
+   ]
+  }
+ ],
+ "SPEC-AT-WRITE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 3441,
+   "near": [
+    [
+     "recommendation_verify",
+     20
+    ],
+    [
+     "choice_grounding",
+     27
+    ],
+    [
+     "write_arg_enum",
+     42
+    ],
+    [
+     "gates",
+     96
+    ],
+    [
+     "write_rules",
+     101
+    ]
+   ]
+  }
+ ],
+ "RULE-AT-WRITE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 3498,
+   "near": [
+    [
+     "write_rules",
+     44
+    ],
+    [
+     "recommendation_verify",
+     77
+    ],
+    [
+     "choice_grounding",
+     84
+    ],
+    [
+     "write_arg_enum",
+     99
+    ]
+   ]
+  }
+ ],
+ "POLICY-CAP": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 1733,
+   "near": []
+  }
+ ],
+ "RECOMMEND-VERIFY": [
+  {
+   "file": "t2_resolve.py",
+   "line": 992,
+   "near": [
+    [
+     "action_tools",
+     109
+    ],
+    [
+     "eplan",
+     117
+    ],
+    [
+     "dispatcher_role_check",
+     118
+    ],
+    [
+     "recommendation_verify",
+     122
+    ]
+   ]
+  }
+ ],
+ "DUPLICATE-COMPUTE": [
+  {
+   "file": "t2_forensic.py",
+   "line": 1102,
+   "near": []
+  },
+  {
+   "file": "t2_scaffold_get.py",
+   "line": 1978,
+   "near": []
+  }
+ ],
+ "PROCEDURE-INCOMPLETE": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 9848,
+   "near": [
+    [
+     "require_doc_before",
+     64
+    ],
+    [
+     "withdrawn_row_check",
+     116
+    ]
+   ]
+  }
+ ],
+ "CONSISTENCY": [
+  {
+   "file": "t2_gate_patch.py",
+   "line": 2965,
+   "near": [
+    [
+     "relations",
+     127
+    ],
+    [
+     "arg_source_reads",
+     128
+    ]
+   ]
+  },
+  {
+   "file": "t2_gate_patch.py",
+   "line": 2971,
+   "near": [
+    [
+     "relations",
+     133
+    ],
+    [
+     "arg_source_reads",
+     134
+    ]
+   ]
+  }
+ ],
+ "SILENCED": [
+  {
+   "file": "t2_speak.py",
+   "line": 82,
+   "near": [
+    [
+     "procedures",
+     41
+    ]
+   ]
+  }
+ ],
+ "REDACTED": []
+}

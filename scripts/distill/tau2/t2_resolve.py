@@ -147,7 +147,7 @@ def _tool_scope(agent, name, cap=160):
 
 
 def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=None,
-                     declared_required=None, a2=None):
+                     declared_required=None, a2=None, call_tool=None):
     """operator(도구명) operand 해소. 반환 {status: ok|deny, reason, feedback}.
     ★리뷰 U3: operator=operand는 discoverable 아키텍처서만 성립(§8b agent_tool_name=명시인자).
       direct-dispatch(retail/airline)는 도구선택이 인자 아님 → operator-해소 없음(GATE/L7 관할).
@@ -261,6 +261,30 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
             #     (`_is_effective_write`·A2 파생)라 태스크 id 로 켜는 [[05]] 위반이 아니다.
             #   ⚠파는 것: 읽기 오선택을 **더는 지적하지 않는다**. 그 값이 양수였다는 증거는
             #     아직 없다(49/61 이 그대로 실행됐다). 음성이면 `T2_SCOPE_ALL=1` 로 되돌린다.
+            # ★수리(092·x771 효과프로브 PROBE-PASS): 되돌릴 수 없는 자리는
+            #   **실행하는 호출**뿐이다. unlock 은 아무 것도 수행하지 않는다 —
+            #   우리 자신의 문면이 그렇게 말한다(`[UNLOCKED-NOT-CALLED] Unlocking only
+            #   makes a tool available — it performs nothing.`). 바로 위 x550 §2 술어가
+            #   「되돌릴 수 없는가」를 operand(chosen)로만 재는데, **호출 자리**가
+            #   빠져 있었다 — unlock 자리의 반려는 아무 write 도 막지 못하면서
+            #   형제 호출까지 [BLOCKED] 시키고 재생성이 턴을 갈아치운다(092 실측:
+            #   초안 2호출 → 재생성 1호출 → gold operand 최종 궤적 0회).
+            #   실행 자리는 A2 가 이미 선언했다(`eplan.dispatch_tool`) — 엔진 리터럴
+            #   0([[05]]·NC-3 이 「선언을 빼면 갈림이 사라짐」을 실측). 닫힌 술어
+            #   (문자열 동일성)뿐이라 [[22]]/[[59]] 안전.
+            #   ⚠[[60]] 끄기가 아니라 **자리 옮기기**다 — dispatch 자리에서는 그대로
+            #     발화한다(NC-2 실측). 파는 것 = unlock 자리의 사전경고 한 턴.
+            _disp = ((a2 or {}).get("eplan") or {}).get("dispatch_tool")
+            #   되돌리기 노브 = `T2_SCOPE_AT_DISPATCH_ONLY=0`(기본 1=켜짐).
+            #   ⚠`T2_SCOPE_ALL=1` 은 이 가드를 되돌리지 **못한다** — 가드가 그
+            #     검사보다 위에 있다(2026-09-05 실측). 되돌리려면 이 노브를 써라.
+            if (os.environ.get("T2_SCOPE_AT_DISPATCH_ONLY", "1") == "1"
+                    and _disp and call_tool is not None
+                    and str(call_tool) != str(_disp)):
+                print("[T2_RESOLVE] operator-scope 침묵: call=%s 는 실행하지 않는다 - "
+                      "되돌릴 수 없는 자리는 dispatch=%s 뿐" % (call_tool, _disp),
+                      file=sys.stderr, flush=True)
+                return {"status": "ok"}
             if os.environ.get("T2_SCOPE_ALL") != "1":
                 try:
                     import t2_gate_patch as _g
@@ -1340,7 +1364,7 @@ def resolve_operand(opspec, tool, arg, args_dict, msgs, a2,
                 _t = _nd.get("tool") or _nd.get("tools")
                 _req |= set(_t if isinstance(_t, list) else ([_t] if _t else []))
         return resolve_operator(opspec, args_dict, msgs, agent, la, UserMessage,
-                                declared_required=_req, a2=a2)
+                                declared_required=_req, a2=a2, call_tool=tool)
     if kind == "membership":
         import t2_gate_patch as _g
         spec = {"entity_key": opspec["entity_key"], "items_key": opspec["items_key"],

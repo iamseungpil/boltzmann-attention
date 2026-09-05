@@ -1,0 +1,7683 @@
+{
+ "lexicon": {
+  "banking_knowledge": [
+   "a2_only_ext_2026_07_11",
+   "a3_map",
+   "abroad",
+   "absent",
+   "absent_many",
+   "abusive_customer_behavior",
+   "accessibility_or_special_needs",
+   "account_class",
+   "account_closure_request",
+   "account_id",
+   "account_open",
+   "account_opening_date",
+   "account_ownership_dispute",
+   "account_records",
+   "account_type",
+   "accounts",
+   "acquire_tool",
+   "across",
+   "action_index",
+   "action_index_text",
+   "action_tool",
+   "activate_",
+   "activate_debit_card_8291",
+   "activate_debit_card_8292",
+   "activate_debit_card_8293",
+   "actual_apy",
+   "actual_field",
+   "after",
+   "against",
+   "age_field",
+   "age_text",
+   "agent_call",
+   "agent_runs_user_feedback",
+   "agent_tool_name",
+   "agent_via_user_feedback",
+   "aliases",
+   "align_field",
+   "always",
+   "amount",
+   "amount_difference",
+   "amount_param",
+   "amount_within_tier_cap",
+   "analysis_producers",
+   "anchor",
+   "annual_fee",
+   "annual_left",
+   "annual_percentage_yield",
+   "annual_referral_limit",
+   "answer_format",
+   "applies_when",
+   "apply_",
+   "apply_checking_account_credit",
+   "apply_checking_account_credit_5829",
+   "apply_credit_card_account_flag",
+   "apply_credit_card_account_flag_6147",
+   "apply_for_credit_card",
+   "apply_savings_account_credit",
+   "apply_savings_account_credit_6831",
+   "apply_statement_credit",
+   "apply_statement_credit_8472",
+   "approve_",
+   "approve_credit_limit_increase",
+   "approve_credit_limit_increase_5847",
+   "apy_above_threshold",
+   "apy_below_threshold",
+   "apy_bonus",
+   "apy_on_balance",
+   "apy_rate",
+   "apy_tiers",
+   "arbitration",
+   "arg_corpus_marker",
+   "arg_from_table",
+   "arg_producers",
+   "arg_source_reads",
+   "arg_table_unknown_key",
+   "arguments",
+   "array_fields",
+   "as_of",
+   "as_of_date",
+   "assertion_operands",
+   "atm_cash_discrepancy",
+   "atm_deposit",
+   "atm_deposit_not_credited",
+   "atm_withdrawal",
+   "automatic_sweep_program",
+   "axes_stated",
+   "axis_prompt",
+   "balance_source",
+   "balance_threshold",
+   "balance_threshold_for_higher_apy_tier",
+   "bank_accounts",
+   "bank_accounts_bank_accounts",
+   "banking_knowledge",
+   "base_cashback",
+   "base_rate",
+   "basis",
+   "basis_max_chars",
+   "basis_scope",
+   "beige",
+   "blue_account",
+   "bluest_account",
+   "bool_expr",
+   "booleans",
+   "bound",
+   "bronze",
+   "bronze_account",
+   "bronze_rewards_card",
+   "bronze_saver_account",
+   "bucket_month_window",
+   "business",
+   "business_bronze_rewards_card",
+   "business_checking",
+   "business_checking_accounts",
+   "business_credit_cards",
+   "business_credit_cards_silver_zoom_card",
+   "business_gold_rewards_card",
+   "business_platinum_rewards_card",
+   "business_savings",
+   "business_savings_accounts",
+   "business_silver_rewards_card",
+   "buy_now_pay_later_bnpl",
+   "by_class",
+   "by_tool",
+   "byref_field_map",
+   "byref_join",
+   "call_discoverable_agent_tool",
+   "call_discoverable_user_tool",
+   "cancel_and_reissue",
+   "canceled_subscription_still_charging",
+   "cap_exceeded",
+   "card_action",
+   "card_design",
+   "card_id",
+   "card_in_possession",
+   "card_last_4_digits",
+   "card_name",
+   "card_not_present_fraud",
+   "card_present_fraud",
+   "card_tier",
+   "card_type",
+   "case_facts_prompt",
+   "cases",
+   "cash_back_dispute",
+   "cashback",
+   "cashback_scope",
+   "catalog_arg_docs",
+   "catalog_arg_families",
+   "catalog_attrs",
+   "catalog_compute",
+   "catalog_filter",
+   "category",
+   "category_field",
+   "category_note",
+   "category_param",
+   "category_rates",
+   "change_",
+   "change_debit_card_pin_6285",
+   "change_user_email",
+   "chars",
+   "check_card_application_fit",
+   "check_card_closure_eligibility",
+   "check_cli_eligibility",
+   "check_rebate_qualification",
+   "checking",
+   "checking_account_id",
+   "checking_accounts",
+   "choice_grounding",
+   "claim_bindings",
+   "claim_question",
+   "clamp",
+   "clear_",
+   "clear_debit_card_fraud_alert_4892",
+   "close",
+   "close_",
+   "close_and_reissue",
+   "close_bank_account_7392",
+   "close_credit_card_account",
+   "close_credit_card_account_7834",
+   "close_debit_card_4721",
+   "closure_reason",
+   "cobalt_blue",
+   "company_max_age_years",
+   "compare",
+   "compare_ge",
+   "complete",
+   "complete_transfer",
+   "completion_guard",
+   "complex_billing_dispute",
+   "components",
+   "compute",
+   "compute_ops",
+   "conditional_fields",
+   "consecutive_on_time_payments",
+   "const",
+   "consumers",
+   "contacted_merchant",
+   "contains",
+   "content",
+   "cooldown",
+   "cooldown_days_by_tier",
+   "corpus",
+   "corpus_roles",
+   "count",
+   "credit_bureau_incident_escalation",
+   "credit_card_account_id",
+   "credit_card_account_logistics",
+   "credit_card_accounts",
+   "credit_card_apy_bonuses",
+   "credit_card_closure_retention",
+   "credit_card_replacements",
+   "credit_card_transaction_history",
+   "credit_card_type",
+   "credit_cards",
+   "credit_cards_diamond_elite_card",
+   "credit_cards_ecocard",
+   "credit_limit",
+   "credit_limit_increase",
+   "credit_score",
+   "criteria",
+   "criteria_fields",
+   "cue_any",
+   "current_balance",
+   "customer_frustrated_demands_human",
+   "customer_max_liability_amount",
+   "customer_products",
+   "customer_support",
+   "daily_atm_withdrawal_limit",
+   "dark_green_account",
+   "data_source",
+   "date_between",
+   "date_field",
+   "date_formats",
+   "date_in_window",
+   "date_of_account_open",
+   "date_of_birth",
+   "date_opened",
+   "days_between",
+   "days_since_earliest",
+   "deceased_account_holder",
+   "decide_candidates_text",
+   "decided_by_docs_text",
+   "decided_text",
+   "decision",
+   "decision_feedback",
+   "decision_tools",
+   "declarations",
+   "decline_transfer_count",
+   "default",
+   "default_field",
+   "default_reducer",
+   "delivery_option",
+   "delivery_template",
+   "deny_",
+   "deny_credit_limit_increase_5848",
+   "deposit_",
+   "deposit_check_3847",
+   "deposit_window_days",
+   "derivation",
+   "derived",
+   "derived_from",
+   "description",
+   "destination_account_id",
+   "detail_item_template",
+   "diagnose_prompt",
+   "diagnosed_text",
+   "diamond",
+   "diamond_elite_account",
+   "diamond_elite_card",
+   "diamond_vault",
+   "discoverable",
+   "discoverable_name_check",
+   "discoverable_tool_name",
+   "dispatch_args_key",
+   "dispatch_name_key",
+   "dispatch_targets",
+   "dispatch_tool",
+   "dispatcher_role_check",
+   "dispute_category",
+   "dispute_file",
+   "dispute_id",
+   "dispute_reason",
+   "dispute_type",
+   "disputed_amount",
+   "disputes",
+   "distinct_args",
+   "doc_bonuses",
+   "doc_business_checking_accounts_beige_001",
+   "doc_business_checking_accounts_beige_002",
+   "doc_business_checking_accounts_beige_003",
+   "doc_business_checking_accounts_beige_004",
+   "doc_business_checking_accounts_beige_005",
+   "doc_business_checking_accounts_beige_006",
+   "doc_business_checking_accounts_beige_007",
+   "doc_business_checking_accounts_beige_008",
+   "doc_business_checking_accounts_beige_009",
+   "doc_business_checking_accounts_beige_010",
+   "doc_business_checking_accounts_beige_011",
+   "doc_business_checking_accounts_beige_012",
+   "doc_buy_now_pay_later_bnpl_bronze_001",
+   "doc_buy_now_pay_later_bnpl_bronze_002",
+   "doc_buy_now_pay_later_bnpl_bronze_003",
+   "doc_buy_now_pay_later_bnpl_bronze_004",
+   "doc_buy_now_pay_later_bnpl_bronze_005",
+   "doc_buy_now_pay_later_bnpl_bronze_006",
+   "doc_buy_now_pay_later_bnpl_bronze_007",
+   "doc_buy_now_pay_later_bnpl_bronze_008",
+   "doc_buy_now_pay_later_bnpl_diamond_001",
+   "doc_buy_now_pay_later_bnpl_diamond_002",
+   "doc_buy_now_pay_later_bnpl_diamond_003",
+   "doc_buy_now_pay_later_bnpl_diamond_004",
+   "doc_buy_now_pay_later_bnpl_diamond_005",
+   "doc_buy_now_pay_later_bnpl_diamond_006",
+   "doc_buy_now_pay_later_bnpl_diamond_007",
+   "doc_buy_now_pay_later_bnpl_diamond_008",
+   "doc_buy_now_pay_later_bnpl_gold_001",
+   "doc_buy_now_pay_later_bnpl_gold_002",
+   "doc_buy_now_pay_later_bnpl_gold_003",
+   "doc_buy_now_pay_later_bnpl_gold_004",
+   "doc_buy_now_pay_later_bnpl_gold_005",
+   "doc_buy_now_pay_later_bnpl_gold_006",
+   "doc_buy_now_pay_later_bnpl_gold_007",
+   "doc_buy_now_pay_later_bnpl_gold_008",
+   "doc_buy_now_pay_later_bnpl_platinum_001",
+   "doc_buy_now_pay_later_bnpl_platinum_002",
+   "doc_buy_now_pay_later_bnpl_platinum_003",
+   "doc_buy_now_pay_later_bnpl_platinum_004",
+   "doc_buy_now_pay_later_bnpl_platinum_005",
+   "doc_buy_now_pay_later_bnpl_platinum_006",
+   "doc_buy_now_pay_later_bnpl_platinum_007",
+   "doc_buy_now_pay_later_bnpl_platinum_008",
+   "doc_buy_now_pay_later_bnpl_silver_001",
+   "doc_buy_now_pay_later_bnpl_silver_002",
+   "doc_buy_now_pay_later_bnpl_silver_003",
+   "doc_buy_now_pay_later_bnpl_silver_004",
+   "doc_buy_now_pay_later_bnpl_silver_005",
+   "doc_buy_now_pay_later_bnpl_silver_006",
+   "doc_buy_now_pay_later_bnpl_silver_007",
+   "doc_buy_now_pay_later_bnpl_silver_008",
+   "doc_checking_accounts_blue_account_001",
+   "doc_checking_accounts_blue_account_002",
+   "doc_checking_accounts_blue_account_003",
+   "doc_checking_accounts_blue_account_004",
+   "doc_checking_accounts_blue_account_005",
+   "doc_checking_accounts_blue_account_006",
+   "doc_checking_accounts_blue_account_007",
+   "doc_checking_accounts_blue_account_008",
+   "doc_checking_accounts_blue_account_009",
+   "doc_checking_accounts_blue_account_010",
+   "doc_checking_accounts_blue_account_011",
+   "doc_checking_accounts_blue_account_012",
+   "doc_checking_accounts_bluest_account_001",
+   "doc_checking_accounts_bluest_account_002",
+   "doc_checking_accounts_bluest_account_003",
+   "doc_checking_accounts_bluest_account_004",
+   "doc_checking_accounts_bluest_account_005",
+   "doc_checking_accounts_bluest_account_006",
+   "doc_checking_accounts_bluest_account_007",
+   "doc_checking_accounts_bluest_account_008",
+   "doc_checking_accounts_bluest_account_009",
+   "doc_checking_accounts_bluest_account_010",
+   "doc_checking_accounts_purple_account_001",
+   "doc_checking_accounts_purple_account_002",
+   "doc_checking_accounts_purple_account_003",
+   "doc_checking_accounts_purple_account_004",
+   "doc_checking_accounts_purple_account_005",
+   "doc_checking_accounts_purple_account_006",
+   "doc_checking_accounts_purple_account_007",
+   "doc_checking_accounts_purple_account_008",
+   "doc_checking_accounts_purple_account_009",
+   "doc_checking_accounts_purple_account_010",
+   "doc_checking_accounts_purple_account_011",
+   "doc_checking_accounts_purple_account_012",
+   "doc_company_age",
+   "doc_credit_cards_bronze_rewards_card_001",
+   "doc_credit_cards_bronze_rewards_card_002",
+   "doc_credit_cards_bronze_rewards_card_003",
+   "doc_credit_cards_bronze_rewards_card_004",
+   "doc_credit_cards_bronze_rewards_card_005",
+   "doc_credit_cards_bronze_rewards_card_006",
+   "doc_credit_cards_bronze_rewards_card_007",
+   "doc_credit_cards_bronze_rewards_card_008",
+   "doc_credit_cards_diamond_elite_card_001",
+   "doc_credit_cards_diamond_elite_card_002",
+   "doc_credit_cards_diamond_elite_card_003",
+   "doc_credit_cards_diamond_elite_card_004",
+   "doc_credit_cards_diamond_elite_card_005",
+   "doc_credit_cards_diamond_elite_card_006",
+   "doc_credit_cards_diamond_elite_card_007",
+   "doc_credit_cards_diamond_elite_card_008",
+   "doc_credit_cards_diamond_elite_card_009",
+   "doc_credit_cards_ecocard_001",
+   "doc_credit_cards_ecocard_002",
+   "doc_credit_cards_ecocard_003",
+   "doc_credit_cards_ecocard_004",
+   "doc_credit_cards_ecocard_005",
+   "doc_credit_cards_ecocard_006",
+   "doc_credit_cards_ecocard_007",
+   "doc_credit_cards_ecocard_008",
+   "doc_credit_cards_ecocard_009",
+   "doc_credit_cards_ecocard_010",
+   "doc_credit_cards_ecocard_011",
+   "doc_credit_cards_gold_rewards_card_001",
+   "doc_credit_cards_gold_rewards_card_002",
+   "doc_credit_cards_gold_rewards_card_003",
+   "doc_credit_cards_gold_rewards_card_004",
+   "doc_credit_cards_gold_rewards_card_005",
+   "doc_credit_cards_silver_rewards_card_001",
+   "doc_credit_cards_silver_rewards_card_002",
+   "doc_credit_cards_silver_rewards_card_003",
+   "doc_credit_cards_silver_rewards_card_004",
+   "doc_credit_cards_silver_rewards_card_005",
+   "doc_credit_cards_silver_rewards_card_006",
+   "doc_credit_cards_silver_rewards_card_007",
+   "doc_credit_cards_silver_rewards_card_008",
+   "doc_credit_cards_silver_rewards_card_009",
+   "doc_credit_cards_silver_rewards_card_010",
+   "doc_credit_cards_silver_rewards_card_011",
+   "doc_decide_prompt",
+   "doc_deposits",
+   "doc_everyone_pay_everyone_pay_001",
+   "doc_everyone_pay_everyone_pay_002",
+   "doc_everyone_pay_everyone_pay_003",
+   "doc_everyone_pay_everyone_pay_004",
+   "doc_everyone_pay_everyone_pay_005",
+   "doc_everyone_pay_everyone_pay_006",
+   "doc_everyone_pay_everyone_pay_007",
+   "doc_everyone_pay_everyone_pay_008",
+   "doc_everyone_pay_everyone_pay_009",
+   "doc_everyone_pay_everyone_pay_010",
+   "doc_everyone_pay_everyone_pay_011",
+   "doc_everyone_pay_everyone_pay_012",
+   "doc_everyone_pay_everyone_pay_013",
+   "doc_everyone_pay_everyone_pay_014",
+   "doc_everyone_pay_everyone_pay_015",
+   "doc_everyone_pay_qr_transfers_001",
+   "doc_everyone_pay_qr_transfers_002",
+   "doc_everyone_pay_qr_transfers_003",
+   "doc_everyone_pay_qr_transfers_004",
+   "doc_everyone_pay_qr_transfers_005",
+   "doc_everyone_pay_qr_transfers_006",
+   "doc_everyone_pay_qr_transfers_007",
+   "doc_everyone_pay_scheduled_payments_001",
+   "doc_everyone_pay_scheduled_payments_002",
+   "doc_everyone_pay_scheduled_payments_003",
+   "doc_everyone_pay_scheduled_payments_004",
+   "doc_everyone_pay_scheduled_payments_005",
+   "doc_everyone_pay_scheduled_payments_006",
+   "doc_everyone_pay_scheduled_payments_007",
+   "doc_everyone_pay_scheduled_payments_008",
+   "doc_everyone_pay_sending_limits_001",
+   "doc_everyone_pay_sending_limits_002",
+   "doc_everyone_pay_sending_limits_003",
+   "doc_everyone_pay_sending_limits_004",
+   "doc_everyone_pay_sending_limits_005",
+   "doc_everyone_pay_sending_limits_006",
+   "doc_everyone_pay_sending_limits_007",
+   "doc_everyone_pay_user_blocking_001",
+   "doc_everyone_pay_user_blocking_002",
+   "doc_everyone_pay_user_blocking_003",
+   "doc_everyone_pay_user_blocking_004",
+   "doc_everyone_pay_user_blocking_005",
+   "doc_everyone_pay_user_blocking_006",
+   "doc_index",
+   "doc_key",
+   "doc_limits",
+   "doc_minimums",
+   "doc_referred_bonuses",
+   "doc_savings_accounts_bronze_account_001",
+   "doc_savings_accounts_bronze_account_002",
+   "doc_savings_accounts_bronze_account_003",
+   "doc_savings_accounts_bronze_account_004",
+   "doc_savings_accounts_bronze_account_005",
+   "doc_savings_accounts_bronze_account_006",
+   "doc_savings_accounts_bronze_account_007",
+   "doc_savings_accounts_bronze_account_008",
+   "doc_savings_accounts_bronze_account_009",
+   "doc_savings_accounts_gold_account_001",
+   "doc_savings_accounts_gold_account_002",
+   "doc_savings_accounts_gold_account_003",
+   "doc_savings_accounts_gold_account_004",
+   "doc_savings_accounts_gold_account_005",
+   "doc_savings_accounts_gold_account_006",
+   "doc_savings_accounts_gold_account_007",
+   "doc_savings_accounts_gold_account_008",
+   "doc_savings_accounts_gold_account_009",
+   "doc_savings_accounts_gold_account_010",
+   "doc_savings_accounts_gold_account_011",
+   "doc_savings_accounts_gold_account_012",
+   "doc_savings_accounts_gold_account_013",
+   "doc_savings_accounts_gold_account_014",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_platinum_account_002",
+   "doc_savings_accounts_platinum_account_003",
+   "doc_savings_accounts_platinum_account_004",
+   "doc_savings_accounts_platinum_account_005",
+   "doc_savings_accounts_platinum_account_006",
+   "doc_savings_accounts_platinum_account_007",
+   "doc_savings_accounts_platinum_account_008",
+   "doc_savings_accounts_platinum_account_009",
+   "doc_savings_accounts_platinum_account_010",
+   "doc_savings_accounts_silver_account_001",
+   "doc_savings_accounts_silver_account_002",
+   "doc_savings_accounts_silver_account_003",
+   "doc_savings_accounts_silver_account_004",
+   "doc_savings_accounts_silver_account_005",
+   "doc_savings_accounts_silver_account_006",
+   "doc_savings_accounts_silver_account_007",
+   "doc_savings_accounts_silver_account_008",
+   "doc_savings_accounts_silver_account_009",
+   "doc_windows",
+   "documented_return_for_stated_spend",
+   "dominated_push_feedback",
+   "dup_field",
+   "duplicate_charge",
+   "duplicate_of",
+   "ecocard",
+   "edges",
+   "eligibility_line_template",
+   "eligibility_prompt",
+   "eligibility_values",
+   "eligible",
+   "eligible_for_provisional_credit",
+   "eligible_text",
+   "emerald_saver",
+   "emergency_credit_bureau_incident_transfer",
+   "emergency_escalation",
+   "enforce",
+   "enter_when",
+   "entry",
+   "enum_priority",
+   "event_map",
+   "evergreen_account",
+   "everyone_pay",
+   "evidence_from",
+   "exact",
+   "example",
+   "examples",
+   "exclusion_pin_kind",
+   "exclusion_policy_merchant",
+   "exclusion_quote",
+   "exhausted_text",
+   "expected",
+   "expected_apy",
+   "expected_ref",
+   "fail_feedback",
+   "fee_amount",
+   "feedback_not_discoverable",
+   "feedback_registry_listing",
+   "feedback_resolved",
+   "feedback_user_registry_listing",
+   "feedback_user_tool_is_agents",
+   "feedback_wrong_suffix",
+   "fetch_formalize",
+   "field",
+   "field_ops",
+   "field_sources",
+   "file_",
+   "file_credit_card_transaction_dispute",
+   "file_credit_card_transaction_dispute_4829",
+   "file_debit_card_transaction_dispute",
+   "file_debit_card_transaction_dispute_6281",
+   "finalize_writes",
+   "find_intent",
+   "focus",
+   "focus_annual_limit",
+   "focus_min_days",
+   "focus_prompt",
+   "follow_up",
+   "follow_up_chains",
+   "forbid_feedback",
+   "forbid_self_record_tokens",
+   "forbid_tokens",
+   "forbid_when_tokens",
+   "foreign",
+   "foreign_atm_total_usd",
+   "foreign_currency_holding",
+   "foreign_transaction_fee",
+   "formalize",
+   "formalize_prompt",
+   "forx_cnt",
+   "forx_fee",
+   "forx_free_per_month",
+   "forx_paid",
+   "forx_paid_raw",
+   "forx_total",
+   "forx_unit",
+   "fourth_standard",
+   "fraud",
+   "fraud_or_security_concern",
+   "fraudulent",
+   "free_oon_atm_per_month",
+   "free_text_defaults",
+   "freeze_",
+   "freeze_debit_card_3892",
+   "freeze_pending_investigation",
+   "from_ref_param",
+   "full_refund",
+   "function_agents",
+   "fx_fee",
+   "fx_fee_with_premium",
+   "gate_satisfiers",
+   "general",
+   "get_all_user_accounts_by_user_id",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_atm_deposit_images_8473",
+   "get_atm_fee_discrepancies",
+   "get_bank_account_transactions",
+   "get_bank_account_transactions_9173",
+   "get_card_last_4_digits",
+   "get_checking_atm_fee_totals",
+   "get_closure_reason_history",
+   "get_closure_reason_history_8293",
+   "get_correct_savings_apy",
+   "get_credit_card_accounts_by_user",
+   "get_credit_card_transactions_by_user",
+   "get_credit_limit_increase_history",
+   "get_credit_limit_increase_history_4829",
+   "get_current_time",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_dispute_status_7483",
+   "get_interest_correction",
+   "get_payment_history",
+   "get_payment_history_6183",
+   "get_pending_replacement_orders",
+   "get_pending_replacement_orders_5765",
+   "get_referral_link",
+   "get_referrals_by_user",
+   "get_reward_discrepancies",
+   "get_user_dispute_history",
+   "get_user_dispute_history_7291",
+   "get_user_information_by_email",
+   "get_user_information_by_id",
+   "get_user_information_by_name",
+   "getter",
+   "getter_tools",
+   "give_",
+   "give_agent_tool_feedback",
+   "give_discoverable_user_tool",
+   "give_tool",
+   "give_unknown_name_feedback",
+   "give_user_held_feedback",
+   "gold_account",
+   "gold_plus_account",
+   "gold_plus_saver",
+   "gold_rewards_card",
+   "gold_saver_account",
+   "gold_validation",
+   "gold_years_account",
+   "goods_services_not_as_described",
+   "goods_services_not_received",
+   "green",
+   "green_rewards_card",
+   "ground",
+   "grounded_args",
+   "grounded_params",
+   "group_arg",
+   "group_by",
+   "group_dup_policy_docs",
+   "group_field",
+   "group_map",
+   "group_prompt",
+   "group_reduce",
+   "groups_used_note",
+   "have_value_reask",
+   "holder_max_age_years",
+   "holder_min_age_years",
+   "hunter_green",
+   "id_key",
+   "id_pattern",
+   "id_ref",
+   "if_then",
+   "incident_transfer_order",
+   "incomplete_hint",
+   "incorrect_amount",
+   "ineligible_text",
+   "initial_first",
+   "initial_second",
+   "initial_transfer_to_human",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_1822",
+   "inject_docs",
+   "inject_instructions",
+   "inputs",
+   "instructions",
+   "intent_chains",
+   "intent_fields",
+   "interest_calculation_method",
+   "interest_compounding_frequency",
+   "interest_payment_frequency",
+   "interest_rate",
+   "invite_only",
+   "invited",
+   "isolate",
+   "judgment",
+   "keep_active",
+   "key_field",
+   "kind_field",
+   "kind_guidance",
+   "kind_prompt",
+   "kinds",
+   "label_field",
+   "last_approved_cli_submitted_date",
+   "last_complete",
+   "ledger",
+   "ledger_contains",
+   "ledger_metrics",
+   "ledger_tools",
+   "legal_or_regulatory_matter",
+   "level",
+   "light_blue_account",
+   "light_green_account",
+   "lime_green",
+   "limit_field",
+   "limit_max",
+   "limit_prompt",
+   "linked_checking_apy_bonus",
+   "list_discoverable",
+   "list_discoverable_agent_tools",
+   "list_from_reads",
+   "list_tool",
+   "log_credit_card_closure_reason",
+   "log_credit_card_closure_reason_4521",
+   "log_reason",
+   "log_verification",
+   "lookup_note",
+   "lookup_retry_prompt",
+   "lookup_table",
+   "management_dashboard",
+   "match_hint",
+   "match_verdict",
+   "match_verdict_grounded",
+   "max_age",
+   "max_annual_fee",
+   "max_batch",
+   "max_fx_fee",
+   "max_getter_calls",
+   "max_increase_pct_by_tier",
+   "max_min_payment_pct",
+   "max_rounds",
+   "max_sub_chars",
+   "max_utilization_pct_by_tier",
+   "measure",
+   "measurement",
+   "media_advertising",
+   "member_note",
+   "merchant",
+   "merchant_name",
+   "merged_requirement_feedback",
+   "met_template",
+   "min_account_age_days",
+   "min_account_age_days_by_tier",
+   "min_age",
+   "min_cashback",
+   "min_count",
+   "min_credit_limit",
+   "min_exclusive",
+   "min_payment_pct",
+   "min_score",
+   "minus_fields",
+   "missing_hint",
+   "monthly_deposit_limit",
+   "monthly_maintenance_fee",
+   "monthly_threshold",
+   "months",
+   "multiply",
+   "n_documented",
+   "name_args",
+   "name_pattern",
+   "name_rules",
+   "navy_blue",
+   "needs_purchase_protection",
+   "network",
+   "new_rewards_earned",
+   "no_record_template",
+   "no_record_template_v2",
+   "nodes",
+   "non_rho",
+   "nonlisted_tool_feedback",
+   "normalized",
+   "not_computable_note",
+   "not_in",
+   "not_instantiated",
+   "now_prompt",
+   "now_tool",
+   "number",
+   "objective_axis_prompt",
+   "objective_prompt",
+   "offer_name_key",
+   "offer_tool",
+   "on_ambiguous",
+   "on_fail",
+   "one_of",
+   "online_purchase",
+   "oon_atm_fee",
+   "oon_atm_reimbursement",
+   "oon_cnt",
+   "oon_fee",
+   "oon_free_per_month",
+   "oon_paid",
+   "oon_paid_raw",
+   "oon_total",
+   "oon_unit",
+   "open_",
+   "open_bank_account",
+   "open_bank_account_4821",
+   "operand",
+   "operand_arg",
+   "operand_keys",
+   "operand_schema",
+   "operations",
+   "operator",
+   "operator_resolution",
+   "order_",
+   "order_debit_card_5739",
+   "order_field",
+   "order_replacement_credit_card_7291",
+   "ordinal",
+   "other",
+   "out_field",
+   "out_of_network_total_usd",
+   "outstanding_balance",
+   "overdraft_fee",
+   "overdraft_protection_transfer_fee",
+   "overdrafts",
+   "overseas",
+   "pairs",
+   "paper_statement_fee",
+   "param",
+   "param_cap_check",
+   "param_note",
+   "param_requirement",
+   "params",
+   "partial_refund",
+   "partial_refund_amount",
+   "partition",
+   "pattern",
+   "pay_credit_card_from_checking",
+   "pay_credit_card_from_checking_9182",
+   "payment_history",
+   "payment_months_by_tier",
+   "pct25",
+   "pct_by",
+   "pending_replacement",
+   "percent",
+   "period_end",
+   "period_start",
+   "person_to_person",
+   "personal_subscriptions",
+   "phase_owner",
+   "phone",
+   "phone_number",
+   "phrase",
+   "pin_compromised",
+   "pin_purchase",
+   "platinum",
+   "platinum_account",
+   "platinum_plus_account",
+   "platinum_reserve_account",
+   "platinum_rewards_card",
+   "police_report_filed",
+   "policy_docs",
+   "policy_facts_file",
+   "policy_field",
+   "policy_group_rows",
+   "policy_ontology",
+   "policy_qa",
+   "precheck",
+   "prefix",
+   "prekb_tools",
+   "premium",
+   "premium_subscriber",
+   "prescription_redirect",
+   "principal",
+   "prior_attempts",
+   "procedures",
+   "producer",
+   "producer_contains",
+   "producer_marker",
+   "producer_tools",
+   "product",
+   "prohibited",
+   "prohibits",
+   "promo_active",
+   "promo_elig",
+   "promo_end",
+   "promo_mult",
+   "promo_start",
+   "promo_window_months",
+   "prompt",
+   "provided",
+   "provisional_credit_eligible",
+   "purchase_protection",
+   "purple_account",
+   "qr_transfers",
+   "qualifying_deposit_usd",
+   "qualifying_spend_usd",
+   "quote",
+   "quote_field",
+   "quote_grounding",
+   "quote_hint",
+   "quote_match",
+   "quote_min",
+   "quote_must_contain_field",
+   "quote_pin",
+   "range_retry_prompt",
+   "ranges",
+   "rate_field",
+   "rate_from",
+   "rate_range",
+   "ratefix",
+   "reads",
+   "reask_prompt",
+   "reask_signals",
+   "reason_arg",
+   "rebate",
+   "rebate_amount",
+   "recommendation_verify",
+   "record",
+   "record_field",
+   "record_key_field",
+   "record_require",
+   "record_update",
+   "recurring_charge_after_cancellation",
+   "recurring_payment",
+   "rederive_prompt",
+   "rederived_text",
+   "reducers",
+   "ref_from_outputs",
+   "ref_iso",
+   "ref_op",
+   "ref_params",
+   "ref_verify",
+   "reference_filter",
+   "referral",
+   "referral_status",
+   "referred_account_type",
+   "referred_bonus_usd",
+   "referred_no_prior_accounts_months",
+   "referrer_bonus_usd",
+   "referrer_tenure_days",
+   "refund_never_processed",
+   "reimburse",
+   "reject_note",
+   "relations",
+   "relationship",
+   "relationship_apy_bonus",
+   "relationship_bonus",
+   "report_id",
+   "request_human",
+   "requested_increase_amount",
+   "require",
+   "require_complete_groups",
+   "require_doc_before",
+   "require_fields",
+   "require_tokens",
+   "require_tokens_any",
+   "require_tool_before",
+   "require_value_in_source",
+   "required_groups",
+   "required_reads",
+   "required_writes",
+   "requirement_prompt",
+   "requirement_text",
+   "requires",
+   "requires_absent_tool",
+   "requires_reads",
+   "requires_reads_feedback",
+   "research_tool",
+   "reserve",
+   "reserve_kinds",
+   "reset_",
+   "reset_debit_card_pin_6284",
+   "resign_th",
+   "resolution_requested",
+   "result",
+   "result_range",
+   "result_range_feedback",
+   "result_round",
+   "retention_bonus_points_by_tier",
+   "retention_offer",
+   "retention_statement_credit_by_tier",
+   "retry_prompt",
+   "return_contract",
+   "return_template",
+   "return_template_empty",
+   "return_template_short",
+   "rewards_earned",
+   "rho_bank_plus",
+   "rolling_window_days",
+   "rolling_window_referrals",
+   "round_to",
+   "row_field",
+   "row_fields",
+   "row_keys",
+   "row_kind",
+   "row_template",
+   "satisfier_requires",
+   "savings",
+   "savings_account_type",
+   "savings_accounts",
+   "scaffold_get_tools",
+   "scalar",
+   "scalar_fields",
+   "scheduled_payments",
+   "scope",
+   "search",
+   "search_exhaust_escalation",
+   "select_discrepant",
+   "sending_limits",
+   "set_debit_card_recurring_block_7382",
+   "settle_tool",
+   "shape",
+   "shell",
+   "shipping_address",
+   "show_axes",
+   "signals",
+   "signature_purchase",
+   "silences",
+   "silver",
+   "silver_account",
+   "silver_plus_account",
+   "silver_plus_saver",
+   "silver_rewards_card",
+   "silver_saver_account",
+   "silver_zoom_card",
+   "skip_when_tokens",
+   "sky_blue",
+   "software",
+   "source_account_id",
+   "source_field",
+   "source_param",
+   "source_selector",
+   "speak_prohibit",
+   "special_support_codes",
+   "specialized_department_required",
+   "spend_amount",
+   "spend_category",
+   "spend_category_quote",
+   "stated",
+   "status_field",
+   "status_meaning",
+   "status_meaning_axis",
+   "status_meaning_text",
+   "status_text",
+   "steps",
+   "str_eq",
+   "subject",
+   "subject_align_prompt",
+   "submit_",
+   "submit_cash_back_dispute",
+   "submit_cash_back_dispute_0589",
+   "submit_credit_limit_increase_request",
+   "submit_credit_limit_increase_request_7392",
+   "submit_interest_discrepancy_report",
+   "submit_interest_discrepancy_report_7294",
+   "submit_referral",
+   "submit_request",
+   "submit_tool",
+   "submit_transaction",
+   "subtract_by_group",
+   "supervisor_request_service_complaint",
+   "suppression_authority",
+   "sustainable",
+   "table",
+   "tables",
+   "tally",
+   "tally_from",
+   "target",
+   "targeted_contains",
+   "technical_system_error",
+   "temperature",
+   "tenure_days",
+   "tenure_ok",
+   "term_grant_reminder_extra",
+   "third_party_inquiry",
+   "three_internal_requests",
+   "threshold",
+   "threshold_prompt",
+   "tier_1_apy",
+   "tier_2_apy",
+   "tiers",
+   "time_verified",
+   "title",
+   "today",
+   "tolerance",
+   "tool_any",
+   "tool_args",
+   "tool_names_prompt",
+   "tool_none",
+   "tool_prefix",
+   "tool_signatures",
+   "tool_unlock_hint",
+   "tools",
+   "top_categories",
+   "transaction_amount",
+   "transaction_date",
+   "transaction_id",
+   "transaction_type",
+   "transactions",
+   "transactions_raw",
+   "transcription_check",
+   "transfer",
+   "transfer_",
+   "transfer_funds_",
+   "transfer_funds_between_bank_accounts_7291",
+   "transfer_reason_policy",
+   "travel",
+   "true_blue",
+   "type_feedback",
+   "type_usage",
+   "unauthorized",
+   "unauthorized_fraudulent_charge",
+   "unauthorized_transaction",
+   "unavailable_tools",
+   "unconfirmed_external_communication",
+   "unfreeze_",
+   "unfreeze_debit_card_3893",
+   "unit_votes",
+   "unknown",
+   "unknown_policy",
+   "unlock_discoverable_agent_tool",
+   "unlock_hint",
+   "unlock_tool",
+   "unmatched_text",
+   "unmet",
+   "unmet_template",
+   "unsourced_claim_feedback",
+   "unverified_note",
+   "unverified_requery_note",
+   "update_",
+   "update_transaction_rewards",
+   "update_transaction_rewards_3847",
+   "user_blocking",
+   "user_call",
+   "user_execution_tool",
+   "user_tool",
+   "user_tool_channel_args",
+   "user_tool_name",
+   "user_via_agent_feedback",
+   "value_acquisition",
+   "value_cols",
+   "value_field",
+   "value_formula",
+   "value_pattern",
+   "values",
+   "verdict_line_template",
+   "verdict_max_candidates",
+   "verdict_prompt",
+   "verify",
+   "verify_identity",
+   "view_field_annotations",
+   "virtual_card",
+   "virtual_card_management",
+   "waiver_min_daily_balance",
+   "window_days",
+   "window_history_text",
+   "window_left",
+   "window_max",
+   "window_remaining",
+   "window_text",
+   "wire_transfer_fee",
+   "with_examples",
+   "withdrawal_amount",
+   "withdrawals_per_month",
+   "withdrawn_row_check",
+   "world_blue",
+   "wraps",
+   "write",
+   "write_action_phrase",
+   "write_arg_enum",
+   "write_arg_grounding",
+   "write_evidence_specs",
+   "write_initiation",
+   "write_rules",
+   "write_tools",
+   "written_statement_provided",
+   "year_select",
+   "yes_observed",
+   "yes_shared"
+  ],
+  "retail": [
+   "address1",
+   "address2",
+   "allow",
+   "anchor_operand",
+   "argmax_where",
+   "argmin_where",
+   "available",
+   "calc_specs",
+   "cancel_pending_order",
+   "checks",
+   "cond_field",
+   "cond_value",
+   "constraints",
+   "count_where",
+   "country",
+   "default_specs",
+   "delivered",
+   "detail_id_arg",
+   "detail_producer",
+   "disamb_sub_args",
+   "disjoint",
+   "entity_source",
+   "equal_len",
+   "exchange_delivered_order_items",
+   "exhaust_before_escalate",
+   "find_user_id_by_email",
+   "find_user_id_by_name_zip",
+   "first_name",
+   "get_order_details",
+   "get_product_details",
+   "grounded",
+   "inspect",
+   "item_field",
+   "item_id",
+   "item_ids",
+   "items_id_path",
+   "items_key",
+   "last_name",
+   "message",
+   "min_price",
+   "modify_pending_order_address",
+   "modify_pending_order_items",
+   "modify_pending_order_payment",
+   "modify_user_address",
+   "nested_field",
+   "new_item_ids",
+   "options",
+   "order",
+   "orders",
+   "orders_field",
+   "payment_method_id",
+   "pending",
+   "placeholders",
+   "preconditions",
+   "present_fields",
+   "present_label",
+   "present_specs",
+   "price",
+   "processed",
+   "product_id",
+   "provenance",
+   "rank_field",
+   "recover",
+   "regen_resolver_specs",
+   "retail",
+   "return_delivered_order_items",
+   "select_confirm",
+   "state",
+   "status",
+   "steer",
+   "steer_by_status_class",
+   "tie_break",
+   "tool_error_specs",
+   "user_id_arg",
+   "user_producer",
+   "variant_operand",
+   "variant_spec"
+  ],
+  "airline": [
+   "airline",
+   "book_reservation",
+   "cancel_reservation",
+   "certificate",
+   "flight",
+   "get_reservation_details",
+   "passenger",
+   "reservation_id",
+   "satisfied_by",
+   "scope_note",
+   "send_certificate",
+   "update_reservation_baggages",
+   "update_reservation_flights",
+   "update_reservation_passengers",
+   "user_provided_user_id"
+  ]
+ },
+ "hits": [
+  {
+   "mod": "gate_interpreter",
+   "line": 47,
+   "name": "pick_steer",
+   "cls": "",
+   "lex": [
+    "steer_by_status_class"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 106,
+   "name": "_spread_name_rules",
+   "cls": "",
+   "lex": [
+    "derived",
+    "formalize",
+    "name_rules",
+    "params"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 125,
+   "name": "_resolve_a3_refs",
+   "cls": "",
+   "lex": [
+    "policy_ontology",
+    "subject"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 165,
+   "name": "_compose_claim_audit",
+   "cls": "",
+   "lex": [
+    "claim_bindings",
+    "claim_question",
+    "completion_guard",
+    "event_map",
+    "kind_guidance",
+    "kinds",
+    "reserve_kinds",
+    "user_execution_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 441,
+   "name": "resolvers_from_env",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 493,
+   "name": "candidate_summary",
+   "cls": "",
+   "lex": [
+    "detail_id_arg",
+    "detail_producer",
+    "orders_field",
+    "present_fields",
+    "present_label",
+    "user_id_arg",
+    "user_producer"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 522,
+   "name": "nested_candidate_summary",
+   "cls": "",
+   "lex": [
+    "nested_field"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 557,
+   "name": "compute_facts",
+   "cls": "",
+   "lex": [
+    "argmax_where",
+    "argmin_where",
+    "cond_field",
+    "cond_value",
+    "count",
+    "count_where",
+    "date_field",
+    "field",
+    "item_field",
+    "nested_field",
+    "rank_field"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 647,
+   "name": "observe_tools",
+   "cls": "",
+   "lex": [
+    "entity_source",
+    "exhaust_before_escalate",
+    "inspect"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 260,
+   "name": "observe",
+   "cls": "GateInterpreter",
+   "lex": [
+    "exhaust_before_escalate",
+    "inspect"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 278,
+   "name": "_exhaust_remaining",
+   "cls": "GateInterpreter",
+   "lex": [
+    "entity_source",
+    "user_id_arg"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 306,
+   "name": "_present_candidates",
+   "cls": "GateInterpreter",
+   "lex": [
+    "detail_id_arg",
+    "detail_producer",
+    "message",
+    "orders_field",
+    "present_fields",
+    "user_id_arg",
+    "user_producer"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 333,
+   "name": "_gate_applies",
+   "cls": "GateInterpreter",
+   "lex": [
+    "applies_when",
+    "not_in"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 349,
+   "name": "check",
+   "cls": "GateInterpreter",
+   "lex": [
+    "allow",
+    "checks",
+    "constraints",
+    "disjoint",
+    "equal_len",
+    "exhaust_before_escalate",
+    "preconditions",
+    "select_confirm",
+    "steer"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_agent_maxprompt_patch",
+   "line": 17,
+   "name": "apply",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_agent_maxprompt_patch",
+   "line": 33,
+   "name": "_app",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_authority",
+   "line": 56,
+   "name": "warrant_of",
+   "cls": "",
+   "lex": [
+    "measure",
+    "measurement",
+    "quote",
+    "suppression_authority"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_authority",
+   "line": 69,
+   "name": "_declares_any",
+   "cls": "",
+   "lex": [
+    "suppression_authority"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_axis_levers",
+   "line": 30,
+   "name": "_content",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_axis_levers",
+   "line": 43,
+   "name": "registry_from_env",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_axis_levers",
+   "line": 78,
+   "name": "registry_from_a2",
+   "cls": "",
+   "lex": [
+    "scaffold_get_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_axis_levers",
+   "line": 94,
+   "name": "channel_note",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "call_discoverable_agent_tool",
+    "discoverable_tool_name",
+    "give_discoverable_user_tool",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_callable_hint",
+   "line": 97,
+   "name": "selftest",
+   "cls": "",
+   "lex": [
+    "call_discoverable_agent_tool",
+    "close_debit_card_4721",
+    "get_all_user_accounts_by_user_id_3847",
+    "get_credit_limit_increase_history",
+    "get_credit_limit_increase_history_4829",
+    "get_payment_history",
+    "get_payment_history_6183",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": true
+  },
+  {
+   "mod": "t2_claim_block",
+   "line": 74,
+   "name": "selftest",
+   "cls": "",
+   "lex": [
+    "apply_for_credit_card",
+    "get_user_information_by_name",
+    "submit_cash_back_dispute_0589"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": true
+  },
+  {
+   "mod": "t2_compliance",
+   "line": 61,
+   "name": "_args_of",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_compliance",
+   "line": 80,
+   "name": "violations_of_sim",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_compliance",
+   "line": 154,
+   "name": "compliance_report",
+   "cls": "",
+   "lex": [
+    "write"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_compliance",
+   "line": 180,
+   "name": "load_order_owner",
+   "cls": "",
+   "lex": [
+    "retail"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_compliance",
+   "line": 207,
+   "name": "report_for_dir",
+   "cls": "",
+   "lex": [
+    "retail",
+    "write"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_compute",
+   "line": 143,
+   "name": "_apply_op",
+   "cls": "",
+   "lex": [
+    "absent",
+    "across",
+    "actual_field",
+    "amount_param",
+    "anchor",
+    "annual_fee",
+    "as_of",
+    "base_cashback",
+    "bool_expr",
+    "bucket_month_window",
+    "business",
+    "cases",
+    "cashback",
+    "cashback_scope",
+    "catalog_compute",
+    "catalog_filter",
+    "category_field",
+    "category_rates",
+    "clamp",
+    "compare",
+    "cond_field",
+    "cond_value",
+    "conditional_fields",
+    "const",
+    "contains",
+    "count_where",
+    "credit_score",
+    "date_between",
+    "date_field",
+    "date_in_window",
+    "days_between",
+    "default",
+    "default_field",
+    "default_reducer",
+    "dup_field",
+    "eligible",
+    "evidence_from",
+    "expected",
+    "expected_ref",
+    "field",
+    "fx_fee",
+    "group_by",
+    "group_reduce",
+    "if_then",
+    "invite_only",
+    "invited",
+    "label_field",
+    "last_complete",
+    "limit_max",
+    "lookup_table",
+    "match_verdict",
+    "match_verdict_grounded",
+    "max_annual_fee",
+    "max_fx_fee",
+    "max_min_payment_pct",
+    "met_template",
+    "min_cashback",
+    "min_credit_limit",
+    "min_payment_pct",
+    "min_score",
+    "minus_fields",
+    "months",
+    "multiply",
+    "needs_purchase_protection",
+    "no_record_template",
+    "no_record_template_v2",
+    "not_computable_note",
+    "on_ambiguous",
+    "order_field",
+    "ordinal",
+    "out_field",
+    "partition",
+    "purchase_protection",
+    "rate_from",
+    "rebate",
+    "reducers",
+    "ref_op",
+    "require_complete_groups",
+    "required_groups",
+    "result",
+    "row_template",
+    "select_discrepant",
+    "spend_category",
+    "steps",
+    "str_eq",
+    "table",
+    "target",
+    "threshold",
+    "tolerance",
+    "unknown_policy",
+    "unmet_template",
+    "value_cols",
+    "value_field",
+    "value_formula",
+    "virtual_card",
+    "year_select"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_compute",
+   "line": 611,
+   "name": "_res",
+   "cls": "",
+   "lex": [
+    "result"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_compute",
+   "line": 1077,
+   "name": "hit",
+   "cls": "",
+   "lex": [
+    "contains",
+    "field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_compute",
+   "line": 504,
+   "name": "_value_of",
+   "cls": "",
+   "lex": [
+    "minus_fields"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_declfirst",
+   "line": 157,
+   "name": "run",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_dominance",
+   "line": 77,
+   "name": "_exempt",
+   "cls": "",
+   "lex": [
+    "applies_when",
+    "not_in"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_dominance",
+   "line": 116,
+   "name": "requirement_text",
+   "cls": "",
+   "lex": [
+    "arbitration",
+    "dominated_push_feedback"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_dominance",
+   "line": 148,
+   "name": "_args_dict",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_dominance",
+   "line": 340,
+   "name": "cleared",
+   "cls": "",
+   "lex": [
+    "arbitration"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_dominance",
+   "line": 369,
+   "name": "merged_text",
+   "cls": "",
+   "lex": [
+    "arbitration",
+    "dominated_push_feedback",
+    "merged_requirement_feedback"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 403,
+   "name": "chain_gap",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "arguments",
+    "content",
+    "dispatch_name_key",
+    "dispatch_tool",
+    "intent_chains",
+    "phrase",
+    "required_reads",
+    "required_writes",
+    "signals"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 453,
+   "name": "chain_reminder",
+   "cls": "",
+   "lex": [
+    "phrase"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 479,
+   "name": "resurface_doc",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 509,
+   "name": "branch_reground_reminder",
+   "cls": "",
+   "lex": [
+    "finalize_writes",
+    "phrase"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 577,
+   "name": "build_ledger_from_messages",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "arguments",
+    "content",
+    "dispatch_args_key",
+    "dispatch_name_key",
+    "dispatch_tool",
+    "item_ids",
+    "items_key",
+    "write_tools"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 669,
+   "name": "transcript_text",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 777,
+   "name": "_terminal_grant_check",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 846,
+   "name": "_term_grant_reminder_extra",
+   "cls": "",
+   "lex": [
+    "term_grant_reminder_extra"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 1052,
+   "name": "apply",
+   "cls": "",
+   "lex": [
+    "write_action_phrase"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 247,
+   "name": "note_read",
+   "cls": "PlanLedger",
+   "lex": [
+    "list_from_reads"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 1067,
+   "name": "_wrap",
+   "cls": "",
+   "lex": [
+    "write_action_phrase"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 1071,
+   "name": "wrapped",
+   "cls": "",
+   "lex": [
+    "write_action_phrase"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 61,
+   "name": "load",
+   "cls": "",
+   "lex": [
+    "derived"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 68,
+   "name": "validate",
+   "cls": "",
+   "lex": [
+    "corpus",
+    "formalize",
+    "inputs",
+    "params",
+    "prompt",
+    "shape"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 105,
+   "name": "_order",
+   "cls": "",
+   "lex": [
+    "inputs"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 170,
+   "name": "_tally",
+   "cls": "",
+   "lex": [
+    "group_field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 180,
+   "name": "_window_remaining",
+   "cls": "",
+   "lex": [
+    "date_field",
+    "date_formats",
+    "window_days",
+    "window_max"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 194,
+   "name": "_days_since_earliest",
+   "cls": "",
+   "lex": [
+    "age_field",
+    "date_formats"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 232,
+   "name": "_a3_map",
+   "cls": "",
+   "lex": [
+    "quote",
+    "subject"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 262,
+   "name": "_pick",
+   "cls": "",
+   "lex": [
+    "quote",
+    "subject"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 280,
+   "name": "_formalize",
+   "cls": "",
+   "lex": [
+    "date_formats",
+    "field",
+    "pairs",
+    "params",
+    "row_keys",
+    "shape"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 303,
+   "name": "_parse_term",
+   "cls": "",
+   "lex": [
+    "quote",
+    "subject"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 335,
+   "name": "_formalize_pairs_per_item",
+   "cls": "",
+   "lex": [
+    "field",
+    "params"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 390,
+   "name": "evaluate",
+   "cls": "",
+   "lex": [
+    "a3_map",
+    "align_field",
+    "corpus",
+    "days_since_earliest",
+    "formalize",
+    "inputs",
+    "name_rules",
+    "pairs",
+    "params",
+    "shape",
+    "subject",
+    "subtract_by_group",
+    "tally",
+    "window_remaining"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 110,
+   "name": "walk",
+   "cls": "",
+   "lex": [
+    "inputs"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 537,
+   "name": "_per_item",
+   "cls": "Scheduler",
+   "lex": [
+    "formalize",
+    "pairs",
+    "shape"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 541,
+   "name": "_demand",
+   "cls": "Scheduler",
+   "lex": [
+    "inputs",
+    "subtract_by_group"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 575,
+   "name": "_stale",
+   "cls": "Scheduler",
+   "lex": [
+    "corpus",
+    "inputs"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_factdag",
+   "line": 627,
+   "name": "update",
+   "cls": "Scheduler",
+   "lex": [
+    "formalize"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_fbsidecar",
+   "line": 39,
+   "name": "_sim_key",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_fbsidecar",
+   "line": 106,
+   "name": "record_many",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 66,
+   "name": "parse_formalize",
+   "cls": "",
+   "lex": [
+    "constraints",
+    "field"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 197,
+   "name": "execute_formalized",
+   "cls": "",
+   "lex": [
+    "constraints",
+    "field",
+    "status"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 244,
+   "name": "fexec_annotation",
+   "cls": "",
+   "lex": [
+    "constraints",
+    "field",
+    "status"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 303,
+   "name": "fexec_filter_decide",
+   "cls": "",
+   "lex": [
+    "formalize",
+    "status"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 356,
+   "name": "fexec_for_disamb",
+   "cls": "",
+   "lex": [
+    "status"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 404,
+   "name": "_iter_product_variants",
+   "cls": "",
+   "lex": [
+    "nested_field"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 420,
+   "name": "_vs_to_records",
+   "cls": "",
+   "lex": [
+    "available"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 429,
+   "name": "_variant_records_for",
+   "cls": "",
+   "lex": [
+    "item_id"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 445,
+   "name": "_variant_records",
+   "cls": "",
+   "lex": [
+    "item_id"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 463,
+   "name": "_option_value_type",
+   "cls": "",
+   "lex": [
+    "options"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 481,
+   "name": "_ground_variant_criterion",
+   "cls": "",
+   "lex": [
+    "constraints",
+    "field",
+    "options",
+    "price"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 533,
+   "name": "_floor_ok",
+   "cls": "",
+   "lex": [
+    "status"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 547,
+   "name": "tie_break",
+   "cls": "",
+   "lex": [
+    "min_price",
+    "price"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 567,
+   "name": "fexec_variant_decide",
+   "cls": "",
+   "lex": [
+    "product",
+    "status",
+    "tie_break"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 98,
+   "name": "_domain_a2",
+   "cls": "",
+   "lex": [
+    "placeholders"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 184,
+   "name": "_verdict_gate_fb",
+   "cls": "",
+   "lex": [
+    "policy_ontology",
+    "verdict_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 395,
+   "name": "unknown_bl_collect",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 438,
+   "name": "_args_dict",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 461,
+   "name": "_static_blacklist",
+   "cls": "",
+   "lex": [
+    "description"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 475,
+   "name": "_context_text",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 489,
+   "name": "_ctx_with_toolnames",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 609,
+   "name": "_declared_params_by_tool",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 684,
+   "name": "_policy_facts",
+   "cls": "",
+   "lex": [
+    "policy_facts_file"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 707,
+   "name": "_policy_rows_for",
+   "cls": "",
+   "lex": [
+    "quote"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 745,
+   "name": "_a3_subject_docs",
+   "cls": "",
+   "lex": [
+    "policy_ontology",
+    "subject"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 952,
+   "name": "_tool_objects",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1006,
+   "name": "_prov_scan_args",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1092,
+   "name": "_record_labels",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1120,
+   "name": "_label_mismatch_deny",
+   "cls": "",
+   "lex": [
+    "arg_source_reads"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1197,
+   "name": "apply",
+   "cls": "",
+   "lex": [
+    "calc_specs",
+    "present_specs",
+    "select_confirm",
+    "user_id_arg",
+    "user_producer",
+    "write_evidence_specs"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1407,
+   "name": "_last_user_text",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1417,
+   "name": "_transfer_msg_sent",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1479,
+   "name": "_axis_surface",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "arguments",
+    "content",
+    "discoverable_tool_name",
+    "transfer"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1676,
+   "name": "_param_cap_deny",
+   "cls": "",
+   "lex": [
+    "account_id",
+    "applies_when",
+    "arguments",
+    "card_type",
+    "content",
+    "credit_limit",
+    "field",
+    "limit_field",
+    "param",
+    "pct_by",
+    "prefix",
+    "record_key_field",
+    "record_require"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1795,
+   "name": "_wev_deny_msgs",
+   "cls": "",
+   "lex": [
+    "applies_when",
+    "content",
+    "forbid_feedback",
+    "forbid_self_record_tokens",
+    "forbid_tokens",
+    "forbid_when_tokens",
+    "id_key",
+    "prefix",
+    "require_tokens",
+    "require_tokens_any",
+    "skip_when_tokens"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1985,
+   "name": "_wev_fill",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2009,
+   "name": "_ref_verify_deny",
+   "cls": "",
+   "lex": [
+    "applies_when",
+    "content",
+    "id_key",
+    "merchant_name",
+    "prefix",
+    "record_field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2098,
+   "name": "_write_arg_ground_deny",
+   "cls": "",
+   "lex": [
+    "applies_when",
+    "arg_corpus_marker",
+    "content",
+    "corpus_roles",
+    "grounded_args",
+    "prefix"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2211,
+   "name": "_decl_tool_collections",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2273,
+   "name": "_schema_required_index",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2421,
+   "name": "_have_value_reask_fb",
+   "cls": "",
+   "lex": [
+    "content",
+    "producer",
+    "producer_marker",
+    "reask_signals",
+    "value_pattern",
+    "write"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2469,
+   "name": "_tool_given",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "discoverable_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2491,
+   "name": "_give_required_fb",
+   "cls": "",
+   "lex": [
+    "call_discoverable_user_tool",
+    "discoverable_tool_name",
+    "give_discoverable_user_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2544,
+   "name": "_call_form_repair",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "call_discoverable_user_tool",
+    "discoverable_tool_name",
+    "give_discoverable_user_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2602,
+   "name": "_value_acquire_fb",
+   "cls": "",
+   "lex": [
+    "acquire_tool",
+    "content",
+    "give_tool",
+    "producer_marker",
+    "reask_signals",
+    "write"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2706,
+   "name": "_resolver_directive",
+   "cls": "",
+   "lex": [
+    "default_specs",
+    "regen_resolver_specs"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2736,
+   "name": "_ctx_from_messages",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2780,
+   "name": "_origin_role",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2835,
+   "name": "_fab_fix_note",
+   "cls": "",
+   "lex": [
+    "arg_source_reads",
+    "by_tool",
+    "relations",
+    "requires"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2890,
+   "name": "membership_violation",
+   "cls": "",
+   "lex": [
+    "items_id_path",
+    "items_key"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3030,
+   "name": "_cov_formalize_M",
+   "cls": "",
+   "lex": [
+    "content",
+    "items_id_path",
+    "status"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3126,
+   "name": "classify_tool_error",
+   "cls": "",
+   "lex": [
+    "content",
+    "tool_error_specs"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3151,
+   "name": "_delivered_unused_agent_tools",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3203,
+   "name": "_sig",
+   "cls": "",
+   "lex": [
+    "other"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3224,
+   "name": "_key_tokens",
+   "cls": "",
+   "lex": [
+    "number"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3251,
+   "name": "_parse_tool_outputs",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3278,
+   "name": "_grounded_candidates",
+   "cls": "",
+   "lex": [
+    "other"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3351,
+   "name": "_write_choice_arg",
+   "cls": "",
+   "lex": [
+    "action_tool",
+    "applies_when",
+    "arguments",
+    "choice_grounding",
+    "group_arg",
+    "group_map",
+    "operand",
+    "prefix",
+    "recommendation_verify",
+    "write_arg_enum"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3451,
+   "name": "_env_spec_for",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3524,
+   "name": "_declared_rules_for",
+   "cls": "",
+   "lex": [
+    "write_rules"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3674,
+   "name": "_a2_procedural",
+   "cls": "",
+   "lex": [
+    "completion_guard",
+    "dispatch_tool",
+    "follow_up",
+    "give_tool",
+    "list_tool",
+    "scaffold_get_tools",
+    "unlock_tool",
+    "user_execution_tool",
+    "value_acquisition"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3710,
+   "name": "_eff_tool_name",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "discoverable_tool_name",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3724,
+   "name": "sibling_paren_arg",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3777,
+   "name": "group_dup_value",
+   "cls": "",
+   "lex": [
+    "group_by",
+    "scaffold_get_tools",
+    "value_field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3830,
+   "name": "distinct_args_violation",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "banking_knowledge",
+    "content",
+    "distinct_args",
+    "fail_feedback",
+    "pairs",
+    "policy_docs",
+    "title"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3903,
+   "name": "free_text_drop",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "free_text_defaults"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3982,
+   "name": "_t2_msg_empty",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3989,
+   "name": "_exact_tool_name",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "discoverable_tool_name",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4008,
+   "name": "_executed_tool_names",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4038,
+   "name": "_executed_tool_counts",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4058,
+   "name": "_agent_discoverable",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4087,
+   "name": "_dispatch_tools",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "arguments",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4139,
+   "name": "_is_read_tool",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4159,
+   "name": "_read_routine_pin",
+   "cls": "",
+   "lex": [
+    "agent_call",
+    "dispatcher_role_check",
+    "name_args",
+    "procedures",
+    "unlock_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4245,
+   "name": "_arg_consumers",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4297,
+   "name": "_docs_naming",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4323,
+   "name": "_docs_seen",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4373,
+   "name": "_require_doc_deliver",
+   "cls": "",
+   "lex": [
+    "chars",
+    "require_doc_before",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4498,
+   "name": "_sibling_wait",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "discoverable_tool_name",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4541,
+   "name": "_decl_howto",
+   "cls": "",
+   "lex": [
+    "by_tool",
+    "params",
+    "relations",
+    "requires",
+    "requires_reads",
+    "scaffold_get_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4614,
+   "name": "_degenerate_axes",
+   "cls": "",
+   "lex": [
+    "doc_index"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4633,
+   "name": "_served_subjects",
+   "cls": "",
+   "lex": [
+    "doc_index"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4671,
+   "name": "_rearm_subjects",
+   "cls": "",
+   "lex": [
+    "content",
+    "doc_index"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4732,
+   "name": "_search_material",
+   "cls": "",
+   "lex": [
+    "date_formats",
+    "decide_candidates_text",
+    "decided_by_docs_text",
+    "doc_decide_prompt",
+    "doc_index",
+    "group_prompt",
+    "ledger_metrics",
+    "now_prompt",
+    "now_tool",
+    "policy_ontology",
+    "requirement_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5141,
+   "name": "_unlocked_names",
+   "cls": "",
+   "lex": [
+    "dispatcher_role_check",
+    "name_args",
+    "unlock_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5368,
+   "name": "_known_tool_names",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "discoverable_tool_name",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5389,
+   "name": "_unavailable_promises",
+   "cls": "",
+   "lex": [
+    "unknown"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5453,
+   "name": "_ledger_text",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5473,
+   "name": "_fu_window",
+   "cls": "",
+   "lex": [
+    "reserve"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5492,
+   "name": "_limit_reduce_text",
+   "cls": "",
+   "lex": [
+    "a3_map",
+    "axes_stated",
+    "criteria",
+    "decided_text",
+    "derived",
+    "diagnose_prompt",
+    "diagnosed_text",
+    "doc_index",
+    "doc_limits",
+    "doc_minimums",
+    "eligible",
+    "eligible_text",
+    "kind_field",
+    "operand",
+    "params",
+    "policy_ontology",
+    "reask_prompt",
+    "rederive_prompt",
+    "rederived_text",
+    "requirement_text",
+    "stated",
+    "tally",
+    "tally_from"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5884,
+   "name": "_cpv_window",
+   "cls": "",
+   "lex": [
+    "reserve",
+    "transfer"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5898,
+   "name": "_is_transfer_call",
+   "cls": "",
+   "lex": [
+    "transfer"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 5933,
+   "name": "_resolve_cap_ok",
+   "cls": "",
+   "lex": [
+    "unlock_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6015,
+   "name": "_chain_dispatch",
+   "cls": "",
+   "lex": [
+    "after",
+    "decision_feedback",
+    "decision_tools",
+    "requires"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6052,
+   "name": "_once_key_of",
+   "cls": "",
+   "lex": [
+    "applies_when",
+    "prefix"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6106,
+   "name": "_succeeded_mut_keys",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6164,
+   "name": "_user_all_tools",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6314,
+   "name": "_cp2_close",
+   "cls": "",
+   "lex": [
+    "close"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6472,
+   "name": "_coverage_pending",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6500,
+   "name": "_unverified_pending",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6526,
+   "name": "_rejected_params",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6539,
+   "name": "_unknown_tool_names",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6552,
+   "name": "_parse_declaration",
+   "cls": "",
+   "lex": [
+    "operand"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6697,
+   "name": "_text_transcript",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6735,
+   "name": "_apply_principle_default",
+   "cls": "",
+   "lex": [
+    "default_specs"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6779,
+   "name": "_env_verified_args",
+   "cls": "",
+   "lex": [
+    "checks",
+    "preconditions"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6813,
+   "name": "_ref_iso_repair",
+   "cls": "",
+   "lex": [
+    "applies_when",
+    "arguments",
+    "content",
+    "id_pattern",
+    "match_hint",
+    "param",
+    "prefix",
+    "producer_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 6973,
+   "name": "apply_provenance_regen",
+   "cls": "",
+   "lex": [
+    "content",
+    "disamb_sub_args",
+    "order",
+    "prompt"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7353,
+   "name": "_commit_machine_note",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7415,
+   "name": "_ledger_event_names",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7469,
+   "name": "unused_grants",
+   "cls": "",
+   "lex": [
+    "agent_call",
+    "agent_tool_name",
+    "discoverable_tool_name",
+    "dispatch_name_key",
+    "dispatch_tool",
+    "dispatcher_role_check",
+    "give_tool",
+    "unlock_tool",
+    "user_call",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7556,
+   "name": "give_exec_state",
+   "cls": "",
+   "lex": [
+    "discoverable_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7608,
+   "name": "_regen_last_user",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7616,
+   "name": "_regen_transfer_sent",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7768,
+   "name": "_install_regen_exec",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "calc_specs",
+    "ledger_metrics",
+    "present_specs",
+    "search",
+    "select_confirm",
+    "tally",
+    "user_id_arg",
+    "user_producer"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 8156,
+   "name": "apply_gate_regen",
+   "cls": "",
+   "lex": [
+    "content",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 8272,
+   "name": "_compact_view",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 8330,
+   "name": "_annotate_view",
+   "cls": "",
+   "lex": [
+    "contains",
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 8425,
+   "name": "apply_unified_regen",
+   "cls": "",
+   "lex": [
+    "action_tool",
+    "after",
+    "agent_call",
+    "agent_runs_user_feedback",
+    "agent_tool_name",
+    "agent_via_user_feedback",
+    "analysis_producers",
+    "anchor_operand",
+    "applies_when",
+    "arbitration",
+    "arguments",
+    "assertion_operands",
+    "axis_prompt",
+    "banking_knowledge",
+    "basis_max_chars",
+    "booleans",
+    "call_discoverable_agent_tool",
+    "choice_grounding",
+    "claim_question",
+    "completion_guard",
+    "compute_ops",
+    "content",
+    "data_source",
+    "decision_tools",
+    "disamb_sub_args",
+    "discoverable_name_check",
+    "discoverable_tool_name",
+    "dispatch_args_key",
+    "dispatch_name_key",
+    "dispatch_tool",
+    "dispatcher_role_check",
+    "doc_index",
+    "event_map",
+    "feedback_not_discoverable",
+    "feedback_registry_listing",
+    "feedback_user_registry_listing",
+    "feedback_user_tool_is_agents",
+    "feedback_wrong_suffix",
+    "finalize_writes",
+    "follow_up",
+    "follow_up_chains",
+    "free_text_defaults",
+    "give_agent_tool_feedback",
+    "give_discoverable_user_tool",
+    "give_tool",
+    "give_unknown_name_feedback",
+    "give_user_held_feedback",
+    "group_arg",
+    "group_dup_policy_docs",
+    "group_map",
+    "have_value_reask",
+    "id_key",
+    "item_ids",
+    "items_key",
+    "ledger_contains",
+    "list_from_reads",
+    "list_tool",
+    "name_args",
+    "nodes",
+    "nonlisted_tool_feedback",
+    "operand",
+    "order",
+    "param",
+    "param_cap_check",
+    "pattern",
+    "pending",
+    "phase_owner",
+    "policy_ontology",
+    "prefix",
+    "prescription_redirect",
+    "procedures",
+    "producer",
+    "prohibited",
+    "prompt",
+    "reason_arg",
+    "recommendation_verify",
+    "recover",
+    "ref_iso",
+    "ref_verify",
+    "reference_filter",
+    "require_doc_before",
+    "require_fields",
+    "requires",
+    "requires_absent_tool",
+    "reserve",
+    "reserve_kinds",
+    "resign_th",
+    "scaffold_get_tools",
+    "search",
+    "search_exhaust_escalation",
+    "settle_tool",
+    "shell",
+    "signals",
+    "status",
+    "subject",
+    "submit_tool",
+    "target",
+    "tiers",
+    "title",
+    "tool_args",
+    "tool_unlock_hint",
+    "tools",
+    "transcription_check",
+    "transfer",
+    "transfer_reason_policy",
+    "type_feedback",
+    "unlock_tool",
+    "user_call",
+    "user_tool_channel_args",
+    "user_tool_name",
+    "user_via_agent_feedback",
+    "value_acquisition",
+    "values",
+    "variant_operand",
+    "variant_spec",
+    "verify",
+    "view_field_annotations",
+    "withdrawn_row_check",
+    "write",
+    "write_arg_enum",
+    "write_arg_grounding",
+    "write_evidence_specs",
+    "write_initiation",
+    "write_tools"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 1202,
+   "name": "gated",
+   "cls": "",
+   "lex": [
+    "calc_specs",
+    "present_specs",
+    "select_confirm",
+    "user_id_arg",
+    "user_producer",
+    "write_evidence_specs"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7005,
+   "name": "_gen",
+   "cls": "",
+   "lex": [
+    "content",
+    "prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7058,
+   "name": "patched",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7775,
+   "name": "exec_augment",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "calc_specs",
+    "ledger_metrics",
+    "present_specs",
+    "search",
+    "select_confirm",
+    "tally",
+    "user_id_arg",
+    "user_producer"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 8187,
+   "name": "gen_gated",
+   "cls": "",
+   "lex": [
+    "content",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 8470,
+   "name": "_gen",
+   "cls": "",
+   "lex": [
+    "content",
+    "prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 8685,
+   "name": "unified",
+   "cls": "",
+   "lex": [
+    "action_tool",
+    "after",
+    "agent_call",
+    "agent_runs_user_feedback",
+    "agent_tool_name",
+    "agent_via_user_feedback",
+    "analysis_producers",
+    "anchor_operand",
+    "applies_when",
+    "arbitration",
+    "arguments",
+    "assertion_operands",
+    "axis_prompt",
+    "banking_knowledge",
+    "basis_max_chars",
+    "booleans",
+    "call_discoverable_agent_tool",
+    "choice_grounding",
+    "claim_question",
+    "completion_guard",
+    "compute_ops",
+    "content",
+    "data_source",
+    "decision_tools",
+    "discoverable_name_check",
+    "discoverable_tool_name",
+    "dispatch_args_key",
+    "dispatch_name_key",
+    "dispatch_tool",
+    "dispatcher_role_check",
+    "doc_index",
+    "event_map",
+    "feedback_not_discoverable",
+    "feedback_registry_listing",
+    "feedback_user_registry_listing",
+    "feedback_user_tool_is_agents",
+    "feedback_wrong_suffix",
+    "finalize_writes",
+    "follow_up",
+    "follow_up_chains",
+    "free_text_defaults",
+    "give_agent_tool_feedback",
+    "give_discoverable_user_tool",
+    "give_tool",
+    "give_unknown_name_feedback",
+    "give_user_held_feedback",
+    "group_arg",
+    "group_dup_policy_docs",
+    "group_map",
+    "have_value_reask",
+    "id_key",
+    "item_ids",
+    "items_key",
+    "ledger_contains",
+    "list_from_reads",
+    "list_tool",
+    "name_args",
+    "nodes",
+    "nonlisted_tool_feedback",
+    "operand",
+    "param",
+    "param_cap_check",
+    "pattern",
+    "pending",
+    "phase_owner",
+    "policy_ontology",
+    "prefix",
+    "prescription_redirect",
+    "procedures",
+    "producer",
+    "prohibited",
+    "reason_arg",
+    "recommendation_verify",
+    "recover",
+    "ref_iso",
+    "ref_verify",
+    "reference_filter",
+    "require_doc_before",
+    "require_fields",
+    "requires",
+    "requires_absent_tool",
+    "reserve",
+    "reserve_kinds",
+    "resign_th",
+    "scaffold_get_tools",
+    "search",
+    "search_exhaust_escalation",
+    "settle_tool",
+    "shell",
+    "signals",
+    "status",
+    "subject",
+    "submit_tool",
+    "target",
+    "tiers",
+    "title",
+    "tool_args",
+    "tool_unlock_hint",
+    "tools",
+    "transcription_check",
+    "transfer",
+    "transfer_reason_policy",
+    "type_feedback",
+    "unlock_tool",
+    "user_call",
+    "user_tool_channel_args",
+    "user_tool_name",
+    "user_via_agent_feedback",
+    "value_acquisition",
+    "values",
+    "variant_operand",
+    "variant_spec",
+    "verify",
+    "view_field_annotations",
+    "withdrawn_row_check",
+    "write",
+    "write_arg_enum",
+    "write_arg_grounding",
+    "write_evidence_specs",
+    "write_initiation",
+    "write_tools"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 13775,
+   "name": "_ap_regen",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "content",
+    "discoverable_name_check",
+    "discoverable_tool_name",
+    "pattern",
+    "procedures",
+    "prohibited",
+    "tools",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 14135,
+   "name": "_trunc_for_prompt",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 8243,
+   "name": "_bn_regen",
+   "cls": "",
+   "lex": [
+    "content",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 13380,
+   "name": "_fab_write_ungrounded",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "arguments",
+    "discoverable_tool_name",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 13923,
+   "name": "_proc_first_deny",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "discoverable_name_check",
+    "discoverable_tool_name",
+    "pattern",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 13234,
+   "name": "_df_gen",
+   "cls": "",
+   "lex": [
+    "content",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 13270,
+   "name": "_bn_regen_u",
+   "cls": "",
+   "lex": [
+    "content",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 13466,
+   "name": "_sn_regen",
+   "cls": "",
+   "lex": [
+    "content",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_handoff_ground",
+   "line": 68,
+   "name": "declared_keys",
+   "cls": "",
+   "lex": [
+    "grounded_args"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_handoff_ground",
+   "line": 101,
+   "name": "selftest",
+   "cls": "",
+   "lex": [
+    "card_name",
+    "give_discoverable_user_tool",
+    "grounded_args",
+    "transaction_id"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": true
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 69,
+   "name": "parse_pairs",
+   "cls": "",
+   "lex": [
+    "quote"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 110,
+   "name": "specs_for",
+   "cls": "",
+   "lex": [
+    "ledger_metrics"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 119,
+   "name": "formalize_rows",
+   "cls": "",
+   "lex": [
+    "formalize_prompt",
+    "row_keys"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 140,
+   "name": "formalize_now",
+   "cls": "",
+   "lex": [
+    "date_formats",
+    "now_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 182,
+   "name": "formalize_limits",
+   "cls": "",
+   "lex": [
+    "limit_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 204,
+   "name": "formalize_thresholds",
+   "cls": "",
+   "lex": [
+    "threshold_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 220,
+   "name": "formalize_case_facts",
+   "cls": "",
+   "lex": [
+    "case_facts_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 263,
+   "name": "formalize_objective",
+   "cls": "",
+   "lex": [
+    "objective_prompt",
+    "quote"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 313,
+   "name": "rederive_choice",
+   "cls": "",
+   "lex": [
+    "rederive_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 367,
+   "name": "formalize_objective_axis",
+   "cls": "",
+   "lex": [
+    "objective_axis_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 413,
+   "name": "subject_kinds",
+   "cls": "",
+   "lex": [
+    "subject"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 434,
+   "name": "formalize_kind",
+   "cls": "",
+   "lex": [
+    "kind_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 516,
+   "name": "decided_text",
+   "cls": "",
+   "lex": [
+    "decided_text"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 638,
+   "name": "ineligible_text",
+   "cls": "",
+   "lex": [
+    "ineligible_text"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 651,
+   "name": "formalize_subject_align",
+   "cls": "",
+   "lex": [
+    "subject_align_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 741,
+   "name": "exhausted_text",
+   "cls": "",
+   "lex": [
+    "exhausted_text"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 765,
+   "name": "_live_criteria",
+   "cls": "",
+   "lex": [
+    "compare",
+    "operand",
+    "scalar",
+    "stated",
+    "tally"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 793,
+   "name": "eligible_text",
+   "cls": "",
+   "lex": [
+    "criteria",
+    "eligible",
+    "eligible_text",
+    "show_axes",
+    "tally"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 867,
+   "name": "unmatched_text",
+   "cls": "",
+   "lex": [
+    "unmatched_text"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 898,
+   "name": "window_and_tally",
+   "cls": "",
+   "lex": [
+    "date_field",
+    "date_formats",
+    "group_field",
+    "window_days",
+    "window_max"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 923,
+   "name": "window_history",
+   "cls": "",
+   "lex": [
+    "date_field",
+    "date_formats",
+    "group_field",
+    "window_days",
+    "window_history_text",
+    "window_max"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 968,
+   "name": "status_breakdown",
+   "cls": "",
+   "lex": [
+    "group_field",
+    "status_field",
+    "status_text"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 1004,
+   "name": "status_meanings_text",
+   "cls": "",
+   "lex": [
+    "status_field",
+    "status_meaning_axis",
+    "status_meaning_text",
+    "subject"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 1056,
+   "name": "status_multiplicity",
+   "cls": "",
+   "lex": [
+    "group_field",
+    "status_field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 1075,
+   "name": "diagnose_choice",
+   "cls": "",
+   "lex": [
+    "diagnose_prompt",
+    "group_field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 1163,
+   "name": "requirement_choice",
+   "cls": "",
+   "lex": [
+    "requirement_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 1225,
+   "name": "earliest_age",
+   "cls": "",
+   "lex": [
+    "age_field",
+    "date_formats"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_ledger",
+   "line": 1250,
+   "name": "facts_text",
+   "cls": "",
+   "lex": [
+    "age_text",
+    "window_days",
+    "window_max",
+    "window_text"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_levers",
+   "line": 551,
+   "name": "audit_unset",
+   "cls": "",
+   "lex": [
+    "default"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_phase",
+   "line": 48,
+   "name": "phase_of",
+   "cls": "",
+   "lex": [
+    "verify",
+    "verify_identity"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_pin_read",
+   "line": 62,
+   "name": "_called_fams",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "arguments",
+    "discoverable_tool_name",
+    "user_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_pin_read",
+   "line": 103,
+   "name": "_demand",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_pin_read",
+   "line": 176,
+   "name": "_mutates",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_pin_read",
+   "line": 200,
+   "name": "pin_for",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "tools",
+    "unlock_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_pin_read",
+   "line": 311,
+   "name": "selftest",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "call_discoverable_agent_tool",
+    "get_all_user_accounts_by_user_id",
+    "get_all_user_accounts_by_user_id_3847",
+    "unlock_discoverable_agent_tool",
+    "unlock_tool",
+    "verify_identity"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": true
+  },
+  {
+   "mod": "t2_precedence",
+   "line": 42,
+   "name": "_raw_declarations",
+   "cls": "",
+   "lex": [
+    "reads",
+    "require_tool_before",
+    "requires_reads",
+    "satisfier_requires",
+    "scaffold_get_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_precedence",
+   "line": 72,
+   "name": "declarations",
+   "cls": "",
+   "lex": [
+    "declarations",
+    "reads",
+    "relations"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_precedence",
+   "line": 132,
+   "name": "graph_for",
+   "cls": "",
+   "lex": [
+    "applies_when",
+    "not_in"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 55,
+   "name": "_trigger_fams",
+   "cls": "",
+   "lex": [
+    "finalize_writes",
+    "prekb_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 100,
+   "name": "_called_fams",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "discoverable_tool_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 131,
+   "name": "_tc_args",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 143,
+   "name": "_dispatch_names",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "dispatch_name_key",
+    "dispatch_tool",
+    "unlock_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 172,
+   "name": "_has_evidence",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 208,
+   "name": "_declared_give_tool",
+   "cls": "",
+   "lex": [
+    "follow_up",
+    "scaffold_get_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 224,
+   "name": "_is_agent_regular",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 266,
+   "name": "_argprod_hits",
+   "cls": "",
+   "lex": [
+    "arg_producers",
+    "user_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 291,
+   "name": "_notice_done",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 329,
+   "name": "_replay_compared",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 393,
+   "name": "_atool_guidance",
+   "cls": "",
+   "lex": [
+    "scaffold_get_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 429,
+   "name": "apply",
+   "cls": "",
+   "lex": [
+    "content",
+    "dispatch_tool",
+    "dispatcher_role_check",
+    "give_tool",
+    "unlock_tool",
+    "user_call"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 440,
+   "name": "exec2",
+   "cls": "",
+   "lex": [
+    "content",
+    "dispatch_tool",
+    "dispatcher_role_check",
+    "give_tool",
+    "unlock_tool",
+    "user_call"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 38,
+   "name": "_tools_of",
+   "cls": "",
+   "lex": [
+    "tool_any"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 45,
+   "name": "find_procedure",
+   "cls": "",
+   "lex": [
+    "enter_when",
+    "nodes",
+    "tool_any"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 71,
+   "name": "_excluded",
+   "cls": "",
+   "lex": [
+    "enter_when",
+    "tool_none"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 85,
+   "name": "is_mandatory",
+   "cls": "",
+   "lex": [
+    "enforce"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 100,
+   "name": "_node_of",
+   "cls": "",
+   "lex": [
+    "nodes"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 107,
+   "name": "_satisfied",
+   "cls": "",
+   "lex": [
+    "min_count",
+    "one_of",
+    "param_requirement"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 146,
+   "name": "unmet_nodes",
+   "cls": "",
+   "lex": [
+    "nodes",
+    "requires"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 184,
+   "name": "active_procedures",
+   "cls": "",
+   "lex": [
+    "enter_when",
+    "tool_any"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 198,
+   "name": "checklist",
+   "cls": "",
+   "lex": [
+    "nodes"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 218,
+   "name": "_blocked_by",
+   "cls": "",
+   "lex": [
+    "nodes",
+    "requires"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 241,
+   "name": "next_step",
+   "cls": "",
+   "lex": [
+    "nodes"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 263,
+   "name": "table_expectation",
+   "cls": "",
+   "lex": [
+    "arg_from_table",
+    "operand",
+    "table",
+    "tables"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 280,
+   "name": "render_state",
+   "cls": "",
+   "lex": [
+    "nodes",
+    "param_note"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 350,
+   "name": "_hint",
+   "cls": "",
+   "lex": [
+    "unlock_hint"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 362,
+   "name": "absent_note",
+   "cls": "",
+   "lex": [
+    "absent",
+    "absent_many"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 379,
+   "name": "notes_for_call",
+   "cls": "",
+   "lex": [
+    "arg_from_table",
+    "arg_table_unknown_key",
+    "operand",
+    "table",
+    "tables",
+    "unmet"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 416,
+   "name": "prohibited",
+   "cls": "",
+   "lex": [
+    "enter_when",
+    "prohibits",
+    "tool_any"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_procedure",
+   "line": 441,
+   "name": "decide",
+   "cls": "",
+   "lex": [
+    "prohibited"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 31,
+   "name": "discovered_names",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 46,
+   "name": "registry_names",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 70,
+   "name": "stated_names",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 124,
+   "name": "_tool_scope",
+   "cls": "",
+   "lex": [
+    "description",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 149,
+   "name": "resolve_operator",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "discoverable",
+    "find_intent",
+    "getter",
+    "name_pattern",
+    "operator_resolution",
+    "status",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 370,
+   "name": "agent_discoverable_names",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 387,
+   "name": "_retrieved_unlockables",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 420,
+   "name": "_discoverable_dispatchers",
+   "cls": "",
+   "lex": [
+    "discoverable",
+    "getter",
+    "operator_resolution"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 440,
+   "name": "resolve_action_operator",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "dispatch_tool",
+    "list_tool",
+    "status",
+    "unlock_tool"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 662,
+   "name": "_result_ok",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 677,
+   "name": "_executed_dispatch_names",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "arguments",
+    "dispatch_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 698,
+   "name": "sub_write_proposal",
+   "cls": "",
+   "lex": [
+    "answer_format",
+    "basis_max_chars",
+    "basis_scope",
+    "content",
+    "delivery_template",
+    "instructions",
+    "temperature",
+    "write_initiation"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 745,
+   "name": "_dispatch_since_last_user",
+   "cls": "",
+   "lex": [
+    "dispatch_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 775,
+   "name": "resolve_verify_persistence",
+   "cls": "",
+   "lex": [
+    "status"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 813,
+   "name": "formalize_arg_axis",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 868,
+   "name": "call_form_tools",
+   "cls": "",
+   "lex": [
+    "agent_call",
+    "dispatch_tool",
+    "dispatcher_role_check",
+    "give_tool",
+    "unlock_tool",
+    "user_call"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 911,
+   "name": "formalize_intent_tool",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1019,
+   "name": "_formalize_correct_operand",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1054,
+   "name": "_formalize_recommendation",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1089,
+   "name": "_offered_in_history",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1108,
+   "name": "resolve_recommendation",
+   "cls": "",
+   "lex": [
+    "action_tool",
+    "arguments",
+    "offer_name_key",
+    "offer_tool",
+    "operand",
+    "recommendation_verify",
+    "research_tool",
+    "status"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1163,
+   "name": "parse_records",
+   "cls": "",
+   "lex": [
+    "amount",
+    "transaction_id"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1183,
+   "name": "_gathered_records",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1196,
+   "name": "formalize_reference_criteria",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1214,
+   "name": "resolve_reference_filter",
+   "cls": "",
+   "lex": [
+    "reference_filter",
+    "status"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1230,
+   "name": "_resolve_one_reference_filter",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "amount",
+    "arguments",
+    "criteria",
+    "criteria_fields",
+    "dispatch_tool",
+    "key_field",
+    "merchant",
+    "on_ambiguous",
+    "param",
+    "require",
+    "status",
+    "tool_prefix",
+    "transaction_id",
+    "transaction_type"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1268,
+   "name": "_current_time_str",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1281,
+   "name": "resolve_compute_params",
+   "cls": "",
+   "lex": [
+    "agent_tool_name",
+    "amount",
+    "arguments",
+    "compute_ops",
+    "dispatch_name_key",
+    "dispatch_tool",
+    "param",
+    "params",
+    "transaction_id"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1326,
+   "name": "resolve_operand",
+   "cls": "",
+   "lex": [
+    "anchor_operand",
+    "content",
+    "decision",
+    "decision_tools",
+    "follow_up_chains",
+    "grounded",
+    "items_id_path",
+    "items_key",
+    "nodes",
+    "operator",
+    "procedures",
+    "provenance",
+    "requires",
+    "status",
+    "tools",
+    "variant_spec"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1386,
+   "name": "resolve_write",
+   "cls": "",
+   "lex": [
+    "operator",
+    "provenance",
+    "status"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 64,
+   "name": "_args_dict",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 87,
+   "name": "_tool_outputs",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 137,
+   "name": "_container_elems",
+   "cls": "",
+   "lex": [
+    "field",
+    "id_key"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 152,
+   "name": "_avail",
+   "cls": "",
+   "lex": [
+    "available"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 206,
+   "name": "_build_catalog",
+   "cls": "",
+   "lex": [
+    "available",
+    "item_id",
+    "options"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 218,
+   "name": "_ground",
+   "cls": "",
+   "lex": [
+    "field",
+    "id_key",
+    "options",
+    "producer"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 272,
+   "name": "_log_event",
+   "cls": "",
+   "lex": [
+    "anchor"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 298,
+   "name": "_resolve",
+   "cls": "",
+   "lex": [
+    "item_id",
+    "options",
+    "producer",
+    "status"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 353,
+   "name": "apply",
+   "cls": "",
+   "lex": [
+    "producer"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_resolve_patch",
+   "line": 241,
+   "name": "_score",
+   "cls": "",
+   "lex": [
+    "options"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_role",
+   "line": 41,
+   "name": "executor_of",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_role",
+   "line": 61,
+   "name": "enum_of",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_role",
+   "line": 93,
+   "name": "consumers_of",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_run_gated",
+   "line": 58,
+   "name": "main",
+   "cls": "",
+   "lex": [
+    "banking_knowledge",
+    "content",
+    "message",
+    "pending",
+    "quote",
+    "retail",
+    "status",
+    "temperature",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": true
+  },
+  {
+   "mod": "t2_run_gated",
+   "line": 500,
+   "name": "_t2_msg_empty",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_run_gated",
+   "line": 517,
+   "name": "_reasoning_of",
+   "cls": "",
+   "lex": [
+    "message"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_run_gated",
+   "line": 530,
+   "name": "_t2_salvage_calls",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_run_gated",
+   "line": 570,
+   "name": "_t2_traced_generate",
+   "cls": "",
+   "lex": [
+    "content",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_run_gated",
+   "line": 1033,
+   "name": "_dirty",
+   "cls": "",
+   "lex": [
+    "status"
+   ],
+   "doms": [
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_salvage",
+   "line": 41,
+   "name": "extract_calls",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_salvage",
+   "line": 76,
+   "name": "find_first_call",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_salvage",
+   "line": 84,
+   "name": "salvage_message",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 61,
+   "name": "iso_keys_satisfied",
+   "cls": "",
+   "lex": [
+    "operand_keys"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 94,
+   "name": "_isolate_spec",
+   "cls": "",
+   "lex": [
+    "isolate"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 102,
+   "name": "_load_domain_docs",
+   "cls": "",
+   "lex": [
+    "content",
+    "title"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 135,
+   "name": "_quote_pin_check",
+   "cls": "",
+   "lex": [
+    "category",
+    "kind_field",
+    "policy_field",
+    "policy_group_rows",
+    "row_field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 175,
+   "name": "_qp_note",
+   "cls": "",
+   "lex": [
+    "row_field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 186,
+   "name": "_split_missing_fields",
+   "cls": "",
+   "lex": [
+    "row_fields"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 259,
+   "name": "_corpus_texts",
+   "cls": "",
+   "lex": [
+    "content",
+    "ledger",
+    "ledger_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 341,
+   "name": "_render_scalar",
+   "cls": "",
+   "lex": [
+    "missing_hint",
+    "result",
+    "return_template"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 370,
+   "name": "_window_coverage_note",
+   "cls": "",
+   "lex": [
+    "expected",
+    "incomplete_hint"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 391,
+   "name": "_groups_used_note",
+   "cls": "",
+   "lex": [
+    "absent",
+    "groups_used_note"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 423,
+   "name": "close_text",
+   "cls": "",
+   "lex": [
+    "answer_format",
+    "instructions"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 636,
+   "name": "_derived_grounded",
+   "cls": "",
+   "lex": [
+    "corpus",
+    "derived_from",
+    "ledger",
+    "number",
+    "param",
+    "round_to"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 695,
+   "name": "_ground_operands",
+   "cls": "",
+   "lex": [
+    "array_fields",
+    "corpus",
+    "cue_any",
+    "fail_feedback",
+    "ground",
+    "intent_fields",
+    "label_field",
+    "ledger",
+    "on_fail",
+    "param",
+    "quote_hint",
+    "require_value_in_source",
+    "scalar_fields",
+    "source_field",
+    "source_param",
+    "value_field"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 807,
+   "name": "_sub_formalize",
+   "cls": "",
+   "lex": [
+    "answer_format",
+    "content",
+    "getter",
+    "getter_tools",
+    "inject_docs",
+    "instructions",
+    "max_rounds",
+    "operand_schema",
+    "row_fields",
+    "temperature",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 896,
+   "name": "_docs_delivery",
+   "cls": "",
+   "lex": [
+    "always",
+    "by_class",
+    "chars",
+    "content",
+    "ranges",
+    "temperature"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 1041,
+   "name": "_sub_fetch_formalize",
+   "cls": "",
+   "lex": [
+    "answer_format",
+    "array_fields",
+    "content",
+    "getter",
+    "getter_tools",
+    "ground",
+    "group_by",
+    "instructions",
+    "max_rounds",
+    "operand_keys",
+    "operand_schema",
+    "param",
+    "params",
+    "producer_contains",
+    "ref_from_outputs",
+    "ref_params",
+    "row_kind",
+    "temperature",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 1546,
+   "name": "_sub_inject",
+   "cls": "",
+   "lex": [
+    "base_rate",
+    "category",
+    "category_note",
+    "content",
+    "doc_key",
+    "exclusion_quote",
+    "group_by",
+    "inject_instructions",
+    "kind_field",
+    "lookup_note",
+    "lookup_retry_prompt",
+    "max_batch",
+    "member_note",
+    "operand_schema",
+    "policy_field",
+    "quote_field",
+    "quote_min",
+    "quote_must_contain_field",
+    "quote_pin",
+    "range_retry_prompt",
+    "rate_field",
+    "rate_range",
+    "reject_note",
+    "retry_prompt",
+    "row_fields",
+    "temperature",
+    "title"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 1731,
+   "name": "_sub_wrap",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "chars",
+    "content",
+    "getter",
+    "getter_tools",
+    "instructions",
+    "max_getter_calls",
+    "max_rounds",
+    "max_sub_chars",
+    "quote_grounding",
+    "return_contract",
+    "return_template",
+    "temperature",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 1885,
+   "name": "_build_tool",
+   "cls": "",
+   "lex": [
+    "description",
+    "examples",
+    "params"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 1904,
+   "name": "_variant",
+   "cls": "",
+   "lex": [
+    "params"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 1928,
+   "name": "_augment_byref_params",
+   "cls": "",
+   "lex": [
+    "byref_join",
+    "from_ref_param",
+    "params"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2078,
+   "name": "_resolve_ref_output",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2159,
+   "name": "_byref_resolve",
+   "cls": "",
+   "lex": [
+    "byref_join",
+    "fetch_formalize",
+    "from_ref_param",
+    "operand_keys"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2253,
+   "name": "_byref_map_fields",
+   "cls": "",
+   "lex": [
+    "byref_field_map"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2289,
+   "name": "_byref_join",
+   "cls": "",
+   "lex": [
+    "byref_join",
+    "from_ref_param",
+    "row_field",
+    "source_field",
+    "source_selector"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2333,
+   "name": "_evidence_ctx",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2371,
+   "name": "_a2_named_in_args",
+   "cls": "",
+   "lex": [
+    "arguments"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2393,
+   "name": "apply",
+   "cls": "",
+   "lex": [
+    "amount_param",
+    "arguments",
+    "catalog_arg_docs",
+    "description",
+    "detail_item_template",
+    "dispatch_targets",
+    "dispatch_tool",
+    "evidence_from",
+    "fetch_formalize",
+    "function_agents",
+    "ground",
+    "grounded_params",
+    "min_exclusive",
+    "operand_keys",
+    "producer_contains",
+    "quote",
+    "quote_pin",
+    "requires_reads",
+    "requires_reads_feedback",
+    "result",
+    "result_range",
+    "result_range_feedback",
+    "result_round",
+    "return_template",
+    "return_template_empty",
+    "return_template_short",
+    "scaffold_get_tools",
+    "spend_category",
+    "spend_category_quote",
+    "tools",
+    "unavailable_tools",
+    "unlock_tool",
+    "unverified_note",
+    "unverified_requery_note",
+    "value_formula",
+    "wraps"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2406,
+   "name": "init2",
+   "cls": "",
+   "lex": [
+    "description",
+    "scaffold_get_tools",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 2457,
+   "name": "exec2",
+   "cls": "",
+   "lex": [
+    "amount_param",
+    "arguments",
+    "catalog_arg_docs",
+    "detail_item_template",
+    "dispatch_targets",
+    "dispatch_tool",
+    "evidence_from",
+    "fetch_formalize",
+    "function_agents",
+    "ground",
+    "grounded_params",
+    "min_exclusive",
+    "operand_keys",
+    "producer_contains",
+    "quote",
+    "quote_pin",
+    "requires_reads",
+    "requires_reads_feedback",
+    "result",
+    "result_range",
+    "result_range_feedback",
+    "result_round",
+    "return_template",
+    "return_template_empty",
+    "return_template_short",
+    "scaffold_get_tools",
+    "spend_category",
+    "spend_category_quote",
+    "unavailable_tools",
+    "unlock_tool",
+    "unverified_note",
+    "unverified_requery_note",
+    "value_formula",
+    "wraps"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 3373,
+   "name": "_get_response2",
+   "cls": "",
+   "lex": [
+    "scaffold_get_tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_scaffold_get",
+   "line": 1266,
+   "name": "_capm",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 43,
+   "name": "_rows",
+   "cls": "",
+   "lex": [
+    "policy_ontology"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 47,
+   "name": "linked_docs",
+   "cls": "",
+   "lex": [
+    "subject"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 61,
+   "name": "_ontology",
+   "cls": "",
+   "lex": [
+    "policy_ontology"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 65,
+   "name": "docs_for",
+   "cls": "",
+   "lex": [
+    "doc_index"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 89,
+   "name": "declared_windows",
+   "cls": "",
+   "lex": [
+    "doc_windows"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 105,
+   "name": "index_coverage",
+   "cls": "",
+   "lex": [
+    "doc_index"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 120,
+   "name": "action_index_note",
+   "cls": "",
+   "lex": [
+    "action_index",
+    "action_index_text",
+    "title",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 145,
+   "name": "corpus_from_env",
+   "cls": "",
+   "lex": [
+    "content",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 225,
+   "name": "read_docs",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 273,
+   "name": "material_for",
+   "cls": "",
+   "lex": [
+    "doc_index",
+    "general"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 379,
+   "name": "roster_for",
+   "cls": "",
+   "lex": [
+    "doc_index"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 397,
+   "name": "eligibility_line",
+   "cls": "",
+   "lex": [
+    "eligibility_line_template",
+    "eligibility_prompt",
+    "eligibility_values"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 438,
+   "name": "handoff_missing",
+   "cls": "",
+   "lex": [
+    "discoverable_tool_name",
+    "give_discoverable_user_tool"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 510,
+   "name": "formalize_groups",
+   "cls": "",
+   "lex": [
+    "group_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 639,
+   "name": "sub_requirements",
+   "cls": "",
+   "lex": [
+    "requirement_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 676,
+   "name": "sub_tool_names",
+   "cls": "",
+   "lex": [
+    "tool_names_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 707,
+   "name": "verdict_lines",
+   "cls": "",
+   "lex": [
+    "doc_index",
+    "verdict_line_template",
+    "verdict_max_candidates",
+    "verdict_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 792,
+   "name": "decide_from_docs",
+   "cls": "",
+   "lex": [
+    "doc_decide_prompt"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_search",
+   "line": 162,
+   "name": "_as_map",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_signature",
+   "line": 30,
+   "name": "declared_signature",
+   "cls": "",
+   "lex": [
+    "tool_signatures"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_source",
+   "line": 57,
+   "name": "_name_args",
+   "cls": "",
+   "lex": [
+    "dispatcher_role_check",
+    "name_args"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_source",
+   "line": 63,
+   "name": "_registry",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_source",
+   "line": 82,
+   "name": "build_corpus",
+   "cls": "",
+   "lex": [
+    "content",
+    "ledger",
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_source",
+   "line": 115,
+   "name": "has_source",
+   "cls": "",
+   "lex": [
+    "ledger"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_source",
+   "line": 156,
+   "name": "uncalled_in_corpus",
+   "cls": "",
+   "lex": [
+    "arguments",
+    "ledger"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_source",
+   "line": 200,
+   "name": "formalize_claims",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_source",
+   "line": 271,
+   "name": "unsourced_claims",
+   "cls": "",
+   "lex": [
+    "ledger"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_source",
+   "line": 334,
+   "name": "unsourced_text",
+   "cls": "",
+   "lex": [
+    "arbitration",
+    "unsourced_claim_feedback"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_speak",
+   "line": 40,
+   "name": "_procs",
+   "cls": "",
+   "lex": [
+    "procedures"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_speak",
+   "line": 44,
+   "name": "silence_reason",
+   "cls": "",
+   "lex": [
+    "prohibits"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_speak",
+   "line": 63,
+   "name": "prohibits_target",
+   "cls": "",
+   "lex": [
+    "speak_prohibit"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_stack",
+   "line": 468,
+   "name": "route",
+   "cls": "",
+   "lex": [
+    "order",
+    "target"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_stack",
+   "line": 817,
+   "name": "audit",
+   "cls": "",
+   "lex": [
+    "target"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_stack",
+   "line": 538,
+   "name": "register",
+   "cls": "Stack",
+   "lex": [
+    "order",
+    "requires",
+    "target"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_stack",
+   "line": 555,
+   "name": "speak",
+   "cls": "Stack",
+   "lex": [
+    "order",
+    "requires",
+    "target"
+   ],
+   "doms": [
+    "banking_knowledge",
+    "retail"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_subcall",
+   "line": 72,
+   "name": "sub_generate",
+   "cls": "",
+   "lex": [
+    "content",
+    "temperature"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_subcall",
+   "line": 169,
+   "name": "recent_tool_text",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_transcribe",
+   "line": 84,
+   "name": "mismatches",
+   "cls": "",
+   "lex": [
+    "id_key"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_transcribe",
+   "line": 107,
+   "name": "missing_fields",
+   "cls": "",
+   "lex": [
+    "id_key"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_transcribe",
+   "line": 139,
+   "name": "unknown_ids",
+   "cls": "",
+   "lex": [
+    "id_key"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_transcribe",
+   "line": 159,
+   "name": "field_sources",
+   "cls": "",
+   "lex": [
+    "field",
+    "field_sources",
+    "id_key"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_transfer_prereq",
+   "line": 61,
+   "name": "selftest",
+   "cls": "",
+   "lex": [
+    "get_current_time",
+    "get_user_information_by_name"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": true
+  },
+  {
+   "mod": "t2_unknown_bool",
+   "line": 44,
+   "name": "_schema_of",
+   "cls": "",
+   "lex": [
+    "tools"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_unknown_bool",
+   "line": 70,
+   "name": "_is_record_field",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_unknown_bool",
+   "line": 116,
+   "name": "_customer_stated",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  },
+  {
+   "mod": "t2_unknown_bool",
+   "line": 169,
+   "name": "selftest",
+   "cls": "",
+   "lex": [
+    "apply_for_credit_card",
+    "invited",
+    "silver"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": true
+  },
+  {
+   "mod": "t2_window",
+   "line": 26,
+   "name": "_text",
+   "cls": "",
+   "lex": [
+    "content"
+   ],
+   "doms": [
+    "banking_knowledge"
+   ],
+   "testish": false
+  }
+ ]
+}

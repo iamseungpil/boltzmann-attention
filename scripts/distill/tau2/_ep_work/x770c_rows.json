@@ -1,0 +1,313 @@
+[
+ {
+  "mod": "t2_axis_levers",
+  "line": 94,
+  "end": 111,
+  "cls": "",
+  "name": "channel_note",
+  "d1": [
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "unlock_discoverable_agent_tool"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_callable_hint",
+  "line": 97,
+  "end": 172,
+  "cls": "",
+  "name": "selftest",
+  "d1": [
+   "call_discoverable_agent_tool",
+   "close_debit_card_4721",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_credit_limit_increase_history_4829",
+   "get_payment_history_6183",
+   "unlock_discoverable_agent_tool"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": true,
+  "guarded": false
+ },
+ {
+  "mod": "t2_claim_block",
+  "line": 74,
+  "end": 115,
+  "cls": "",
+  "name": "selftest",
+  "d1": [
+   "KB_search",
+   "apply_for_credit_card",
+   "get_user_information_by_name",
+   "submit_cash_back_dispute_0589"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": true,
+  "guarded": false
+ },
+ {
+  "mod": "t2_compute",
+  "line": 143,
+  "end": 1107,
+  "cls": "",
+  "name": "_apply_op",
+  "d1": [],
+  "d3a": [],
+  "d3b": [
+   " card "
+  ],
+  "doms": [],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 1479,
+  "end": 1625,
+  "cls": "",
+  "name": "_axis_surface",
+  "d1": [
+   "KB_search"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 2491,
+  "end": 2541,
+  "cls": "",
+  "name": "_give_required_fb",
+  "d1": [
+   "call_discoverable_user_tool",
+   "give_discoverable_user_tool"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 2544,
+  "end": 2592,
+  "cls": "",
+  "name": "_call_form_repair",
+  "d1": [
+   "call_discoverable_user_tool",
+   "give_discoverable_user_tool"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 8425,
+  "end": 15546,
+  "cls": "",
+  "name": "apply_unified_regen",
+  "d1": [
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 8685,
+  "end": 15522,
+  "cls": "",
+  "name": "unified",
+  "d1": [
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_handoff_ground",
+  "line": 101,
+  "end": 148,
+  "cls": "",
+  "name": "selftest",
+  "d1": [
+   "give_discoverable_user_tool"
+  ],
+  "d3a": [],
+  "d3b": [
+   " card "
+  ],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": true,
+  "guarded": false
+ },
+ {
+  "mod": "t2_pin_read",
+  "line": 311,
+  "end": 427,
+  "cls": "",
+  "name": "selftest",
+  "d1": [
+   "KB_search",
+   "call_discoverable_agent_tool",
+   "get_all_user_accounts_by_user_id_3847",
+   "unlock_discoverable_agent_tool"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": true,
+  "guarded": false
+ },
+ {
+  "mod": "t2_prekb_patch",
+  "line": 172,
+  "end": 193,
+  "cls": "",
+  "name": "_has_evidence",
+  "d1": [
+   "KB_search"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_prekb_patch",
+  "line": 196,
+  "end": 205,
+  "cls": "",
+  "name": "deny_text",
+  "d1": [
+   "KB_search"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": true
+ },
+ {
+  "mod": "t2_quote_hint",
+  "line": 88,
+  "end": 112,
+  "cls": "",
+  "name": "selftest",
+  "d1": [],
+  "d3a": [],
+  "d3b": [
+   " card ",
+   "credit card"
+  ],
+  "doms": [],
+  "testish": true,
+  "guarded": false
+ },
+ {
+  "mod": "t2_search",
+  "line": 438,
+  "end": 463,
+  "cls": "",
+  "name": "handoff_missing",
+  "d1": [
+   "give_discoverable_user_tool"
+  ],
+  "d3a": [],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": false,
+  "guarded": false
+ },
+ {
+  "mod": "t2_transfer_prereq",
+  "line": 61,
+  "end": 91,
+  "cls": "",
+  "name": "selftest",
+  "d1": [
+   "KB_search",
+   "get_current_time",
+   "get_user_information_by_name"
+  ],
+  "d3a": [
+   "transfer_to_human_agents"
+  ],
+  "d3b": [],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": true,
+  "guarded": false
+ },
+ {
+  "mod": "t2_unknown_bool",
+  "line": 169,
+  "end": 251,
+  "cls": "",
+  "name": "selftest",
+  "d1": [
+   "apply_for_credit_card"
+  ],
+  "d3a": [],
+  "d3b": [
+   " card "
+  ],
+  "doms": [
+   "banking_knowledge"
+  ],
+  "testish": true,
+  "guarded": false
+ }
+]

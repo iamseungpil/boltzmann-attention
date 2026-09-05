@@ -1,0 +1,655 @@
+{
+ "fallback": [
+  {
+   "mod": "gate_interpreter",
+   "line": 504,
+   "fn": "candidate_summary",
+   "lit": [
+    "order_id"
+   ],
+   "slot": "detail_id_arg",
+   "src": "id_arg = gate.get(\"detail_id_arg\", \"order_id\")"
+  },
+  {
+   "mod": "gate_interpreter",
+   "line": 318,
+   "fn": "_present_candidates",
+   "lit": [
+    "order_id"
+   ],
+   "slot": "detail_id_arg",
+   "src": "id_arg = gate.get(\"detail_id_arg\", \"order_id\")"
+  },
+  {
+   "mod": "t2_axis_levers",
+   "line": 96,
+   "fn": "channel_note",
+   "lit": [
+    "discoverable_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "want = str(args.get(\"agent_tool_name\") or args.get(\"discoverable_tool_name\") or \"\").strip()"
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 414,
+   "fn": "chain_gap",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "dispatch_name_key",
+   "src": "disp_name_key = spec.get(\"dispatch_name_key\", \"agent_tool_name\")"
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 584,
+   "fn": "build_ledger_from_messages",
+   "lit": [
+    "item_ids"
+   ],
+   "slot": "items_key",
+   "src": "ikey = spec.get(\"items_key\", \"item_ids\")"
+  },
+  {
+   "mod": "t2_eplan_patch",
+   "line": 588,
+   "fn": "build_ledger_from_messages",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "dispatch_name_key",
+   "src": "disp_name_key = spec.get(\"dispatch_name_key\", \"agent_tool_name\")"
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 433,
+   "fn": "_variant_records_for",
+   "lit": [
+    "item_id"
+   ],
+   "slot": "id_field",
+   "src": "idf = spec.get(\"id_field\") or \"item_id\""
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 448,
+   "fn": "_variant_records",
+   "lit": [
+    "item_id"
+   ],
+   "slot": "id_field",
+   "src": "idf = spec.get(\"id_field\") or \"item_id\""
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2041,
+   "fn": "_ref_verify_deny",
+   "lit": [
+    "merchant_name"
+   ],
+   "slot": "record_field",
+   "src": "field = sp.get(\"record_field\", \"merchant_name\")"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3718,
+   "fn": "_eff_tool_name",
+   "lit": [
+    "user_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "inner = ar.get(\"agent_tool_name\") or ar.get(\"user_tool_name\") or ar.get(\"discoverable_tool_name\") or \"\""
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3718,
+   "fn": "_eff_tool_name",
+   "lit": [
+    "discoverable_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "inner = ar.get(\"agent_tool_name\") or ar.get(\"user_tool_name\") or ar.get(\"discoverable_tool_name\") or \"\""
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4001,
+   "fn": "_exact_tool_name",
+   "lit": [
+    "user_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "inner = (ar.get(\"agent_tool_name\") or ar.get(\"user_tool_name\")"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4001,
+   "fn": "_exact_tool_name",
+   "lit": [
+    "discoverable_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "inner = (ar.get(\"agent_tool_name\") or ar.get(\"user_tool_name\")"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4530,
+   "fn": "_sibling_wait",
+   "lit": [
+    "user_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "_inner = (_ar.get(\"agent_tool_name\") or _ar.get(\"user_tool_name\")"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4530,
+   "fn": "_sibling_wait",
+   "lit": [
+    "discoverable_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "_inner = (_ar.get(\"agent_tool_name\") or _ar.get(\"user_tool_name\")"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 7499,
+   "fn": "unused_grants",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "dispatch_name_key",
+   "src": "epl.get(\"dispatch_name_key\") or \"agent_tool_name\")"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 9280,
+   "fn": "unified",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "dispatch_name_key",
+   "src": "_nk = ep_spec.get(\"dispatch_name_key\") or \"agent_tool_name\""
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 13388,
+   "fn": "_fab_write_ungrounded",
+   "lit": [
+    "user_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "inner = (ar.get(\"agent_tool_name\") or ar.get(\"user_tool_name\")"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 13388,
+   "fn": "_fab_write_ungrounded",
+   "lit": [
+    "discoverable_tool_name"
+   ],
+   "slot": "agent_tool_name",
+   "src": "inner = (ar.get(\"agent_tool_name\") or ar.get(\"user_tool_name\")"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 3888,
+   "fn": "distinct_args_violation",
+   "lit": [
+    "banking_knowledge"
+   ],
+   "slot": "_domain",
+   "src": "_dom = (a2 or {}).get(\"_domain\") or \"banking_knowledge\""
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 9182,
+   "fn": "unified",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "dispatch_name_key",
+   "src": "ep_spec.get(\"dispatch_name_key\", \"agent_tool_name\"), \"\")))"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 9195,
+   "fn": "unified",
+   "lit": [
+    "item_ids"
+   ],
+   "slot": "items_key",
+   "src": "ep_spec.get(\"items_key\", \"item_ids\")) or ()"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 9228,
+   "fn": "unified",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "dispatch_name_key",
+   "src": "ep_spec.get(\"dispatch_name_key\", \"agent_tool_name\"), \"\")))"
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 152,
+   "fn": "_dispatch_names",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "dispatch_name_key",
+   "src": "ep.get(\"dispatch_name_key\") or \"agent_tool_name\")"
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 161,
+   "fn": "resolve_operator",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "arg",
+   "src": "arg = opspec.get(\"arg\", \"agent_tool_name\")"
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1297,
+   "fn": "resolve_compute_params",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "dispatch_name_key",
+   "src": "_nkey = _ep.get(\"dispatch_name_key\") or \"agent_tool_name\""
+  },
+  {
+   "mod": "t2_resolve",
+   "line": 1255,
+   "fn": "_resolve_one_reference_filter",
+   "lit": [
+    "merchant",
+    "transaction_type"
+   ],
+   "slot": "criteria_fields",
+   "src": "spec.get(\"criteria_fields\") or [\"date\", \"merchant\", \"transaction_type\"])"
+  }
+ ],
+ "compare": [
+  {
+   "mod": "t2_axis_levers",
+   "line": 99,
+   "fn": "channel_note",
+   "lit": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "slot": "",
+   "src": "if name == \"unlock_discoverable_agent_tool\":"
+  },
+  {
+   "mod": "t2_axis_levers",
+   "line": 106,
+   "fn": "channel_note",
+   "lit": [
+    "call_discoverable_agent_tool"
+   ],
+   "slot": "",
+   "src": "if name == \"call_discoverable_agent_tool\":"
+  },
+  {
+   "mod": "t2_axis_levers",
+   "line": 104,
+   "fn": "channel_note",
+   "lit": [
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "if name == \"give_discoverable_user_tool\" and want in agent_d and want not in user_d:"
+  },
+  {
+   "mod": "t2_compliance",
+   "line": 191,
+   "fn": "load_order_owner",
+   "lit": [
+    "retail"
+   ],
+   "slot": "",
+   "src": "if domain != \"retail\":"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 338,
+   "fn": "_apply_op",
+   "lit": [
+    "catalog_filter"
+   ],
+   "slot": "",
+   "src": "if op == \"catalog_filter\":"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 792,
+   "fn": "_apply_op",
+   "lit": [
+    "catalog_compute"
+   ],
+   "slot": "",
+   "src": "if op == \"catalog_compute\":"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 447,
+   "fn": "_apply_op",
+   "lit": [
+    "cashback"
+   ],
+   "slot": "",
+   "src": "if _scope and _scope != \"all\" and facts.get(\"cashback\") is not None:"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 365,
+   "fn": "_apply_op",
+   "lit": [
+    "category_rates"
+   ],
+   "slot": "",
+   "src": "_spc_known = any(_spc0 in {str(k).lower() for k in (r.get(\"category_rates\") or {})}"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 382,
+   "fn": "_apply_op",
+   "lit": [
+    "invited"
+   ],
+   "slot": "",
+   "src": "and \"invited\" not in ctx):"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 433,
+   "fn": "_apply_op",
+   "lit": [
+    "card"
+   ],
+   "slot": "",
+   "src": "facts = {k: v for k, v in row.items() if k not in (\"card\", \"business\")}"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 450,
+   "fn": "_apply_op",
+   "lit": [
+    "cashback"
+   ],
+   "slot": "",
+   "src": "else (row.get(\"cashback\") if row.get(\"cashback\") is not None"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 561,
+   "fn": "_apply_op",
+   "lit": [
+    "card",
+    "invite_only"
+   ],
+   "slot": "",
+   "src": "if _k0 not in (\"card\", \"business\", \"invite_only\", \"source\") and _k0 not in _cols:"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 465,
+   "fn": "_apply_op",
+   "lit": [
+    "base_cashback"
+   ],
+   "slot": "",
+   "src": "if row.get(\"base_cashback\") is not None else \"%s%%\" % _crl[_spc]"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 466,
+   "fn": "_apply_op",
+   "lit": [
+    "base_cashback"
+   ],
+   "slot": "",
+   "src": "elif _crl and row.get(\"base_cashback\") is not None:"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 469,
+   "fn": "_apply_op",
+   "lit": [
+    "base_cashback"
+   ],
+   "slot": "",
+   "src": "elif row.get(\"base_cashback\") is not None:"
+  },
+  {
+   "mod": "t2_compute",
+   "line": 471,
+   "fn": "_apply_op",
+   "lit": [
+    "cashback"
+   ],
+   "slot": "",
+   "src": "elif row.get(\"cashback\") is not None and not _crl:"
+  },
+  {
+   "mod": "t2_declfirst",
+   "line": 225,
+   "fn": "<module>",
+   "lit": [
+    "KB_search"
+   ],
+   "slot": "",
+   "src": "assert \"tool_calls\" not in p and \"KB_search\" in p and \"VERBATIM\" in p"
+  },
+  {
+   "mod": "t2_dominance",
+   "line": 470,
+   "fn": "<module>",
+   "lit": [
+    "verify_identity"
+   ],
+   "slot": "",
+   "src": "assert r[0][\"satisfiers\"] == [\"verify_identity\"], r      # 끝이 아니라 첫 걸음"
+  },
+  {
+   "mod": "t2_formalize_exec",
+   "line": 552,
+   "fn": "tie_break",
+   "lit": [
+    "min_price"
+   ],
+   "slot": "",
+   "src": "if mode != \"min_price\" or not ids or len(ids) < 2:"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2533,
+   "fn": "_give_required_fb",
+   "lit": [
+    "call_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "if str(getattr(tc, \"name\", \"\")) != \"call_discoverable_user_tool\":"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2578,
+   "fn": "_call_form_repair",
+   "lit": [
+    "call_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "if str(getattr(tc, \"name\", \"\")) != \"call_discoverable_user_tool\":"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 4099,
+   "fn": "_dispatch_tools",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "",
+   "src": "if \"agent_tool_name\" not in props:"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2476,
+   "fn": "_tool_given",
+   "lit": [
+    "discoverable_tool_name"
+   ],
+   "slot": "",
+   "src": "if acquire_tool in vals or a.get(\"discoverable_tool_name\") == acquire_tool \\"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 2477,
+   "fn": "_tool_given",
+   "lit": [
+    "agent_tool_name"
+   ],
+   "slot": "",
+   "src": "or a.get(\"agent_tool_name\") == acquire_tool:"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 12581,
+   "fn": "unified",
+   "lit": [
+    "agent_tool_name",
+    "discoverable_tool_name",
+    "user_tool_name"
+   ],
+   "slot": "",
+   "src": "if k in (\"agent_tool_name\", \"discoverable_tool_name\", \"user_tool_name\"):"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 15270,
+   "fn": "unified",
+   "lit": [
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "_nowgive = any(str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\""
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 11856,
+   "fn": "unified",
+   "lit": [
+    "agent_tool_name",
+    "discoverable_tool_name",
+    "user_tool_name"
+   ],
+   "slot": "",
+   "src": "if _k2 not in (\"arguments\", \"agent_tool_name\", \"user_tool_name\","
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 15236,
+   "fn": "unified",
+   "lit": [
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "if str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\"), None)"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 15365,
+   "fn": "unified",
+   "lit": [
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "if str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\"), None)"
+  },
+  {
+   "mod": "t2_gate_patch",
+   "line": 15383,
+   "fn": "unified",
+   "lit": [
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "_still = any(str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\""
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 716,
+   "fn": "<module>",
+   "lit": [
+    "agent_tool_name",
+    "unlock_discoverable_agent_tool"
+   ],
+   "slot": "",
+   "src": "assert _effective_fams({\"name\": \"unlock_discoverable_agent_tool\","
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 720,
+   "fn": "<module>",
+   "lit": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "slot": "",
+   "src": "assert _effective_fams({\"name\": \"unlock_discoverable_agent_tool\"}) ==         [\"unlock_discoverable_agent_tool\"]"
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 776,
+   "fn": "<module>",
+   "lit": [
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "assert _declared_give_tool(a2fu) == \"give_discoverable_user_tool\""
+  },
+  {
+   "mod": "t2_prekb_patch",
+   "line": 784,
+   "fn": "<module>",
+   "lit": [
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "assert \"CUSTOMER-side tool\" in g4 and \"give_discoverable_user_tool\" in g4"
+  },
+  {
+   "mod": "t2_search",
+   "line": 460,
+   "fn": "handoff_missing",
+   "lit": [
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "if str(getattr(tc, \"name\", \"\")) == \"give_discoverable_user_tool\":"
+  },
+  {
+   "mod": "t2_signature",
+   "line": 70,
+   "fn": "<module>",
+   "lit": [
+    "discoverable_tool_name",
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "assert signature_violation(\"give_discoverable_user_tool\","
+  },
+  {
+   "mod": "t2_signature",
+   "line": 74,
+   "fn": "<module>",
+   "lit": [
+    "discoverable_tool_name",
+    "give_discoverable_user_tool"
+   ],
+   "slot": "",
+   "src": "assert signature_violation(\"give_discoverable_user_tool\","
+  }
+ ]
+}

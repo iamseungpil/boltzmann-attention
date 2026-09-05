@@ -1,0 +1,1282 @@
+[
+ {
+  "key": "gates",
+  "layer": "L2",
+  "cls": "collection",
+  "dom": "3dom",
+  "n": 3,
+  "bytes": 9849,
+  "shp": 3,
+  "ncons": 21,
+  "cons": [
+   [
+    "t2_compliance",
+    "domain_constants"
+   ],
+   [
+    "t2_dominance",
+    "dominating_gate"
+   ],
+   [
+    "t2_dominance",
+    "merged_text"
+   ]
+  ],
+  "ntools": 12,
+  "verdict": "도메인-불변(증식)"
+ },
+ {
+  "key": "producers",
+  "layer": "L2",
+  "cls": "empty",
+  "dom": "3dom",
+  "n": 0,
+  "bytes": 2,
+  "shp": 0,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_domain_a2"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-불변"
+ },
+ {
+  "key": "identifying_arg_types",
+  "layer": "L2",
+  "cls": "list_of_scalar",
+  "dom": "2dom",
+  "n": 1,
+  "bytes": 8,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_domain_a2"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-불변"
+ },
+ {
+  "key": "eplan",
+  "layer": "L2",
+  "cls": "record",
+  "dom": "3dom",
+  "n": 15,
+  "bytes": 5098,
+  "shp": 4,
+  "ncons": 18,
+  "cons": [
+   [
+    "t2_eplan_patch",
+    "<module>"
+   ],
+   [
+    "t2_eplan_patch",
+    "PlanLedger"
+   ],
+   [
+    "t2_eplan_patch",
+    "load_eplan_spec"
+   ]
+  ],
+  "ntools": 5,
+  "verdict": "도메인-불변"
+ },
+ {
+  "key": "operands",
+  "layer": "L2",
+  "cls": "collection",
+  "dom": "2dom",
+  "n": 2,
+  "bytes": 452,
+  "shp": 1,
+  "ncons": 6,
+  "cons": [
+   [
+    "t2_resolve",
+    "<module>"
+   ],
+   [
+    "t2_resolve",
+    "_discoverable_dispatchers"
+   ],
+   [
+    "t2_resolve",
+    "resolve_write"
+   ]
+  ],
+  "ntools": 2,
+  "verdict": "도메인-불변"
+ },
+ {
+  "key": "action_tools",
+  "layer": "L2",
+  "cls": "list_of_scalar",
+  "dom": "3dom",
+  "n": 8,
+  "bytes": 215,
+  "shp": 1,
+  "ncons": 3,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ],
+   [
+    "t2_resolve",
+    "action_candidates"
+   ],
+   [
+    "t2_resolve",
+    "resolve_action_operator"
+   ]
+  ],
+  "ntools": 8,
+  "verdict": "도메인-불변"
+ },
+ {
+  "key": "policy_facts_file",
+  "layer": "L3",
+  "cls": "scalar",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 37,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_policy_facts"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "reference_filter",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 2,
+  "bytes": 1207,
+  "shp": 1,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ],
+   [
+    "t2_resolve",
+    "resolve_reference_filter"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "compute_ops",
+  "layer": "L3",
+  "cls": "empty",
+  "dom": "bank-only",
+  "n": 0,
+  "bytes": 2,
+  "shp": 0,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ],
+   [
+    "t2_resolve",
+    "resolve_compute_params"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "recommendation_verify",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 6,
+  "bytes": 533,
+  "shp": 1,
+  "ncons": 3,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_write_choice_arg"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ],
+   [
+    "t2_resolve",
+    "resolve_recommendation"
+   ]
+  ],
+  "ntools": 2,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "field_ops",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 5,
+  "bytes": 820,
+  "shp": 2,
+  "ncons": 0,
+  "cons": [],
+  "ntools": 0,
+  "verdict": "판정불가"
+ },
+ {
+  "key": "function_agents",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 2587,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_scaffold_get",
+    "apply"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "write_evidence_specs",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 14,
+  "bytes": 23104,
+  "shp": 5,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 3,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "scaffold_get_tools",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 10,
+  "bytes": 156950,
+  "shp": 10,
+  "ncons": 12,
+  "cons": [
+   [
+    "t2_axis_levers",
+    "<module>"
+   ],
+   [
+    "t2_axis_levers",
+    "registry_from_a2"
+   ],
+   [
+    "t2_dominance",
+    "merged_text"
+   ]
+  ],
+  "ntools": 17,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "analysis_producers",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 211,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "assertion_operands",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 2,
+  "bytes": 117,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "follow_up_chains",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 4,
+  "bytes": 9848,
+  "shp": 3,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ],
+   [
+    "t2_resolve",
+    "resolve_operand"
+   ]
+  ],
+  "ntools": 19,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "write_arg_grounding",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 7,
+  "bytes": 7133,
+  "shp": 4,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 5,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "write_arg_enum",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 9,
+  "bytes": 15700,
+  "shp": 4,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_write_choice_arg"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 2,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "have_value_reask",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 1569,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 4,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "value_acquisition",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 1392,
+  "shp": 1,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_a2_procedural"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 3,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "view_field_annotations",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 1243,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "unavailable_tools",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 213,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_scaffold_get",
+    "apply"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "nonlisted_tool_feedback",
+  "layer": "L3",
+  "cls": "scalar",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 282,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 3,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "discoverable_name_check",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 17,
+  "bytes": 8300,
+  "shp": 3,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 5,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "dispatcher_role_check",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 12,
+  "bytes": 3496,
+  "shp": 2,
+  "ncons": 8,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_read_routine_pin"
+   ],
+   [
+    "t2_gate_patch",
+    "_unlocked_names"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 4,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "param_cap_check",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 1542,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "prescription_redirect",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 1918,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "ref_iso",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 858,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 2,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "ref_verify",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 1270,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "arg_producers",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 63,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_prekb_patch",
+    "_argprod_hits"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "tool_signatures",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 59,
+  "shp": 1,
+  "ncons": 3,
+  "cons": [
+   [
+    "t2_signature",
+    "<module>"
+   ],
+   [
+    "t2_signature",
+    "declared_signature"
+   ],
+   [
+    "t2_signature",
+    "signature_violation"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "claim_bindings",
+  "layer": "L2",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 5,
+  "bytes": 972,
+  "shp": 3,
+  "ncons": 1,
+  "cons": [
+   [
+    "gate_interpreter",
+    "_compose_claim_audit"
+   ]
+  ],
+  "ntools": 2,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "claim_prov",
+  "layer": "loader",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 7,
+  "bytes": 4094,
+  "shp": 3,
+  "ncons": 2,
+  "cons": [
+   [
+    "gate_interpreter",
+    "_compose_claim_audit"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "completion_guard",
+  "layer": "loader",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 3,
+  "bytes": 1112,
+  "shp": 1,
+  "ncons": 3,
+  "cons": [
+   [
+    "gate_interpreter",
+    "_compose_claim_audit"
+   ],
+   [
+    "t2_gate_patch",
+    "_a2_procedural"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "transfer_reason_policy",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 6,
+  "bytes": 1778,
+  "shp": 4,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "transcription_check",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 5,
+  "bytes": 2787,
+  "shp": 2,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "search_exhaust_escalation",
+  "layer": "L3",
+  "cls": "scalar",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 525,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "tool_unlock_hint",
+  "layer": "L3",
+  "cls": "scalar",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 235,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "require_doc_before",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 3,
+  "bytes": 1157,
+  "shp": 2,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_require_doc_deliver"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 4,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "withdrawn_row_check",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 4,
+  "bytes": 1579,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "procedures",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 6,
+  "bytes": 22875,
+  "shp": 4,
+  "ncons": 4,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_read_routine_pin"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ],
+   [
+    "t2_resolve",
+    "resolve_operand"
+   ]
+  ],
+  "ntools": 20,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "choice_grounding",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 418,
+  "shp": 1,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_write_choice_arg"
+   ],
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "arbitration",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 6,
+  "bytes": 4988,
+  "shp": 1,
+  "ncons": 5,
+  "cons": [
+   [
+    "t2_dominance",
+    "cleared"
+   ],
+   [
+    "t2_dominance",
+    "merged_text"
+   ],
+   [
+    "t2_dominance",
+    "requirement_text"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "suppression_authority",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 3,
+  "bytes": 1519,
+  "shp": 2,
+  "ncons": 3,
+  "cons": [
+   [
+    "t2_authority",
+    "_declares_any"
+   ],
+   [
+    "t2_authority",
+    "may_suppress"
+   ],
+   [
+    "t2_authority",
+    "warrant_of"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "failure_markers",
+  "layer": "L2",
+  "cls": "list_of_scalar",
+  "dom": "3dom",
+  "n": 5,
+  "bytes": 90,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_executed_tool_names"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-불변"
+ },
+ {
+  "key": "derived",
+  "layer": "L2",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 17,
+  "bytes": 5044,
+  "shp": 3,
+  "ncons": 3,
+  "cons": [
+   [
+    "gate_interpreter",
+    "_spread_name_rules"
+   ],
+   [
+    "t2_factdag",
+    "load"
+   ],
+   [
+    "t2_gate_patch",
+    "_limit_reduce_text"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "ledger_metrics",
+  "layer": "L2",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 2,
+  "bytes": 37581,
+  "shp": 2,
+  "ncons": 3,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_install_regen_exec"
+   ],
+   [
+    "t2_gate_patch",
+    "_search_material"
+   ],
+   [
+    "t2_ledger",
+    "specs_for"
+   ]
+  ],
+  "ntools": 2,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "relations",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 5,
+  "bytes": 10515,
+  "shp": 4,
+  "ncons": 4,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_decl_howto"
+   ],
+   [
+    "t2_gate_patch",
+    "_fab_fix_note"
+   ],
+   [
+    "t2_gate_patch",
+    "_first_origin_fab"
+   ]
+  ],
+  "ntools": 13,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "policy_ontology",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 32,
+  "bytes": 157202,
+  "shp": 9,
+  "ncons": 8,
+  "cons": [
+   [
+    "gate_interpreter",
+    "_resolve_a3_refs"
+   ],
+   [
+    "t2_gate_patch",
+    "_a3_subject_docs"
+   ],
+   [
+    "t2_gate_patch",
+    "_limit_reduce_text"
+   ]
+  ],
+  "ntools": 47,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "name_rules",
+  "layer": "L2",
+  "cls": "scalar",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 707,
+  "shp": 1,
+  "ncons": 2,
+  "cons": [
+   [
+    "gate_interpreter",
+    "_spread_name_rules"
+   ],
+   [
+    "t2_factdag",
+    "evaluate"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "write_initiation",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 7,
+  "bytes": 1771,
+  "shp": 2,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ],
+   [
+    "t2_resolve",
+    "sub_write_proposal"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "catalog_attrs",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 16,
+  "bytes": 4248,
+  "shp": 1,
+  "ncons": 0,
+  "cons": [],
+  "ntools": 0,
+  "verdict": "판정불가"
+ },
+ {
+  "key": "catalog_arg_families",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 2,
+  "bytes": 175,
+  "shp": 1,
+  "ncons": 0,
+  "cons": [],
+  "ntools": 0,
+  "verdict": "판정불가"
+ },
+ {
+  "key": "catalog_arg_docs",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 2993,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_scaffold_get",
+    "apply"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "arg_source_reads",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 20,
+  "bytes": 3956,
+  "shp": 2,
+  "ncons": 3,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_fab_fix_note"
+   ],
+   [
+    "t2_gate_patch",
+    "_first_origin_fab"
+   ],
+   [
+    "t2_gate_patch",
+    "_label_mismatch_deny"
+   ]
+  ],
+  "ntools": 8,
+  "verdict": "도메인-형상(증식)"
+ },
+ {
+  "key": "enum_priority",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 6,
+  "bytes": 2536,
+  "shp": 2,
+  "ncons": 0,
+  "cons": [],
+  "ntools": 4,
+  "verdict": "판정불가"
+ },
+ {
+  "key": "write_rules",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "bank-only",
+  "n": 3,
+  "bytes": 3861,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_declared_rules_for"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "write_once_keys",
+  "layer": "L3",
+  "cls": "collection",
+  "dom": "2dom",
+  "n": 1,
+  "bytes": 776,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "_once_key_of"
+   ]
+  ],
+  "ntools": 2,
+  "verdict": "도메인-불변"
+ },
+ {
+  "key": "free_text_defaults",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 39,
+  "shp": 1,
+  "ncons": 2,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ],
+   [
+    "t2_gate_patch",
+    "free_text_drop"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "distinct_args",
+  "layer": "L3",
+  "cls": "record",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 845,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "distinct_args_violation"
+   ]
+  ],
+  "ntools": 1,
+  "verdict": "도메인-형상"
+ },
+ {
+  "key": "group_dup_policy_docs",
+  "layer": "L3",
+  "cls": "list_of_scalar",
+  "dom": "bank-only",
+  "n": 1,
+  "bytes": 44,
+  "shp": 1,
+  "ncons": 1,
+  "cons": [
+   [
+    "t2_gate_patch",
+    "apply_unified_regen"
+   ]
+  ],
+  "ntools": 0,
+  "verdict": "도메인-형상"
+ }
+]

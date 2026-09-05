@@ -1,0 +1,653 @@
+[
+ {
+  "key": "policy_ontology",
+  "bytes": 157202,
+  "n": 32,
+  "tools_declared_present": 46,
+  "tools_present_sample": [
+   "activate_debit_card_8291",
+   "activate_debit_card_8292",
+   "activate_debit_card_8293",
+   "apply_checking_account_credit_5829",
+   "apply_credit_card_account_flag_6147"
+  ],
+  "empty": false
+ },
+ {
+  "key": "scaffold_get_tools",
+  "bytes": 156950,
+  "n": 10,
+  "tools_declared_present": 15,
+  "tools_present_sample": [
+   "apply_for_credit_card",
+   "call_discoverable_agent_tool",
+   "call_discoverable_user_tool",
+   "get_bank_account_transactions_9173",
+   "get_card_last_4_digits"
+  ],
+  "empty": false
+ },
+ {
+  "key": "ledger_metrics",
+  "bytes": 37581,
+  "n": 2,
+  "tools_declared_present": 2,
+  "tools_present_sample": [
+   "get_current_time",
+   "get_referrals_by_user"
+  ],
+  "empty": false
+ },
+ {
+  "key": "write_evidence_specs",
+  "bytes": 23104,
+  "n": 14,
+  "tools_declared_present": 3,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "get_card_last_4_digits",
+   "give_discoverable_user_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "procedures",
+  "bytes": 22875,
+  "n": 6,
+  "tools_declared_present": 20,
+  "tools_present_sample": [
+   "apply_credit_card_account_flag_6147",
+   "apply_for_credit_card",
+   "apply_statement_credit_8472",
+   "approve_credit_limit_increase_5847",
+   "close_credit_card_account_7834"
+  ],
+  "empty": false
+ },
+ {
+  "key": "write_arg_enum",
+  "bytes": 15700,
+  "n": 9,
+  "tools_declared_present": 2,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "file_debit_card_transaction_dispute_6281"
+  ],
+  "empty": false
+ },
+ {
+  "key": "relations",
+  "bytes": 10515,
+  "n": 5,
+  "tools_declared_present": 12,
+  "tools_present_sample": [
+   "apply_for_credit_card",
+   "call_discoverable_agent_tool",
+   "change_user_email",
+   "get_bank_account_transactions_9173",
+   "get_credit_card_accounts_by_user"
+  ],
+  "empty": false
+ },
+ {
+  "key": "gates",
+  "bytes": 9849,
+  "n": 3,
+  "tools_declared_present": 12,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "change_user_email",
+   "emergency_credit_bureau_incident_transfer_1114",
+   "get_credit_card_accounts_by_user",
+   "get_credit_card_transactions_by_user"
+  ],
+  "empty": false
+ },
+ {
+  "key": "follow_up_chains",
+  "bytes": 9848,
+  "n": 4,
+  "tools_declared_present": 18,
+  "tools_present_sample": [
+   "apply_credit_card_account_flag_6147",
+   "approve_credit_limit_increase_5847",
+   "close_credit_card_account_7834",
+   "deny_credit_limit_increase_5848",
+   "emergency_credit_bureau_incident_transfer_1114"
+  ],
+  "empty": false
+ },
+ {
+  "key": "discoverable_name_check",
+  "bytes": 8300,
+  "n": 17,
+  "tools_declared_present": 5,
+  "tools_present_sample": [
+   "deposit_check_3847",
+   "give_discoverable_user_tool",
+   "log_verification",
+   "open_bank_account_4821",
+   "unlock_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "write_arg_grounding",
+  "bytes": 7133,
+  "n": 7,
+  "tools_declared_present": 5,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "get_current_time",
+   "get_referral_link",
+   "give_discoverable_user_tool",
+   "log_verification"
+  ],
+  "empty": false
+ },
+ {
+  "key": "eplan",
+  "bytes": 5098,
+  "n": 15,
+  "tools_declared_present": 5,
+  "tools_present_sample": [
+   "apply_for_credit_card",
+   "call_discoverable_agent_tool",
+   "get_credit_card_transactions_by_user",
+   "list_discoverable_agent_tools",
+   "unlock_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "derived",
+  "bytes": 5044,
+  "n": 17,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "get_referrals_by_user"
+  ],
+  "empty": false
+ },
+ {
+  "key": "arbitration",
+  "bytes": 4988,
+  "n": 6,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "catalog_attrs",
+  "bytes": 4248,
+  "n": 16,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "claim_prov",
+  "bytes": 4094,
+  "n": 7,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "log_verification"
+  ],
+  "empty": false
+ },
+ {
+  "key": "arg_source_reads",
+  "bytes": 3956,
+  "n": 20,
+  "tools_declared_present": 7,
+  "tools_present_sample": [
+   "get_bank_account_transactions_9173",
+   "get_credit_card_accounts_by_user",
+   "get_credit_card_transactions_by_user",
+   "get_debit_cards_by_account_id_7823",
+   "get_user_information_by_email"
+  ],
+  "empty": false
+ },
+ {
+  "key": "write_rules",
+  "bytes": 3861,
+  "n": 3,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "dispatcher_role_check",
+  "bytes": 3496,
+  "n": 12,
+  "tools_declared_present": 4,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "call_discoverable_user_tool",
+   "give_discoverable_user_tool",
+   "unlock_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "catalog_arg_docs",
+  "bytes": 2993,
+  "n": 1,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "transcription_check",
+  "bytes": 2787,
+  "n": 5,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "get_credit_card_accounts_by_user"
+  ],
+  "empty": false
+ },
+ {
+  "key": "function_agents",
+  "bytes": 2587,
+  "n": 1,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "enum_priority",
+  "bytes": 2536,
+  "n": 6,
+  "tools_declared_present": 4,
+  "tools_present_sample": [
+   "emergency_credit_bureau_incident_transfer_1114",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_1822",
+   "transfer_to_human_agents"
+  ],
+  "empty": false
+ },
+ {
+  "key": "prescription_redirect",
+  "bytes": 1918,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "transfer_reason_policy",
+  "bytes": 1778,
+  "n": 6,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "transfer_to_human_agents"
+  ],
+  "empty": false
+ },
+ {
+  "key": "write_initiation",
+  "bytes": 1771,
+  "n": 7,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "withdrawn_row_check",
+  "bytes": 1579,
+  "n": 4,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "submit_cash_back_dispute_0589"
+  ],
+  "empty": false
+ },
+ {
+  "key": "have_value_reask",
+  "bytes": 1569,
+  "n": 1,
+  "tools_declared_present": 4,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "call_discoverable_user_tool",
+   "file_credit_card_transaction_dispute_4829",
+   "get_card_last_4_digits"
+  ],
+  "empty": false
+ },
+ {
+  "key": "param_cap_check",
+  "bytes": 1542,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "suppression_authority",
+  "bytes": 1519,
+  "n": 3,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "value_acquisition",
+  "bytes": 1392,
+  "n": 1,
+  "tools_declared_present": 3,
+  "tools_present_sample": [
+   "file_credit_card_transaction_dispute_4829",
+   "get_card_last_4_digits",
+   "give_discoverable_user_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "ref_verify",
+  "bytes": 1270,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "view_field_annotations",
+  "bytes": 1243,
+  "n": 1,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "reference_filter",
+  "bytes": 1207,
+  "n": 2,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "require_doc_before",
+  "bytes": 1157,
+  "n": 3,
+  "tools_declared_present": 4,
+  "tools_present_sample": [
+   "emergency_credit_bureau_incident_transfer_1114",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_1822",
+   "transfer_to_human_agents"
+  ],
+  "empty": false
+ },
+ {
+  "key": "completion_guard",
+  "bytes": 1112,
+  "n": 3,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "call_discoverable_user_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "claim_bindings",
+  "bytes": 972,
+  "n": 5,
+  "tools_declared_present": 2,
+  "tools_present_sample": [
+   "call_discoverable_user_tool",
+   "log_verification"
+  ],
+  "empty": false
+ },
+ {
+  "key": "ref_iso",
+  "bytes": 858,
+  "n": 1,
+  "tools_declared_present": 2,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "get_credit_card_transactions_by_user"
+  ],
+  "empty": false
+ },
+ {
+  "key": "distinct_args",
+  "bytes": 845,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "file_debit_card_transaction_dispute_6281"
+  ],
+  "empty": false
+ },
+ {
+  "key": "field_ops",
+  "bytes": 820,
+  "n": 5,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "write_once_keys",
+  "bytes": 776,
+  "n": 1,
+  "tools_declared_present": 2,
+  "tools_present_sample": [
+   "apply_checking_account_credit_5829",
+   "call_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "name_rules",
+  "bytes": 707,
+  "n": 705,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "recommendation_verify",
+  "bytes": 533,
+  "n": 6,
+  "tools_declared_present": 2,
+  "tools_present_sample": [
+   "apply_for_credit_card",
+   "give_discoverable_user_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "search_exhaust_escalation",
+  "bytes": 525,
+  "n": 523,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "transfer_to_human_agents"
+  ],
+  "empty": false
+ },
+ {
+  "key": "operands",
+  "bytes": 452,
+  "n": 2,
+  "tools_declared_present": 2,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "choice_grounding",
+  "bytes": 418,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "open_bank_account_4821"
+  ],
+  "empty": false
+ },
+ {
+  "key": "nonlisted_tool_feedback",
+  "bytes": 282,
+  "n": 280,
+  "tools_declared_present": 3,
+  "tools_present_sample": [
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "unlock_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "tool_unlock_hint",
+  "bytes": 235,
+  "n": 233,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "unlock_discoverable_agent_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "action_tools",
+  "bytes": 215,
+  "n": 8,
+  "tools_declared_present": 8,
+  "tools_present_sample": [
+   "apply_for_credit_card",
+   "call_discoverable_agent_tool",
+   "call_discoverable_user_tool",
+   "change_user_email",
+   "give_discoverable_user_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "unavailable_tools",
+  "bytes": 213,
+  "n": 1,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "analysis_producers",
+  "bytes": 211,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "get_credit_card_transactions_by_user"
+  ],
+  "empty": false
+ },
+ {
+  "key": "catalog_arg_families",
+  "bytes": 175,
+  "n": 2,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "assertion_operands",
+  "bytes": 117,
+  "n": 2,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "failure_markers",
+  "bytes": 90,
+  "n": 5,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "arg_producers",
+  "bytes": 63,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "get_card_last_4_digits"
+  ],
+  "empty": false
+ },
+ {
+  "key": "tool_signatures",
+  "bytes": 59,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "give_discoverable_user_tool"
+  ],
+  "empty": false
+ },
+ {
+  "key": "group_dup_policy_docs",
+  "bytes": 44,
+  "n": 1,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "free_text_defaults",
+  "bytes": 39,
+  "n": 1,
+  "tools_declared_present": 1,
+  "tools_present_sample": [
+   "close_bank_account_7392"
+  ],
+  "empty": false
+ },
+ {
+  "key": "policy_facts_file",
+  "bytes": 37,
+  "n": 35,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "identifying_arg_types",
+  "bytes": 8,
+  "n": 1,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": false
+ },
+ {
+  "key": "producers",
+  "bytes": 2,
+  "n": 0,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": true
+ },
+ {
+  "key": "compute_ops",
+  "bytes": 2,
+  "n": 0,
+  "tools_declared_present": 0,
+  "tools_present_sample": [],
+  "empty": true
+ }
+]

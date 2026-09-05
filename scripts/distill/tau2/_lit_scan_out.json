@@ -1,0 +1,5565 @@
+{
+ "axes_sizes": {
+  "A_ident": 25,
+  "B_prose": 19,
+  "C_prescriptive": 6,
+  "D_soft": 2,
+  "E_bank_tools_unseen": 68,
+  "E_other_tools_unseen": 8,
+  "F_domain_name": 6
+ },
+ "guarded_engine_count": 15,
+ "files": {
+  "gate_interpreter.py": {
+   "guarded": true,
+   "lines": 660,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "reservation",
+     "cat": "comment",
+     "line": 506,
+     "text": "label = gate.get(\"present_label\", \"entity\")  # A2: 도메인 명칭(order/reservation…)"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 169,
+     "text": "담고 있는 것이 banking 사실이 아니라 **도메인-일반 무결성 원리**(\"한 일을 했다고 말했으면"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 181,
+     "text": "return                      # 미선언 도메인 = 레버 skip(U2′ 안전측·retail/airline 현행)"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 414,
+     "text": "# 엔진=general op{disjoint·equal_len}·필드=A2(retail 0). 둘 다 env가 이미 강제=false-block 0."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 512,
+     "text": "# ★도메인-일반: A2가 정한 present_fields를 *그대로* dump (필드 구조 해석 0·grep retail=0)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 525,
+     "text": "spec(A2): {nested_field, id_field, fields, label}. 도메인-일반 — 필드 구조 해석 0·grep retail=0."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 560,
+     "text": "·nested_field/cond_field/item_field/rank_field/id_field/date_field=A2 calc_specs(retail 필드 0)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 608,
+     "text": "# ⚠ retail A2엔 스펙 미부착 — comp gz 456 sim 전수서 어떤 tool 출력에도 날짜 필드 부재"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 181,
+     "text": "return                      # 미선언 도메인 = 레버 skip(U2′ 안전측·retail/airline 현행)"
+    }
+   ]
+  },
+  "t2_a2_concrete_gen.py": {
+   "guarded": false,
+   "lines": 121,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "'retail'",
+     "cat": "string",
+     "line": 110,
+     "text": "dom = f\"{rng.choice(['retail','telecom','banking','insurance','logistics'])}-c{i}\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "string",
+     "line": 110,
+     "text": "dom = f\"{rng.choice(['retail','telecom','banking','insurance','logistics'])}-c{i}\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 110,
+     "text": "dom = f\"{rng.choice(['retail','telecom','banking','insurance','logistics'])}-c{i}\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 5,
+     "text": "(\"<eligibility predicate over args/record>\") ↔ 실 spec(airline/telecom)은 구체 조건문"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "telecom",
+     "cat": "docstring",
+     "line": 5,
+     "text": "(\"<eligibility predicate over args/record>\") ↔ 실 spec(airline/telecom)은 구체 조건문"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "telecom",
+     "cat": "string",
+     "line": 110,
+     "text": "dom = f\"{rng.choice(['retail','telecom','banking','insurance','logistics'])}-c{i}\""
+    }
+   ]
+  },
+  "t2_a2_faithfulness.py": {
+   "guarded": false,
+   "lines": 265,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "get_order_details",
+     "cat": "string",
+     "line": 190,
+     "text": "\"applies_to\": [\"cancel_pending_order\", \"get_order_details\"]},"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "get_order_details",
+     "cat": "string",
+     "line": 196,
+     "text": "\"applies_to\": [\"get_order_details\"]},"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "cancel_pending_order",
+     "cat": "string",
+     "line": 190,
+     "text": "\"applies_to\": [\"cancel_pending_order\", \"get_order_details\"]},"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "cancel_pending_order",
+     "cat": "string",
+     "line": 193,
+     "text": "\"applies_to\": [\"cancel_pending_order\", \"modify_pending_order_items\"]},"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "cancel_pending_order",
+     "cat": "string",
+     "line": 200,
+     "text": "\"applies_to\": [\"cancel_pending_order\"]},"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "modify_pending_order_items",
+     "cat": "string",
+     "line": 193,
+     "text": "\"applies_to\": [\"cancel_pending_order\", \"modify_pending_order_items\"]},"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "find_user_id_by_email",
+     "cat": "string",
+     "line": 189,
+     "text": "\"satisfiers\": {\"find_user_id_by_email\": [\"email\"]},"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 180,
+     "text": "SELFTEST_POLICY = \"\"\"# Retail customer service policy"
+    }
+   ]
+  },
+  "t2_a2_p0_airline.py": {
+   "guarded": false,
+   "lines": 153,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "book_reservation",
+     "cat": "string",
+     "line": 114,
+     "text": "if a.name in (\"book_reservation\", \"update_reservation_flights\"):"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "book_reservation",
+     "cat": "string",
+     "line": 118,
+     "text": "if a.name == \"book_reservation\":"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "cancel_reservation",
+     "cat": "string",
+     "line": 65,
+     "text": "if a.name in (\"cancel_reservation\", \"update_reservation_baggages\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "cancel_reservation",
+     "cat": "string",
+     "line": 72,
+     "text": "if a.name == \"cancel_reservation\" and res:"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_baggages",
+     "cat": "string",
+     "line": 65,
+     "text": "if a.name in (\"cancel_reservation\", \"update_reservation_baggages\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_baggages",
+     "cat": "string",
+     "line": 108,
+     "text": "if a.name == \"update_reservation_baggages\" and res:"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_flights",
+     "cat": "string",
+     "line": 66,
+     "text": "\"update_reservation_flights\", \"update_reservation_passengers\"):"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_flights",
+     "cat": "string",
+     "line": 89,
+     "text": "if a.name == \"update_reservation_flights\" and res:"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_flights",
+     "cat": "string",
+     "line": 114,
+     "text": "if a.name in (\"book_reservation\", \"update_reservation_flights\"):"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_flights",
+     "cat": "string",
+     "line": 137,
+     "text": "if a.name == \"update_reservation_flights\" and srcs and \\"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_passengers",
+     "cat": "string",
+     "line": 66,
+     "text": "\"update_reservation_flights\", \"update_reservation_passengers\"):"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_passengers",
+     "cat": "string",
+     "line": 103,
+     "text": "if a.name == \"update_reservation_passengers\" and res:"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "reservation",
+     "cat": "comment",
+     "line": 38,
+     "text": "# GT 유저: user_id 인자 + reservation owner 합의"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "flight",
+     "cat": "string",
+     "line": 98,
+     "text": "deny(\"G5\", t.id, a.name, \"flight-change on basic_economy\")"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "flight",
+     "cat": "string",
+     "line": 139,
+     "text": "deny(\"G6\", t.id, a.name, f\"flight-change pay via {srcs[0]}\")"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "baggage",
+     "cat": "string",
+     "line": 112,
+     "text": "deny(\"G5\", t.id, a.name, f\"baggage remove {res.total_baggages}->{tb}\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 6,
+     "text": "G1/G2는 대화-전용이라 replay 불가(retail과 동일 한계 — observed-proxy 주의)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 2,
+     "text": "\"\"\"P-A2-0: frontier(Fable-5) 컴파일 airline GATE_SPEC의 replay 검증 (A2_FRONTEND_DISTILL §6)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 4,
+     "text": "airline gold actions 전수를 spec의 결정론 게이트(G3/G4/G5/G6 — db_check 의미를 본 검증기가"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "code",
+     "line": 26,
+     "text": "from tau2.domains.airline.environment import get_environment, get_tasks"
+    }
+   ]
+  },
+  "t2_a2_s0_build_sft.py": {
+   "guarded": false,
+   "lines": 71,
+   "hits": [
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 8,
+     "text": "(단 retail 1-shot 예시는 제외 — zero-shot 컴파일을 학습 목표로)."
+    }
+   ]
+  },
+  "t2_a2_s1_build.py": {
+   "guarded": false,
+   "lines": 69,
+   "hits": [
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 14,
+     "text": "--real retail:specs/retail_policy.md:tau2_adapter/retail_tool_catalog.json:specs/retail_gate_spec_fable5.json \\"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 9,
+     "text": "frontier 교사 신뢰(P-A2-0 airline replay-clean 근거); P5(대형모델 교사)·SOPBench"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 10,
+     "text": "도메인 합류 시 replay 필터 정식 적용. airline은 학습 제외 = held-out 평가축"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 11,
+     "text": "(S0-v2 airline census 0.528과 직접 비교)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "telecom",
+     "cat": "docstring",
+     "line": 8,
+     "text": "수용(설계 정신): 실 spec은 replay 필터 통과분만 — telecom 검증기 부재라 스모크에선"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "telecom",
+     "cat": "docstring",
+     "line": 15,
+     "text": "--real telecom:specs/s1_inputs/telecom_policy.md:specs/s1_inputs/telecom_tool_catalog.json:specs/s1_inputs/telecom_gate_spec_fable5.json \\"
+    }
+   ]
+  },
+  "t2_a2_scale_census.py": {
+   "guarded": false,
+   "lines": 32,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "baggage",
+     "cat": "string",
+     "line": 18,
+     "text": "\"G5\": [\"basic\", \"passenger\", \"baggage\"],"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 4,
+     "text": "동일 프롬프트(GATE_SPEC 형식 설명 + retail 1-shot + airline 정책 + A1 카탈로그)로"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 4,
+     "text": "동일 프롬프트(GATE_SPEC 형식 설명 + retail 1-shot + airline 정책 + A1 카탈로그)로"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 5,
+     "text": "각 모델이 airline GATE_SPEC을 컴파일 → Fable-5 reference 대비 채점:"
+    }
+   ]
+  },
+  "t2_a2_size_census.py": {
+   "guarded": false,
+   "lines": 161,
+   "hits": [
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 4,
+     "text": "동일 프롬프트(스키마 + retail 1-shot 예시 + 타깃 정책 + A1 카탈로그)로 N개 모델에"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 115,
+     "text": "help=\"S1-diag H3: retail 1-shot 예시 제거 — zero-shot 평가\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 124,
+     "text": "oneshot = (\"# EXAMPLE (retail policy -> spec):\\n\" + json.dumps("
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 5,
+     "text": "airline GATE_SPEC을 zero-shot 컴파일시켜 Fable-5 reference 대비 채점:"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 12,
+     "text": "Run: t2_a2_size_census.py --target airline \\"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "string",
+     "line": 104,
+     "text": "ap.add_argument(\"--target\", default=\"airline\")"
+    }
+   ]
+  },
+  "t2_a2_spec_sampler.py": {
+   "guarded": false,
+   "lines": 108,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "'retail'",
+     "cat": "string",
+     "line": 100,
+     "text": "domain = f\"{rng.choice(['retail','travel','banking','insurance','telecom','logistics'])}-{k}\""
+    },
+    {
+     "axis": "B_prose",
+     "lit": "reservation",
+     "cat": "string",
+     "line": 35,
+     "text": "NOUNS = [\"reservation\", \"order\", \"account\", \"policy\", \"claim\", \"subscription\", \"ticket\", \"loan\","
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "string",
+     "line": 100,
+     "text": "domain = f\"{rng.choice(['retail','travel','banking','insurance','telecom','logistics'])}-{k}\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 13,
+     "text": "# predicate 유형 라이브러리 (실 정책서 귀납 — retail/airline 6게이트 + 일반화)"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 100,
+     "text": "domain = f\"{rng.choice(['retail','travel','banking','insurance','telecom','logistics'])}-{k}\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 13,
+     "text": "# predicate 유형 라이브러리 (실 정책서 귀납 — retail/airline 6게이트 + 일반화)"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "telecom",
+     "cat": "string",
+     "line": 100,
+     "text": "domain = f\"{rng.choice(['retail','travel','banking','insurance','telecom','logistics'])}-{k}\""
+    }
+   ]
+  },
+  "t2_authority.py": {
+   "guarded": true,
+   "lines": 134,
+   "hits": [
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 47,
+     "text": "# retail·airline 의 `suppression_authority` 는 둘 다 `None`, banking 만 2칸(+_note)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 51,
+     "text": "# 도메인 리터럴 0 — 보는 것은 *그 도메인이 이 표를 채웠는가* 하나뿐이다. banking 은 채웠으므로"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 44,
+     "text": "# 실측(x607·retail 12태스크·같은 sha·같은 모델):"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 45,
+     "text": "#   A_control(T2_SUPPRESS_AUTH=1·retail 선언 0)  pass 1/12 · `[T2_SUPPRESS_AUTH] refused` 216회"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 47,
+     "text": "# retail·airline 의 `suppression_authority` 는 둘 다 `None`, banking 만 2칸(+_note)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 126,
+     "text": "#   retail 에서 중재가 통째로 사라졌다(x607: 1/12 ↔ 플래그만 끈 팔 4/12)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 47,
+     "text": "# retail·airline 의 `suppression_authority` 는 둘 다 `None`, banking 만 2칸(+_note)."
+    }
+   ]
+  },
+  "t2_axis_levers.py": {
+   "guarded": true,
+   "lines": 198,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "cards ",
+     "cat": "code",
+     "line": 136,
+     "text": "cards = re.findall(r\"'card': '([^']+)'\", text or \"\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "string",
+     "line": 106,
+     "text": "if name == \"call_discoverable_agent_tool\":"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 104,
+     "text": "if name == \"give_discoverable_user_tool\" and want in agent_d and want not in user_d:"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "string",
+     "line": 99,
+     "text": "if name == \"unlock_discoverable_agent_tool\":"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 12,
+     "text": "| `T2_TERMINAL_TURN` | 1ⓐ 이관 동의 후 미실행 | (banking 한정 재계수 필요·§주의) |"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 14,
+     "text": "| `T2_SCALAR_ARRAY`  | 3⒞ 배치화 | 단수명 필드 배열 (banking 6회) |"
+    }
+   ]
+  },
+  "t2_callable_hint.py": {
+   "guarded": false,
+   "lines": 177,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 145,
+     "text": "\"unlock_discoverable_agent_tool\", \"call_discoverable_agent_tool\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 151,
+     "text": "\"unlock_discoverable_agent_tool\", \"call_discoverable_agent_tool\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "close_debit_card_4721",
+     "cat": "selftest",
+     "line": 105,
+     "text": "\"get_all_user_accounts_by_user_id_3847\", \"close_debit_card_4721\"}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 105,
+     "text": "\"get_all_user_accounts_by_user_id_3847\", \"close_debit_card_4721\"}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 135,
+     "text": "_names = {\"get_all_user_accounts_by_user_id_3847\"}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_credit_limit_increase_history_4829",
+     "cat": "selftest",
+     "line": 104,
+     "text": "reg = {\"get_credit_limit_increase_history_4829\", \"get_payment_history_6183\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_credit_limit_increase_history_4829",
+     "cat": "selftest",
+     "line": 146,
+     "text": "assert \"get_credit_limit_increase_history_4829\" in h, h"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_payment_history_6183",
+     "cat": "selftest",
+     "line": 104,
+     "text": "reg = {\"get_credit_limit_increase_history_4829\", \"get_payment_history_6183\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_payment_history_6183",
+     "cat": "selftest",
+     "line": 147,
+     "text": "assert \"get_payment_history_6183\" in h, h"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_payment_history_6183",
+     "cat": "selftest",
+     "line": 152,
+     "text": "assert \"get_payment_history_6183\" in h2 and \"no_such_tool\" in h2, h2"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 145,
+     "text": "\"unlock_discoverable_agent_tool\", \"call_discoverable_agent_tool\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 151,
+     "text": "\"unlock_discoverable_agent_tool\", \"call_discoverable_agent_tool\")"
+    }
+   ]
+  },
+  "t2_claim_block.py": {
+   "guarded": false,
+   "lines": 120,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 97,
+     "text": "byuser = hist + [M(\"user\", None, [C(\"apply_for_credit_card\")])]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_user_information_by_name",
+     "cat": "selftest",
+     "line": 101,
+     "text": "reads = hist + [M(\"assistant\", None, [C(\"get_user_information_by_name\"), C(\"KB_search_bm25\")])]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 93,
+     "text": "done = hist + [M(\"assistant\", None, [C(\"submit_cash_back_dispute_0589\")])]"
+    }
+   ]
+  },
+  "t2_compliance.py": {
+   "guarded": false,
+   "lines": 237,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 45,
+     "text": "(구 `name in USER_SCOPED` 멤버십은 banking call_discoverable_agent_tool의 transfer-면제를"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 28,
+     "text": "그 gate.json만 있으면 compliant-pass 산출(retail+airline+banking 동일 코드·ABox-swap).\"\"\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 45,
+     "text": "(구 `name in USER_SCOPED` 멤버십은 banking call_discoverable_agent_tool의 transfer-면제를"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 184,
+     "text": "이 함수는 **retail에서만** 소유자 맵을 만든다. 다른 도메인(banking 포함)은 `None`을 반환하고"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 186,
+     "text": "**banking compliance 수치는 G3에 관해 상한(upper bound)**이며 소유권 위반을 탐지하지 못한다."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 12,
+     "text": "숫자 검증: retail 3-arm에서 t2_gate_r2_verdict.py와 동일치 재현 (2026-06-13)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 16,
+     "text": "[--tau2_src .../src --domain retail]"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 26,
+     "text": "\"\"\"compliance 제약 정의를 *해당 도메인* gate.json서 도출 = A2-구동(retail 하드코딩 제거)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 28,
+     "text": "그 gate.json만 있으면 compliant-pass 산출(retail+airline+banking 동일 코드·ABox-swap).\"\"\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 46,
+     "text": "몰라 G1 과검출. retail=applies_when 부재라 동일 결과=회귀 없음.)\"\"\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 94,
+     "text": "# retail 단일-notice에선 구 로직과 동일 판정(연속성 자동 보장·§1.2②)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 180,
+     "text": "def load_order_owner(tau2_src=None, domain=\"retail\"):"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 184,
+     "text": "이 함수는 **retail에서만** 소유자 맵을 만든다. 다른 도메인(banking 포함)은 `None`을 반환하고"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 191,
+     "text": "if domain != \"retail\":"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 200,
+     "text": "env = importlib.import_module(\"tau2.domains.retail.environment\").get_environment()"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 207,
+     "text": "def report_for_dir(sim_dir, domain=\"retail\", tau2_src=None, write_sidecar=True):"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "selftest",
+     "line": 232,
+     "text": "ap.add_argument(\"--domain\", default=\"retail\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 28,
+     "text": "그 gate.json만 있으면 compliant-pass 산출(retail+airline+banking 동일 코드·ABox-swap).\"\"\""
+    }
+   ]
+  },
+  "t2_compute.py": {
+   "guarded": true,
+   "lines": 1108,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "credit score",
+     "cat": "comment",
+     "line": 570,
+     "text": "#   (\"these cards document a minimum credit score … read it from their record and call"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "cash back",
+     "cat": "comment",
+     "line": 350,
+     "text": "#   통과 → 에이전트가 \"Silver=5% cash back\"(KB 정본 4%/1% = **거짓**)을 손님에게"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "sign-up",
+     "cat": "comment",
+     "line": 554,
+     "text": "#   골랐고 그건 손님 질문의 부분집합이었다(007: \"sign-up bonus 있는 카드 중 최저 연회비\""
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "string",
+     "line": 385,
+     "text": "\"customer was invited; this card is invitation-only)\")"
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "string",
+     "line": 502,
+     "text": "\"unverified — this card documents no rate that applies to that spending\")"
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "string",
+     "line": 542,
+     "text": "\" NOTE: no card is in 'eligible'. Do NOT conclude that nothing fits: re-check \""
+    },
+    {
+     "axis": "B_prose",
+     "lit": "cards ",
+     "cat": "comment",
+     "line": 570,
+     "text": "#   (\"these cards document a minimum credit score … read it from their record and call"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 544,
+     "text": "\"not give) and call again, and/or read the source docs of the 'unverified' \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 595,
+     "text": "\"call again with spend_category set to it and compare the resulting \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "before recommending",
+     "cat": "comment",
+     "line": 571,
+     "text": "#   again before recommending a card\") — 도메인 리터럴 순증 + 모델 판단 동결([[05]] Q1·Q2)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 6,
+     "text": "전이(retail↔banking) = A2 compute_ops만 교체."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 6,
+     "text": "전이(retail↔banking) = A2 compute_ops만 교체."
+    }
+   ]
+  },
+  "t2_declfirst.py": {
+   "guarded": false,
+   "lines": 279,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 269,
+     "text": "assert verify({\"turn_type\": \"ACT\", \"next_action\": \"transfer_to_human_agents\"},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "docstring",
+     "line": 68,
+     "text": "복사**했다(`KB_search`를 `SEARCH_KB`로 지어내기도). 이름 목록을 주고 **축자 복사**를 요구한다.\"\"\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 224,
+     "text": "p = formalize_prompt(\"hello\", [\"KB_search\"])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 225,
+     "text": "assert \"tool_calls\" not in p and \"KB_search\" in p and \"VERBATIM\" in p"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 33,
+     "text": "#     ① 디스패처 — 모델은 `call_discoverable_agent_tool(agent_tool_name=X)`를 부르고 선언에는"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 264,
+     "text": "_outer, _inner = [\"call_discoverable_agent_tool\"], [\"submit_cash_back_dispute\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "comment",
+     "line": 35,
+     "text": "#     ② env 명명 관행 — `submit_cash_back_dispute_0589` ↔ `submit_cash_back_dispute`."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 253,
+     "text": "\"tool\": \"submit_cash_back_dispute_0589\"}]},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 263,
+     "text": "_env = {\"turn_type\": \"ACT\", \"next_action\": \"submit_cash_back_dispute_0589\"}"
+    }
+   ]
+  },
+  "t2_dominance.py": {
+   "guarded": true,
+   "lines": 495,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 432,
+     "text": "{\"id\": \"G3\", \"predicate\": \"referral record checked\","
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 446,
+     "text": "assert \"referral record checked\" not in head, head        # 2·3번은 명령부에 없다"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 447,
+     "text": "assert \"referral record checked\" in tail and \"prior read\" in tail, tail"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "credit card",
+     "cat": "docstring",
+     "line": 190,
+     "text": "msg[19]  *\"No bank accounts found. No credit card accounts found.\"*"
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "docstring",
+     "line": 190,
+     "text": "msg[19]  *\"No bank accounts found. No credit card accounts found.\"*"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 161,
+     "text": "#   `call_discoverable_agent_tool{agent_tool_name: …, arguments: \"<JSON 문자열>\"}` 형태라"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "docstring",
+     "line": 189,
+     "text": "msg[18]  `get_all_user_accounts_by_user_id_3847{user_id: \"86e92f639e\"}`   ← **손님 자신**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 485,
+     "text": "\"get_all_user_accounts_by_user_id_3847\"])],"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_credit_card_transactions_by_user",
+     "cat": "docstring",
+     "line": 192,
+     "text": "msg[40]·[52]  `get_credit_card_transactions_by_user{user_id: \"friend_user_5839\"}`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 272,
+     "text": "#   get_current_time → log_verification. 우리는 사슬의 **끝만** 명령했다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "selftest",
+     "line": 467,
+     "text": "\"get_current_time\"]},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "selftest",
+     "line": 472,
+     "text": "assert r[0][\"satisfiers\"] == [\"get_current_time\"], r     # 한 걸음 전진"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "selftest",
+     "line": 473,
+     "text": "r = requirements_for(A2P, [_M([\"verify_identity\", \"get_current_time\"])], \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "selftest",
+     "line": 433,
+     "text": "\"satisfiers\": {\"get_referrals_by_user\": []}, \"applies_to\": [\"submit_referral\"]}],"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "selftest",
+     "line": 478,
+     "text": "rs2 = requirements_for(A2M, [_M([\"log_verification\", \"get_referrals_by_user\"])],"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "selftest",
+     "line": 484,
+     "text": "rs3 = requirements_for(A2M, [_M([\"log_verification\", \"get_referrals_by_user\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "docstring",
+     "line": 17,
+     "text": "execution ledger — did `log_verification` actually run — which is the strongest evidence we have."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 270,
+     "text": "#   그것을 명령하는 것은 **실행 불가한 지시**다. GB1의 satisfier는 `log_verification`인데"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 272,
+     "text": "#   get_current_time → log_verification. 우리는 사슬의 **끝만** 명령했다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 274,
+     "text": "#   다섯 번 부르다 이관으로 끝났다(log_verification에 **도달조차** 못 함). 같은 구성이"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 410,
+     "text": "\"satisfiers\": {\"log_verification\": []},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 415,
+     "text": "assert dominating_gate(A2, [_M([\"log_verification\"])], \"submit_referral\") is None"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 426,
+     "text": "executed={\"log_verification\"}) is None"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 430,
+     "text": "{\"id\": \"G1\", \"predicate\": \"identity verified\", \"satisfiers\": {\"log_verification\": []},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 444,
+     "text": "assert \"identity verified (do it with: log_verification)\" in txt, txt"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 465,
+     "text": "\"satisfiers\": {\"log_verification\": []},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 466,
+     "text": "\"satisfier_requires\": {\"log_verification\": [\"verify_identity\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 474,
+     "text": "assert r[0][\"satisfiers\"] == [\"log_verification\"], r     # 이제 끝을 명령할 수 있다"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 475,
+     "text": "assert requirements_for(A2P, [_M([\"log_verification\"])], \"submit_referral\") == []"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 478,
+     "text": "rs2 = requirements_for(A2M, [_M([\"log_verification\", \"get_referrals_by_user\"])],"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 484,
+     "text": "rs3 = requirements_for(A2M, [_M([\"log_verification\", \"get_referrals_by_user\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "comment",
+     "line": 175,
+     "text": "#   으로 부풀었다 — 잡힌 것 대부분이 `agent_tool_name=open_bank_account_4821` 류였다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "docstring",
+     "line": 5,
+     "text": "covered the action: `gates[GB1].applies_to` lists `submit_referral`, and `require_tool_before`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "docstring",
+     "line": 7,
+     "text": "*agent* calls the tool, and `submit_referral` is run by the customer, so there was no place for"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 411,
+     "text": "\"applies_to\": [\"submit_referral\", \"call_x\"],"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 414,
+     "text": "assert dominating_gate(A2, [_M([])], \"submit_referral\") is not None      # 미충족 → 지배"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 415,
+     "text": "assert dominating_gate(A2, [_M([\"log_verification\"])], \"submit_referral\") is None"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 418,
+     "text": "assert dominating_gate({}, [_M([])], \"submit_referral\") is None          # 미선언 도메인 = no-op"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 421,
+     "text": "g = dominating_gate(A2, [_M([])], \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 422,
+     "text": "txt = requirement_text(A2, g, \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 423,
+     "text": "assert \"submit_referral\" in txt and \"identity verified\" in txt"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 424,
+     "text": "assert dominating_gate(A2, [], \"submit_referral\", executed=set()) is not None"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 425,
+     "text": "assert dominating_gate(A2, [], \"submit_referral\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 431,
+     "text": "\"applies_to\": [\"submit_referral\"]},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 433,
+     "text": "\"satisfiers\": {\"get_referrals_by_user\": []}, \"applies_to\": [\"submit_referral\"]}],"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 434,
+     "text": "\"require_tool_before\": {\"submit_referral\": [\"get_all_user_accounts_by_user_id\"]}}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 437,
+     "text": "rs = requirements_for(A2M, [_M([])], \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 441,
+     "text": "txt = merged_text(A2M, rs, \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 468,
+     "text": "\"applies_to\": [\"submit_referral\"]}]}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 469,
+     "text": "r = requirements_for(A2P, [_M([])], \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 471,
+     "text": "r = requirements_for(A2P, [_M([\"verify_identity\"])], \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 473,
+     "text": "r = requirements_for(A2P, [_M([\"verify_identity\", \"get_current_time\"])], \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 475,
+     "text": "assert requirements_for(A2P, [_M([\"log_verification\"])], \"submit_referral\") == []"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 479,
+     "text": "\"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 481,
+     "text": "assert \"get_all_user_accounts_by_user_id\" in merged_text(A2M, rs2, \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 486,
+     "text": "\"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 488,
+     "text": "assert merged_text(A2M, rs3, \"submit_referral\") == \"\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 491,
+     "text": "rs4 = requirements_for(A2, [_M([])], \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 492,
+     "text": "assert len(rs4) == 1 and \"identity verified\" in merged_text(A2, rs4, \"submit_referral\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 493,
+     "text": "assert requirements_for({}, [_M([])], \"submit_referral\") == []"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 80,
+     "text": "면제는 게이트 자신이 선언한다(banking GB1: 이관·사고 도구는 검증 불요). 면제 목록은"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 160,
+     "text": "# ★디스패처 안쪽까지 편다. banking 의 호출은 거의 전부"
+    }
+   ]
+  },
+  "t2_eplan_patch.py": {
+   "guarded": true,
+   "lines": 1248,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "exchange_delivered_order_items",
+     "cat": "docstring",
+     "line": 386,
+     "text": "('exchange')이 executed 도구명('exchange_delivered_order_items')을 커버(레버4·부록 Y)."
+    },
+    {
+     "axis": "B_prose",
+     "lit": "flight",
+     "cat": "comment",
+     "line": 814,
+     "text": "#   있는 호출만 계상(응답 자체가 없는 in-flight는 안전측=계상)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_credit_card_transactions_by_user",
+     "cat": "comment",
+     "line": 221,
+     "text": "#     085 는 직불 분쟁인데 모델이 `get_credit_card_transactions_by_user` 를 부르고"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 157,
+     "text": "(b) 비-JSON 포맷문자열(banking 'transaction_id: txn_xxx'류·_note_eplan (a) 한계): entity_key 'key: value'"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 249,
+     "text": "list-enumerator → 출력서 entity id 파싱해 listed (str 또는 list·C101 (b) banking 멀티-reader)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 250,
+     "text": "list_from_reads=true → 어느 read 출력이든 entity_key id를 listed (banking bulk-reader·디스패처)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 264,
+     "text": "#   한 도메인(banking: user_id-키 벌크 reader가 최심 reader·출력이 곧 전체 상세)은"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 586,
+     "text": "# C101 (b): banking dispute write/read = 디스패처 nested. spec이 디스패처 배선 선언(도메인일반·ABox)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 15,
+     "text": "★[[05]]: 이 파일 = 도메인일반 엔진(retail 리터럴 0). 도구명·엔티티 키는 전부"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 581,
+     "text": "items 인자 키 = A2 spec \"items_key\"(ABox·retail=\"item_ids\") — 기본값은 기존"
+    }
+   ]
+  },
+  "t2_extract_tools.py": {
+   "guarded": false,
+   "lines": 52,
+   "hits": [
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 11,
+     "text": "--domain retail --out /home/woori/scratch/tau2_adapter"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 18,
+     "text": "ap.add_argument(\"--domain\", default=\"retail\")"
+    }
+   ]
+  },
+  "t2_factdag.py": {
+   "guarded": false,
+   "lines": 726,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "docstring",
+     "line": 550,
+     "text": "`submit_referral(account_type: str)`은 enum이 아니고 DB `accounts.level`은 손님 보유분이지"
+    }
+   ]
+  },
+  "t2_failcensus_deep.py": {
+   "guarded": false,
+   "lines": 93,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "cancel_pending_order",
+     "cat": "string",
+     "line": 21,
+     "text": "\"exchange_delivered_order_items\", \"return_delivered_order_items\", \"cancel_pending_order\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "exchange_delivered_order_items",
+     "cat": "string",
+     "line": 21,
+     "text": "\"exchange_delivered_order_items\", \"return_delivered_order_items\", \"cancel_pending_order\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "modify_pending_order_address",
+     "cat": "string",
+     "line": 20,
+     "text": "WRITE = {\"modify_pending_order_items\", \"modify_pending_order_address\", \"modify_pending_order_payment\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "modify_pending_order_items",
+     "cat": "string",
+     "line": 20,
+     "text": "WRITE = {\"modify_pending_order_items\", \"modify_pending_order_address\", \"modify_pending_order_payment\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "modify_pending_order_payment",
+     "cat": "string",
+     "line": 20,
+     "text": "WRITE = {\"modify_pending_order_items\", \"modify_pending_order_address\", \"modify_pending_order_payment\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "modify_user_address",
+     "cat": "string",
+     "line": 22,
+     "text": "\"modify_user_address\", \"book_reservation\", \"update_reservation_flights\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "return_delivered_order_items",
+     "cat": "string",
+     "line": 21,
+     "text": "\"exchange_delivered_order_items\", \"return_delivered_order_items\", \"cancel_pending_order\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "book_reservation",
+     "cat": "string",
+     "line": 22,
+     "text": "\"modify_user_address\", \"book_reservation\", \"update_reservation_flights\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_baggages",
+     "cat": "string",
+     "line": 23,
+     "text": "\"update_reservation_passengers\", \"update_reservation_baggages\"}"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_flights",
+     "cat": "string",
+     "line": 22,
+     "text": "\"modify_user_address\", \"book_reservation\", \"update_reservation_flights\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "update_reservation_passengers",
+     "cat": "string",
+     "line": 23,
+     "text": "\"update_reservation_passengers\", \"update_reservation_baggages\"}"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 4,
+     "text": "retail write 과제(이미 학습으로 통과시켰던 것)에서 base가 어디서 틀리는지 구체 범주로:"
+    }
+   ]
+  },
+  "t2_fbsidecar.py": {
+   "guarded": false,
+   "lines": 228,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 155,
+     "text": "record(\"action-required\", \"do the discovery chain\", msgs, target=\"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "close_debit_card_4721",
+     "cat": "selftest",
+     "line": 181,
+     "text": "channel=\"unified_regen\", id_to_name={\"call_7\": \"close_debit_card_4721\"})"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "close_debit_card_4721",
+     "cat": "selftest",
+     "line": 184,
+     "text": "assert _r[0].get(\"call_name\") == \"close_debit_card_4721\", \"D9: 희생자 이름이 실려야 한다\""
+    }
+   ]
+  },
+  "t2_forensic.py": {
+   "guarded": false,
+   "lines": 1451,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "string",
+     "line": 40,
+     "text": "TRANSFER = (\"transfer_to_human_agents\", \"request_human_agent_transfer\")"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "docstring",
+     "line": 1357,
+     "text": "이유(실물): 004 의 gold 액션은 `transfer_to_human_agents(summary, reason)` 이고 궤적은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "string",
+     "line": 34,
+     "text": "CALLA = \"call_discoverable_agent_tool\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "string",
+     "line": 35,
+     "text": "CALLU = \"call_discoverable_user_tool\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 283,
+     "text": "⚠2026-08-20 계기 수리: `discoverable_tool_name` 이 빠져 있었다. `give_/call_discoverable_user_tool`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 33,
+     "text": "GIVE = \"give_discoverable_user_tool\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "request_human_agent_transfer",
+     "cat": "string",
+     "line": 40,
+     "text": "TRANSFER = (\"transfer_to_human_agents\", \"request_human_agent_transfer\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "string",
+     "line": 32,
+     "text": "UNLOCK = \"unlock_discoverable_agent_tool\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "comment",
+     "line": 661,
+     "text": "#     반대로 **환경 것**이다(`domains/banking_knowledge/tools.py`) — 우리 것으로 세면 안 된다."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 1069,
+     "text": "def mutating_tools(domain=\"banking_knowledge\"):"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 12,
+     "text": "banking 도메인 어휘가 아니다)."
+    }
+   ]
+  },
+  "t2_formalize_exec.py": {
+   "guarded": false,
+   "lines": 631,
+   "hits": [
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 347,
+     "text": "\"Re-read the records: use only field names and values that actually \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 627,
+     "text": "prompt = prompt + \"\\n\\n[Note] previous formalization matched NO variant; re-read options.\""
+    },
+    {
+     "axis": "E_other_tools_unseen",
+     "lit": "get_product_details",
+     "cat": "docstring",
+     "line": 405,
+     "text": "\"\"\"get_product_details 출력 각각 -> variants dict (제품 단위·안 합침). yield vs(dict).\"\"\""
+    },
+    {
+     "axis": "E_other_tools_unseen",
+     "lit": "get_product_details",
+     "cat": "docstring",
+     "line": 446,
+     "text": "\"\"\"(폴백·전역) get_product_details variants 전부 -> [(item_id, record)]. 스코핑 실패 시만."
+    }
+   ]
+  },
+  "t2_gap.py": {
+   "guarded": false,
+   "lines": 216,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 108,
+     "text": "2026-08-16 019 가 그 경우다: 격리에서 `give_discoverable_user_tool` **24/24 방출**인데 라이브 0"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 55,
+     "text": "DOCS = \"/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 57,
+     "text": "\"a2\", \"banking_knowledge.specific.json\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 92,
+     "text": "env = registry.get_env_constructor(\"banking_knowledge\")(retrieval_variant=\"no_knowledge\")"
+    }
+   ]
+  },
+  "t2_gate.py": {
+   "guarded": false,
+   "lines": 200,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "find_user_id_by_email",
+     "cat": "string",
+     "line": 176,
+     "text": "if name == \"find_user_id_by_email\":"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "reservation",
+     "cat": "comment",
+     "line": 105,
+     "text": "# GT 유저 도출 = A2 ownership 게이트(owner_field + resolver_path) 구동 — 도메인-일반(retail order·airline reservation 동일)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 2,
+     "text": "\"\"\"tau2 retail 바인딩 + GT-validate (A2-구동·키스톤 후)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 5,
+     "text": "(1) retail A2(`a2/retail.gate.json`) 바인딩 + 호환 export(AUTH_TOOLS 등·분석도구용),"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 5,
+     "text": "(1) retail A2(`a2/retail.gate.json`) 바인딩 + 호환 export(AUTH_TOOLS 등·분석도구용),"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 31,
+     "text": "_DOMAIN = \"retail\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 41,
+     "text": "#   (t2_gate_r2_verdict·t2_passk_autopsy=retail G4 전용)가 소비. per-gate화 불요·신규 소비 금지."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 52,
+     "text": "\"\"\"retail db 기반 ownership resolver (validate/compat용·env 없을 때)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 64,
+     "text": "\"\"\"deprecated 호환 alias — GateInterpreter(retail A2) 래퍼. (외부 호출자 없음·안전망)\"\"\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 91,
+     "text": "def validate(domain=\"retail\"):"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 105,
+     "text": "# GT 유저 도출 = A2 ownership 게이트(owner_field + resolver_path) 구동 — 도메인-일반(retail order·airline reservation 동일)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "selftest",
+     "line": 191,
+     "text": "ap.add_argument(\"--domain\", default=\"retail\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 105,
+     "text": "# GT 유저 도출 = A2 ownership 게이트(owner_field + resolver_path) 구동 — 도메인-일반(retail order·airline reservation 동일)."
+    }
+   ]
+  },
+  "t2_gate_patch.py": {
+   "guarded": true,
+   "lines": 15552,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "docstring",
+     "line": 4300,
+     "text": "`transfer_to_human_agents`의 docstring이 *\"The proper transfer reason enum can be found in"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "cash back",
+     "cat": "comment",
+     "line": 2143,
+     "text": "#   015: 손님이 \"Crypto-Cash Back Card의 리퍼럴\"이라 주장 → 그 이름이 손님 발화에"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "comment",
+     "line": 5809,
+     "text": "#   못 좁힌** 자리에서만 돈다. 098 축자: *\"the best **combined** referral"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "credit card",
+     "cat": "comment",
+     "line": 7927,
+     "text": "#   질의 안내 — 018/028/029 [S]: \"get credit card transactions\"↔\"tool to get …\"↔"
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "comment",
+     "line": 7927,
+     "text": "#   질의 안내 — 018/028/029 [S]: \"get credit card transactions\"↔\"tool to get …\"↔"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "reservation",
+     "cat": "comment",
+     "line": 65,
+     "text": "#   (order_id·item=retail·reservation=airline)는 A2 identifying_arg_types로 이관 —"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "flight",
+     "cat": "comment",
+     "line": 3000,
+     "text": "# ─── ★COV FIND-subset 백스톱 (T2_COV=1·COVERAGE_LOOP_DESIGN §3·in-flight) ───"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "flight",
+     "cat": "comment",
+     "line": 3003,
+     "text": "# 생성-레벨 리마인더 1회(기존 eplan 버퍼 채널·비커밋·in-flight — walk의 stop-time 사인 해소)."
+    },
+    {
+     "axis": "B_prose",
+     "lit": "flight",
+     "cat": "comment",
+     "line": 8959,
+     "text": "# ★COV FIND-subset 백스톱 (T2_COV=1): ≥1 write 후 M∖acted ≠ ∅ → in-flight 리마인더 1회"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "flight",
+     "cat": "comment",
+     "line": 9020,
+     "text": "# ★TOOLERR (T2_TOOLERR=1): 방금 난 tool-error를 A2로 분류·directive 주입(in-flight)"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "checking account",
+     "cat": "docstring",
+     "line": 6057,
+     "text": "checking account per customer interaction\" 이라고 **계좌당 1회**를 말한다. 그런데"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "checking account",
+     "cat": "comment",
+     "line": 11815,
+     "text": "#    `Light Blue Business Checking Account`×2 · `Business Bronze Saver`×3 …)."
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "docstring",
+     "line": 3355,
+     "text": "캐리는 *\"It answers: X. … make the call again with that value.\"* 라고만 말하고 **X 가"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "comment",
+     "line": 3432,
+     "text": "# ★DECIDE-FIRST 캐리 문면 (2026-08-23 R7). 구판은 *\"It answers: X … make the call again with"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 3446,
+     "text": "\"Make the call again using exactly the argument names listed above - do not rename, add \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 3502,
+     "text": "\"Make the call again. If those lines change which record or which value this call should \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 3561,
+     "text": "\"If that is the value '{arg}' should carry, make the call again with '{arg}' set to \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 3563,
+     "text": "\"it is not an answer for this call at all - ignore it and make the call again \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 7900,
+     "text": "\"not issue this same call again.\" % _n_rep)"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 7322,
+     "text": "\" nothing about whether the earlier attempt succeeded - re-read the tool results\""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 7912,
+     "text": "\"@last:%s instead of re-reading.\" % (getattr(tc, \"name\", \"\") or \"\")"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 7918,
+     "text": "\"re-reading.\") + _redir + _esc))"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 9411,
+     "text": "\"returned by the tools in this conversation. Re-read the records you \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "before recommending",
+     "cat": "string",
+     "line": 14335,
+     "text": "\"again with it (or read the cited source document) BEFORE recommending or \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "ask the customer for",
+     "cat": "string",
+     "line": 6575,
+     "text": "\"it needs, ask the customer for it.\""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "ask the customer for",
+     "cat": "string",
+     "line": 6592,
+     "text": "\"result. If you are missing an argument it needs, ask the customer for it.\""
+    },
+    {
+     "axis": "D_soft",
+     "lit": "ToolCall(",
+     "cat": "code",
+     "line": 1181,
+     "text": "ptc = ToolCall(id=\"autofetch\", name=producer[\"tool\"],"
+    },
+    {
+     "axis": "D_soft",
+     "lit": "orig(self, [",
+     "cat": "code",
+     "line": 1183,
+     "text": "out = orig(self, [ptc])"
+    },
+    {
+     "axis": "D_soft",
+     "lit": "orig(self, [",
+     "cat": "code",
+     "line": 1276,
+     "text": "results.extend(orig(self, [tc]))  # user-side 툴콜(타 도메인)은 비대상"
+    },
+    {
+     "axis": "D_soft",
+     "lit": "orig(self, [",
+     "cat": "code",
+     "line": 1352,
+     "text": "out = orig(self, [tc])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "comment",
+     "line": 1540,
+     "text": "#   KB_search는 top-k만 조용히 반환하므로 \"195개 걸림 중 8개\"와 \"4개 걸림 중 4개\"가"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "comment",
+     "line": 1544,
+     "text": "#   `_is_mutating_tool(\"KB_search_bm25\"/\"_dense\") = False` — 6393 주석의 \"KB_search는"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "string",
+     "line": 1548,
+     "text": "and str(getattr(tc, \"name\", \"\") or \"\").startswith(\"KB_search\")):"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "comment",
+     "line": 15298,
+     "text": "#   채널 = **생성-레벨**(P13 규약: KB_search는 env mutating이라 출력-부착 금지·041 사고)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_checking_account_credit_5829",
+     "cat": "comment",
+     "line": 1040,
+     "text": "#   이 키였다(예: `agent_tool_name='apply_checking_account_credit_5829'` 를 \"날조\"로 차단)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_checking_account_credit_5829",
+     "cat": "docstring",
+     "line": 6056,
+     "text": "`apply_checking_account_credit_5829` 의 도구 설명은 축자로 \"may only be called ONCE per"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_checking_account_credit_5829",
+     "cat": "comment",
+     "line": 10475,
+     "text": "#   072 는 침묵할 때마다 `apply_checking_account_credit_5829` 가"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_credit_card_account_flag_6147",
+     "cat": "comment",
+     "line": 11949,
+     "text": "#                                열거 3칸(`apply_credit_card_account_flag_6147` 2 ·"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "docstring",
+     "line": 497,
+     "text": "`give_discoverable_user_tool(discoverable_tool_name=\"apply_for_credit_card\")`가 5회 연속 반려돼"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "comment",
+     "line": 507,
+     "text": "#   넣었는데 **그 집합이 아니었다** — `apply_for_credit_card`는 env의 **user 도구**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "comment",
+     "line": 3385,
+     "text": "#  `apply_for_credit_card` 처럼 겉이름을 쓰기도 한다. 둘 다 **동등성**으로 본다.)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "comment",
+     "line": 10383,
+     "text": "#      없다**: `apply_for_credit_card` · `submit_referral` · `submit_transaction` 은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "comment",
+     "line": 14206,
+     "text": "#   task_001의 **gold give**(apply_for_credit_card)였다 = 리뷰가 예고한 오탐 경로"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "approve_credit_limit_increase_5847",
+     "cat": "comment",
+     "line": 14025,
+     "text": "#   050#0 실측 — regen 이 낸 `approve_credit_limit_increase_5847` 은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "approve_credit_limit_increase_5847",
+     "cat": "comment",
+     "line": 14371,
+     "text": "#   053은 처방 후 gold 액션 16개 중 15개를 맞췄고, 남은 하나가 `approve_credit_limit_increase_5847`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 1010,
+     "text": "`call_discoverable_agent_tool({\"agent_tool_name\": …, \"arguments\": \"<JSON 문자열>\"})` 형태다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 1558,
+     "text": "#   사고: 041에서 mutating 도구(`call_discoverable_agent_tool`) 출력에 [axis] 노트가 붙어"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 1852,
+     "text": "#     `[T2_WRITE_EVIDENCE] deny tool=call_discoverable_agent_tool inner=close_credit_c…`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 3742,
+     "text": "⚠**디스패처 언랩이 하중이다**(재리뷰 W-2): 실물은 `call_discoverable_agent_tool` 이고 바깥"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 5265,
+     "text": "계좌 조회(`call_discoverable_agent_tool` 경유)도 같은 식으로 \"없다\"고 했다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 6074,
+     "text": "#   그것만 보면 `call_discoverable_agent_tool` 선언과 안 맞는다 - 첫 판에서 실제로 안 맞았다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 7813,
+     "text": "#   호출(call_discoverable_agent_tool)이 반복되자 스텁이 히스토리에 남았고, eval"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 8072,
+     "text": "#   `call_discoverable_agent_tool`은 `@is_tool(ToolType.WRITE)`로"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 9178,
+     "text": "#   banking dispute write = call_discoverable_agent_tool(nested {name,args})."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 9263,
+     "text": "#   call_discoverable_agent_tool 내부에서만). compliance 게이트로 deny+프로토콜 지시 →"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "string",
+     "line": 9525,
+     "text": "self._t2_proc_pin = (\"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "string",
+     "line": 9619,
+     "text": "self._t2_proc_pin = (\"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 2380,
+     "text": "★user-측 실행(call_discoverable_user_tool)도 결과는 role=tool 메시지 → assistant-툴콜 페어링에"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "string",
+     "line": 2533,
+     "text": "if str(getattr(tc, \"name\", \"\")) != \"call_discoverable_user_tool\":"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "string",
+     "line": 2578,
+     "text": "if str(getattr(tc, \"name\", \"\")) != \"call_discoverable_user_tool\":"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "comment",
+     "line": 3686,
+     "text": "#   `call_discoverable_user_tool`의 판정 뒤집힘(procedural→write) 1건을 잡았다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 6193,
+     "text": "★requestor 격리: 사용자 실행 도구(gold `call_discoverable_user_tool` 등)는 세지 않는다 —"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 7540,
+     "text": "`call_discoverable_user_tool` 경유만 셌다. 그런데 실측 궤적에서 손님은 **도구 이름 그대로**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "comment",
+     "line": 10385,
+     "text": "#      `call_discoverable_user_tool` 만 5,278 로 빠진다(=제거 술어 자체는 살아 있다)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "close_bank_account_7392",
+     "cat": "comment",
+     "line": 13283,
+     "text": "#     (`tools.py:2508` `close_bank_account_7392(..., reason: str = \"Customer requested"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "deposit_check_3847",
+     "cat": "comment",
+     "line": 508,
+     "text": "#   (`get_user_tools()` 6종)이고 discoverable 레지스트리(deposit_check_3847 등)와 별개다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "deposit_check_3847",
+     "cat": "docstring",
+     "line": 6181,
+     "text": "banking 실측: `{deposit_check_3847, get_card_last_4_digits, get_referral_link, submit_cash_back_dispute_0589}`."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "deposit_check_3847",
+     "cat": "comment",
+     "line": 12617,
+     "text": "#   최대-겹침 항목을 돌려주므로, 손님 도구 `deposit_check_3847` 이 **실재**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "file_credit_card_transaction_dispute_4829",
+     "cat": "comment",
+     "line": 12092,
+     "text": "#   `file_credit_card_transaction_dispute_4829` 를 8번 부르며"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "file_debit_card_transaction_dispute_6281",
+     "cat": "docstring",
+     "line": 3836,
+     "text": "근거(082 실물·x722B): `file_debit_card_transaction_dispute_6281` 4행 전부에서"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_card_last_4_digits",
+     "cat": "comment",
+     "line": 2464,
+     "text": "#   성공출력0) ②손님이 직접 제공 못 함(카드 없음) ③획득 도구 P(get_card_last_4_digits)를 손님에게"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_card_last_4_digits",
+     "cat": "docstring",
+     "line": 6181,
+     "text": "banking 실측: `{deposit_check_3847, get_card_last_4_digits, get_referral_link, submit_cash_back_dispute_0589}`."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_card_last_4_digits",
+     "cat": "docstring",
+     "line": 6246,
+     "text": "무관-대상 동명 호출(give(get_card_last_4_digits))로 영구 침묵했다(022/027 실측)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_card_last_4_digits",
+     "cat": "comment",
+     "line": 11878,
+     "text": "#   `give_discoverable_user_tool(get_card_last_4_digits, cc_01f21c9970_gold)` 로 도구를"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_credit_card_accounts_by_user",
+     "cat": "comment",
+     "line": 11568,
+     "text": "#   자기 도구(get_credit_card_accounts_by_user)를 give → env \"Unknown discoverable"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 2136,
+     "text": "#   출력에서만 grounding 검색(오매칭 방지). 054: time_verified는 \"current time is\"(get_current_time"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 3703,
+     "text": "# ★C238 U0(2026-07-30): `|get_current_time` 가지 **삭제** — `_READ_PREFIX_RE`의 `^get_`가 이미 잡으므로"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 4864,
+     "text": "#   한다(head 3 + tail 8). 071 실측: `get_current_time` 을 msg 13 에 불렀는데 대화텍스트가"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 4895,
+     "text": "#   ⚠부작용: `get_current_time` 은 상수를 돌려주는 **순수 읽기**(tools.py:387·DB 무접촉)라"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 4905,
+     "text": "#     ③모델이 하던 판단 중 사라지는 것 — **없다**. 모델은 `get_current_time` 을 여전히"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 4936,
+     "text": "#     에이전트가 `get_current_time` 을 부른 **다음 결정점에서 다시 시도**한다. 첫 판은 이 구분이"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "docstring",
+     "line": 6181,
+     "text": "banking 실측: `{deposit_check_3847, get_card_last_4_digits, get_referral_link, submit_cash_back_dispute_0589}`."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "docstring",
+     "line": 7481,
+     "text": "`give_discoverable_user_tool(get_referral_link)` 한 번이다 — 손님은 그것을 쓰지 않고"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "comment",
+     "line": 15352,
+     "text": "#   010 실측(재현 2/2): 양 pass의 **유일 dbdiff**가 여분 give(`get_referral_link GIVEN`) —"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "comment",
+     "line": 8077,
+     "text": "#   같은 런에서 직접 read(`get_referrals_by_user`) 증강 sim은 통과했다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "comment",
+     "line": 10872,
+     "text": "#     (GB1→verify_identity · GB3→get_referrals_by_user ·"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 401,
+     "text": "③모델이 **올바른 채널**로 gold 액션 `give_discoverable_user_tool(X)` → **차단**(18회)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 497,
+     "text": "`give_discoverable_user_tool(discoverable_tool_name=\"apply_for_credit_card\")`가 5회 연속 반려돼"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 2465,
+     "text": "#   *give 안 함*(give_discoverable_user_tool(P) 미호출) → 손님이 값을 못 얻어 재요청 무한(031hv·039 실측)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 2470,
+     "text": "\"\"\"committed서 give_tool(예: give_discoverable_user_tool)로 acquire_tool을 손님에게 준 적 있나.\"\"\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 2486,
+     "text": "\"    give_discoverable_user_tool(discoverable_tool_name=\\\"{tool}\\\")\\n\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 2501,
+     "text": "⚠env 는 이미 축자로 시킨다 — *\"The agent must first use `give_discoverable_user_tool` to give"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 2539,
+     "text": "if not _tool_given(messages, \"give_discoverable_user_tool\", x):"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 2587,
+     "text": "if _tool_given(messages, \"give_discoverable_user_tool\", x):"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 3619,
+     "text": "# ⚠️`mutates_state`(env 속성)를 쓰면 **안 된다**: 실측 결과 `log_verification`·`give_discoverable_user_tool`·"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 6183,
+     "text": "to the user via `give_discoverable_user_tool` … NOT included in the default tool list.\"*\"\"\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 7148,
+     "text": "# 2026-07-19 포렌식: give_discoverable_user_tool에 'arguments' 키를 얹어 026/027/028 gold give"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 7151,
+     "text": "# (`give_discoverable_user_tool(self, discoverable_tool_name: str, arguments: str = \"{}\")`)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 7481,
+     "text": "`give_discoverable_user_tool(get_referral_link)` 한 번이다 — 손님은 그것을 쓰지 않고"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 10122,
+     "text": "name=\"give_discoverable_user_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 10391,
+     "text": "#      `give_discoverable_user_tool(discoverable_tool_name)` function\"* 이다. discoverable 은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 10395,
+     "text": "#      에이전트-측 `give_discoverable_user_tool` 이고 그 이름은 정적 `action_tools`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 10396,
+     "text": "#      **안에 있다** — 같은 455 로그에서 `formalized_target=give_discoverable_user_tool`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 11628,
+     "text": "#   ★실증: Y2 015·021이 `give_discoverable_user_tool(discoverable_tool_name, arguments)`로"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 11878,
+     "text": "#   `give_discoverable_user_tool(get_card_last_4_digits, cc_01f21c9970_gold)` 로 도구를"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "comment",
+     "line": 12607,
+     "text": "#   넘기는 채널**(give_discoverable_user_tool·val='open_account')이었는데"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 15236,
+     "text": "if str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\"), None)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 15270,
+     "text": "_nowgive = any(str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 15365,
+     "text": "if str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\"), None)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 15383,
+     "text": "_still = any(str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 2166,
+     "text": "# 010 t2 는 `log_verification(..., date_of_birth=\"\", ...)` 한 칸으로 죽었다. 값은 대화에 있다"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 3619,
+     "text": "# ⚠️`mutates_state`(env 속성)를 쓰면 **안 된다**: 실측 결과 `log_verification`·`give_discoverable_user_tool`·"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "docstring",
+     "line": 5261,
+     "text": "**모델이 붙인 라벨**이고 우리 패턴과 어긋난다 — run f 사이드카 실측: `log_verification`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 9044,
+     "text": "#       (대부분 `log_verification`)·10%가 새 read = **버리면 안 되는 것 33%**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 10811,
+     "text": "#   상한을 풀었더니 발화 **106회**가 전부 같은 요구(`log_verification`)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "comment",
+     "line": 3384,
+     "text": "# (선언은 `open_bank_account_4821` 처럼 env 축자 이름을 쓰기도 하고"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "comment",
+     "line": 10399,
+     "text": "#      · 진짜 구속조건은 상류 `open_bank_account_4821` 의 class 선택이다 · [[69]])."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "comment",
+     "line": 11285,
+     "text": "#   070/071 의 gold(`open_bank_account_4821`)는 **에이전트가** 부르므로"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "comment",
+     "line": 11950,
+     "text": "#                                `open_bank_account_4821` 1)까지 덮는다"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "docstring",
+     "line": 6181,
+     "text": "banking 실측: `{deposit_check_3847, get_card_last_4_digits, get_referral_link, submit_cash_back_dispute_0589}`."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "comment",
+     "line": 11689,
+     "text": "#   `submit_cash_back_dispute_0589`는 **user-측 discoverable**(env `user_tools`)이라"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "docstring",
+     "line": 7482,
+     "text": "`submit_referral` 을 실행했다. env 소스가 그 한 줄을 DB 변이로 만든다:"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "comment",
+     "line": 10383,
+     "text": "#      없다**: `apply_for_credit_card` · `submit_referral` · `submit_transaction` 은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "comment",
+     "line": 10566,
+     "text": "#   102 실측: `gates[GB1].applies_to`에 `submit_referral`이 **이미**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "comment",
+     "line": 12779,
+     "text": "#   그래서 창을 켠 런에서도 `[ORDER] 'submit_referral' …`이 **14회·전부 바이트 동일**로"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_transaction",
+     "cat": "comment",
+     "line": 10383,
+     "text": "#      없다**: `apply_for_credit_card` · `submit_referral` · `submit_transaction` 은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_transaction",
+     "cat": "comment",
+     "line": 10455,
+     "text": "#   29건(8%)** 이 궤적 축자 0회이고, 그중 **23건이 `submit_transaction`**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 492,
+     "text": "`unlock_discoverable_agent_tool(agent_tool_name=\"get_reward_discrepancies\")`로 우리 도구를"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 907,
+     "text": "#   도출된 이름 집합은 도구를 가리지 않고 적용된다 — `unlock_discoverable_agent_tool(agent_tool_name)`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 3712,
+     "text": "⚠️`unlock_discoverable_agent_tool(agent_tool_name=X)`는 X를 *실행*하지 않고 *잠금해제*만 하므로"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 4515,
+     "text": "#   모델이 한 턴에 `unlock_discoverable_agent_tool` 을 여섯 번(서로 다른 inner) 부르고"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 4516,
+     "text": "#   하나가 막히자 나머지 다섯에 *\"'unlock_discoverable_agent_tool' 을 먼저 고쳐라\"* 가"
+    },
+    {
+     "axis": "E_other_tools_unseen",
+     "lit": "calculate",
+     "cat": "comment",
+     "line": 3570,
+     "text": "# 텍스트)에 원문-부재 ∧ ②calculate류 도구 출력에도 부재(②⊂①: calc 출력=tool 텍스트)면"
+    },
+    {
+     "axis": "E_other_tools_unseen",
+     "lit": "calculate",
+     "cat": "comment",
+     "line": 3571,
+     "text": "# 생성-레벨 regen 1회: \"암산 금지·calculate 도구로 검증 후 재진술\". 상한 1/턴·무과금·"
+    },
+    {
+     "axis": "E_other_tools_unseen",
+     "lit": "calculate",
+     "cat": "comment",
+     "line": 3572,
+     "text": "# 채택 전 게이트 재검사(안전측). calculate 도구명은 A2 키 `calc_tool`(ABox·[[05]])."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 3888,
+     "text": "_dom = (a2 or {}).get(\"_domain\") or \"banking_knowledge\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 13345,
+     "text": "for _doc2 in (_sg2._load_domain_docs(\"banking_knowledge\") or []):"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 66,
+     "text": "#   엔진 DEFAULT가 도메인-union이면 새 도메인(banking)에 retail/airline 어휘가 누수됨."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 323,
+     "text": "(`test_t7337_residual_debt.py` — banking gate/specific 9군 전수)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 333,
+     "text": "그룹-일반 문서 키가 섞여 있다(banking gate/specific 실측 3개 그룹: `checking_accounts`"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 1009,
+     "text": "★왜 (2026-08-15·085 실측): banking 의 write 는 거의 전부"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 3677,
+     "text": "구 정규식의 `discoverable`/`^give_`/`^unlock_`가 잡던 것 = banking discoverable-dispatcher"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 3684,
+     "text": "# ★user-측 디스패처도 절차적이다. banking은 agent-측(call_…agent_tool)과 **별개로**"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 3739,
+     "text": "⊖ 부호표: banking gold 문자열 인자 1,976 · 다도메인 영속 gold 3,577 **둘 다 형제-괄호 0건**"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 6181,
+     "text": "banking 실측: `{deposit_check_3847, get_card_last_4_digits, get_referral_link, submit_cash_back_dispute_0589}`."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 7685,
+     "text": "(banking 런 실사용)는 BaseOrchestrator.step이라 CWE가 그대로 새어 sim 무효. **양쪽** 래핑"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 9178,
+     "text": "#   banking dispute write = call_discoverable_agent_tool(nested {name,args})."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 9267,
+     "text": "# ★C241 U2'(리뷰 B3): banking 기본값을 지우는 것만으로는 **레버가 꺼지지 않는다** —"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 9271,
+     "text": "#   banking은 3개 다 있으므로 행동 동일."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 11114,
+     "text": "#   (banking 잔여=⋈/reach이지 deflect-vs-ask 아님·BANK_ACTIONREQ_PROBE_FORENSIC)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 13376,
+     "text": "#   (C12 \"id 날조는 env가 거부\" 가정이 banking 디스패처 dispute엔 불성립=날조 txn이 reward0로 통과.)"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 15392,
+     "text": "#   정책 문서(banking doc_..._042) 축자: 사유 코드는 4단 티어이고"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 8,
+     "text": "로드(env.domain_name로 선택). 코드 하드코딩(retail 도구명·GATE_DOMAINS) 폐기(2026-06-21 키스톤)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 63,
+     "text": "# ── 도메인-일반 기본값 (A2가 override·enrich; retail/도메인 하드코딩 아님) ──"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 65,
+     "text": "#   (order_id·item=retail·reservation=airline)는 A2 identifying_arg_types로 이관 —"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 66,
+     "text": "#   엔진 DEFAULT가 도메인-union이면 새 도메인(banking)에 retail/airline 어휘가 누수됨."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 68,
+     "text": "#   payment·address = 커머스-교차 일반(retail∩airline)이라 엔진 잔류. 도메인 어휘는 A2가 union."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 72,
+     "text": "# 도메인-일반 placeholder만(엔진). 도메인-특화 포맷(#W0000000=retail 주문-id)은"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 8832,
+     "text": "#   ⚠`list_from_reads` 미선언 도메인(retail·airline)은 **바이트 불변**(no-op)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 9177,
+     "text": "# ★디스패처 unwrap(C101 (c)·retail 무영향=dispatch_tool 없으면 skip):"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 65,
+     "text": "#   (order_id·item=retail·reservation=airline)는 A2 identifying_arg_types로 이관 —"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 66,
+     "text": "#   엔진 DEFAULT가 도메인-union이면 새 도메인(banking)에 retail/airline 어휘가 누수됨."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 68,
+     "text": "#   payment·address = 커머스-교차 일반(retail∩airline)이라 엔진 잔류. 도메인 어휘는 A2가 union."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 78,
+     "text": "\"ABC123\", \"XYZ789\",  # 도메인-일반 영숫자 placeholder 패턴 (구 airline A2서 이관·minimize-A2)"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 1174,
+     "text": "decidable·도메인-일반(도구·인자 = A2서 도출·airline swap = 동일 메커니즘)·side-effect 0(getter).\"\"\""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 3629,
+     "text": "#   True로 뒤집혀 `:4543` 회귀조건이 무너짐) ②교차-도메인 누출(전역 last-wins → airline A2-swap"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 8832,
+     "text": "#   ⚠`list_from_reads` 미선언 도메인(retail·airline)은 **바이트 불변**(no-op)."
+    }
+   ]
+  },
+  "t2_gate_r2_verdict.py": {
+   "guarded": false,
+   "lines": 303,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "string",
+     "line": 132,
+     "text": "if name == \"transfer_to_human_agents\" and res is not None \\"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 210,
+     "text": "env = importlib.import_module(\"tau2.domains.retail.environment\").get_environment()"
+    }
+   ]
+  },
+  "t2_ground_autopsy.py": {
+   "guarded": false,
+   "lines": 137,
+   "hits": [
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 11,
+     "text": "도메인-일반(_ground가 spec 구동). retail/airline 공통."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 11,
+     "text": "도메인-일반(_ground가 spec 구동). retail/airline 공통."
+    }
+   ]
+  },
+  "t2_ground_selftest.py": {
+   "guarded": false,
+   "lines": 108,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "get_order_details",
+     "cat": "comment",
+     "line": 35,
+     "text": "# 최근→과거 순(=_tool_outputs 반환순). get_order_details, get_product_details."
+    },
+    {
+     "axis": "E_other_tools_unseen",
+     "lit": "get_product_details",
+     "cat": "comment",
+     "line": 35,
+     "text": "# 최근→과거 순(=_tool_outputs 반환순). get_order_details, get_product_details."
+    },
+    {
+     "axis": "E_other_tools_unseen",
+     "lit": "search_direct_flight",
+     "cat": "comment",
+     "line": 55,
+     "text": "# ── airline: search_direct_flight(list) + explode(unnest) by cabin + available 술어 seats>0 ──"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 4,
+     "text": "spec-driven _ground + resolve_op_tau2가 retail(map·평면 options·anchor ⋈)과 airline(list·explode/unnest·"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 32,
+     "text": "# ── retail: variants(map) + order items(list) anchor ⋈ ──"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 33,
+     "text": "rspec = _load(\"retail\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 44,
+     "text": "print(\"retail:\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 4,
+     "text": "spec-driven _ground + resolve_op_tau2가 retail(map·평면 options·anchor ⋈)과 airline(list·explode/unnest·"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 55,
+     "text": "# ── airline: search_direct_flight(list) + explode(unnest) by cabin + available 술어 seats>0 ──"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "string",
+     "line": 56,
+     "text": "aspec = _load(\"airline\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "string",
+     "line": 68,
+     "text": "print(\"airline:\")"
+    }
+   ]
+  },
+  "t2_guided_patch.py": {
+   "guarded": false,
+   "lines": 258,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 251,
+     "text": "demo = [\"unlock_discoverable_agent_tool\", \"call_discoverable_agent_tool\", \"get_current_time\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 256,
+     "text": "assert \"get_all_user_accounts_by_user_id_3847\" not in g"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "selftest",
+     "line": 251,
+     "text": "demo = [\"unlock_discoverable_agent_tool\", \"call_discoverable_agent_tool\", \"get_current_time\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 251,
+     "text": "demo = [\"unlock_discoverable_agent_tool\", \"call_discoverable_agent_tool\", \"get_current_time\"]"
+    }
+   ]
+  },
+  "t2_handoff_ground.py": {
+   "guarded": false,
+   "lines": 153,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "cash back",
+     "cat": "docstring",
+     "line": 10,
+     "text": "015  \"referral link for the **Crypto-Cash Back Card**\"  ← gold는 Platinum"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "docstring",
+     "line": 10,
+     "text": "015  \"referral link for the **Crypto-Cash Back Card**\"  ← gold는 Platinum"
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "selftest",
+     "line": 116,
+     "text": "assert extract(\"`card_name`: Silver Rewards Card (다만 Platinum을 권합니다)\", keys) == \\"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 3,
+     "text": "`requestor=user` gold는 손님이 직접 실행해야 채점된다. 그런데 `give_discoverable_user_tool`은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 106,
+     "text": "specs = [{\"applies_to\": \"give_discoverable_user_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 109,
+     "text": "keys = declared_keys(specs, \"give_discoverable_user_tool\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 137,
+     "text": "assert check(deny, msgs, \"`user_id`: 890389b165\", specs, \"give_discoverable_user_tool\") is None"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 140,
+     "text": "r = check(deny, msgs, \"`user_id`: Your user ID\", specs, \"give_discoverable_user_tool\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 145,
+     "text": "assert check(deny, msgs, \"`user_id`: Your user ID\", specs, \"give_discoverable_user_tool\") is None"
+    }
+   ]
+  },
+  "t2_index_build.py": {
+   "guarded": false,
+   "lines": 143,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_statement_credit_8472",
+     "cat": "docstring",
+     "line": 12,
+     "text": "(msg58 축자: *\"apply_statement_credit_8472 는 **신용카드 계좌용**이지 체킹용이 아니다\"*)"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 124,
+     "text": "modname = argv[1] if len(argv) > 1 else \"tau2.domains.banking_knowledge.tools\""
+    }
+   ]
+  },
+  "t2_ledger.py": {
+   "guarded": true,
+   "lines": 1298,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "checking account",
+     "cat": "docstring",
+     "line": 211,
+     "text": "`World Blue`는 *\"maintained checking account status with Rho-Bank for at least 90 days\"* 라"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "checking account",
+     "cat": "docstring",
+     "line": 1230,
+     "text": "checking account with us\"*). 계좌 행은 이미 도구가 돌려주고, 날짜 빼기는 산수다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "docstring",
+     "line": 112,
+     "text": "정확 일치로 두면 task_100의 `get_all_user_accounts_by_user_id_3847`이 선언과 안 붙는다.\"\"\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "docstring",
+     "line": 5,
+     "text": "`get_referrals_by_user`가 29행을 돌려줘도 **아무도 세지 않는다**. 무엇을 제출할 수 있는지를 정하는"
+    }
+   ]
+  },
+  "t2_levers.py": {
+   "guarded": false,
+   "lines": 701,
+   "hits": [
+    {
+     "axis": "F_domain_name",
+     "lit": "telecom",
+     "cat": "string",
+     "line": 58,
+     "text": "\"telecom 'exhausted all steps'(실제 미해결) · 호출 없는 완료 주장 8건\"),"
+    }
+   ]
+  },
+  "t2_passk_autopsy.py": {
+   "guarded": false,
+   "lines": 149,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "string",
+     "line": 45,
+     "text": "if tc.get(\"name\") == \"transfer_to_human_agents\":"
+    }
+   ]
+  },
+  "t2_pin_read.py": {
+   "guarded": false,
+   "lines": 432,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 392,
+     "text": "done = [_M([_TC(\"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 344,
+     "text": "\"get_all_user_accounts_by_user_id\": \"get_all_user_accounts_by_user_id_3847\"}.get(base)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 348,
+     "text": "\"get_all_user_accounts_by_user_id_3847\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 367,
+     "text": "MUTS = {\"get_all_user_accounts_by_user_id_3847\": False, \"verify_identity\": False,"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 393,
+     "text": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"})])]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 412,
+     "text": "\"get_all_user_accounts_by_user_id_3847\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 415,
+     "text": "[\"get_all_user_accounts_by_user_id_3847\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "docstring",
+     "line": 206,
+     "text": "GB1→`verify_identity`, GB3→`get_referrals_by_user`, reads:→그 read). gate_patch가 그"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "comment",
+     "line": 244,
+     "text": "#   일반 도구(`get_referrals_by_user`) 발화 2회 / discoverable 은 무장 12회에 발화 **0**."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 345,
+     "text": "a2 = {\"eplan\": {\"unlock_tool\": \"unlock_discoverable_agent_tool\"}}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 347,
+     "text": "GATE = (\"unlock_discoverable_agent_tool\", \"agent_tool_name\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 409,
+     "text": "tools = [_T(\"unlock_discoverable_agent_tool\", {\"agent_tool_name\": {\"type\": \"string\"}}),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 411,
+     "text": "pinned = M.tools_with_pin(tools, \"unlock_discoverable_agent_tool\", \"agent_tool_name\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 413,
+     "text": "sch = [t.openai_schema for t in pinned if t.name == \"unlock_discoverable_agent_tool\"][0]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 420,
+     "text": "assert M.tools_with_pin(tools, \"unlock_discoverable_agent_tool\", \"no_such_arg\", \"x\") is None"
+    }
+   ]
+  },
+  "t2_precedence.py": {
+   "guarded": false,
+   "lines": 207,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "docstring",
+     "line": 139,
+     "text": "한 개(`get_all_user_accounts_by_user_id`)로 보이고, 실제 사슬(verify_identity → get_current_time"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "docstring",
+     "line": 140,
+     "text": "→ log_verification → get_referrals_by_user)이 **자료구조에 존재하지 않는다**."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "docstring",
+     "line": 109,
+     "text": "한 단계만 보면 실행 불가한 지시가 나간다(102 실측: `log_verification`을 명령했지만 그것은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "docstring",
+     "line": 140,
+     "text": "→ log_verification → get_referrals_by_user)이 **자료구조에 존재하지 않는다**."
+    }
+   ]
+  },
+  "t2_prekb_patch.py": {
+   "guarded": true,
+   "lines": 856,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "docstring",
+     "line": 11,
+     "text": "· 트리거 집합 = tau2 프레임워크 공통 도구(transfer_to_human_agents; 전 도메인 존재)"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "string",
+     "line": 36,
+     "text": "FRAMEWORK_FINAL = (\"transfer_to_human_agents\",)"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 709,
+     "text": "assert \"transfer_to_human_agents\" in fams and \"close_credit_card_account\" in fams"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 725,
+     "text": "assert _has_evidence(msgs_q, \"transfer_to_human_agents\")"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 727,
+     "text": "msgs_doc = [{\"role\": \"tool\", \"content\": \"... the regular transfer_to_human_agents tool ...\"}]"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 728,
+     "text": "assert _has_evidence(msgs_doc, \"transfer_to_human_agents\")"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 734,
+     "text": "assert not _has_evidence(msgs_bad, \"transfer_to_human_agents\")"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 746,
+     "text": "t = deny_text(\"transfer_to_human_agents\", \"transfer_to_human_agents\")"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 746,
+     "text": "t = deny_text(\"transfer_to_human_agents\", \"transfer_to_human_agents\")"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "cash back",
+     "cat": "selftest",
+     "line": 738,
+     "text": "\"arguments\": {\"query\": \"Rho-Bank credit cards with highest cash back rewards\"}}]}]"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "credit card",
+     "cat": "selftest",
+     "line": 738,
+     "text": "\"arguments\": {\"query\": \"Rho-Bank credit cards with highest cash back rewards\"}}]}]"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "credit card",
+     "cat": "selftest",
+     "line": 743,
+     "text": "\"arguments\": {\"query\": \"apply for credit card procedure\"}}]}]"
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "selftest",
+     "line": 743,
+     "text": "\"arguments\": {\"query\": \"apply for credit card procedure\"}}]}]"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "cards ",
+     "cat": "selftest",
+     "line": 738,
+     "text": "\"arguments\": {\"query\": \"Rho-Bank credit cards with highest cash back rewards\"}}]}]"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 423,
+     "text": "\"this capability in the knowledge base, re-read the document for the \""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "docstring",
+     "line": 18,
+     "text": "★C116/C152: deny 문구 = 복사-가능한 정확한 KB_search 호출 + \"Do NOT abandon\"(포기 방지)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "docstring",
+     "line": 173,
+     "text": "\"\"\"행동-키 조회 증거: ①KB_search 쿼리가 *행동-키*였거나(★C178: fam의 동사 토큰[첫 토큰]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "string",
+     "line": 184,
+     "text": "if nm.startswith(\"KB_search\"):"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "string",
+     "line": 201,
+     "text": "\"(1) call KB_search(query=\\\"%s\\\") and read the results; \""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 731,
+     "text": "\"tool_calls\": [{\"name\": \"KB_search\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 737,
+     "text": "\"tool_calls\": [{\"name\": \"KB_search\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 742,
+     "text": "\"tool_calls\": [{\"name\": \"KB_search\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 747,
+     "text": "assert 'KB_search(query=\"transfer to human agents procedure\")' in t"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 842,
+     "text": "hist_no = [{\"role\": \"assistant\", \"tool_calls\": [{\"name\": \"KB_search\"}]}]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "docstring",
+     "line": 58,
+     "text": "(예: apply_for_credit_card — 클러스터① card_type 오선택: 자격 문서 미열람 채 프리미엄"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "docstring",
+     "line": 83,
+     "text": "★적용 지점: `apply_for_credit_card`는 **손님-측** 도구라 에이전트 호출을 막을 수 없다 —"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "docstring",
+     "line": 317,
+     "text": "day5 024/010 실측: `apply_for_credit_card`/`submit_referral`이 이 부류 — \"Unknown discoverable"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "comment",
+     "line": 471,
+     "text": "#   apply_for_credit_card/submit_referral 등 rb 표적 전부)면 **미실행 deny 스텁을"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 707,
+     "text": "\"prekb_tools\": [\"apply_for_credit_card\"]}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 710,
+     "text": "assert \"apply_for_credit_card\" in fams          # C176: prekb_tools 키"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 739,
+     "text": "assert not _has_evidence(msgs_generic, \"apply_for_credit_card\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 744,
+     "text": "assert _has_evidence(msgs_act, \"apply_for_credit_card\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 819,
+     "text": "a2rb = {\"require_tool_before\": {\"apply_for_credit_card\": [\"check_card_application_fit\"]}}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 820,
+     "text": "assert _require_before(a2rb) == {\"apply_for_credit_card\": [\"check_card_application_fit\"]}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 832,
+     "text": "assert _effective_fams({\"name\": \"apply_for_credit_card\"}, a2) == [\"apply_for_credit_card\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 832,
+     "text": "assert _effective_fams({\"name\": \"apply_for_credit_card\"}, a2) == [\"apply_for_credit_card\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 834,
+     "text": "need = _require_before(a2rb)[\"apply_for_credit_card\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 704,
+     "text": "\"dispatch_tool\": \"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 713,
+     "text": "tc_call = {\"name\": \"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 826,
+     "text": "{\"name\": \"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 839,
+     "text": "tc_open = {\"name\": \"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 847,
+     "text": "{\"name\": \"call_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "close_credit_card_account_7834",
+     "cat": "selftest",
+     "line": 711,
+     "text": "assert _fam(\"close_credit_card_account_7834\") == \"close_credit_card_account\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "close_credit_card_account_7834",
+     "cat": "selftest",
+     "line": 714,
+     "text": "\"arguments\": {\"agent_tool_name\": \"close_credit_card_account_7834\"}}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "close_credit_card_account_7834",
+     "cat": "selftest",
+     "line": 717,
+     "text": "\"arguments\": {\"agent_tool_name\": \"close_credit_card_account_7834\"}},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "file_credit_card_transaction_dispute_4829",
+     "cat": "selftest",
+     "line": 780,
+     "text": "assert not _is_user_channel(envu, \"file_credit_card_transaction_dispute_4829\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 848,
+     "text": "\"arguments\": {\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}}]}]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "selftest",
+     "line": 853,
+     "text": "\"arguments\": {\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}}]}]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_card_last_4_digits",
+     "cat": "docstring",
+     "line": 273,
+     "text": "2회 오발화 → 'get_card_last_4_digits를 건네라' 넛지가 debit 문의를 credit 축 식별로 고착."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_user_information_by_name",
+     "cat": "docstring",
+     "line": 228,
+     "text": "('get_user_information_by_name')`을 호출 — 이건 **자기 도구 목록에 이미 있는 일반 도구**다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_user_information_by_name",
+     "cat": "comment",
+     "line": 796,
+     "text": "# ★C182c 에이전트 일반 도구 오주소(099 실측: unlock('get_user_information_by_name'))"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_user_information_by_name",
+     "cat": "selftest",
+     "line": 804,
+     "text": "env2=_FakeEnv2(reg=[\"get_user_information_by_name\"], disc=[\"open_bank_account_4821\"],"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_user_information_by_name",
+     "cat": "selftest",
+     "line": 806,
+     "text": "assert _is_agent_regular(env2, \"get_user_information_by_name\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_user_information_by_name",
+     "cat": "selftest",
+     "line": 810,
+     "text": "err099=\"Error: Unknown agent tool 'get_user_information_by_name'. This tool is not available.\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_user_information_by_name",
+     "cat": "selftest",
+     "line": 812,
+     "text": "assert \"already\" in g and \"call 'get_user_information_by_name' directly\" in g"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 211,
+     "text": "★[[05]]: `give_discoverable_user_tool`은 banking 전용 이름이라(프레임워크 공통 아님·"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 333,
+     "text": "(day5 024/010 = give_discoverable_user_tool 결과에 GUIDANCE append → ValueError → sim 사망)."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 774,
+     "text": "\"follow_up\": {\"tool\": \"give_discoverable_user_tool\"}},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 776,
+     "text": "assert _declared_give_tool(a2fu) == \"give_discoverable_user_tool\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 784,
+     "text": "assert \"CUSTOMER-side tool\" in g4 and \"give_discoverable_user_tool\" in g4"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 815,
+     "text": "a2g={\"scaffold_get_tools\":[{\"name\":\"x\",\"follow_up\":{\"tool\":\"give_discoverable_user_tool\"}}]}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "selftest",
+     "line": 804,
+     "text": "env2=_FakeEnv2(reg=[\"get_user_information_by_name\"], disc=[\"open_bank_account_4821\"],"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "selftest",
+     "line": 807,
+     "text": "assert not _is_agent_regular(env2, \"open_bank_account_4821\")   # discoverable=unlock이 정상"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "selftest",
+     "line": 827,
+     "text": "\"arguments\": {\"agent_tool_name\": \"open_bank_account_4821\"}}]}]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "selftest",
+     "line": 840,
+     "text": "\"arguments\": {\"agent_tool_name\": \"open_bank_account_4821\"}}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "docstring",
+     "line": 402,
+     "text": "(submit_cash_back_dispute_0589 등)를 agent 채널로 unlock/call. 이 경우"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 778,
+     "text": "envu = _FakeEnv([\"submit_cash_back_dispute_0589\"])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 779,
+     "text": "assert _is_user_channel(envu, \"submit_cash_back_dispute_0589\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 781,
+     "text": "assert not _is_user_channel(None, \"submit_cash_back_dispute_0589\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 782,
+     "text": "erru = \"Error: Unknown agent tool 'submit_cash_back_dispute_0589'. This tool is not available.\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 785,
+     "text": "assert \"discoverable_tool_name='submit_cash_back_dispute_0589'\" in g4"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 805,
+     "text": "user=[\"submit_cash_back_dispute_0589\"])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 808,
+     "text": "assert not _is_agent_regular(env2, \"submit_cash_back_dispute_0589\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_cash_back_dispute_0589",
+     "cat": "selftest",
+     "line": 816,
+     "text": "gu=_atool_guidance(\"Error: Unknown agent tool 'submit_cash_back_dispute_0589'. x\", a2g, env2)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "docstring",
+     "line": 317,
+     "text": "day5 024/010 실측: `apply_for_credit_card`/`submit_referral`이 이 부류 — \"Unknown discoverable"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "comment",
+     "line": 471,
+     "text": "#   apply_for_credit_card/submit_referral 등 rb 표적 전부)면 **미실행 deny 스텁을"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 227,
+     "text": "★C182c(2026-07-25·W3 099 실측): 에이전트가 `unlock_discoverable_agent_tool"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 397,
+     "text": "unlock_discoverable_agent_tool로 오주소 → env 에러가 '없는 도구'라고만 말해"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 705,
+     "text": "\"unlock_tool\": \"unlock_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 716,
+     "text": "assert _effective_fams({\"name\": \"unlock_discoverable_agent_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 720,
+     "text": "assert _effective_fams({\"name\": \"unlock_discoverable_agent_tool\"}) ==         [\"unlock_discoverable_agent_tool\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 720,
+     "text": "assert _effective_fams({\"name\": \"unlock_discoverable_agent_tool\"}) ==         [\"unlock_discoverable_agent_tool\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 852,
+     "text": "{\"name\": \"unlock_discoverable_agent_tool\","
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 146,
+     "text": "★C241 U4: 이 이름들은 banking 전용(tau2 5도메인 중 banking에만 존재)이라 엔진에 박으면"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 146,
+     "text": "★C241 U4: 이 이름들은 banking 전용(tau2 5도메인 중 banking에만 존재)이라 엔진에 박으면"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 211,
+     "text": "★[[05]]: `give_discoverable_user_tool`은 banking 전용 이름이라(프레임워크 공통 아님·"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 212,
+     "text": "tau2 5도메인 중 banking에만 존재) 엔진에 박으면 도메인 리터럴 위반. A2"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 643,
+     "text": "#   docstring이 \"banking 전용이라 엔진에 박으면 [[05]] 위반\"이라 명시했는데"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 701,
+     "text": "# ★C241 U4: dispatcher 키 3종을 픽스처에 추가 — 실제 banking A2(`eplan`)가 선언하는 것과"
+    }
+   ]
+  },
+  "t2_procedure.py": {
+   "guarded": false,
+   "lines": 467,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "docstring",
+     "line": 420,
+     "text": "names the tool to hand over and then says not to collect card details. The engine"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_payment_history_6183",
+     "cat": "comment",
+     "line": 129,
+     "text": "#   050은 `get_payment_history_6183`을 `months=12`로 부르고(정책은 티어별 6/3/3) 그 순간 단계가"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_payment_history_6183",
+     "cat": "comment",
+     "line": 304,
+     "text": "#   한 줄로 말한다. 050은 `get_payment_history_6183`을 불렀지만 `months=24`였고 정책은"
+    }
+   ]
+  },
+  "t2_quote_hint.py": {
+   "guarded": false,
+   "lines": 117,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "credit card",
+     "cat": "docstring",
+     "line": 6,
+     "text": "t1  balance_source=\"New Credit Card Balance: $0.00\" (원장 축자)    → 통과"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "credit card",
+     "cat": "selftest",
+     "line": 91,
+     "text": "\"- New Credit Card Balance: $0.00 - Status: OK\","
+    },
+    {
+     "axis": "B_prose",
+     "lit": "credit card",
+     "cat": "selftest",
+     "line": 95,
+     "text": "assert \"New Credit Card Balance: $0.00\" in h, h"
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "docstring",
+     "line": 6,
+     "text": "t1  balance_source=\"New Credit Card Balance: $0.00\" (원장 축자)    → 통과"
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "selftest",
+     "line": 91,
+     "text": "\"- New Credit Card Balance: $0.00 - Status: OK\","
+    },
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "selftest",
+     "line": 95,
+     "text": "assert \"New Credit Card Balance: $0.00\" in h, h"
+    }
+   ]
+  },
+  "t2_repeat_gov.py": {
+   "guarded": true,
+   "lines": 87,
+   "hits": [
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 38,
+     "text": "\"not issue this same call again.\"),"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 24,
+     "text": "\"re-reading.\"),"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 28,
+     "text": "\"@last:{tool} instead of re-reading.\"),"
+    }
+   ]
+  },
+  "t2_resolve.py": {
+   "guarded": true,
+   "lines": 1398,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "checking account",
+     "cat": "comment",
+     "line": 21,
+     "text": "#   실측: '건너뜀(무발화): NameError sys' · 집합外 'Cobalt Blue Business Checking Account'"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "comment",
+     "line": 350,
+     "text": "#   라이브의 `KB_search 7회 · unlock 0회` 가 이것으로 설명된다. 진행-무감각한 요구는 자기가"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_checking_account_credit_5829",
+     "cat": "comment",
+     "line": 239,
+     "text": "#   t7292 073 t0 실측: msg45 에서 `apply_checking_account_credit_5829` 가 성공"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "docstring",
+     "line": 884,
+     "text": "행동 4개(`apply_for_credit_card` `submit_referral` `change_user_email` `submit_transaction`)와"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_statement_credit_8472",
+     "cat": "comment",
+     "line": 240,
+     "text": "#   (잔액 5200.00→5209.50)했는데 우리가 5회 이상 *\"요청은 apply_statement_credit_8472"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 374,
+     "text": "라서 **디스패처 자신**(`call_discoverable_agent_tool`)과 **직접 도구**(`log_verification`)를"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 504,
+     "text": "#   후보로 새어 \"unlock call_discoverable_agent_tool\"·\"unlock log_verification\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 885,
+     "text": "**호출 형식 4개**(`unlock_discoverable_agent_tool` `call_discoverable_agent_tool`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 887,
+     "text": "그 8개에서 하나를 고르라고 물으니 프로브가 **21/21 회 `call_discoverable_agent_tool`**,"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 890,
+     "text": "격리 x711(n=3): 현행 후보집합 → `call_discoverable_agent_tool` 3/3."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 886,
+     "text": "`give_discoverable_user_tool` `call_discoverable_user_tool`)를 한 통에 담고 있었다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "change_user_email",
+     "cat": "docstring",
+     "line": 884,
+     "text": "행동 4개(`apply_for_credit_card` `submit_referral` `change_user_email` `submit_transaction`)와"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_all_user_accounts_by_user_id_3847",
+     "cat": "comment",
+     "line": 575,
+     "text": "#   get_all_user_accounts_by_user_id_3847` 가 나간 직후 모델이 순종했는데"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_credit_limit_increase_history_4829",
+     "cat": "comment",
+     "line": 221,
+     "text": "#   051의 gold는 `get_payment_history_6183`과 `get_credit_limit_increase_history_4829`를 **둘 다**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "docstring",
+     "line": 1269,
+     "text": "\"\"\"get_current_time 도구결과서 MM/DD/YYYY 추출(compute의 'now' ref). 없으면 None(→abstain).\"\"\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_payment_history_6183",
+     "cat": "comment",
+     "line": 221,
+     "text": "#   051의 gold는 `get_payment_history_6183`과 `get_credit_limit_increase_history_4829`를 **둘 다**"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_payment_history_6183",
+     "cat": "comment",
+     "line": 551,
+     "text": "# ★같은-이름 재푸시 억제 (2026-08-13 t7273 실측: `get_payment_history_6183`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 886,
+     "text": "`give_discoverable_user_tool` `call_discoverable_user_tool`)를 한 통에 담고 있었다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 1008,
+     "text": "\"\"\"give_discoverable_user_tool의 arguments(JSON 문자열 or dict) → dict.\"\"\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "docstring",
+     "line": 374,
+     "text": "라서 **디스패처 자신**(`call_discoverable_agent_tool`)과 **직접 도구**(`log_verification`)를"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 504,
+     "text": "#   후보로 새어 \"unlock call_discoverable_agent_tool\"·\"unlock log_verification\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "docstring",
+     "line": 778,
+     "text": "satisfier = 게이트 satisfiers 키(예: log_verification). 도메인-일반(로직)·prefix/tool=A2 데이터."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "open_bank_account_4821",
+     "cat": "comment",
+     "line": 325,
+     "text": "#   인스턴스 이름**('open_bank_account_4821')과 디스패처 3종 이름을 산문에 박고 있었다 —"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "order_replacement_credit_card_7291",
+     "cat": "comment",
+     "line": 113,
+     "text": "#   gold 가 요구하는 `order_replacement_credit_card_7291` 을 **10회 반려**했고, 에이전트는 그것을"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "docstring",
+     "line": 884,
+     "text": "행동 4개(`apply_for_credit_card` `submit_referral` `change_user_email` `submit_transaction`)와"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "docstring",
+     "line": 889,
+     "text": "`T2_ACTIONREQ` 는 그 표적으로 밀 곳을 찾다 침묵했다. gold 는 손님의 `submit_referral` 이었다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "docstring",
+     "line": 929,
+     "text": "`formalized_target=submit_referral` 42/42). 016 gold 인 `submit_transaction` 은 원장"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_transaction",
+     "cat": "docstring",
+     "line": 884,
+     "text": "행동 4개(`apply_for_credit_card` `submit_referral` `change_user_email` `submit_transaction`)와"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_transaction",
+     "cat": "docstring",
+     "line": 919,
+     "text": "드러냈다 — *\"must the agent CALL\"* 은 손님-실행 도구(`submit_transaction` 등)를 옳은"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_transaction",
+     "cat": "docstring",
+     "line": 929,
+     "text": "`formalized_target=submit_referral` 42/42). 016 gold 인 `submit_transaction` 은 원장"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "docstring",
+     "line": 885,
+     "text": "**호출 형식 4개**(`unlock_discoverable_agent_tool` `call_discoverable_agent_tool`"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 11,
+     "text": "membership(L10)·provenance(L3). banking(operator)·retail(value)이 같은 코드로 해소 = 전이."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 27,
+     "text": "# ── operator(도구명) 해소 — banking이 드러낸 일반화(§8b) ──"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 29,
+     "text": "# 그 후보에 grounded(발명 금지·banking 35.9% 도구명 날조). 로직 일반·패턴은 A2."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 324,
+     "text": "# ★C241 U3': banking 어휘 제거. 구판은 액션 예시 3종('open bank account'…)과 **실제 도구"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 1092,
+     "text": "★C241 U6c: 인자 키(`discoverable_tool_name`)는 **banking 전용**이고 `dispatch_name_key`"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 1231,
+     "text": "# ★C241 U6a: banking 기본값 제거 — A2 `reference_filter[].dispatch_tool`이 이미 선언한다."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 11,
+     "text": "membership(L10)·provenance(L3). banking(operator)·retail(value)이 같은 코드로 해소 = 전이."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 153,
+     "text": "direct-dispatch(retail/airline)는 도구선택이 인자 아님 → operator-해소 없음(GATE/L7 관할)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 153,
+     "text": "direct-dispatch(retail/airline)는 도구선택이 인자 아님 → operator-해소 없음(GATE/L7 관할)."
+    }
+   ]
+  },
+  "t2_resolve_patch.py": {
+   "guarded": true,
+   "lines": 397,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "flight",
+     "cat": "docstring",
+     "line": 40,
+     "text": "flight search). For a modification, name only the changed attribute(s) in `set`; the engine"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 9,
+     "text": "★grounding은 더 이상 retail 하드코딩(_ground_retail 폐기)이 아니라 spec-driven 투영(관계대수 π/unnest/⋈/σ):"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 14,
+     "text": "엔진 코드 `grep \"if domain|retail|airline|variants\"` = 0. 도메인 차이 = spec 파일 차이뿐."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 37,
+     "text": "Works for any catalog of candidates (retail product variants, airline flights, ...). Do NOT"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 219,
+     "text": "\"\"\"(catalog, anchor, producer_present) — A2 spec 구동 투영. retail/airline 무관·동일 코드."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 14,
+     "text": "엔진 코드 `grep \"if domain|retail|airline|variants\"` = 0. 도메인 차이 = spec 파일 차이뿐."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 37,
+     "text": "Works for any catalog of candidates (retail product variants, airline flights, ...). Do NOT"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "docstring",
+     "line": 219,
+     "text": "\"\"\"(catalog, anchor, producer_present) — A2 spec 구동 투영. retail/airline 무관·동일 코드."
+    }
+   ]
+  },
+  "t2_run_gated.py": {
+   "guarded": false,
+   "lines": 1099,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "domain == \"",
+     "cat": "code",
+     "line": 166,
+     "text": "if a.domain == \"banking_knowledge\":"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 370,
+     "text": "#    사고OFF 'get_current_time'). → **사고는 두고 형식만** guided JSON 으로 보장한다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "comment",
+     "line": 643,
+     "text": "#     (실측: 사고ON \"none\" ↔ 사고OFF \"get_current_time\")."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "comment",
+     "line": 576,
+     "text": "#   x659 에서 KB_search_bm25 같은 **엉뚱한 것**이었다(필요한 log_verification 은 0회)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 84,
+     "text": "help=\"knowledge-domain retrieval variant (banking_knowledge). ★미지정 시 banking은 \""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 166,
+     "text": "if a.domain == \"banking_knowledge\":"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking_knowledge",
+     "cat": "string",
+     "line": 177,
+     "text": "print(f\"[t2_run] banking_knowledge retrieval_config={a.retrieval_config} + sandbox-check stubbed\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "string",
+     "line": 84,
+     "text": "help=\"knowledge-domain retrieval variant (banking_knowledge). ★미지정 시 banking은 \""
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 169,
+     "text": "#    banking일 때 retrieval_config를 'alltools'로 자동 디폴트 → env_kwargs로"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "docstring",
+     "line": 2,
+     "text": "\"\"\"tau2 retail ±게이트 실행 러너 (BENCH_PORTFOLIO §3.6 ③ — 7B base census, R7)."
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "string",
+     "line": 82,
+     "text": "ap.add_argument(\"--domain\", default=\"retail\")"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 1013,
+     "text": "#     엔진 버전에 묶을 수 없었다 — 2026-08-29 retail 회귀를 [[70]] 의 같은-sha A/B 로 귀속하려다"
+    }
+   ]
+  },
+  "t2_salvage.py": {
+   "guarded": false,
+   "lines": 152,
+   "hits": [
+    {
+     "axis": "D_soft",
+     "lit": "ToolCall(",
+     "cat": "code",
+     "line": 101,
+     "text": "msg.tool_calls = [ToolCall(id=\"salvage_0\", name=call[\"name\"], arguments=call[\"arguments\"])]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 119,
+     "text": "good = _OPEN + ' {\"name\": \"KB_search\", \"arguments\": {\"query\": \"dispute\"}}' + _CLOSE"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 121,
+     "text": "(\"정상 1블록\", good, \"KB_search\"),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 122,
+     "text": "(\"복제 3블록\", \"prose \" + good * 3, \"KB_search\"),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 123,
+     "text": "(\"복제+마지막 절단\", good * 2 + _OPEN + ' {\"name\": \"KB_', \"KB_search\"),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 128,
+     "text": "(\"XML 1블록\", _OPEN + \"<function=KB_search><parameter=query>dispute</parameter>\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 129,
+     "text": "\"</function>\" + _CLOSE, \"KB_search\"),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 130,
+     "text": "(\"XML 복제 2블록\", (\"x\" + _OPEN + \"<function=KB_search><parameter=query>a</parameter>\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 131,
+     "text": "\"</function>\" + _CLOSE) * 2, \"KB_search\"),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "selftest",
+     "line": 132,
+     "text": "(\"XML 미종결\", _OPEN + \"<function=KB_search><parameter=query>a</parameter>\", None),"
+    }
+   ]
+  },
+  "t2_scaffold_get.py": {
+   "guarded": true,
+   "lines": 3393,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "checking account",
+     "cat": "comment",
+     "line": 1061,
+     "text": "#   레코드 `level: \"Green Account\"` → 에이전트 `\"Green Checking Account\"` → KB 에 없는 이름 →"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "docstring",
+     "line": 187,
+     "text": "\"\"\"★C278 §2c: 결핍 필드의 출처별 분리 — record-유래(row_fields=\"call again\" 정당) vs"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 633,
+     "text": "\"re-read them and call again with every row's values included.\" % miss)"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "comment",
+     "line": 3193,
+     "text": "#   낸다 — record-유래만 \"call again\"(이행 가능)·sub-유래는 unverified 정직"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "call again",
+     "cat": "string",
+     "line": 3206,
+     "text": "\"them, then call again with the completed input for those \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 633,
+     "text": "\"re-read them and call again with every row's values included.\" % miss)"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "comment",
+     "line": 778,
+     "text": "# 필드에 \"re-read the exact value\" 는 원리상 이행 불가능한 지시다)."
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 781,
+     "text": "or \"not found in the records — re-read the exact value\"))"
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 1353,
+     "text": "(\"Re-read the DOCUMENTS section for the line or table that states \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 2059,
+     "text": "\"Re-read the records with that tool and reference ITS output. \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 3234,
+     "text": "\"wrong, re-read those items' rate lines in the policy \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 3240,
+     "text": "\"is NOT a clean empty result. Do not rely on it: re-read the \""
+    },
+    {
+     "axis": "C_prescriptive",
+     "lit": "re-read",
+     "cat": "string",
+     "line": 3265,
+     "text": "else \" Re-read the exact value(s) from the records before \""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "comment",
+     "line": 2973,
+     "text": "# ⛔**정정 2026-08-21 (C572)**: 앞 판은 `KB_search` 로 **제목을 검색**하라고"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 2085,
+     "text": "#   도구를 `call_discoverable_agent_tool(agent_tool_name=…)` 로 디스패치하므로, 그렇게 부른"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 2534,
+     "text": "#   실제로는** `unlock_discoverable_agent_tool`·`call_discoverable_agent_tool`"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_user_tool",
+     "cat": "comment",
+     "line": 2481,
+     "text": "#         `call_discoverable_user_tool`) → 그 task는 **통과 불가**가 된다."
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "unlock_discoverable_agent_tool",
+     "cat": "comment",
+     "line": 2534,
+     "text": "#   실제로는** `unlock_discoverable_agent_tool`·`call_discoverable_agent_tool`"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "comment",
+     "line": 2540,
+     "text": "#   2026-08-05 스모크 실측: banking은 이 도구에 `requires_reads_feedback`를"
+    }
+   ]
+  },
+  "t2_search.py": {
+   "guarded": false,
+   "lines": 825,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "comment",
+     "line": 572,
+     "text": "# ★대시 동치 (2026-08-18·C534⒢ 실측): t7313 098 에서 손님은 `referral bonus — like,"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "string",
+     "line": 460,
+     "text": "if str(getattr(tc, \"name\", \"\")) == \"give_discoverable_user_tool\":"
+    }
+   ]
+  },
+  "t2_selection_replay.py": {
+   "guarded": false,
+   "lines": 127,
+   "hits": [
+    {
+     "axis": "D_soft",
+     "lit": "ToolCall(",
+     "cat": "code",
+     "line": 91,
+     "text": "emit, _content = chat_toolcall(a.base, a.model, [RESOLVE_SELECTION_SCHEMA],"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "retail",
+     "cat": "comment",
+     "line": 60,
+     "text": "# #6 arm: 도메인-일반 명시(retail/airline 특정 안 함·'후보 간 차이나는 속성' vs '검색/카테고리어')"
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "airline",
+     "cat": "comment",
+     "line": 60,
+     "text": "# #6 arm: 도메인-일반 명시(retail/airline 특정 안 함·'후보 간 차이나는 속성' vs '검색/카테고리어')"
+    }
+   ]
+  },
+  "t2_signature.py": {
+   "guarded": true,
+   "lines": 78,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "call_discoverable_agent_tool",
+     "cat": "selftest",
+     "line": 60,
+     "text": "(\"미선언 도구\", \"call_discoverable_agent_tool\", {\"agent_tool_name\": \"y\", \"arguments\": \"{}\"}, False),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 7,
+     "text": "\"Use the `give_discoverable_user_tool(discoverable_tool_name)` function\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 9,
+     "text": "Just explaining isn't enough, you must use the `give_discoverable_user_tool(discoverable_tool_name)`.\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "docstring",
+     "line": 19,
+     "text": "\"tool_signatures\": {\"give_discoverable_user_tool\": [\"discoverable_tool_name\"]}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 55,
+     "text": "A2 = {\"tool_signatures\": {\"give_discoverable_user_tool\": [\"discoverable_tool_name\"]}}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 57,
+     "text": "(\"선언 서명대로\", \"give_discoverable_user_tool\", {\"discoverable_tool_name\": \"x\"}, False),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 58,
+     "text": "(\"여분 arguments\", \"give_discoverable_user_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 61,
+     "text": "(\"빈 인자\", \"give_discoverable_user_tool\", {}, False),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 70,
+     "text": "assert signature_violation(\"give_discoverable_user_tool\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 74,
+     "text": "assert signature_violation(\"give_discoverable_user_tool\","
+    },
+    {
+     "axis": "F_domain_name",
+     "lit": "banking",
+     "cat": "docstring",
+     "line": 6,
+     "text": "★근거(정책 축자·gold 아님): banking 정책이 서명을 **두 번** 규정한다 —"
+    }
+   ]
+  },
+  "t2_source.py": {
+   "guarded": true,
+   "lines": 479,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 401,
+     "text": "[_M(\"tool\", \"Sky Blue: you can earn up to 8 referral bonuses per calendar year\\n\""
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 405,
+     "text": "{\"claim\": \"Sky Blue allows up to 8 referral bonuses per year\", \"doc\": \"\"},   # 코퍼스 실재"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 406,
+     "text": "{\"claim\": \"Sky Blue allows up to 7 referral bonuses per year\", \"doc\": \"\"},   # ★7은 없다"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 418,
+     "text": "assert bad == [\"Sky Blue allows up to 7 referral bonuses per year\","
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 444,
+     "text": "assert unsourced_claims([{\"claim\": \"Sky Blue allows up to 7 referral bonuses\", \"doc\": \"\"}],"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "selftest",
+     "line": 445,
+     "text": "cpn) == [\"Sky Blue allows up to 7 referral bonuses\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "selftest",
+     "line": 362,
+     "text": "user_tools = _TK([\"submit_referral\"], disc=[\"get_referral_link\"])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "selftest",
+     "line": 367,
+     "text": "_M(\"tool\", \"Error: [ORDER] call get_referral_link and the count is 8\", error=True),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "selftest",
+     "line": 373,
+     "text": "assert \"submit_referral\" in cp[\"registry\"] and \"get_referral_link\" in cp[\"registry\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "selftest",
+     "line": 384,
+     "text": "assert has_source(\"get_referral_link\", \"name\", cp)          # 우리 층 ∩ 레지스트리 = 통과"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "selftest",
+     "line": 387,
+     "text": "assert not has_source(\"get_referral_link\", \"name\", cp, allow_ours=False)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "selftest",
+     "line": 391,
+     "text": "msgs2 = msgs + [_M(\"tool\", \"see get_referral_link and submit_referral for next steps\")]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referral_link",
+     "cat": "selftest",
+     "line": 394,
+     "text": "assert \"get_referral_link\" in un and \"submit_referral\" in un"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "selftest",
+     "line": 361,
+     "text": "tools = _TK([\"get_referrals_by_user\", \"log_verification\"])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "selftest",
+     "line": 368,
+     "text": "_M(\"assistant\", \"\", calls=[\"get_referrals_by_user\"]),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "selftest",
+     "line": 377,
+     "text": "assert has_source(\"get_referrals_by_user\", \"name\", cp)      # 프롬프트 도구 목록 = 가시"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_referrals_by_user",
+     "cat": "selftest",
+     "line": 395,
+     "text": "assert \"get_referrals_by_user\" not in un                    # 이미 호출됨"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "give_discoverable_user_tool",
+     "cat": "selftest",
+     "line": 364,
+     "text": "A2 = {\"dispatcher_role_check\": {\"name_args\": {\"give_discoverable_user_tool\": \"discoverable_tool_name\"}}}"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 361,
+     "text": "tools = _TK([\"get_referrals_by_user\", \"log_verification\"])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "log_verification",
+     "cat": "selftest",
+     "line": 396,
+     "text": "assert \"log_verification\" not in un                         # 회수 텍스트에 없음(레지스트리에만)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 362,
+     "text": "user_tools = _TK([\"submit_referral\"], disc=[\"get_referral_link\"])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 373,
+     "text": "assert \"submit_referral\" in cp[\"registry\"] and \"get_referral_link\" in cp[\"registry\"]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 381,
+     "text": "assert not has_source(\"submit_referral\", \"name\", cp)        # 레지스트리 O · 가시 X"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 391,
+     "text": "msgs2 = msgs + [_M(\"tool\", \"see get_referral_link and submit_referral for next steps\")]"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 394,
+     "text": "assert \"get_referral_link\" in un and \"submit_referral\" in un"
+    }
+   ]
+  },
+  "t2_speak.py": {
+   "guarded": false,
+   "lines": 87,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "docstring",
+     "line": 8,
+     "text": "\"Do not collect sensitive card details; the tool uses the identifiers provided by the user.\""
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_card_last_4_digits",
+     "cat": "docstring",
+     "line": 6,
+     "text": "[VALUE-ACQUIRE] … give get_card_last_4_digits to the customer NOW …"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_card_last_4_digits",
+     "cat": "docstring",
+     "line": 7,
+     "text": "[PROCEDURE]     The policy forbids 'get_card_last_4_digits' in this procedure - verbatim:"
+    }
+   ]
+  },
+  "t2_stack.py": {
+   "guarded": false,
+   "lines": 1030,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 944,
+     "text": "{\"flag\": \"T2_DISCOVERY_NAMES\", \"target\": \"transfer_to_human_agents\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 946,
+     "text": "{\"flag\": \"T2_PROCEDURE\", \"target\": \"transfer_to_human_agents\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 948,
+     "text": "{\"flag\": \"T2_TRANSCRIBE\", \"target\": \"transfer_to_human_agents\","
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 954,
+     "text": "_Msg(content=\"\", tool_calls=None), (\"transfer_to_human_agents\",),"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 958,
+     "text": "_Msg(content=\"\", tool_calls=[_Call(\"transfer_to_human_agents\")]),"
+    },
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 959,
+     "text": "(\"transfer_to_human_agents\",), None, True, three, 1))"
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "string",
+     "line": 282,
+     "text": "\"(`Annual limit: 8 referral` / `Up to 10 referral bonuses per year`)\","
+    },
+    {
+     "axis": "B_prose",
+     "lit": "referral",
+     "cat": "string",
+     "line": 282,
+     "text": "\"(`Annual limit: 8 referral` / `Up to 10 referral bonuses per year`)\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 962,
+     "text": "_Msg(content=\"\", tool_calls=[_Call(\"submit_referral\")]),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 963,
+     "text": "(\"submit_referral\",), {},"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 965,
+     "text": "[{\"flag\": \"T2_PROCEDURE\", \"target\": \"submit_referral\","
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 969,
+     "text": "_Msg(content=\"\", tool_calls=[_Call(\"submit_referral\")]),"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 970,
+     "text": "(\"submit_referral\",), None, False,"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "submit_referral",
+     "cat": "selftest",
+     "line": 971,
+     "text": "[{\"flag\": \"T2_PROCEDURE\", \"target\": \"submit_referral\","
+    }
+   ]
+  },
+  "t2_transcribe.py": {
+   "guarded": false,
+   "lines": 196,
+   "hits": [
+    {
+     "axis": "B_prose",
+     "lit": " card ",
+     "cat": "docstring",
+     "line": 165,
+     "text": "a field by that name. It is called `date_of_account_open` where the card accounts are"
+    }
+   ]
+  },
+  "t2_transfer_prereq.py": {
+   "guarded": false,
+   "lines": 96,
+   "hits": [
+    {
+     "axis": "A_ident",
+     "lit": "transfer_to_human_agents",
+     "cat": "selftest",
+     "line": 71,
+     "text": "xfer = M(\"assistant\", [\"transfer_to_human_agents\"])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "docstring",
+     "line": 5,
+     "text": "a  이관 전 `KB_search` 0회            **9건 / 9 sim**   ← 구현"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "KB_search",
+     "cat": "string",
+     "line": 22,
+     "text": "SEARCH_MARKS = (\"kb_search\", \"search\")"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_current_time",
+     "cat": "selftest",
+     "line": 84,
+     "text": "assert not missing_prereq([M(\"user\")], M(\"assistant\", [\"get_current_time\"]))"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "get_user_information_by_name",
+     "cat": "selftest",
+     "line": 80,
+     "text": "only_reads = [M(\"assistant\", [\"get_user_information_by_name\"])]"
+    }
+   ]
+  },
+  "t2_unknown_bool.py": {
+   "guarded": false,
+   "lines": 256,
+   "hits": [
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "docstring",
+     "line": 28,
+     "text": "`apply_for_credit_card(rho_bank_subscription: bool = False)`이고 우리 `catalog_filter`도"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 194,
+     "text": "orch = O([T(\"apply_for_credit_card\", props)])"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 198,
+     "text": "got = unknown_args(orch, \"apply_for_credit_card\", {\"rho_bank_subscription\": False}, msgs)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 204,
+     "text": "assert unknown_args(orch, \"apply_for_credit_card\", {\"rho_bank_subscription\": False}, rec) == []"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 208,
+     "text": "got = unknown_args(orch, \"apply_for_credit_card\", {\"rho_bank_subscription\": False}, prose)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 215,
+     "text": "got = unknown_args(orch, \"apply_for_credit_card\", {\"invited\": False}, sentence)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 221,
+     "text": "got = unknown_args(orch, \"apply_for_credit_card\", {\"invited\": False}, typeerr)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 226,
+     "text": "assert unknown_args(orch, \"apply_for_credit_card\", {\"invited\": False}, jsonrec) == []"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 230,
+     "text": "assert unknown_args(orch, \"apply_for_credit_card\", {\"rho_bank_subscription\": True}, said) == []"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 234,
+     "text": "assert unknown_args(orch, \"apply_for_credit_card\", {\"rho_bank_subscription\": False}, saidno) == []"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 237,
+     "text": "assert unknown_args(orch, \"apply_for_credit_card\", {\"customer_name\": \"Sarah\"}, msgs) == []"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 240,
+     "text": "got = unknown_args(orch, \"apply_for_credit_card\", {\"tier\": \"gold\"}, msgs)"
+    },
+    {
+     "axis": "E_bank_tools_unseen",
+     "lit": "apply_for_credit_card",
+     "cat": "selftest",
+     "line": 248,
+     "text": "assert unknown_args(orch, \"apply_for_credit_card\", {\"invited\": False}, msgs) == []"
+    }
+   ]
+  }
+ }
+}

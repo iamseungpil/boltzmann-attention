@@ -1,0 +1,96 @@
+{
+ "banking": {
+  "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS": [
+   "gates"
+  ],
+  "GB2_NOTICE_BEFORE_TRANSFER": [
+   "gates"
+  ],
+  "WRITE-EVIDENCE": [
+   "write_evidence_specs"
+  ],
+  "PROCEDURE": [
+   "write_evidence_specs",
+   "procedures"
+  ],
+  "FOLLOW-UP": [
+   "scaffold_get_tools",
+   "follow_up_chains"
+  ],
+  "WRITE-PROVENANCE": [
+   "scaffold_get_tools",
+   "completion_guard"
+  ],
+  "WRITE-GROUNDING": [
+   "write_arg_grounding"
+  ],
+  "OFFICIAL-NAME": [
+   "write_arg_enum"
+  ],
+  "VALUE-ACQUIRE": [
+   "value_acquisition"
+  ],
+  "POLICY-CAP": [
+   "param_cap_check"
+  ],
+  "PRESCRIPTION": [
+   "prescription_redirect"
+  ],
+  "REF-VERIFY": [
+   "ref_verify"
+  ],
+  "CLAIM-PROVENANCE": [
+   "claim_prov"
+  ],
+  "UNAVAILABLE-CAPABILITY": [
+   "claim_prov"
+  ],
+  "TRANSFER-REASON": [
+   "transfer_reason_policy"
+  ],
+  "PROTOCOL": [
+   "require_doc_before"
+  ],
+  "ORDER": [
+   "arbitration"
+  ],
+  "SOURCE": [
+   "arbitration",
+   "ledger_metrics"
+  ],
+  "ISOLATED-FORMALIZATION": [
+   "write_initiation"
+  ]
+ },
+ "retail": {
+  "G1_AUTH_FIRST": [
+   "gates"
+  ],
+  "G2_CONFIRM_WRITE": [
+   "gates"
+  ],
+  "G4_TRANSFER_MSG": [
+   "gates"
+  ],
+  "G5_STATUS_PRECONDITION": [
+   "gates"
+  ],
+  "G6_SELECT_CONFIRM": [
+   "gates"
+  ],
+  "G7_OP_CONSTRAINTS": [
+   "gates"
+  ],
+  "G_EXHAUST": [
+   "gates"
+  ]
+ },
+ "airline": {
+  "G2_CONFIRM_WRITE": [
+   "gates"
+  ],
+  "G1_USER_ID_PROVIDED": [
+   "gates"
+  ]
+ }
+}

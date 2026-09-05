@@ -1,0 +1,1249 @@
+[
+ {
+  "mod": "t2_gate_patch",
+  "line": 8685,
+  "name": "unified",
+  "cls": "",
+  "own": 6429,
+  "sig": "def unified(self, message, state):",
+  "a2": [
+   "action_tools",
+   "analysis_producers",
+   "arbitration",
+   "assertion_operands",
+   "axis_notes",
+   "calc_tool",
+   "choice_grounding",
+   "claim_audit",
+   "claim_prov",
+   "completion_guard",
+   "compute_ops",
+   "discoverable_name_check",
+   "dispatcher_role_check",
+   "eplan",
+   "follow_up_chains",
+   "free_text_defaults",
+   "gates",
+   "group_dup_policy_docs",
+   "have_value_reask",
+   "nonlisted_tool_feedback",
+   "param_cap_check",
+   "policy_ontology",
+   "prescription_redirect",
+   "procedures",
+   "recommendation_verify",
+   "ref_iso",
+   "ref_verify",
+   "reference_filter",
+   "require_doc_before",
+   "scaffold_get_tools",
+   "search_exhaust_escalation",
+   "tool_unlock_hint",
+   "transcription_check",
+   "transfer_reason_policy",
+   "value_acquisition",
+   "variant_operand",
+   "variant_spec",
+   "view_field_annotations",
+   "withdrawn_row_check",
+   "write_arg_enum",
+   "write_arg_grounding",
+   "write_evidence_specs",
+   "write_initiation"
+  ],
+  "rt": [
+   "self",
+   "state"
+  ],
+  "offline": false,
+  "dom": [
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool"
+  ],
+  "guarded": true
+ },
+ {
+  "mod": "t2_compute",
+  "line": 143,
+  "name": "_apply_op",
+  "cls": "",
+  "own": 875,
+  "sig": "def _apply_op(spec, ctx):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [
+   " card "
+  ],
+  "guarded": true
+ },
+ {
+  "mod": "t2_scaffold_get",
+  "line": 1041,
+  "name": "_sub_fetch_formalize",
+  "cls": "",
+  "own": 471,
+  "sig": "def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):",
+  "a2": [
+   "operands"
+  ],
+  "rt": [
+   "orch"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 1202,
+  "name": "gated",
+  "cls": "",
+  "own": 191,
+  "sig": "def gated(self, tool_calls):",
+  "a2": [
+   "calc_specs",
+   "gates",
+   "present_specs",
+   "write_evidence_specs"
+  ],
+  "rt": [
+   "self"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 1795,
+  "name": "_wev_deny_msgs",
+  "cls": "",
+  "own": 188,
+  "sig": "def _wev_deny_msgs(messages, tc, specs):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_scaffold_get",
+  "line": 1546,
+  "name": "_sub_inject",
+  "cls": "",
+  "own": 178,
+  "sig": "def _sub_inject(orch, d, iso, ctx, la, UserMessage):",
+  "a2": [
+   "operands"
+  ],
+  "rt": [
+   "orch"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 1479,
+  "name": "_axis_surface",
+  "cls": "",
+  "own": 144,
+  "sig": "def _axis_surface(orch, tool_calls, results):",
+  "a2": [
+   "axis_notes"
+  ],
+  "rt": [
+   "orch"
+  ],
+  "offline": false,
+  "dom": [
+   "KB_search"
+  ],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 4373,
+  "name": "_require_doc_deliver",
+  "cls": "",
+  "own": 117,
+  "sig": "def _require_doc_deliver(agent, a2, messages, tool_calls, corpus=None, docs_dir=None):",
+  "a2": [
+   "require_doc_before"
+  ],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 184,
+  "name": "_verdict_gate_fb",
+  "cls": "",
+  "own": 111,
+  "sig": "def _verdict_gate_fb(agent, messages, a2, group, val, subs, spec):",
+  "a2": [
+   "policy_ontology"
+  ],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_stack",
+  "line": 555,
+  "name": "speak",
+  "cls": "Stack",
+  "own": 88,
+  "sig": "def speak(self, orch=None, am=None, a2=None, attach_ok=True, state=None, targets=(), name_of=None, window_required=True):",
+  "a2": [],
+  "rt": [
+   "orch",
+   "self",
+   "state"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_scaffold_get",
+  "line": 807,
+  "name": "_sub_formalize",
+  "cls": "",
+  "own": 87,
+  "sig": "def _sub_formalize(orch, d, iso, ctx, run_env_calls):",
+  "a2": [
+   "operands"
+  ],
+  "rt": [
+   "orch"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_ledger",
+  "line": 1075,
+  "name": "diagnose_choice",
+  "cls": "",
+  "own": 86,
+  "sig": "def diagnose_choice(agent, la, UserMessage, spec, block, rows):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 5933,
+  "name": "_resolve_cap_ok",
+  "cls": "",
+  "own": 80,
+  "sig": "def _resolve_cap_ok(self, messages=None, a2=None):",
+  "a2": [
+   "eplan"
+  ],
+  "rt": [
+   "self"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 2009,
+  "name": "_ref_verify_deny",
+  "cls": "",
+  "own": 78,
+  "sig": "def _ref_verify_deny(agent, la, UserMessage, messages, tc, specs):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_search",
+  "line": 707,
+  "name": "verdict_lines",
+  "cls": "",
+  "own": 77,
+  "sig": "def verdict_lines(agent, la, UserMessage, spec, req_block, group, corpus=None, doc_dir=None):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 5240,
+  "name": "_claim_unbacked",
+  "cls": "",
+  "own": 75,
+  "sig": "def _claim_unbacked(claims, emap, evs, messages, a2=None, kind_fallback_on_miss=False):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_ledger",
+  "line": 793,
+  "name": "eligible_text",
+  "cls": "",
+  "own": 72,
+  "sig": "def eligible_text(days, tally, axis_maps, spec, stated=None, as_rows=False):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 3830,
+  "name": "distinct_args_violation",
+  "cls": "",
+  "own": 71,
+  "sig": "def distinct_args_violation(tc, a2, docs=None):",
+  "a2": [
+   "distinct_args"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_eplan_patch",
+  "line": 777,
+  "name": "_terminal_grant_check",
+  "cls": "",
+  "own": 67,
+  "sig": "def _terminal_grant_check(orch):",
+  "a2": [
+   "gates"
+  ],
+  "rt": [
+   "orch"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 2098,
+  "name": "_write_arg_ground_deny",
+  "cls": "",
+  "own": 65,
+  "sig": "def _write_arg_ground_deny(messages, tc, specs):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 1676,
+  "name": "_param_cap_deny",
+  "cls": "",
+  "own": 63,
+  "sig": "def _param_cap_deny(agent, la, UserMessage, messages, tc, specs):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_ledger",
+  "line": 1163,
+  "name": "requirement_choice",
+  "cls": "",
+  "own": 60,
+  "sig": "def requirement_choice(agent, la, UserMessage, spec, docs_text, subject, doc_ids):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_dominance",
+  "line": 236,
+  "name": "requirements_for",
+  "cls": "",
+  "own": 58,
+  "sig": "def requirements_for(a2, messages, target, executed=None, unwrap=None):",
+  "a2": [
+   "gates"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 5182,
+  "name": "_claim_verify_false",
+  "cls": "",
+  "own": 56,
+  "sig": "def _claim_verify_false(agent, spec, claims, evs):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 1120,
+  "name": "_label_mismatch_deny",
+  "cls": "",
+  "own": 48,
+  "sig": "def _label_mismatch_deny(tc, a2, labels, selectors=None):",
+  "a2": [
+   "arg_source_reads"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_ledger",
+  "line": 434,
+  "name": "formalize_kind",
+  "cls": "",
+  "own": 46,
+  "sig": "def formalize_kind(agent, la, UserMessage, spec, texts, kinds):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_ledger",
+  "line": 367,
+  "name": "formalize_objective_axis",
+  "cls": "",
+  "own": 44,
+  "sig": "def formalize_objective_axis(agent, la, UserMessage, spec, texts, axes):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_resolve",
+  "line": 1281,
+  "name": "resolve_compute_params",
+  "cls": "",
+  "own": 43,
+  "sig": "def resolve_compute_params(am, msgs, a2):",
+  "a2": [
+   "compute_ops",
+   "eplan"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 8425,
+  "name": "apply_unified_regen",
+  "cls": "",
+  "own": 42,
+  "sig": "def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwords=False, ground=False, disamb_mode=\"dialog\", prov_mode=\"full\"):",
+  "a2": [
+   "action_tools",
+   "analysis_producers",
+   "arbitration",
+   "assertion_operands",
+   "axis_notes",
+   "calc_tool",
+   "choice_grounding",
+   "claim_audit",
+   "claim_prov",
+   "completion_guard",
+   "compute_ops",
+   "disamb_sub_args",
+   "discoverable_name_check",
+   "dispatcher_role_check",
+   "eplan",
+   "follow_up_chains",
+   "free_text_defaults",
+   "gates",
+   "group_dup_policy_docs",
+   "have_value_reask",
+   "nonlisted_tool_feedback",
+   "param_cap_check",
+   "policy_ontology",
+   "prescription_redirect",
+   "procedures",
+   "recommendation_verify",
+   "ref_iso",
+   "ref_verify",
+   "reference_filter",
+   "require_doc_before",
+   "scaffold_get_tools",
+   "search_exhaust_escalation",
+   "tool_unlock_hint",
+   "transcription_check",
+   "transfer_reason_policy",
+   "value_acquisition",
+   "variant_operand",
+   "variant_spec",
+   "view_field_annotations",
+   "withdrawn_row_check",
+   "write_arg_enum",
+   "write_arg_grounding",
+   "write_evidence_specs",
+   "write_initiation"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool"
+  ],
+  "guarded": true
+ },
+ {
+  "mod": "gate_interpreter",
+  "line": 165,
+  "name": "_compose_claim_audit",
+  "cls": "",
+  "own": 40,
+  "sig": "def _compose_claim_audit(merged):",
+  "a2": [
+   "claim_audit",
+   "claim_bindings",
+   "claim_prov",
+   "completion_guard"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 3030,
+  "name": "_cov_formalize_M",
+  "cls": "",
+  "own": 40,
+  "sig": "def _cov_formalize_M(agent, la, UserMessage, msgs, ep_spec, a2):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_search",
+  "line": 397,
+  "name": "eligibility_line",
+  "cls": "",
+  "own": 39,
+  "sig": "def eligibility_line(agent, la, UserMessage, spec, text):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_scaffold_get",
+  "line": 2393,
+  "name": "apply",
+  "cls": "",
+  "own": 37,
+  "sig": "def apply():",
+  "a2": [
+   "catalog_arg_docs",
+   "eplan",
+   "function_agents",
+   "scaffold_get_tools",
+   "unavailable_tools"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_authority",
+  "line": 77,
+  "name": "may_suppress",
+  "cls": "",
+  "own": 31,
+  "sig": "def may_suppress(a2, key):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_transcribe",
+  "line": 107,
+  "name": "missing_fields",
+  "cls": "",
+  "own": 30,
+  "sig": "def missing_fields(spec, args, records, required=()):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 2890,
+  "name": "membership_violation",
+  "cls": "",
+  "own": 29,
+  "sig": "def membership_violation(d, spec, msgs):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 6973,
+  "name": "apply_provenance_regen",
+  "cls": "",
+  "own": 29,
+  "sig": "def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domain=None, disamb=False, disamb_mode=\"dialog\", prov_mode=\"full\"):",
+  "a2": [
+   "disamb_sub_args"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_resolve",
+  "line": 880,
+  "name": "action_candidates",
+  "cls": "",
+  "own": 29,
+  "sig": "def action_candidates(action_tools, a2):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_search",
+  "line": 510,
+  "name": "formalize_groups",
+  "cls": "",
+  "own": 29,
+  "sig": "def formalize_groups(agent, la, UserMessage, spec, texts, groups):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_search",
+  "line": 639,
+  "name": "sub_requirements",
+  "cls": "",
+  "own": 29,
+  "sig": "def sub_requirements(agent, la, UserMessage, spec, user_text):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_search",
+  "line": 676,
+  "name": "sub_tool_names",
+  "cls": "",
+  "own": 29,
+  "sig": "def sub_tool_names(agent, la, UserMessage, spec, text, registry):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_resolve",
+  "line": 745,
+  "name": "_dispatch_since_last_user",
+  "cls": "",
+  "own": 28,
+  "sig": "def _dispatch_since_last_user(msgs, a2):",
+  "a2": [
+   "eplan"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_dominance",
+  "line": 87,
+  "name": "dominating_gate",
+  "cls": "",
+  "own": 27,
+  "sig": "def dominating_gate(a2, messages, target, executed=None, unwrap=None):",
+  "a2": [
+   "gates"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_transcribe",
+  "line": 159,
+  "name": "field_sources",
+  "cls": "",
+  "own": 27,
+  "sig": "def field_sources(spec, args, records, required=()):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "gate_interpreter",
+  "line": 125,
+  "name": "_resolve_a3_refs",
+  "cls": "",
+  "own": 26,
+  "sig": "def _resolve_a3_refs(merged):",
+  "a2": [
+   "policy_ontology"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 2937,
+  "name": "noop_write",
+  "cls": "",
+  "own": 25,
+  "sig": "def noop_write(d, spec, msgs, min_match=3):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_prekb_patch",
+  "line": 74,
+  "name": "_require_before",
+  "cls": "",
+  "own": 24,
+  "sig": "def _require_before(a2):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_speak",
+  "line": 63,
+  "name": "prohibits_target",
+  "cls": "",
+  "own": 24,
+  "sig": "def prohibits_target(a2, executed, target, lever=None, messages=None):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_prekb_patch",
+  "line": 266,
+  "name": "_argprod_hits",
+  "cls": "",
+  "own": 23,
+  "sig": "def _argprod_hits(a2, content, is_error=False):",
+  "a2": [
+   "arg_producers"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 3151,
+  "name": "_delivered_unused_agent_tools",
+  "cls": "",
+  "own": 22,
+  "sig": "def _delivered_unused_agent_tools(orch, messages, a2):",
+  "a2": [],
+  "rt": [
+   "orch"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 8156,
+  "name": "apply_gate_regen",
+  "cls": "",
+  "own": 22,
+  "sig": "def apply_gate_regen(max_regen=1):",
+  "a2": [
+   "gates"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_prekb_patch",
+  "line": 291,
+  "name": "_notice_done",
+  "cls": "",
+  "own": 22,
+  "sig": "def _notice_done(a2, msgs, fam):",
+  "a2": [
+   "gates"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 684,
+  "name": "_policy_facts",
+  "cls": "",
+  "own": 21,
+  "sig": "def _policy_facts(a2):",
+  "a2": [
+   "policy_facts_file"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_transcribe",
+  "line": 84,
+  "name": "mismatches",
+  "cls": "",
+  "own": 21,
+  "sig": "def mismatches(spec, args, records):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_ledger",
+  "line": 119,
+  "name": "formalize_rows",
+  "cls": "",
+  "own": 19,
+  "sig": "def formalize_rows(agent, la, UserMessage, text, spec):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_transcribe",
+  "line": 139,
+  "name": "unknown_ids",
+  "cls": "",
+  "own": 18,
+  "sig": "def unknown_ids(spec, args, records):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 2348,
+  "name": "_arg_empty_deny",
+  "cls": "",
+  "own": 16,
+  "sig": "def _arg_empty_deny(agent, tc, a2=None, applies_to=None):",
+  "a2": [],
+  "rt": [
+   "agent"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_signature",
+  "line": 36,
+  "name": "signature_violation",
+  "cls": "",
+  "own": 16,
+  "sig": "def signature_violation(tool_name, args, a2, force=False):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_prekb_patch",
+  "line": 155,
+  "name": "_effective_fams",
+  "cls": "",
+  "own": 15,
+  "sig": "def _effective_fams(tc, a2=None):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_formalize_exec",
+  "line": 429,
+  "name": "_variant_records_for",
+  "cls": "",
+  "own": 14,
+  "sig": "def _variant_records_for(msgs, spec, anchor_id):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 13923,
+  "name": "_proc_first_deny",
+  "cls": "",
+  "own": 14,
+  "sig": "def _proc_first_deny(_amX):",
+  "a2": [
+   "discoverable_name_check"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_handoff_ground",
+  "line": 85,
+  "name": "check",
+  "cls": "",
+  "own": 14,
+  "sig": "def check(deny_fn, messages, text, specs, applies_to):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_precedence",
+  "line": 72,
+  "name": "declarations",
+  "cls": "",
+  "own": 12,
+  "sig": "def declarations(a2, sources=None):",
+  "a2": [
+   "relations"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_ledger",
+  "line": 638,
+  "name": "ineligible_text",
+  "cls": "",
+  "own": 11,
+  "sig": "def ineligible_text(days, thresholds, spec):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 940,
+  "name": "_prop_is_string",
+  "cls": "",
+  "own": 10,
+  "sig": "def _prop_is_string(spec):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_dominance",
+  "line": 77,
+  "name": "_exempt",
+  "cls": "",
+  "own": 8,
+  "sig": "def _exempt(gate, target):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 6154,
+  "name": "_any_effective_write",
+  "cls": "",
+  "own": 8,
+  "sig": "def _any_effective_write(msgs, a2=None):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 7459,
+  "name": "_rebuild_gate_state",
+  "cls": "",
+  "own": 8,
+  "sig": "def _rebuild_gate_state(gate, a2, messages):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 1667,
+  "name": "_write_evidence_deny",
+  "cls": "",
+  "own": 7,
+  "sig": "def _write_evidence_deny(orch, tc, specs):",
+  "a2": [],
+  "rt": [
+   "orch"
+  ],
+  "offline": false,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_gate_patch",
+  "line": 6145,
+  "name": "_is_effective_write",
+  "cls": "",
+  "own": 7,
+  "sig": "def _is_effective_write(name, a2=None):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_ledger",
+  "line": 110,
+  "name": "specs_for",
+  "cls": "",
+  "own": 7,
+  "sig": "def specs_for(a2, tool_name):",
+  "a2": [
+   "ledger_metrics"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_authority",
+  "line": 69,
+  "name": "_declares_any",
+  "cls": "",
+  "own": 6,
+  "sig": "def _declares_any(a2):",
+  "a2": [
+   "suppression_authority"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_dominance",
+  "line": 116,
+  "name": "requirement_text",
+  "cls": "",
+  "own": 6,
+  "sig": "def requirement_text(a2, gate, target):",
+  "a2": [
+   "arbitration"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": true
+ },
+ {
+  "mod": "t2_handoff_ground",
+  "line": 129,
+  "name": "deny",
+  "cls": "",
+  "own": 6,
+  "sig": "def deny(messages, tc, sp):",
+  "a2": [],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_phase",
+  "line": 34,
+  "name": "_auth_gates",
+  "cls": "",
+  "own": 2,
+  "sig": "def _auth_gates(a2):",
+  "a2": [
+   "gates"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_search",
+  "line": 43,
+  "name": "_rows",
+  "cls": "",
+  "own": 2,
+  "sig": "def _rows(a2):",
+  "a2": [
+   "policy_ontology"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_search",
+  "line": 61,
+  "name": "_ontology",
+  "cls": "",
+  "own": 2,
+  "sig": "def _ontology(a2):",
+  "a2": [
+   "policy_ontology"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ },
+ {
+  "mod": "t2_speak",
+  "line": 40,
+  "name": "_procs",
+  "cls": "",
+  "own": 2,
+  "sig": "def _procs(a2):",
+  "a2": [
+   "procedures"
+  ],
+  "rt": [],
+  "offline": true,
+  "dom": [],
+  "guarded": false
+ }
+]

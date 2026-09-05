@@ -225,6 +225,17 @@ export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 #   `get_referral_link`는 무접미사라 정당한 give가 상시 차단된다. 술어는 **집합 소속**이다.
 export T2_DISPATCH_ROLE_ENVSET=1
 export T2_WRITE_EVIDENCE=1 T2_WEV_ROUNDS=2 T2_WRITE_ARG_GROUND=1 T2_WRITE_PROV=1
+# ★D14 `T2_REGEN_WRITE_GATES` (2026-09-05·같은 줄 = **같은 축**): `_ap_regen` 이 낸 호출도
+#   위 쓰기 게이트 6종을 다시 받는다. 재검사 목록은 gate·PROCEDURE·UNLOCK_NAME/PROV 넷뿐이었고
+#   실행-시점 그물은 `exec_augment` 가 덮어써 死코드다(:8912 자백 · `T2_GATE_REGEN=1` 정본 팔).
+#   x771 효과 프로브 PROBE-PASS: 재생성-산출 커밋 write 25칸에 **ARM_OFF 0 → ARM_ON 10**.
+#   ⚠계기 = `[T2_REGEN_WGATE] deny tag=<채널> wtag=<게이트> tool=... inner=...`. 첫 런에서 이 줄이
+#     0 이면 경로가 틀린 것이다([[81]]) — 예상 첫 채널 = uncalled_unlock · claimprov · unified_regen.
+#   ⚠cap 은 새로 열지 않는다 — `T2_WEV_CAP`(8) 을 메인 경로와 공유한다(`T2_PROC_REGEN` 선례).
+#   ⚠[[70]] 판 것: 회수분 부호표에서 reward=1.0 sim 차단 **0건**(정상경로 176건 대조 DENY 1=0.6%).
+#     ⛔반사실 reward 이득은 0/6 이다(EXTRA 옆에 MISSING 이 남는다) — 근거는 성적이 아니라 [[25]].
+#   ⚠[[57]] 부정통제 = 이 줄 `1↔0` · 계수 = `[T2_REGEN_WGATE] deny` 라인 수.
+export T2_REGEN_WRITE_GATES=1
 export T2_REF_VERIFY=1 T2_VALUE_ACQUIRE=1 T2_HAVE_VALUE=1 T2_HAVE_VALUE_FORCE=1
 export T2_FOLLOWUP_REQUIRED=1 T2_FOLLOWUP_FORCE=1 T2_FOLLOWUP_READLOOP=1
 export T2_FOLLOWUP_CAP=3 T2_FOLLOWUP_PROGRESS_REFUND=1
@@ -390,6 +401,12 @@ export T2_ARG_SCHEMA=1            # P11 스키마-밖 최상위 키 위생(unifi
 export T2_TOOL_CHANNEL=1          # P13 채널 오분류 — **예방형 생성-레벨**(출력-부착 금지·041 사고)
 export T2_USER_TOOL_NOTE=1        # P5 user-tool 안내 표준문(018/040·생성-레벨·sim당 1회)
 export T2_GIVE_QUOTE=1            # P1 give-인용 실재성(010 재현 2/2·생성-레벨·재질의 1회 fail-open)
+export T2_REGEN_KEEP_MUTATING=1   # D11ⓐ 재생성이 초안의 env-변이 호출을 잃으면 그 집합만 되붙인다
+#   (x771 효과 프로브 PROBE-PASS·회수분 pre-give 55 중 **33건**이 갈린다 · 015 은 2/2)
+#   ⚠계기 = `[T2_REGEN_KEEP_MUTATING] restored=N tag=... names=...`. 첫 런에서 이 라인이 0 이면
+#     경로가 틀린 것이다([[81]]) — `T2_USER_TOOL_NOTE`/`T2_GIVE_QUOTE` 발화 수와 대조하라.
+#   ⚠[[70]] 판 것: `[T2_GIVE_QUOTE] retract=1`(사전등록 지표)이 구조적으로 0 이 된다. 같은 양은
+#     위 `restored=` 라인이 싣는다(지표 소멸이 아니라 이름 이동). 부정통제 = 이 줄 `1↔0`.
 export T2_DISPATCH_LEDGER=1       # P8 제출-완결 표면화(020/027·터미널 훅·deny 아님·1회/sim)
 export T2_SG_WINDOW_ABSTAIN=1     # §4-2 미측정 윈도 abstain(023 부정-오판정 봉쇄·A2 선언 도구만)
 export T2_SG_RESULT_RANGE=1       # A8/OL-11 결과 범위 게이트(A2 `result_range` 선언 도구만·기본 ON·[[60]])
@@ -686,13 +703,26 @@ export T2_SG_ROW_COUNT=0
 #   명세는 **도구별**로 읽는다 — card_action 은 신용 2값·직불 3값이라 이름만으로 합치면 오차단.
 export T2_SPEC_ARG_FACTS=0
 
-# ★이미 성공한 변이의 재실행을 지운다 (`T2_DUP_WRITE`·기본 OFF·2026-08-26).
+# ★이미 성공한 변이의 재실행을 지운다 (`T2_DUP_WRITE`·2026-08-26 도입 · 2026-09-05 부터 ON).
 #   근거: x546/x547 재생 — 중복을 전부 빼도 만점 sim 14/14 불변(비용 0)이고
 #         0점 sim 142 중 8 이 1.0 으로 뒤집는다(074·073·050).
 #         x548 격리 — 문면이 재발행을 4/4 → 0/4 로 막고, 이름 없는 거절·같은 길이
 #         무관 문장은 못 막는다([[57]] 부정통제 통과).
 #   ⛔stub 금지 — **재생성 채널로만** 나간다(2026-08-02 `failed_setstate` 사고).
-export T2_DUP_WRITE=0
+#
+# ★2026-09-05 (x771 · D6) — **0 -> 1 로 올린다. 값이 바뀐 게 아니라 거짓말이 끝난 것이다.**
+#   [[81]] 불일치: 정본은 여기서 `=0` 이었는데 라이브 런처 5곳(`run_ours_task.sh:128`
+#   `run_night_ab.sh:65` `run_t7363_night.sh:57` `run_t7364.sh:64` `run_t7365.sh:63`)이 전부
+#   `=1` 로 덮어썼다. 즉 **모든 런이 이 레버를 켠 채로 돌았고 정본만 껐다고 적어 뒤었다.**
+#   같은 날 술어도 좁혔다: 억제는 이제 A2 `write_once_keys` **선언이 있는 write** 로만 간다
+#   (`_succeeded_mut_keys` 가 인자-전체 키를 원장에 싣지 않는다).
+#   회수분 fb 사이드카 전수 실측 — 이 문면의 tool-deny 221 발 중 **213 이 미선언**(banking 52)
+#   이었고 그중 `bank_k8143med1_20260904_0135 / task_051` 은 gold 가 요구한 재제출을 4발
+#   지워 0.0 이 됐다. 남는 8 발(banking 2)이 선언분 = t7378 074 를 고친 그 보호다.
+#   ⚠발사 전 스모크에 `task_050` 을 넣어라 — 회수분에서 미선언 deny 를 맞고도 1.0 인 유일한
+#     banking sim 이고, 막힌 도구가 051 이 사려는 것과 **동일**하다. 거기서 1.0 -> 0.0 이면
+#     이 레버의 순효과는 0 이거나 음이다([[70]] 절충 공개).
+export T2_DUP_WRITE=1
 
 # ★선언 인자 ↔ 정책 행 **동일성 조인** (`T2_ARG_POLICY_AT_WRITE`·기본 OFF·2026-08-25).
 #   write_rules 의 일반형: 손으로 고른 문장 대신 이 write 가 선언한 인자 이름과 A3 `axis` 가
@@ -711,6 +741,25 @@ export T2_DUP_WRITE=0
 #   ⇒ 끄는 게 아니라 **조건부 발화**([[70]]) · 조건은 도메인 일반 닫힌 술어(`_is_effective_write`).
 #   `=1` 로 두면 읽기까지 종전대로 발화한다(음성으로 판정되면 그렇게 되돌린다·[[60]]).
 export T2_SCOPE_ALL=0
+
+# ★`[OPERATOR-SCOPE]` 를 **실행하는 자리에서만** 낸다 (2026-09-05·x771 092 효과프로브·기본 ON).
+#   위 x550 §2 는 「되돌릴 수 없는가」를 **operand(chosen)** 로만 쟀다 — **호출 자리**가 빠졌다.
+#   `unlock_discoverable_agent_tool` 은 아무 것도 수행하지 않는다(우리 자신의 문면 축자:
+#   `[UNLOCKED-NOT-CALLED] Unlocking only makes a tool available - it performs nothing.`).
+#   092 실물: 모델이 gold `unlock(reset_debit_card_pin_6284)` 을 초안에서 **실제로 시도**했는데
+#   unlock 자리에서 반려 -> 형제 호출까지 `[BLOCKED]` -> unified_regen 이 턴을 1호출로 갈아치움
+#   -> 최종 궤적에서 그 operand **0회**(「미호출」이 아니라 **「시도-차단-미재시도」**).
+#   조건은 도메인 일반 닫힌 술어다 — A2 가 선언한 `eplan.dispatch_tool` 과 호출 이름의 동일성
+#   비교뿐(엔진 리터럴 0·[[05]]). 부정통제: 그 선언을 빼면 갈림이 사라진다.
+#   ⚠[[70]] 파는 것 = **unlock 자리의 사전 경고 한 턴**. 경고는 사라지지 않고 dispatch 자리로
+#     한 걸음 미뤄진다(부정통제 NC-2 실측: dispatch 에서는 그대로 발화).
+#   회수분 전수(131 log·1036 발화): unlock 자리 703(67.9%) 침묵 · dispatch 자리 333 유지.
+#     그중 unlock 자리 「반려 뒤 끝내 미실행」 209 가 이 수리가 사는 쪽,
+#     「끝내 실행」 317 은 애초에 반려가 선택을 못 바꾼 몫(=잃을 것이 없다).
+#   ⚠계기: 첫 런에서 `[T2_RESOLVE] operator-scope 침묵: call=... 는 실행하지 않는다` 가
+#     **0이면 경로가 틀린 것**이다([[81]]).
+#   ⚠`T2_SCOPE_ALL=1` 은 이 레버를 되돌리지 **못한다**(가드가 그 검사보다 위다) — `=0` 으로 꺼라.
+export T2_SCOPE_AT_DISPATCH_ONLY=1
 
 #   ⛔**2026-08-26 다시 OFF — t7361 이 그 경고를 실현했다.** 위 격리는 기준 **827자**만 실었는데
 #     라이브 조인은 이 write 의 선언 인자 **15개 전부**를 실어 **3,033자**를 보낸다. 그리고 그
@@ -884,3 +933,20 @@ export T2_ACTION_CANDSET=1
 #                       *메인이 formalize · 엔진은 계산*([[10]]/[[52]]). 093 회귀(1.0→0.0)의 원인.
 export T2_P2_EMPTY=1
 export T2_SG_ISO_FILL_ONLY=1
+
+# ★§T-8 괄호-STRIP 무장 (`T2_SIBLING_PAREN`·2026-09-05·[[81]] 정본 런처 등재).
+#   결손: 인자가 **같은 호출의 형제 인자 값**을 괄호로 되풀이한다 — 실물
+#     `open_bank_account_4821{account_type:"savings", account_class:"Green Account (savings)"}`
+#     ↔ gold `account_class:"Green Account"`. env 는 이 인자를 검증 없이 그대로 저장한다.
+#   출처(gold 아님·[[23]]): env 선언 축자 *"account_class (string): The full official account
+#     class name"* — 공식 상품명이지 형제 인자를 되풀이한 합성 문자열이 아니다.
+#   거동: 술어가 지목한 `"(형제값)"` 를 **빼기만** 한다(값 선택 0 · [[63]] 제거).
+#   부호표(프로브 `x771_068_effect.py` · 회수분 전수 14,430 sim · 135,650 호출):
+#     발화 103 · ★갈림 3(PRE 오답 → POST gold 일치) · ⛔해악 **0**
+#     ⊖ gold 액션 1,533 발화 0 · gold 문자열 3,590 중 `account_class` 괄호형 **0**
+#     ⊖ 통과 sim(reward>=1.0) 발화 **0/103** · 표면 = `open_bank_account_4821.account_class` 단일 쌍
+#   실측 표적 = **065**(x721 · 채점된 sim 의 `action_match=False` 가 `065_2` 하나뿐 = 이 칸).
+#     066 은 카드칸이 남아 단독 매수 0 · 068 의 괄호 sim 은 `max_steps·db_check=null` 미채점.
+#   ⛔`deny` 금지 — W-5 축자 *"반려를 받고도 같은 값 … 최다 18회"* 재발화 루프를 산다.
+#   ⚠`arms/*.env` 의 `=log` 4개는 그대로 둔다(계기 팔 = 부정통제 팔).
+export T2_SIBLING_PAREN=strip

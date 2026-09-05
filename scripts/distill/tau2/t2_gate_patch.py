@@ -3774,6 +3774,62 @@ def sibling_paren_arg(tc):
     return None
 
 
+def sibling_paren_strip(tool_calls, log=None):
+    """★§T-8 무장 — `sibling_paren_arg` 가 지목한 부분문자열을 값에서 **빼기만** 한다.
+
+    호출부 = `unified()` 의 `T2_SIBLING_PAREN=strip` 분기 **하나뿐**(단일 구현 [[67]]).
+    반환: 바꾼 `(도구, 인자, 옛값, 새값)` 목록. 부작용은 tool_call 인자 수정뿐이다.
+
+    **[[62]] 결손 측정 정본 = `reports/facet_rft_2026/x771_068_effect.py`**(회수분 전수
+    14,430 sim · 135,650 호출): 발화 103 · 갈림 3 · **해악 0** · gold 액션 1,533 발화 0 ·
+    통과 sim 발화 0/103 · NC 3/3.
+
+    · **값을 고르지 않는다**([[62]]/[[10]]/[[63]]): 후보 열거도 순위 지목도 *"정답은 X"* 도 없다.
+      술어가 이미 계산한 네 번째 칸(형제 인자 값으로 만든 `"(형제값)"`)을 **제거**할 뿐이라
+      새 문자열을 만들어 넣는 일이 없다. 제거 후 남는 공백만 접는다(`" ".join(split())`).
+    · **도메인 리터럴 0**([[05]]): 표적은 `sibling_paren_arg` 반환뿐 — 도구명·인자명·값 어느 것도
+      이 함수에 적혀 있지 않다. 고정분(TBox·엔진)에 도메인 어휘가 늘지 않고 A2 순증도 0이다.
+    · ⛔`deny` 로 승격하지 않는다(W-5 축자: *"반려를 받고도 같은 값 … 최다 18회"*) — 반려는
+      재발화 루프를 사고, 거부 술어는 누락을 만들지 못한다(P26 감사와 같은 반박).
+    · 디스패처 언랩은 `free_text_drop` 과 **같은 관습**이다(안쪽 dict 을 고치고 `arguments` 재직렬화).
+      ⚠W-2: 언랩 없으면 실물(`call_discoverable_agent_tool`)에서 이 레버는 죽는다.
+    """
+    changed = []
+    for tc in (tool_calls or []):
+        sp = sibling_paren_arg(tc)
+        if not sp:
+            continue
+        tool, key, val, token = sp
+        i = str(val).lower().find(token)
+        if i < 0:
+            continue
+        new = " ".join((str(val)[:i] + str(val)[i + len(token):]).split())
+        if new == val:
+            continue
+        ar = _args_dict(tc) or {}
+        sub = ar.get("arguments")
+        if isinstance(sub, str):
+            try:
+                sub = json.loads(sub)
+            except Exception:
+                sub = None
+        bag = sub if isinstance(sub, dict) else ar
+        if key not in bag:
+            continue
+        bag[key] = new
+        if isinstance(sub, dict) and bag is sub:
+            ar["arguments"] = json.dumps(sub, ensure_ascii=False)
+        try:
+            tc.arguments = ar
+        except Exception:
+            pass
+        changed.append((tool, key, val, new))
+        if log:
+            log("[T2_SIBLING_PAREN] %s.%s 에서 %r 를 뺐다 — 형제 인자가 이미 그 값을 담고 있다: "
+                "%r -> %r" % (tool, key, token, str(val)[:70], new[:70]))
+    return changed
+
+
 def group_dup_value(tc, a2):
     """★§T-15 — 집계 대상 배열에서 **서로 다른 그룹에 같은 값**이 있는가(같은 혜택의 이중계상).
 
@@ -6118,7 +6174,11 @@ def _succeeded_mut_keys(msgs, a2w):
                     continue
                 body = str(getattr(mj, "content", "") or "")
                 if not getattr(mj, "error", False) and not body.lstrip().startswith("Error:"):
-                    for k in (_mut_key_of(tc), _once_key_of(tc, a2w)):
+                    # ★2026-09-05 (x771 · D6) — **선언된 유일성 키만** 원장에 싣는다.
+                    #   종전엔 `_mut_key_of`(이름+인자 전체)를 함께 실어서, A2 가 유일하다고
+                    #   **선언한 적 없는** write 의 재제출까지 지웠다. 정책이 무엇으로 유일한지는
+                    #   A2 가 정하고 엔진은 그 집합의 소속만 본다([[05]]·[[22]]).
+                    for k in (_once_key_of(tc, a2w),):
                         if k and k not in out:
                             out[k] = (i, body)
                 break
@@ -6134,6 +6194,10 @@ _DUP_WRITE_ONCE_FB = (
     "already applied and, if it is wrong, follow the policy for correcting an applied "
     "credit.")
 
+# ☠2026-09-05 (x771 · D6) — **사망 문면**. `_succeeded_mut_keys` 가 선언 키만 싣게 된 뒤로
+#   원장의 모든 키가 `once|` 접두라, :12321 의 삼항은 이제 언제나 `_DUP_WRITE_ONCE_FB` 를 고른다.
+#   삭제하지 않는 이유: 그 삼항이 여전히 이름을 참조하고, 선언 없는 fail-open 으로 되돌릴 때
+#   (부정통제·[[57]]) 이 문면이 그대로 필요하다. 회수분에서 이 문면이 나간 횟수 = 213/221.
 _DUP_WRITE_FB = (
     "Error: [DUPLICATE-WRITE] This exact call (same tool, same arguments) already succeeded "
     "earlier in this conversation, so this call was REMOVED and not run - running it twice "
@@ -12296,8 +12360,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #     그것이다(2026-08-02 `failed_setstate_1785632213670`: 스텁이 히스토리에 남아
             #     eval 재실행과 어긋나 sim 무효). 재생성은 호출을 통째로 지우므로 그 문제가 없다.
             #   ⚠**알려진 노출**: 051 은 gold 가 *거절·상환 뒤 같은 인자 재제출*을 요구한다
-            #     ([2]↔[17] 동일). 이 가드는 그것도 막는다 — x548 에서 탈출 단서를 붙인 판도
-            #     열지 못했다(0/4). 051 은 코퍼스 전 sim 이 0점이라 실제로 잃은 점수는 없다.
+            #     ([2]↔[17] 동일). 이 가드는 그것도 막았다 — x548 에서 탈출 단서를 붙인 판도
+            #     열지 못했다(0/4).
+            #   ☠2026-09-05 정정 — 이 자리에 *"051 은 코퍼스 전 sim 이 0점이라 실제로 잃은
+            #     점수는 없다"* 라고 적혀 있었다. **거짓이다**: `base x644 task_051 reward=1.0`.
+            #     그리고 `bank_k8143med1_20260904_0135 / task_051` 에서 그 재제출은 turn
+            #     61·63·65·67 에 4발 지워졌고 sim 은 0.0 으로 끝났다(손님 축자 m66
+            #     *"Please resubmit the request for the $1,000 increase"*).
+            #     => 노출은 «알려졌지만 무해» 가 아니라 **실현된 손실**이었다. x771 이 그
+            #     자리를 좁혔다(아래 :등록/조회 두 자리 · 선언된 write 로만).
             #   ⚠술어는 전부 닫혀 있다([[22]]): 실행 이름 동등성 + 인자 접기 + 결과 오류 여부.
             #     도메인 낱말 0 · 도구 이름 열거 0 · gold 미접촉([[23]]).
             dup_fb = None
@@ -12310,8 +12381,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         # 2026-08-28 - 정책이 선언한 유일성 키(`write_once_keys`)를 먼저 본다.
                         #   `_mut_key_of` 는 인자 전체를 키로 쓰므로 *같은 계좌·다른 금액* 의
                         #   재적용을 통과시켰다(t7378 `task_074#s361454`: 14.5 뒤 30.0).
+                        # ★2026-09-05 (x771 · D6) — 조회도 **선언된 키만** 본다.
+                        #   `_mut_key_of` 로 떨어지는 fail-open 이 실제로는 fail-CLOSED 였다:
+                        #   정책이 유일하다고 말한 적 없는 write 의 재제출을 지웠다. 회수분 전수
+                        #   221 발 중 213 이 그것이고(banking 52), 051 은 gold 가 요구한 재제출
+                        #   (`051_7` = `051_2` 바이트 동일)이 그 4발에 지워져 0.0 이 됐다.
+                        #   ⛔`_mut_key_of` 함수 자체는 건드리지 않는다 — :12137 이 별개 용도
+                        #     (`T2_WRITE_ARG_TYPE` sim-당 cap 키)로 쓰고 있다(t7376 040 회귀).
                         _dk = None
-                        for _cand in (_once_key_of(_dc, _a2_of(self)), _mut_key_of(_dc)):
+                        for _cand in (_once_key_of(_dc, _a2_of(self)),):
                             if _cand and _cand in _dupmap:
                                 _dk = _cand
                                 break
@@ -13349,12 +13427,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except Exception as _fe9:
                 print("[T2_FREE_TEXT_ARG] skip: %r" % (_fe9,), file=_sys.stderr, flush=True)
 
-        # ★§T-8 계기 (2026-09-01·`T2_SIBLING_PAREN`) — **거동 변화 0**. 인자가 같은 호출의 다른
-        #   인자 값을 괄호로 되풀이하는 모양을 세기만 한다. 왜 계기부터인가: 전 코퍼스 101건은
-        #   **과거 런 분포**이고 현 스택 예측치가 아니다(재리뷰 W-4). 반려(`deny`)는 이 수를 보고
-        #   붙인다 — 그리고 그때는 **반려 상한 2회 후 경고 부착 통과**로 비용을 유계로 묶는다(W-5:
-        #   과거 한 sim 최다 18회 반복 · 회복률은 반려가 없던 데이터라 오프라인 측정 불가).
-        if os.environ.get("T2_SIBLING_PAREN") in ("log", "deny") and getattr(am, "tool_calls", None):
+        # ★§T-8 (2026-09-01 계기 → **2026-09-05 무장**·`T2_SIBLING_PAREN`). 인자가 같은 호출의 다른
+        #   인자 값을 괄호로 되풀이하는 모양.
+        #     `log`  = 세기만 한다(**거동 변화 0** · 계기 팔 보존 · `arms/*.env` 4개가 이 값이다).
+        #     `strip`= 그 부분문자열을 **빼기만** 한다(`sibling_paren_strip` · 값 선택 0 · [[63]] 제거).
+        #     ⛔`deny` 는 쓰지 않는다 — W-5 축자 *"반려를 받고도 같은 값 … 최다 18회"* 재발화 루프.
+        #   왜 이제 무장하나: 계기부터 시작한 이유가 *"전 코퍼스 101건은 **과거 런 분포**이고 현
+        #   스택 예측치가 아니다"*(재리뷰 W-4) 였는데, `x771_068_effect.py` 가 그 코퍼스를
+        #   **판정 축으로** 다시 쟀다 — 회수분 전수 14,430 sim·135,650 호출에서 발화 103 ·
+        #   ★갈림 3(PRE 오답 → POST gold 일치) · **해악 0** · gold 액션 1,533 발화 0 ·
+        #   통과 sim 발화 0/103 · NC 3/3. 실측 표적은 068 이 아니라 **065**(x721 · 채점된 sim 의
+        #   `action_match=False` 가 `065_2` 하나뿐이고 그것이 정확히 이 칸).
+        if os.environ.get("T2_SIBLING_PAREN") in ("log", "deny", "strip") and getattr(am, "tool_calls", None):
             try:
                 for _tcp in (am.tool_calls or []):
                     _sp = sibling_paren_arg(_tcp)
@@ -13364,6 +13448,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               "되풀이한 합성 문자열이 아니다."
                               % (_sp[0], _sp[1], _sp[2][:70], _sp[3]),
                               file=_sys.stderr, flush=True)
+                if os.environ.get("T2_SIBLING_PAREN") == "strip":
+                    sibling_paren_strip(am.tool_calls,
+                                        log=lambda m: print(m, file=_sys.stderr, flush=True))
             except Exception as _spe:
                 print("[T2_SIBLING_PAREN] skip: %r" % (_spe,), file=_sys.stderr, flush=True)
 
@@ -14112,6 +14199,191 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_GATE_REGEN] empty regen (keeping original) tag=%s" % (tag,),
                       file=_sys.stderr, flush=True)
                 return None
+            # ★D14 수리 `T2_REGEN_WRITE_GATES` (2026-09-05 · 효과 프로브
+            #   `reports/facet_rft_2026/x771_d14_reenter_effect.py` PROBE-PASS ·
+            #   **ARM_OFF 0/25 → ARM_ON 10/25**).
+            #   **결손**: 이 함수가 낸 호출은 쓰기 게이트 6종(WRITE_EVIDENCE · WRITE_ARG_GROUND ·
+            #   ARG_EMPTY · REF_VERIFY · ASK_UNKNOWN_BOOL · HANDOFF_ARG_GROUND)을 **평가조차
+            #   받지 않고** 커밋된다. 재검사 목록은 `gate`(`_denied_calls`) · `T2_PROCEDURE` ·
+            #   `T2_UNLOCK_NAME` · `T2_UNLOCK_PROV` 넷뿐이었다. 실행-시점 그물도 없다 —
+            #   `gated()` 의 `_write_evidence_deny` 는 `_install_regen_exec` 의 `exec_augment` 가
+            #   `BaseOrchestrator._execute_tool_calls` 를 덮어써 정본 스택(`T2_GATE_REGEN=1`)에서
+            #   死코드다(그 docstring 축자: *"deny 없음 (denied 호출은 생성-레벨서 이미 strip)"*).
+            #   이 파일 자신이 같은 사실을 이미 자백해 놓았다(:8912 *"구 apply()에만 있던 WEV가
+            #   unified 런서 死코드 → deny 0회/증거없는 update 6건 통과"*) — 그때는 메인 경로에만
+            #   이설했고 **재생성 경로는 그대로 뚫려 있었다**.
+            #   **인과(회수분 전수·정렬검산 ok 141 sim)**: 사정권 커밋 write 201건 중 재생성-산출
+            #   25건에 대해 현행 = DENY 0 · 재진입 = DENY 10 으로 **판정이 갈린다**(029 msg86 ×5 ·
+            #   048 msg35/37 · 049 msg33/34/36 — 전부 라이브에서 성공 실행된 실제 DB 변이).
+            #   대표 = `bank_re8143p11_20260904_1053` `task_029#s626729` reward 0.0 · basis=['DB'] ·
+            #   그 5건은 gold 8칸에 없는 **EXTRA** 변이다([[69]]).
+            #   **새 결정론 0**([[62]]): 술어는 메인 경로(:9985~10078)의 **같은 함수·같은 순서**를
+            #   그대로 재호출하고 사정권·문면은 A2 선언에서만 온다(엔진에 도구명·필드명 0·[[05]]/[[59]]).
+            #   증거 창도 메인 경로와 동일하다(orch 병합 히스토리 우선 · C7 근거 :10000-10010).
+            #   ⚠cap 은 메인 경로와 **공유**한다(`self._t2_wev_deny` / `T2_WEV_CAP`) — `T2_PROC_REGEN`
+            #     선례(*"이 자리가 따로 예산을 갖고 불응 루프를 돌지 않게"*)와 같다. 그래서 cap 을
+            #     이미 소진한 sim(회수분 28 (런,sim) · 그중 027 이 5개)에서는 이 자리도 **아무 것도
+            #     하지 않는다**. 027 이 이 수리로 안 잡히는 이유다(예산을 새로 열면 별개 레버다).
+            #   ⚠[[70]] 무엇을 파는가: 회수분 부호표에서 reward=1.0 sim 의 재생성-산출 write 차단 =
+            #     **0건**. 정상경로(비-재생성) 커밋 write 176건에 같은 술어를 먹여도 DENY 1(0.6%).
+            #     못 잰 한 칸 = deny 로 접힌 턴이 빈손이 되어 over-action↓/no-action↑ 로 가는 비용.
+            #   ⚠**반사실 reward 이득은 0/6 이다** — 갈린 6 sim 전부가 EXTRA 옆에 MISSING 을 함께
+            #     갖고 있어 DB 해시는 여전히 갈린다([[76]] 그대로 싣는다). 이 수리의 근거는 성적이
+            #     아니라 [[25]] 정본 의무 — 우리 층이 자기 금지를 스스로 우회하면 안 된다.
+            #   ⚠D11ⓐ 와의 합성([[19]]): 아래 `T2_REGEN_KEEP_MUTATING` 이 **여기서 뗀 이름을 다시
+            #     붙이면** 이 수리가 조용히 되돌려진다(뗀 호출은 `_am2` 에서 사라지므로 그 블록의
+            #     `_afterK` 에 안 잡힌다). 그래서 뗀 이름을 `self` 에 남기고 그 블록이 제외한다.
+            #     두 레버 다 켜 둔다([[60]] — 끄는 것이 아니라 순서를 정하는 것).
+            #   ⚠[[57]] 부정통제 = `T2_REGEN_WRITE_GATES=1↔0` 한 칸 · 계수 = `[T2_REGEN_WGATE] deny` 줄.
+            self._t2_regen_wgate_denied = set()
+            if os.environ.get("T2_REGEN_WRITE_GATES") == "1":
+                try:
+                    # 게이트·prov 라운드의 조언-계열 배제는 메인 경로와 **같은 술어**를 쓴다(A7).
+                    # 루프가 이 턴에 그 자리를 못 지났으면(=평가할 게이트가 없던 턴) 기본 False.
+                    try:
+                        _fabR = bool(_fab_only)
+                    except NameError:
+                        _fabR = False
+                    _wliveR = (bool(wag_specs or rv_specs) if _fabR
+                               else bool(wev_specs or wag_specs or rv_specs or ae_on))
+                    if _wliveR:
+                        _wmsgR = state.messages
+                        try:
+                            _oR = getattr(self, "_t2_orch", None)
+                            if _oR is not None:
+                                _allR = _oR.get_messages()
+                                if _allR and len(_allR) >= len(state.messages):
+                                    _wmsgR = _allR
+                        except Exception:
+                            _wmsgR = state.messages
+                        _denR = []
+                        for _cR in list(getattr(_am2, "tool_calls", None) or []):
+                            if getattr(self, "_t2_wev_deny", 0) >= _wev_cap:
+                                break
+                            _wdR = None if _fabR else _wev_deny_msgs(_wmsgR, _cR, wev_specs)
+                            _wtR = "T2_WRITE_EVIDENCE"
+                            if not _wdR and wag_specs:
+                                _wdR = _write_arg_ground_deny(_wmsgR, _cR, wag_specs)
+                                _wtR = "T2_WRITE_ARG_GROUND"
+                            if not _wdR and ae_on and not _fabR:
+                                _wdR = _arg_empty_deny(self, _cR, a2, ae_tools)
+                                if _wdR:
+                                    _wtR = "T2_ARG_EMPTY"
+                            if not _wdR and rv_specs:
+                                _wdR = _ref_verify_deny(self, la, UserMessage, state.messages,
+                                                        _cR, rv_specs)
+                                _wtR = "T2_REF_VERIFY"
+                            if not _wdR and not _fabR:
+                                try:
+                                    import t2_unknown_bool as _ubR
+                                    _enR, _eaR = _eff_tool_name(_cR), _args_dict(_cR)
+                                    _inR = _eaR.get("arguments")
+                                    if isinstance(_inR, str):
+                                        try:
+                                            _inR = json.loads(_inR)
+                                        except Exception:
+                                            _inR = None
+                                    _unkR = _ubR.unknown_args(
+                                        self, _enR,
+                                        _inR if isinstance(_inR, dict) else _eaR,
+                                        state.messages)
+                                    if _unkR:
+                                        _wdR = _ubR.feedback(_enR, _unkR)
+                                        _wtR = "T2_ASK_UNKNOWN_BOOL"
+                                except Exception:
+                                    pass
+                            if not _wdR and wag_specs and not _fabR:
+                                try:
+                                    import t2_handoff_ground as _hgR
+                                    _hdR = _hgR.check(_write_arg_ground_deny, state.messages,
+                                                      getattr(_am2, "content", None), wag_specs,
+                                                      getattr(_cR, "name", None))
+                                    if _hdR:
+                                        _wdR = _hdR
+                                        _wtR = "T2_HANDOFF_ARG_GROUND"
+                                except Exception:
+                                    pass
+                            if _wdR:
+                                _denR.append(_cR)
+                                self._t2_wev_deny = getattr(self, "_t2_wev_deny", 0) + 1
+                                _lbeat("T2_WRITE_EVIDENCE", orch=self,
+                                       target=_eff_tool_name(_cR), fact=str(_wdR),
+                                       order=str(_wdR))
+                                print("[T2_REGEN_WGATE] deny tag=%s wtag=%s tool=%s inner=%s"
+                                      % (tag, _wtR, getattr(_cR, "name", None),
+                                         _args_dict(_cR).get("agent_tool_name") or ""),
+                                      file=_sys.stderr, flush=True)
+                        if _denR:
+                            # 처분은 엔진 자신의 기존 정책 그대로(:14011-14027 partial-accept):
+                            # denied 만 떼고 나머지는 유지 · 전부 denied 면 원본 유지(부작용 0).
+                            _dsR = {id(_x) for _x in _denR}
+                            _kpR = [_t for _t in (getattr(_am2, "tool_calls", None) or [])
+                                    if id(_t) not in _dsR]
+                            # ★어휘를 D11ⓐ 와 맞춘다: 그 블록이 `_exact_tool_name` 으로 비교하므로
+                            #   여기서 `_eff_tool_name`(접미사 제거본)을 넣으면 제외가 조용히 빗나간다
+                            #   ([[84]] 이름×소비부 불일치와 같은 계열).
+                            self._t2_regen_wgate_denied = {_exact_tool_name(_x) for _x in _denR}
+                            if not _kpR:
+                                print("[T2_REGEN_WGATE] rejected: all %d regen call(s) denied; "
+                                      "keeping original tag=%s" % (len(_denR), tag),
+                                      file=_sys.stderr, flush=True)
+                                return None
+                            _am2.tool_calls = _kpR
+                            print("[T2_REGEN_WGATE] partial-accept: dropped %d, kept %d tag=%s"
+                                  % (len(_denR), len(_kpR), tag),
+                                  file=_sys.stderr, flush=True)
+                except Exception as _wgR:
+                    print("[T2_REGEN_WGATE] error (no-op): %r" % (_wgR,),
+                          file=_sys.stderr, flush=True)
+            # ★D11ⓐ 수리 `T2_REGEN_KEEP_MUTATING` (2026-09-05 · 효과 프로브
+            #   `reports/facet_rft_2026/x771_015_effect.py` PROBE-PASS).
+            #   **결손**: 재생성 산출이 초안의 env-변이 호출을 잃어도 호출부 30곳이 무조건 `am` 을
+            #   갈아치운다 — 축자 `if _new5 is not None:` / `am = _new5`(pre-give 두 자리). 회수분
+            #   전수(캠페인 pre-give 55건) 중 **33건**에서 초안의 give 호출이 산출에서 사라졌고,
+            #   `[T2_GIVE_QUOTE] retract=%d` 계기는 그 손실을 **이미 세면서 아무 것도 하지 않았다**.
+            #   **인과(n=1 축자)**: `bank_k8143med1_20260904_0135` `task_015#s626729` reward 0.0 ·
+            #   `mutation_diff` MISSING 1. 같은 sim 에서 pre-give 재생성 두 번이 give 를 잃었고
+            #   (t26 usertoolnote · t28 givequote · 둘 다 산출 tool_calls=0), 손님은 msg[29]·msg[33]
+            #   에서 env 오류(‹has not been given to you by the agent›)를 두 번 받았다. 같은 형상의
+            #   세 번째 초안(t30)은 레버가 소진돼 안 맞았고 msg[35] 로 커밋돼 실행됐다.
+            #   **술어는 닫혀 있다**: 초안 `am` 이 갖고 있던 호출 중 **환경이 mutating 이라 선언한**
+            #   것이 산출에 없으면 **그 집합 그대로** 되붙인다. 고르지 않고 값도 안 만든다([[62]]).
+            #   변이 판정 출처 = 환경 선언(`env._is_mutating_tool` — `_dedup_cache_safe` 가 쓰는
+            #   그 술어) ⇒ gold 미접촉([[23]]) · 도구명/필드명 리터럴 0([[05]]/[[59]]).
+            #   **자리(왜 여기인가)**: `return _am2` 직전. 위 두 블록(`T2_PROCEDURE` regen-fix ·
+            #   `T2_UNLOCK_NAME` namefix)이 `_am2` 를 **통째로 교체**하므로 그 앞에 두면 복원이
+            #   조용히 되돌려진다. 빈-재생성 경로는 위에서 종전대로 원본을 유지한다(거동 불변).
+            #   되붙는 호출은 **원본 `am` 의 것**이고 그 `am` 은 같은 턴 메인 경로에서 게이트·절차
+            #   평가를 이미 받았다(같은 파일 `_procs` 블록) ⇒ 새 우회 0 · D14 와 반대 방향.
+            #   ⚠[[70]] 무엇을 파는가: `T2_GIVE_QUOTE` 의 사전등록 지표(`retract=1` · 회수분 5건)가
+            #     구조적으로 0 이 된다. 같은 양은 아래 `restored= ... names=` 계기가 그대로 싣는다
+            #     — 지표는 **이름만 옮긴다**(소멸이 아니다). 재생성 **문면**은 그대로 채택되므로
+            #     `T2_USER_TOOL_NOTE`(회수분 28건)는 꺼지지 않는다([[60]] — 기각안 A 는 껐다).
+            #   ⚠[[57]] 부정통제 = `T2_REGEN_KEEP_MUTATING=1↔0` 한 칸 · 계수 = `restored=` 라인 수.
+            if os.environ.get("T2_REGEN_KEEP_MUTATING") == "1":
+                try:
+                    _envK = getattr(getattr(self, "_t2_orch", None), "environment", None)
+                    _afterK = {_exact_tool_name(_t)
+                               for _t in (getattr(_am2, "tool_calls", None) or [])}
+                    # ★D14 합성([[19]]): 바로 위 `T2_REGEN_WRITE_GATES` 가 **뗀** 호출은
+                    #   `_am2` 에서 사라졌으므로 `_afterK` 에 안 잡힌다 — 그대로 두면 이 블록이
+                    #   그 이름을 되붙여 쓰기 게이트 거부를 조용히 되돌린다. 제외한다.
+                    #   플래그 OFF 면 이 집합은 항상 비어 있어 **바이트 불변**(no-op).
+                    _dnK = getattr(self, "_t2_regen_wgate_denied", None) or set()
+                    _lostK = [_t for _t in (getattr(am, "tool_calls", None) or [])
+                              if _envK is not None
+                              and _envK._is_mutating_tool(_exact_tool_name(_t))
+                              and _exact_tool_name(_t) not in _afterK
+                              and _exact_tool_name(_t) not in _dnK]
+                    if _lostK:
+                        _am2.tool_calls = list(getattr(_am2, "tool_calls", None) or []) + _lostK
+                        print("[T2_REGEN_KEEP_MUTATING] restored=%d tag=%s names=%s"
+                              % (len(_lostK), tag,
+                                 ",".join(_exact_tool_name(_t) for _t in _lostK)),
+                              file=_sys.stderr, flush=True)
+                except Exception as _ke:
+                    print("[T2_REGEN_KEEP_MUTATING] skipped: %r" % (_ke,),
+                          file=_sys.stderr, flush=True)
             return _am2
 
         # (a0) follow-up required — **완료 날조(fabricated completion) 차단** (2026-07-16 §14.3).

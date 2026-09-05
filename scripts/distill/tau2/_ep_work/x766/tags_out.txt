@@ -1,0 +1,171 @@
+### BANKING all  files=468 sims=2050 rows=116859
+kinds: {'subcall': 30470, 'reminder-assistant': 24838, 'tool-deny': 19276, 'reminder-user': 24135, 'route': 10099, 'speak-prohibit': 320, 'verdict-lines': 55, 'declfirst': 59, 'cp2': 1016, 'prompt': 6591}
+TAG                                    rows   sims  kinds
+CLAIM-PROVENANCE                       5829   1854  {'reminder-user': 5829}
+ISOLATED-FORMALIZATION                 3627    765  {'reminder-user': 3627}
+BLOCKED                                3316    531  {'tool-deny': 3316}
+ORDER                                  2748    999  {'reminder-user': 2699, 'tool-deny': 49}
+DISCOVERY-REQUIRED                     2296    782  {'reminder-user': 2106, 'tool-deny': 190}
+DISCOVERY-STEP2                        2174    626  {'reminder-user': 2075, 'tool-deny': 99}
+ACTION                                 2121    867  {'reminder-user': 1906, 'tool-deny': 215}
+POLICY_GATE:GB1_VERIFY_BEFORE_ACCOUNT_ACCESS     1921    705  {'tool-deny': 1921}
+PROVENANCE                             1648    812  {'tool-deny': 1648}
+OPERATOR-PROVENANCE                    1357    638  {'tool-deny': 1357}
+OPERATOR-SCOPE                         1081    374  {'tool-deny': 1081}
+POLICY_GATE:GB2_NOTICE_BEFORE_TRANSFER      905    566  {'tool-deny': 905}
+SIGNATURE                               827    441  {'reminder-user': 131, 'tool-deny': 696}
+VALUE-ACQUIRE                           720    271  {'reminder-user': 720}
+UNLOCKED-NOT-CALLED                     696    692  {'reminder-user': 696}
+TOOL-CHANNEL                            660    436  {'reminder-user': 660}
+SEARCH-EXHAUST                          514    504  {'reminder-user': 514}
+PROCEDURE                               508    261  {'tool-deny': 168, 'reminder-user': 340}
+SOURCE                                  501    346  {'reminder-user': 497, 'tool-deny': 4}
+WRITE-EVIDENCE                          450    135  {'tool-deny': 450}
+PROTOCOL                                380    378  {'reminder-user': 380}
+UNAVAILABLE-CAPABILITY                  345    297  {'reminder-user': 345}
+SILENCED                                320     25  {'speak-prohibit': 320}
+FOLLOW-UP                               292    214  {'reminder-user': 292}
+GIVE-EXEC                               265    264  {'reminder-user': 265}
+OFFICIAL-NAME                           243    131  {'tool-deny': 243}
+WRITE-GROUNDING                         211    172  {'tool-deny': 211}
+KB DELIVERY                             209     97  {'reminder-user': 209}
+WORK-INCOMPLETE                         204    202  {'reminder-user': 204}
+ARG-EMPTY                               201    147  {'tool-deny': 201}
+VERDICT                                 185    185  {'reminder-user': 185}
+DUPLICATE-READ                          176     69  {'reminder-user': 176}
+ACTION-REQUIRED                         173    138  {'reminder-user': 168, 'tool-deny': 5}
+E-PLAN                                  137     65  {'tool-deny': 137}
+TRANSFER-REASON                         127    125  {'reminder-user': 127}
+OPERATOR-SELECT                         109     51  {'tool-deny': 109}
+COVERAGE-FOLLOWUP                       109    109  {'reminder-user': 109}
+DUPLICATE-WRITE                         107     47  {'tool-deny': 107}
+TOOL-CALL ENVELOPE                       95     91  {'reminder-user': 95}
+PRESCRIPTION                             88     47  {'tool-deny': 88}
+UNINSTRUCTABLE                           79     79  {'reminder-user': 79}
+UNKNOWN-TOOL REPEAT                      77     76  {'reminder-user': 77}
+REFERENCE                                77     29  {'tool-deny': 77}
+REDACTED                                 74     69  {'tool-deny': 74}
+TRUNCATED                                70     66  {'reminder-user': 70}
+RECOMMEND-OFFER                          58     53  {'reminder-user': 57, 'tool-deny': 1}
+DECIDE-FIRST                             57     57  {'tool-deny': 57}
+POLICY_GATE:G2_CONFIRM_WRITE             54     25  {'tool-deny': 54}
+UNVERIFIED-FOLLOWUP                      45     45  {'reminder-user': 45}
+WRITE-PROVENANCE                         41     41  {'reminder-user': 41}
+REF-VERIFY                               38     17  {'tool-deny': 38}
+POLICY_GATE:G6_SELECT_CONFIRM            37     37  {'tool-deny': 37}
+DECLARATION                              35     35  {'reminder-user': 35}
+POLICY_GATE:G5_STATUS_PRECONDITION       34     22  {'tool-deny': 34}
+GROUNDING WARNING                        33     20  {'reminder-user': 33}
+ARG-AXIS                                 30     30  {'tool-deny': 30}
+POLICY_GATE:G1_AUTH_FIRST                30     20  {'tool-deny': 30}
+FULL_NAME                                28     14  {'tool-deny': 28}
+T2_ARG_DOC_SUB                           26      7  {'reminder-user': 26}
+ARG-SCHEMA                               23     22  {'reminder-user': 23}
+PROCEDURE-INCOMPLETE                     20     20  {'reminder-user': 20}
+OPERATOR-DIRECT                          16     16  {'tool-deny': 16}
+G2_CONFIRM_WRITE                         14      9  {'reminder-assistant': 14}
+SPEC-AT-WRITE                            12     12  {'tool-deny': 12}
+PLEASE_PROVIDE_YOUR_FULL_NAME            11      9  {'tool-deny': 11}
+POLICY_GATE:G4_TRANSFER_MSG               9      6  {'tool-deny': 9}
+POLICY_QA                                 6      2  {'reminder-user': 6}
+DUPLICATE-COMPUTE                         4      4  {'reminder-user': 4}
+USER_NAME                                 4      4  {'tool-deny': 4}
+POLICY-CAP                                3      3  {'tool-deny': 3}
+RECOMMEND-VERIFY                          3      3  {'tool-deny': 3}
+USER_ID                                   3      2  {'tool-deny': 3}
+YOUR_CREDIT_CARD_ACCOUNT_ID               2      1  {'tool-deny': 2}
+RULE-AT-WRITE                             2      2  {'tool-deny': 2}
+G6_SELECT_CONFIRM                         2      2  {'reminder-assistant': 2}
+POLICY_GATE:G7_OP_CONSTRAINTS             2      2  {'tool-deny': 2}
+YOUR_FULL_NAME                            1      1  {'reminder-assistant': 1}
+PROCEDURE-LEFT                            1      1  {'reminder-user': 1}
+GB1_VERIFY_BEFORE_ACCOUNT_ACCESS          1      1  {'reminder-assistant': 1}
+-- route agents: [(('resolve_write', 'won'), 2993), (('resolve_write', 'suppressed'), 2302), (('decision_carry', 'view'), 1480), (('wev', 'won'), 890), (('signature', 'won'), 692), (('write_enum', 'won'), 420), (('dispatch_role', 'won'), 354), (('unlockname', 'won'), 197), (('proc', 'won'), 155), (('eplan', 'won'), 137), (('dup_write', 'won'), 130), (('prov', 'won'), 88), (('toolerr', 'won'), 77), (('decide_write', 'won'), 64), (('signature', 'lost'), 44), (('write_enum', 'lost'), 40), (('transcribe', 'won'), 13), (('dispatch_role', 'lost'), 12), (('dup_write', 'lost'), 4), (('prekb', 'won'), 3)]
+-- subcalls: [('intent_operator_formalize', 13365), ('recommend_formalize', 4997), ('write_initiation_formalize', 1928), ('sub_records', 1663), ('doc_group_formalize', 1332), ('source_claim_formalize', 1214), ('sg_arg_docs', 1105), ('ledger_now_formalize', 944), ('ledger_rows_formalize', 775), ('reference_criteria_formalize', 746), ('case_facts_formalize', 650), ('sg_inject', 629), ('doc_decide', 417), ('kind_formalize', 154), ('rederive_choice', 140), ('objective_axis_formalize', 132), ('sg_docs_class', 95), ('subject_align_formalize', 63), ('diagnose_formalize', 54), ('requirement_formalize', 27)]
+
+### BANKING recent(0830~0905)  files=109 sims=344 rows=13797
+kinds: {'subcall': 8421, 'reminder-assistant': 1382, 'tool-deny': 1782, 'reminder-user': 1296, 'route': 573, 'prompt': 343}
+TAG                                    rows   sims  kinds
+BLOCKED                                 626    114  {'tool-deny': 626}
+CLAIM-PROVENANCE                        433    236  {'reminder-user': 433}
+POLICY_GATE:GB1_VERIFY_BEFORE_ACCOUNT_ACCESS      174     20  {'tool-deny': 174}
+OPERATOR-SCOPE                          126     66  {'tool-deny': 126}
+SIGNATURE                               123     50  {'tool-deny': 123}
+PROCEDURE                               108     41  {'tool-deny': 41, 'reminder-user': 67}
+SEARCH-EXHAUST                           93     86  {'reminder-user': 93}
+VALUE-ACQUIRE                            89     31  {'reminder-user': 89}
+ACTION                                   81     38  {'reminder-user': 62, 'tool-deny': 19}
+DISCOVERY-REQUIRED                       68     29  {'reminder-user': 66, 'tool-deny': 2}
+FOLLOW-UP                                64     32  {'reminder-user': 64}
+POLICY_GATE:GB2_NOTICE_BEFORE_TRANSFER       63     56  {'tool-deny': 63}
+UNLOCKED-NOT-CALLED                      60     60  {'reminder-user': 60}
+PROVENANCE                               50     37  {'tool-deny': 50}
+GIVE-EXEC                                48     47  {'reminder-user': 48}
+WRITE-EVIDENCE                           47     31  {'tool-deny': 47}
+ORDER                                    46     36  {'reminder-user': 41, 'tool-deny': 5}
+WORK-INCOMPLETE                          46     46  {'reminder-user': 46}
+REFERENCE                                42     14  {'tool-deny': 42}
+RECOMMEND-OFFER                          36     32  {'reminder-user': 36}
+ARG-EMPTY                                35     26  {'tool-deny': 35}
+TOOL-CHANNEL                             32     31  {'reminder-user': 32}
+PRESCRIPTION                             30     11  {'tool-deny': 30}
+TRUNCATED                                25     22  {'reminder-user': 25}
+TOOL-CALL ENVELOPE                       20     17  {'reminder-user': 20}
+OPERATOR-PROVENANCE                      19     14  {'tool-deny': 19}
+E-PLAN                                   12      6  {'tool-deny': 12}
+SOURCE                                   10      9  {'reminder-user': 10}
+VERDICT                                   7      7  {'reminder-user': 7}
+UNAVAILABLE-CAPABILITY                    7      7  {'reminder-user': 7}
+KB DELIVERY                               6      4  {'reminder-user': 6}
+UNVERIFIED-FOLLOWUP                       4      4  {'reminder-user': 4}
+COVERAGE-FOLLOWUP                         4      4  {'reminder-user': 4}
+DUPLICATE-WRITE                           4      1  {'tool-deny': 4}
+PROTOCOL                                  4      4  {'reminder-user': 4}
+PROCEDURE-INCOMPLETE                      3      3  {'reminder-user': 3}
+DECLARATION                               3      3  {'reminder-user': 3}
+ARG-SCHEMA                                3      3  {'reminder-user': 3}
+ACTION-REQUIRED                           2      2  {'reminder-user': 2}
+WRITE-PROVENANCE                          2      2  {'reminder-user': 2}
+POLICY_GATE:G1_AUTH_FIRST                 1      1  {'tool-deny': 1}
+POLICY_GATE:G6_SELECT_CONFIRM             1      1  {'tool-deny': 1}
+UNINSTRUCTABLE                            1      1  {'reminder-user': 1}
+-- route agents: [(('resolve_write', 'won'), 166), (('signature', 'won'), 123), (('wev', 'won'), 95), (('resolve_write', 'suppressed'), 59), (('toolerr', 'won'), 42), (('prov', 'won'), 30), (('proc', 'won'), 28), (('eplan', 'won'), 12), (('dispatch_role', 'won'), 9), (('unlockname', 'won'), 5), (('dup_write', 'won'), 4)]
+-- subcalls: [('intent_operator_formalize', 4453), ('recommend_formalize', 1674), ('sg_inject', 584), ('sub_records', 395), ('sg_arg_docs', 331), ('ledger_rows_formalize', 292), ('ledger_now_formalize', 205), ('source_claim_formalize', 175), ('reference_criteria_formalize', 139), ('sg_docs_class', 56), ('case_facts_formalize', 43), ('kind_formalize', 15), ('subject_align_formalize', 12), ('diagnose_formalize', 11), ('rederive_choice', 11), ('recommend_operand_verify', 9), ('requirement_formalize', 8), ('objective_axis_formalize', 8)]
+
+### RETAIL t7391  files=1 sims=114 rows=9187
+kinds: {'prompt': 3753, 'subcall': 1397, 'reminder-assistant': 2183, 'reminder-user': 141, 'tool-deny': 1477, 'route': 236}
+TAG                                    rows   sims  kinds
+BLOCKED                                 408     89  {'tool-deny': 408}
+PROVENANCE                              372     95  {'tool-deny': 372}
+POLICY_GATE:G5_STATUS_PRECONDITION      157     72  {'tool-deny': 157}
+ACTION-REQUIRED                         133    110  {'reminder-user': 120, 'tool-deny': 13}
+POLICY_GATE:G2_CONFIRM_WRITE            118     62  {'tool-deny': 118}
+DUPLICATE-WRITE                         112     54  {'tool-deny': 112}
+POLICY_GATE:G6_SELECT_CONFIRM            98     98  {'tool-deny': 98}
+POLICY_GATE:G1_AUTH_FIRST                96     59  {'tool-deny': 96}
+POLICY_GATE:G4_TRANSFER_MSG              33     28  {'tool-deny': 33}
+G2_CONFIRM_WRITE                         27     20  {'reminder-assistant': 27}
+E-PLAN                                   27      9  {'tool-deny': 27}
+ARG-EMPTY                                17     14  {'tool-deny': 17}
+POLICY_GATE:G7_OP_CONSTRAINTS            12     11  {'tool-deny': 12}
+POLICY_GATE:G_EXHAUST                    11      4  {'tool-deny': 11}
+G6_SELECT_CONFIRM                         3      3  {'reminder-assistant': 3}
+TOOL-CALL ENVELOPE                        3      3  {'reminder-user': 3}
+TRUNCATED                                 3      3  {'reminder-user': 3}
+CONSISTENCY                               3      3  {'tool-deny': 3}
+SEARCH-EXHAUST                            3      3  {'reminder-user': 3}
+G5_STATUS_PRECONDITION                    1      1  {'reminder-assistant': 1}
+-- route agents: [(('dup_write', 'won'), 176), (('eplan', 'won'), 27), (('wev', 'won'), 17), (('resolve_write', 'won'), 16)]
+-- subcalls: [('intent_operator_formalize', 1376), ('l4_variant_formalize', 21)]
+
+### AIRLINE t7390  files=1 sims=50 rows=2042
+kinds: {'prompt': 819, 'reminder-assistant': 316, 'tool-deny': 899, 'reminder-user': 8}
+TAG                                    rows   sims  kinds
+POLICY_GATE:G1_USER_ID_PROVIDED         820     49  {'tool-deny': 820}
+BLOCKED                                  78      2  {'tool-deny': 78}
+TOOL-CALL ENVELOPE                        7      7  {'reminder-user': 7}
+TRUNCATED                                 1      1  {'reminder-user': 1}
+PROVENANCE                                1      1  {'tool-deny': 1}
+-- route agents: []
+-- subcalls: []
+

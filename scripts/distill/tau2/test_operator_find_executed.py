@@ -186,6 +186,66 @@ def main():
     chk(run(executed=False, want=WANT).get("reason") == "operator-scope",
         "**write 에는 그대로 발화**한다(회귀 없음)")
 
+    # --- 수리 3: 반려는 **실행하는 자리**에서만 (2026-09-05 - x771 092 효과프로브 PROBE-PASS) ---
+    # 092 실물: 모델이 gold `unlock_discoverable_agent_tool(reset_debit_card_pin_6284)` 를
+    # 초안에서 **실제로 시도**했는데 우리가 **unlock 자리**에서 반려했다. unlock 은 아무 것도
+    # 수행하지 않는다 - 우리 자신의 문면이 그렇게 말한다(`[UNLOCKED-NOT-CALLED] Unlocking only
+    # makes a tool available - it performs nothing.`). 그런데 형제 호출까지 [BLOCKED] 되고
+    # unified_regen 이 턴을 1호출로 갈아치워, 최종 궤적에서 그 operand 가 **0회**가 됐다
+    # (`092_17`/`092_18` gold 행 통째 MISSING - 「미호출」이 아니라 「시도-차단-미재시도」).
+    # 바로 위 「수리 2」가 「되돌릴 수 없는가」를 operand(chosen)로만 재는데, **호출 자리**가
+    # 빠져 있었다. 되돌릴 수 없는 자리는 A2 가 이미 선언해 두었다(`eplan.dispatch_tool`).
+    print("")
+    print("[수리 3 - 반려는 실행하는 자리(dispatch)에서만]")
+    UNLOCK = "unlock_discoverable_agent_tool"
+
+    def run_at(call_tool, a2=A2, knob=None):
+        """★`resolve_operand` 경유 - 라이브가 **호출 도구를 전달하는 바로 그 경로**다.
+        (`resolve_operator` 직접 호출은 call_tool=None -> 가드 불활성: 기존 호출부 무영향)"""
+        orig = R.formalize_intent_tool
+        R.formalize_intent_tool = lambda *a, **k: WANT
+        if knob is None:
+            os.environ.pop("T2_SCOPE_AT_DISPATCH_ONLY", None)
+        else:
+            os.environ["T2_SCOPE_AT_DISPATCH_ONLY"] = knob
+        try:
+            class _Ag:
+                tools = [_Tool(CHOSEN, "Apply a credit to a customer's checking account."),
+                         _Tool(WANT, "Apply a statement credit to a credit card account.")]
+            # ★`resolve_operand` 는 `opspec.kind` 로 라우팅한다. 위 OPSPEC 은
+            #   `resolve_operator` 를 **직접** 부르던 픽스처라 `kind` 가 없다 —
+            #   라이브 A2 는 선언한다(banking_knowledge.gate.json:operands
+            #   -> {"kind": "operator", ...}). 그 선언을 그대로 맞춘다.
+            return R.resolve_operand(dict(OPSPEC, kind="operator"), call_tool,
+                                     "agent_tool_name",
+                                     {"agent_tool_name": CHOSEN}, convo(False), a2,
+                                     agent=_Ag(), la=object(), UserMessage=object())
+        finally:
+            R.formalize_intent_tool = orig
+            os.environ.pop("T2_SCOPE_AT_DISPATCH_ONLY", None)
+
+    chk(run_at(UNLOCK).get("status") == "ok",
+        "unlock 자리에서는 **침묵** - unlock 은 아무 것도 수행하지 않는다(092)")
+    chk(run_at(DISP).get("reason") == "operator-scope",
+        "dispatch 자리에서는 **그대로 발화** - 끄기가 아니라 자리 옮기기([[60]])")
+    # [[57]] 부정통제 - 갈림의 출처가 **A2 선언**임을 못박는다.
+    #   엔진에 도구명을 하드코딩했다면 이 검정은 통과한다([[05]] 위반 탐지기).
+    chk(run_at(UNLOCK, a2={"eplan": {}}).get("reason") == "operator-scope",
+        "A2 에서 `eplan.dispatch_tool` 선언을 빼면 **다시 발화** - 출처는 선언이다([[05]])")
+    chk(run(executed=False, want=WANT).get("reason") == "operator-scope",
+        "`resolve_operator` 직접 호출(call_tool 미전달)은 **종전대로** - 기존 호출부 무영향")
+    # 되돌릴 길([[60]]) - 이 파일의 다른 레버 전부가 노브를 가진다.
+    #   ⚠`T2_SCOPE_ALL=1` 은 이 가드를 되돌리지 **못한다**(가드가 그 검사보다 위다·실측).
+    #   그래서 전용 노브가 필요하다 - 아래 두 줄이 그 사실을 고정한다.
+    chk(run_at(UNLOCK, knob="0").get("reason") == "operator-scope",
+        "`T2_SCOPE_AT_DISPATCH_ONLY=0` 이면 **구판대로 발화** - 되돌릴 길이 있다([[60]])")
+    os.environ["T2_SCOPE_ALL"] = "1"
+    try:
+        chk(run_at(UNLOCK).get("status") == "ok",
+            "`T2_SCOPE_ALL=1` 로는 되돌아오지 **않는다** - 노브가 따로 필요한 이유(실측 고정)")
+    finally:
+        os.environ.pop("T2_SCOPE_ALL", None)
+
     print("\n%s (%d fail)" % ("FAIL" if FAIL else "PASS", len(FAIL)))
     return 1 if FAIL else 0
 

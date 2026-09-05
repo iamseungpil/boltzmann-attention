@@ -1,0 +1,131 @@
+### CLAIM-PROVENANCE  (0 sites)
+### ISOLATED-FORMALIZATION  (0 sites)
+### OPERATOR-SCOPE  (1 sites)
+   t2_resolve.py:118  [('operands', 111)]
+### OPERATOR-PROVENANCE  (1 sites)
+   t2_resolve.py:215  []
+### SIGNATURE  (1 sites)
+   t2_signature.py:25  [('tool_signatures', 6)]
+### VALUE-ACQUIRE  (2 sites)
+   t2_gate_patch.py:2596  []
+   t2_speak.py:6  [('procedures', 35)]
+### UNLOCKED-NOT-CALLED  (1 sites)
+   t2_gate_patch.py:14389  [('follow_up_chains', 21), ('dispatcher_role_check', 40), ('search_exhaust_escalation', 131), ('scaffold_get_tools', 145)]
+### SEARCH-EXHAUST  (1 sites)
+   t2_gate_patch.py:14514  [('search_exhaust_escalation', 6), ('scaffold_get_tools', 20), ('follow_up_chains', 59), ('tool_unlock_hint', 91)]
+### WRITE-EVIDENCE  (2 sites)
+   t2_gate_patch.py:1837  []
+   t2_gate_patch.py:1980  []
+### WRITE-GROUNDING  (2 sites)
+   t2_gate_patch.py:2159  []
+   t2_handoff_ground.py:108  []
+### PROCEDURE  (2 sites)
+   t2_gate_patch.py:1904  []
+   t2_speak.py:7  [('procedures', 34)]
+### DISCOVERY-REQUIRED  (2 sites)
+   t2_resolve.py:333  [('operands', 90), ('action_tools', 115)]
+   t2_resolve.py:750  [('eplan', 16), ('gates', 30), ('write_initiation', 34), ('dispatcher_role_check', 124), ('action_tools', 133)]
+### DISCOVERY-STEP2  (2 sites)
+   t2_resolve.py:354  [('operands', 69), ('action_tools', 94), ('eplan', 140)]
+   t2_resolve.py:364  [('operands', 59), ('action_tools', 84), ('eplan', 130)]
+### ORDER  (9 sites)
+   t2_dominance.py:66  [('gates', 36), ('arbitration', 52)]
+   t2_dominance.py:125  [('arbitration', 7), ('gates', 23)]
+   t2_dominance.py:335  [('arbitration', 24), ('gates', 74), ('scaffold_get_tools', 117)]
+   t2_pin_read.py:119  [('eplan', 119)]
+### PROVENANCE  (7 sites)
+   t2_gate_patch.py:1640  []
+   t2_gate_patch.py:1652  []
+   t2_gate_patch.py:1661  []
+   t2_gate_patch.py:3302  [('gates', 43), ('write_arg_enum', 97), ('choice_grounding', 112), ('recommendation_verify', 119)]
+### ARG-EMPTY  (1 sites)
+   t2_gate_patch.py:2206  []
+### TRANSFER-REASON  (0 sites)
+### OFFICIAL-NAME  (0 sites)
+### ACTION  (2 sites)
+   t2_gate_patch.py:10521  [('action_tools', 150)]
+   t2_role.py:7  []
+### ACTION-REQUIRED  (1 sites)
+   t2_resolve.py:313  [('operands', 110), ('action_tools', 135)]
+### TOOL-CHANNEL  (1 sites)
+   t2_gate_patch.py:15154  [('choice_grounding', 18), ('assertion_operands', 58), ('analysis_producers', 75)]
+### SOURCE  (6 sites)
+   t2_gate_patch.py:5872  [('policy_ontology', 65), ('eplan', 116)]
+   t2_gate_patch.py:10583  [('arbitration', 137)]
+   t2_gate_patch.py:10904  []
+   t2_ledger.py:21  [('ledger_metrics', 93)]
+### DUPLICATE-WRITE  (2 sites)
+   t2_gate_patch.py:6129  [('write_once_keys', 62), ('eplan', 141)]
+   t2_gate_patch.py:6138  [('write_once_keys', 71), ('eplan', 150)]
+### DUPLICATE-READ  (8 sites)
+   t2_fbsidecar.py:12  []
+   t2_forensic.py:1102  []
+   t2_gate_patch.py:7643  [('eplan', 150)]
+   t2_gate_patch.py:7909  [('gates', 108), ('ledger_metrics', 121)]
+### E-PLAN  (10 sites)
+   t2_eplan_patch.py:464  []
+   t2_eplan_patch.py:544  []
+   t2_eplan_patch.py:547  []
+   t2_eplan_patch.py:883  [('gates', 30)]
+### REFERENCE  (1 sites)
+   t2_gate_patch.py:9410  [('reference_filter', 16), ('compute_ops', 26), ('ref_iso', 32), ('eplan', 57), ('procedures', 62), ('discoverable_name_check', 83)]
+### PRESCRIPTION  (1 sites)
+   t2_gate_patch.py:11532  [('dispatcher_role_check', 8), ('prescription_redirect', 20), ('nonlisted_tool_feedback', 43), ('eplan', 112), ('discoverable_name_check', 145)]
+### RECOMMEND-OFFER  (1 sites)
+   t2_resolve.py:999  [('recommendation_verify', 115), ('action_tools', 116), ('eplan', 124), ('dispatcher_role_check', 125)]
+### WORK-INCOMPLETE  (1 sites)
+   t2_gate_patch.py:9837  [('require_doc_before', 53), ('withdrawn_row_check', 105)]
+### GIVE-EXEC  (1 sites)
+   t2_gate_patch.py:14357  [('dispatcher_role_check', 8), ('follow_up_chains', 53)]
+### KB DELIVERY  (1 sites)
+   t2_gate_patch.py:4365  [('require_doc_before', 43)]
+### FOLLOW-UP  (0 sites)
+### COVERAGE-FOLLOWUP  (1 sites)
+   t2_gate_patch.py:14309  [('dispatcher_role_check', 38), ('follow_up_chains', 101)]
+### UNAVAILABLE-CAPABILITY  (0 sites)
+### PROTOCOL  (0 sites)
+### VERDICT  (2 sites)
+   t2_gate_patch.py:177  [('policy_ontology', 40), ('gates', 64), ('producers', 68), ('identifying_arg_types', 70)]
+   t2_gate_patch.py:14434  [('follow_up_chains', 20), ('dispatcher_role_check', 85), ('search_exhaust_escalation', 86), ('scaffold_get_tools', 100)]
+### TRUNCATED  (1 sites)
+   t2_gate_patch.py:14183  [('dispatcher_role_check', 17)]
+### OPERATOR-SELECT  (1 sites)
+   t2_resolve.py:95  [('operands', 88)]
+### DECIDE-FIRST  (1 sites)
+   t2_gate_patch.py:3557  [('write_rules', 15), ('eplan', 125), ('completion_guard', 133), ('scaffold_get_tools', 134), ('recommendation_verify', 136), ('value_acquisition', 140)]
+### REF-VERIFY  (1 sites)
+   t2_gate_patch.py:2089  []
+### UNVERIFIED-FOLLOWUP  (1 sites)
+   t2_gate_patch.py:14332  [('dispatcher_role_check', 16), ('follow_up_chains', 78)]
+### WRITE-PROVENANCE  (0 sites)
+### DECLARATION  (1 sites)
+   t2_gate_patch.py:6589  []
+### ARG-SCHEMA  (2 sites)
+   t2_gate_patch.py:7191  []
+   t2_gate_patch.py:15479  [('transfer_reason_policy', 75)]
+### ARG-AXIS  (1 sites)
+   t2_resolve.py:807  [('gates', 27), ('eplan', 41), ('dispatcher_role_check', 67), ('action_tools', 76), ('write_initiation', 91)]
+### UNINSTRUCTABLE  (0 sites)
+### UNKNOWN-TOOL REPEAT  (1 sites)
+   t2_gate_patch.py:14255  [('dispatcher_role_check', 16)]
+### TOOL-CALL ENVELOPE  (1 sites)
+   t2_gate_patch.py:14160  [('dispatcher_role_check', 40)]
+### SPEC-AT-WRITE  (1 sites)
+   t2_gate_patch.py:3441  [('recommendation_verify', 20), ('choice_grounding', 27), ('write_arg_enum', 42), ('gates', 96), ('write_rules', 101)]
+### RULE-AT-WRITE  (1 sites)
+   t2_gate_patch.py:3498  [('write_rules', 44), ('recommendation_verify', 77), ('choice_grounding', 84), ('write_arg_enum', 99)]
+### POLICY-CAP  (1 sites)
+   t2_gate_patch.py:1733  []
+### RECOMMEND-VERIFY  (1 sites)
+   t2_resolve.py:992  [('action_tools', 109), ('eplan', 117), ('dispatcher_role_check', 118), ('recommendation_verify', 122)]
+### DUPLICATE-COMPUTE  (2 sites)
+   t2_forensic.py:1102  []
+   t2_scaffold_get.py:1978  []
+### PROCEDURE-INCOMPLETE  (1 sites)
+   t2_gate_patch.py:9848  [('require_doc_before', 64), ('withdrawn_row_check', 116)]
+### CONSISTENCY  (2 sites)
+   t2_gate_patch.py:2965  [('relations', 127), ('arg_source_reads', 128)]
+   t2_gate_patch.py:2971  [('relations', 133), ('arg_source_reads', 134)]
+### SILENCED  (1 sites)
+   t2_speak.py:82  [('procedures', 41)]
+### REDACTED  (0 sites)

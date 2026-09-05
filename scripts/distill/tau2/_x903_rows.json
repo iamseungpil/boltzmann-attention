@@ -1,0 +1,4602 @@
+{
+ "banking_knowledge": [
+  {
+   "key": "_meta",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 6,
+   "bytes": 1488,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 3,
+   "tools": [
+    "get_referral_link",
+    "give_discoverable_user_tool",
+    "log_verification"
+   ],
+   "doc": true
+  },
+  {
+   "key": "gates",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "list",
+   "n": 3,
+   "bytes": 9849,
+   "shp_raw": 3,
+   "shp_norm": 3,
+   "shapes_norm": [
+    "D{applies_to,applies_when,id,kind,note,predicate,satisfiers}",
+    "D{applies_to,ask,id,kind,notice_text,predicate,satisfiers,term_grant_reminder_extra}",
+    "D{applies_to,id,kind,note,predicate,satisfiers}"
+   ],
+   "cons": [
+    [
+     "t2_compliance",
+     "domain_constants"
+    ],
+    [
+     "t2_dominance",
+     "dominating_gate"
+    ],
+    [
+     "t2_dominance",
+     "merged_text"
+    ],
+    [
+     "t2_dominance",
+     "requirements_for"
+    ],
+    [
+     "t2_eplan_patch",
+     "_term_grant_reminder_extra"
+    ],
+    [
+     "t2_eplan_patch",
+     "_terminal_grant_check"
+    ],
+    [
+     "t2_eplan_patch",
+     "load_write_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "_confirm_write_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ],
+    [
+     "t2_gate_patch",
+     "_env_verified_args"
+    ],
+    [
+     "t2_gate_patch",
+     "_install_regen_exec"
+    ],
+    [
+     "t2_gate_patch",
+     "_transfer_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "apply"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_gate_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "obs_tools_g"
+    ],
+    [
+     "t2_phase",
+     "_auth_gates"
+    ],
+    [
+     "t2_precedence",
+     "_raw_declarations"
+    ],
+    [
+     "t2_precedence",
+     "graph_for"
+    ],
+    [
+     "t2_prekb_patch",
+     "_notice_done"
+    ],
+    [
+     "t2_resolve",
+     "resolve_verify_persistence"
+    ]
+   ],
+   "n_cons": 21,
+   "n_tools": 12,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "change_user_email",
+    "emergency_credit_bureau_incident_transfer_1114",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_current_time",
+    "get_referrals_by_user",
+    "initial_transfer_to_human_agent_0218",
+    "initial_transfer_to_human_agent_1822",
+    "log_verification",
+    "submit_referral",
+    "transfer_to_human_agents"
+   ],
+   "doc": false
+  },
+  {
+   "key": "producers",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 0,
+   "bytes": 2,
+   "shp_raw": 0,
+   "shp_norm": 0,
+   "shapes_norm": [],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "identifying_arg_types",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "list",
+   "n": 1,
+   "bytes": 8,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_identifying_arg_types",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1321,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "get_current_time"
+   ],
+   "doc": true
+  },
+  {
+   "key": "_note_applies_when",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 388,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 2,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "change_user_email"
+   ],
+   "doc": true
+  },
+  {
+   "key": "_note_minimize_a2",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 371,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "give_discoverable_user_tool"
+   ],
+   "doc": true
+  },
+  {
+   "key": "eplan",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 15,
+   "bytes": 5098,
+   "shp_raw": 4,
+   "shp_norm": 4,
+   "shapes_norm": [
+    "L[D{phrase,required_reads,required_writes,signals}]",
+    "L[str]",
+    "bool",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_eplan_patch",
+     "<module>"
+    ],
+    [
+     "t2_eplan_patch",
+     "PlanLedger"
+    ],
+    [
+     "t2_eplan_patch",
+     "load_eplan_spec"
+    ],
+    [
+     "t2_gate_patch",
+     "_a2_procedural"
+    ],
+    [
+     "t2_gate_patch",
+     "_resolve_cap_ok"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "unused_grants"
+    ],
+    [
+     "t2_pin_read",
+     "pin_for"
+    ],
+    [
+     "t2_pin_read",
+     "selftest"
+    ],
+    [
+     "t2_prekb_patch",
+     "_dispatch_names"
+    ],
+    [
+     "t2_prekb_patch",
+     "_trigger_fams"
+    ],
+    [
+     "t2_prekb_patch",
+     "apply"
+    ],
+    [
+     "t2_resolve",
+     "_dispatch_since_last_user"
+    ],
+    [
+     "t2_resolve",
+     "_executed_dispatch_names"
+    ],
+    [
+     "t2_resolve",
+     "call_form_tools"
+    ],
+    [
+     "t2_resolve",
+     "resolve_action_operator"
+    ],
+    [
+     "t2_resolve",
+     "resolve_compute_params"
+    ],
+    [
+     "t2_scaffold_get",
+     "apply"
+    ]
+   ],
+   "n_cons": 18,
+   "n_tools": 5,
+   "tools": [
+    "apply_for_credit_card",
+    "call_discoverable_agent_tool",
+    "get_credit_card_transactions_by_user",
+    "list_discoverable_agent_tools",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_eplan",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1484,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 2,
+   "tools": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ],
+   "doc": true
+  },
+  {
+   "key": "operands",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 2,
+   "bytes": 452,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{agent_tool_name}"
+   ],
+   "cons": [
+    [
+     "t2_resolve",
+     "<module>"
+    ],
+    [
+     "t2_resolve",
+     "_discoverable_dispatchers"
+    ],
+    [
+     "t2_resolve",
+     "resolve_write"
+    ],
+    [
+     "t2_scaffold_get",
+     "_sub_fetch_formalize"
+    ],
+    [
+     "t2_scaffold_get",
+     "_sub_formalize"
+    ],
+    [
+     "t2_scaffold_get",
+     "_sub_inject"
+    ]
+   ],
+   "n_cons": 6,
+   "n_tools": 2,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_operands",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 604,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "action_tools",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "list",
+   "n": 8,
+   "bytes": 215,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "action_candidates"
+    ],
+    [
+     "t2_resolve",
+     "resolve_action_operator"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 8,
+   "tools": [
+    "apply_for_credit_card",
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "change_user_email",
+    "give_discoverable_user_tool",
+    "submit_referral",
+    "submit_transaction",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "policy_facts_file",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 37,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_policy_facts"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_policy_facts_file",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 274,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "reference_filter",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 2,
+   "bytes": 1207,
+   "shp_raw": 2,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{criteria_fields,dispatch_tool,key_field,match,on_ambiguous,param,require,tool_prefix}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "resolve_reference_filter"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 1,
+   "tools": [
+    "call_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_reference_filter",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1155,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "compute_ops",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 0,
+   "bytes": 2,
+   "shp_raw": 0,
+   "shp_norm": 0,
+   "shapes_norm": [],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "resolve_compute_params"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_compute_ops_removed_2026_08_19",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1138,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_compute_ops",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 2355,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "recommendation_verify",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 6,
+   "bytes": 533,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_write_choice_arg"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "resolve_recommendation"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 2,
+   "tools": [
+    "apply_for_credit_card",
+    "give_discoverable_user_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_recommendation_verify",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 652,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "apply_for_credit_card"
+   ],
+   "doc": true
+  },
+  {
+   "key": "field_ops",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 5,
+   "bytes": 820,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "L[str]",
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "function_agents",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 2587,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{getter_tools,instructions,max_getter_calls,max_rounds,max_sub_chars,mode,name,quote_grounding,return_contract,return_template,temperature,wraps}"
+   ],
+   "cons": [
+    [
+     "t2_scaffold_get",
+     "apply"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "KB_search"
+   ],
+   "doc": false
+  },
+  {
+   "key": "write_evidence_specs",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 14,
+   "bytes": 23104,
+   "shp_raw": 6,
+   "shp_norm": 5,
+   "shapes_norm": [
+    "D{applies_to,applies_when,feedback,forbid_tokens,id_key,require_tokens}",
+    "D{applies_to,applies_when,feedback,id_key,require_tokens,skip_when_tokens}",
+    "D{applies_to,applies_when,feedback,id_key,require_tokens_any}",
+    "D{applies_to,applies_when,feedback,id_key,require_tokens}",
+    "D{applies_to,applies_when,forbid_feedback,forbid_self_record_tokens,forbid_when_tokens,id_key}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 3,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "get_card_last_4_digits",
+    "give_discoverable_user_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "scaffold_get_tools",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 10,
+   "bytes": 156950,
+   "shp_raw": 10,
+   "shp_norm": 10,
+   "shapes_norm": [
+    "D{byref_field_map,description,ground,incomplete_hint,isolate,name,op,params,return_template}",
+    "D{description,detail_item_template,grounded_params,isolate,name,op,params,requires_reads,requires_reads_feedback,return_template,return_template_short}",
+    "D{description,dispatch_targets,examples,follow_up,name,op,params,return_template,return_template_empty,variants}",
+    "D{description,examples,missing_hint,name,op,params,return_template,variants}",
+    "D{description,ground,groups_used_note,isolate,name,op,params,requires_reads,return_template}",
+    "D{description,ground,isolate,name,op,params,result_range,result_range_feedback,result_round,return_template}",
+    "D{description,ground,missing_hint,name,op,params,return_template}",
+    "D{description,ground,name,op,params}",
+    "D{description,missing_hint,name,op,params,requires_reads,requires_reads_feedback,return_template}",
+    "D{description,name,op,params,return_template}"
+   ],
+   "cons": [
+    [
+     "t2_axis_levers",
+     "<module>"
+    ],
+    [
+     "t2_axis_levers",
+     "registry_from_a2"
+    ],
+    [
+     "t2_dominance",
+     "merged_text"
+    ],
+    [
+     "t2_gate_patch",
+     "_a2_procedural"
+    ],
+    [
+     "t2_gate_patch",
+     "_decl_howto"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "group_dup_value"
+    ],
+    [
+     "t2_precedence",
+     "_raw_declarations"
+    ],
+    [
+     "t2_prekb_patch",
+     "_atool_guidance"
+    ],
+    [
+     "t2_prekb_patch",
+     "_declared_give_tool"
+    ],
+    [
+     "t2_prekb_patch",
+     "apply"
+    ],
+    [
+     "t2_scaffold_get",
+     "apply"
+    ]
+   ],
+   "n_cons": 12,
+   "n_tools": 17,
+   "tools": [
+    "KB_search",
+    "apply_for_credit_card",
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_all_user_accounts_by_user_id_3847",
+    "get_bank_account_transactions_9173",
+    "get_card_last_4_digits",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_current_time",
+    "get_user_information_by_email",
+    "get_user_information_by_id",
+    "get_user_information_by_name",
+    "give_discoverable_user_tool",
+    "log_verification",
+    "submit_cash_back_dispute_0589",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_scaffold_get_tools",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 913,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "analysis_producers",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 211,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{data_source,producer,subject}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "get_credit_card_transactions_by_user"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_analysis_producers",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 949,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "assertion_operands",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 2,
+   "bytes": 117,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_assertion_operands",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 978,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_follow_up",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 366,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "follow_up_chains",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 4,
+   "bytes": 9848,
+   "shp_raw": 3,
+   "shp_norm": 3,
+   "shapes_norm": [
+    "D{after,decision_feedback,decision_tools,feedback,requires}",
+    "D{after,feedback,requires,reserve,resign_th}",
+    "D{after,feedback,requires,resign_th}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "resolve_operand"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 19,
+   "tools": [
+    "apply_credit_card_account_flag_6147",
+    "approve_credit_limit_increase_5847",
+    "close_credit_card_account_7834",
+    "deny_credit_limit_increase_5848",
+    "emergency_credit_bureau_incident_transfer_1114",
+    "get_all_user_accounts_by_user_id_3847",
+    "get_closure_reason_history_8293",
+    "get_credit_limit_increase_history_4829",
+    "get_payment_history_6183",
+    "get_pending_replacement_orders_5765",
+    "get_user_dispute_history_7291",
+    "initial_transfer_to_human_agent_0218",
+    "initial_transfer_to_human_agent_1822",
+    "log_credit_card_closure_reason_4521",
+    "pay_credit_card_from_checking_9182",
+    "submit_cash_back_dispute_0589",
+    "submit_credit_limit_increase_request_7392",
+    "transfer_to_human_agents",
+    "update_transaction_rewards_3847"
+   ],
+   "doc": false
+  },
+  {
+   "key": "write_arg_grounding",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 7,
+   "bytes": 7133,
+   "shp_raw": 4,
+   "shp_norm": 4,
+   "shapes_norm": [
+    "D{applies_to,applies_when,arg_corpus_marker,corpus_roles,feedback,grounded_args}",
+    "D{applies_to,applies_when,feedback,grounded_args}",
+    "D{applies_to,arg_corpus_marker,feedback,grounded_args}",
+    "D{applies_to,feedback,grounded_args}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 5,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "get_current_time",
+    "get_referral_link",
+    "give_discoverable_user_tool",
+    "log_verification"
+   ],
+   "doc": false
+  },
+  {
+   "key": "write_arg_enum",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 9,
+   "bytes": 15700,
+   "shp_raw": 5,
+   "shp_norm": 4,
+   "shapes_norm": [
+    "D{applies_to,applies_when,arg,axis_prompt,feedback,group_arg,group_map}",
+    "D{applies_to,applies_when,arg,booleans,feedback,type_feedback,values}",
+    "D{applies_to,applies_when,arg,booleans,type_feedback}",
+    "D{applies_to,applies_when,arg,feedback,values}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_write_choice_arg"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 2,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "file_debit_card_transaction_dispute_6281"
+   ],
+   "doc": false
+  },
+  {
+   "key": "have_value_reask",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 1569,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{arg,feedback,producer,producer_marker,reask_signals,value_pattern,write}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 4,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "file_credit_card_transaction_dispute_4829",
+    "get_card_last_4_digits"
+   ],
+   "doc": false
+  },
+  {
+   "key": "value_acquisition",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 1392,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{acquire_tool,arg,feedback,give_tool,producer_marker,reask_signals,write}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_a2_procedural"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 3,
+   "tools": [
+    "file_credit_card_transaction_dispute_4829",
+    "get_card_last_4_digits",
+    "give_discoverable_user_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "view_field_annotations",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 1243,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{contains,note}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_dispute_chain_removed",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 446,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "get_card_last_4_digits"
+   ],
+   "doc": true
+  },
+  {
+   "key": "unavailable_tools",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 1,
+   "bytes": 213,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_scaffold_get",
+     "apply"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "nonlisted_tool_feedback",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 282,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 3,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "give_discoverable_user_tool",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "discoverable_name_check",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 17,
+   "bytes": 8300,
+   "shp_raw": 3,
+   "shp_norm": 3,
+   "shapes_norm": [
+    "D{unlock_discoverable_agent_tool}",
+    "L[str]",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 5,
+   "tools": [
+    "deposit_check_3847",
+    "give_discoverable_user_tool",
+    "log_verification",
+    "open_bank_account_4821",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_nonlisted_tool_feedback",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 300,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "dispatcher_role_check",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 12,
+   "bytes": 3496,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "D{call_discoverable_agent_tool,call_discoverable_user_tool,give_discoverable_user_tool,unlock_discoverable_agent_tool}",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_read_routine_pin"
+    ],
+    [
+     "t2_gate_patch",
+     "_unlocked_names"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "unused_grants"
+    ],
+    [
+     "t2_prekb_patch",
+     "apply"
+    ],
+    [
+     "t2_resolve",
+     "call_form_tools"
+    ],
+    [
+     "t2_source",
+     "_name_args"
+    ],
+    [
+     "t2_source",
+     "unsourced_text"
+    ]
+   ],
+   "n_cons": 8,
+   "n_tools": 4,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "give_discoverable_user_tool",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "param_cap_check",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 1542,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,applies_when,feedback,limit_field,param,pct_by,record_key_field,record_require}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "call_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "prescription_redirect",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 1918,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,arg,feedback,prefix,requires_absent_tool,signals}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "call_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "ref_iso",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 858,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,applies_when,id_pattern,match_hint,param,producer_tools}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 2,
+   "tools": [
+    "call_discoverable_agent_tool",
+    "get_credit_card_transactions_by_user"
+   ],
+   "doc": false
+  },
+  {
+   "key": "ref_verify",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 1270,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,applies_when,feedback,id_key,record_field}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "call_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "arg_producers",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 1,
+   "bytes": 63,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{user_tool}"
+   ],
+   "cons": [
+    [
+     "t2_prekb_patch",
+     "_argprod_hits"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "get_card_last_4_digits"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_arg_producers",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 839,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_require_tool_before",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 731,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "apply_for_credit_card"
+   ],
+   "doc": true
+  },
+  {
+   "key": "tool_signatures",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 1,
+   "bytes": 59,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "L[str]"
+   ],
+   "cons": [
+    [
+     "t2_signature",
+     "<module>"
+    ],
+    [
+     "t2_signature",
+     "declared_signature"
+    ],
+    [
+     "t2_signature",
+     "signature_violation"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 1,
+   "tools": [
+    "give_discoverable_user_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_tool_signatures",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 343,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "give_discoverable_user_tool"
+   ],
+   "doc": true
+  },
+  {
+   "key": "_note_action_tools",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 797,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 2,
+   "tools": [
+    "call_discoverable_user_tool",
+    "request_human_agent_transfer"
+   ],
+   "doc": true
+  },
+  {
+   "key": "_note_gates",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1173,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_producers",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 852,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_discoverable_name_check",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 911,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_dispatcher_role_check",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 852,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_field_ops",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1011,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_follow_up_chains",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 922,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "give_discoverable_user_tool"
+   ],
+   "doc": true
+  },
+  {
+   "key": "_note_function_agents",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 995,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_have_value_reask",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 561,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_param_cap_check",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 579,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "call_discoverable_agent_tool"
+   ],
+   "doc": true
+  },
+  {
+   "key": "_note_prescription_redirect",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 701,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_ref_iso",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 673,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_ref_verify",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 899,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_unavailable_tools",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 595,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_value_acquisition",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 488,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_view_field_annotations",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 852,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_write_arg_grounding",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 776,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_write_evidence_specs",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 567,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "claim_bindings",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 5,
+   "bytes": 972,
+   "shp_raw": 3,
+   "shp_norm": 3,
+   "shapes_norm": [
+    "D{dispute_file,give,record_update,search,transfer,verify,write}",
+    "L[str]",
+    "str"
+   ],
+   "cons": [
+    [
+     "gate_interpreter",
+     "_compose_claim_audit"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 2,
+   "tools": [
+    "call_discoverable_user_tool",
+    "log_verification"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_claim_bindings",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 387,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_event_map_completion_2026_08_21",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1652,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "log_verification"
+   ],
+   "doc": true
+  },
+  {
+   "key": "claim_prov",
+   "dom": "banking_knowledge",
+   "layer": "loader",
+   "kind": "dict",
+   "n": 7,
+   "bytes": 4094,
+   "shp_raw": 3,
+   "shp_norm": 3,
+   "shapes_norm": [
+    "D{dispute_file,give,record_update,search,transfer,verify,write}",
+    "L[str]",
+    "str"
+   ],
+   "cons": [
+    [
+     "gate_interpreter",
+     "_compose_claim_audit"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 1,
+   "tools": [
+    "log_verification"
+   ],
+   "doc": false
+  },
+  {
+   "key": "completion_guard",
+   "dom": "banking_knowledge",
+   "layer": "loader",
+   "kind": "dict",
+   "n": 3,
+   "bytes": 1112,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "gate_interpreter",
+     "_compose_claim_audit"
+    ],
+    [
+     "t2_gate_patch",
+     "_a2_procedural"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 1,
+   "tools": [
+    "call_discoverable_user_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "transfer_reason_policy",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 6,
+   "bytes": 1778,
+   "shp_raw": 4,
+   "shp_norm": 4,
+   "shapes_norm": [
+    "D{abusive_customer_behavior,accessibility_or_special_needs,account_closure_request,account_ownership_dispute,complex_billing_dispute,customer_demands_after_unavailable_offer_refusal,customer_frustrated_demands_human,customer_requests_human_no_specific_reason,deceased_account_holder,fraud_or_security_concern,kb_search_unsuccessful_customer_requests_transfer,legal_or_regulatory_matter,other,request_completed_customer_wants_human_followup,specialized_department_required,supervisor_request_service_complaint,technical_system_error,third_party_inquiry,unconfirmed_external_communication}",
+    "L[D{code,ledger_contains,why}]",
+    "L[str]",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "transfer_to_human_agents"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_quote_hint",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 701,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "transcription_check",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 5,
+   "bytes": 2787,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "D{arg,field_sources,id_key,require_fields}",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "get_credit_card_accounts_by_user"
+   ],
+   "doc": false
+  },
+  {
+   "key": "search_exhaust_escalation",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 525,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "transfer_to_human_agents"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_search_exhaust_escalation",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 576,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "transfer_to_human_agents"
+   ],
+   "doc": true
+  },
+  {
+   "key": "tool_unlock_hint",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 235,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_tool_unlock_hint",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 422,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "require_doc_before",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 3,
+   "bytes": 1157,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "L[str]",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_require_doc_deliver"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 4,
+   "tools": [
+    "emergency_credit_bureau_incident_transfer_1114",
+    "initial_transfer_to_human_agent_0218",
+    "initial_transfer_to_human_agent_1822",
+    "transfer_to_human_agents"
+   ],
+   "doc": false
+  },
+  {
+   "key": "withdrawn_row_check",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 4,
+   "bytes": 1579,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "submit_cash_back_dispute_0589"
+   ],
+   "doc": false
+  },
+  {
+   "key": "procedures",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 6,
+   "bytes": 22875,
+   "shp_raw": 5,
+   "shp_norm": 4,
+   "shapes_norm": [
+    "D{enforce,enter_when,feedback,id,nodes,operands,tables}",
+    "D{enforce,enter_when,feedback,id,nodes,tables}",
+    "D{enforce,enter_when,feedback,id,nodes}",
+    "D{enter_when,feedback,id,nodes,prohibits}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_read_routine_pin"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "resolve_operand"
+    ],
+    [
+     "t2_speak",
+     "_procs"
+    ]
+   ],
+   "n_cons": 4,
+   "n_tools": 20,
+   "tools": [
+    "apply_credit_card_account_flag_6147",
+    "apply_for_credit_card",
+    "apply_statement_credit_8472",
+    "approve_credit_limit_increase_5847",
+    "close_credit_card_account_7834",
+    "deny_credit_limit_increase_5848",
+    "emergency_credit_bureau_incident_transfer_1114",
+    "get_card_last_4_digits",
+    "get_closure_reason_history_8293",
+    "get_credit_limit_increase_history_4829",
+    "get_payment_history_6183",
+    "get_pending_replacement_orders_5765",
+    "get_user_dispute_history_7291",
+    "initial_transfer_to_human_agent_0218",
+    "initial_transfer_to_human_agent_1822",
+    "log_credit_card_closure_reason_4521",
+    "submit_cash_back_dispute_0589",
+    "submit_credit_limit_increase_request_7392",
+    "transfer_to_human_agents",
+    "unlock_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_procedures",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1146,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "choice_grounding",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 418,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{arg,feedback,tool}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_write_choice_arg"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 1,
+   "tools": [
+    "open_bank_account_4821"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_choice_grounding",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 858,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "arbitration",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 6,
+   "bytes": 4988,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_dominance",
+     "cleared"
+    ],
+    [
+     "t2_dominance",
+     "merged_text"
+    ],
+    [
+     "t2_dominance",
+     "requirement_text"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_source",
+     "unsourced_text"
+    ]
+   ],
+   "n_cons": 5,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "suppression_authority",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 3,
+   "bytes": 1519,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "D{kind,measure,silences}",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_authority",
+     "_declares_any"
+    ],
+    [
+     "t2_authority",
+     "may_suppress"
+    ],
+    [
+     "t2_authority",
+     "warrant_of"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "failure_markers",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "list",
+   "n": 5,
+   "bytes": 90,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_executed_tool_names"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_failure_markers",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 406,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "derived",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "list",
+   "n": 17,
+   "bytes": 5044,
+   "shp_raw": 3,
+   "shp_norm": 3,
+   "shapes_norm": [
+    "D{inputs,op,out,params,prompt,shape}",
+    "D{inputs,op,out,params}",
+    "D{inputs,op,out}"
+   ],
+   "cons": [
+    [
+     "gate_interpreter",
+     "_spread_name_rules"
+    ],
+    [
+     "t2_factdag",
+     "load"
+    ],
+    [
+     "t2_gate_patch",
+     "_limit_reduce_text"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 1,
+   "tools": [
+    "get_referrals_by_user"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_derived",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 406,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "ledger_metrics",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "list",
+   "n": 2,
+   "bytes": 37581,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "D{age_field,age_text,case_facts_prompt,date_formats,decided_text,eligible,eligible_text,formalize_prompt,group_field,ineligible_text,now_prompt,now_tool,objective_axis_prompt,objective_prompt,reask_prompt,rederive_prompt,rederived_text,row_keys,text,threshold_prompt,trigger_tool}",
+    "D{date_field,date_formats,diagnose_prompt,diagnosed_text,exhausted_text,focus_prompt,formalize_prompt,group_field,limit_prompt,now_prompt,now_tool,requirement_prompt,requirement_text,row_keys,status_field,status_meaning_axis,status_meaning_text,status_text,subject_align_prompt,text,trigger_tool,unmatched_text,window_days,window_history_text,window_max,window_text}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_install_regen_exec"
+    ],
+    [
+     "t2_gate_patch",
+     "_search_material"
+    ],
+    [
+     "t2_ledger",
+     "specs_for"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 2,
+   "tools": [
+    "get_current_time",
+    "get_referrals_by_user"
+   ],
+   "doc": false
+  },
+  {
+   "key": "relations",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 5,
+   "bytes": 10515,
+   "shp_raw": 4,
+   "shp_norm": 4,
+   "shapes_norm": [
+    "D{apply_checking_account_credit,apply_for_credit_card,apply_savings_account_credit,call_discoverable_agent_tool,change_user_email,check_cli_eligibility,file_credit_card_transaction_dispute,file_debit_card_transaction_dispute,get_atm_fee_discrepancies,get_correct_savings_apy,get_credit_card_accounts_by_user,get_credit_card_transactions_by_user,get_interest_correction,get_referrals_by_user,log_verification,open_bank_account,pay_credit_card_from_checking,submit_interest_discrepancy_report,submit_referral,transfer_to_human_agents}",
+    "D{apply_checking_account_credit,apply_for_credit_card,apply_savings_account_credit,check_cli_eligibility,file_credit_card_transaction_dispute,file_debit_card_transaction_dispute,get_atm_fee_discrepancies,get_correct_savings_apy,get_interest_correction,log_verification,open_bank_account,pay_credit_card_from_checking,submit_interest_discrepancy_report,submit_referral}",
+    "L[D{dep,note,reads,source}|D{dep,reads,source}]",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_decl_howto"
+    ],
+    [
+     "t2_gate_patch",
+     "_fab_fix_note"
+    ],
+    [
+     "t2_gate_patch",
+     "_first_origin_fab"
+    ],
+    [
+     "t2_precedence",
+     "declarations"
+    ]
+   ],
+   "n_cons": 4,
+   "n_tools": 13,
+   "tools": [
+    "apply_for_credit_card",
+    "call_discoverable_agent_tool",
+    "change_user_email",
+    "get_all_user_accounts_by_user_id_3847",
+    "get_bank_account_transactions_9173",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_current_time",
+    "get_referrals_by_user",
+    "get_user_dispute_history_7291",
+    "log_verification",
+    "submit_referral",
+    "transfer_to_human_agents"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_relations",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1175,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "policy_ontology",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 32,
+   "bytes": 157202,
+   "shp_raw": 9,
+   "shp_norm": 9,
+   "shapes_norm": [
+    "D{annual_referral_limit,company_max_age_years,deposit_window_days,holder_max_age_years,holder_min_age_years,qualifying_deposit_usd,qualifying_spend_usd,referred_bonus_usd,referred_no_prior_accounts_months,referrer_bonus_usd,referrer_tenure_days,rolling_window_days,rolling_window_referrals,status_meaning}",
+    "D{bank_accounts_bank_accounts,business_checking_accounts,business_credit_cards,business_savings_accounts,buy_now_pay_later_bnpl,checking_accounts,credit_cards,customer_support,everyone_pay,personal_subscriptions,savings_accounts}",
+    "D{company_max_age_years,qualifying_deposit_usd}",
+    "L[D{against,applies_to,axis,compare,kind,scope,source,subject,value,when}|D{against,applies_to,axis,compare,source,subject,value,when}]",
+    "L[D{doc,from,quote,to}]",
+    "L[D{doc,title,tools}]",
+    "L[str]",
+    "int",
+    "str"
+   ],
+   "cons": [
+    [
+     "gate_interpreter",
+     "_resolve_a3_refs"
+    ],
+    [
+     "t2_gate_patch",
+     "_a3_subject_docs"
+    ],
+    [
+     "t2_gate_patch",
+     "_limit_reduce_text"
+    ],
+    [
+     "t2_gate_patch",
+     "_search_material"
+    ],
+    [
+     "t2_gate_patch",
+     "_verdict_gate_fb"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_search",
+     "_ontology"
+    ],
+    [
+     "t2_search",
+     "_rows"
+    ]
+   ],
+   "n_cons": 8,
+   "n_tools": 47,
+   "tools": [
+    "activate_debit_card_8291",
+    "activate_debit_card_8292",
+    "activate_debit_card_8293",
+    "apply_checking_account_credit_5829",
+    "apply_credit_card_account_flag_6147",
+    "apply_savings_account_credit_6831",
+    "apply_statement_credit_8472",
+    "approve_credit_limit_increase_5847",
+    "change_debit_card_pin_6285",
+    "clear_debit_card_fraud_alert_4892",
+    "close_bank_account_7392",
+    "close_credit_card_account_7834",
+    "close_debit_card_4721",
+    "deny_credit_limit_increase_5848",
+    "deposit_check_3847",
+    "emergency_credit_bureau_incident_transfer_1114",
+    "file_credit_card_transaction_dispute_4829",
+    "file_debit_card_transaction_dispute_6281",
+    "freeze_debit_card_3892",
+    "get_all_user_accounts_by_user_id_3847",
+    "get_atm_deposit_images_8473",
+    "get_bank_account_transactions_9173",
+    "get_closure_reason_history_8293",
+    "get_credit_limit_increase_history_4829",
+    "get_debit_cards_by_account_id_7823",
+    "get_debit_dispute_status_7483",
+    "get_payment_history_6183",
+    "get_pending_replacement_orders_5765",
+    "get_user_dispute_history_7291",
+    "initial_transfer_to_human_agent_0218",
+    "initial_transfer_to_human_agent_1822",
+    "log_credit_card_closure_reason_4521",
+    "open_bank_account_4821",
+    "order_debit_card_5739",
+    "order_replacement_credit_card_7291",
+    "pay_credit_card_from_checking_9182",
+    "request_temporary_debit_card_limit_increase_8374",
+    "reset_debit_card_pin_6284",
+    "set_debit_card_recurring_block_7382",
+    "submit_cash_back_dispute_0589",
+    "submit_credit_limit_increase_request_7392",
+    "submit_interest_discrepancy_report_7294",
+    "submit_referral",
+    "transfer_funds_between_bank_accounts_7291",
+    "transfer_to_human_agents",
+    "unfreeze_debit_card_3893",
+    "update_transaction_rewards_3847"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_policy_ontology",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 675,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_name_rules",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1837,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "name_rules",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 707,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "gate_interpreter",
+     "_spread_name_rules"
+    ],
+    [
+     "t2_factdag",
+     "evaluate"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "write_initiation",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 7,
+   "bytes": 1771,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "int",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "sub_write_proposal"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "catalog_attrs",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 16,
+   "bytes": 4248,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{aliases,example,n_documented,type,unit_votes}"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_catalog_attrs",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 1328,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "catalog_arg_families",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 2,
+   "bytes": 175,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "L[str]"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_catalog_arg_families",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 606,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "catalog_arg_docs",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 1,
+   "bytes": 2993,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{green,media_advertising,operations,software,travel}"
+   ],
+   "cons": [
+    [
+     "t2_scaffold_get",
+     "apply"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "arg_source_reads",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 20,
+   "bytes": 3956,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "L[str]",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_fab_fix_note"
+    ],
+    [
+     "t2_gate_patch",
+     "_first_origin_fab"
+    ],
+    [
+     "t2_gate_patch",
+     "_label_mismatch_deny"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 8,
+   "tools": [
+    "get_all_user_accounts_by_user_id_3847",
+    "get_bank_account_transactions_9173",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_debit_cards_by_account_id_7823",
+    "get_user_information_by_email",
+    "get_user_information_by_id",
+    "get_user_information_by_name"
+   ],
+   "doc": false
+  },
+  {
+   "key": "enum_priority",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 6,
+   "bytes": 2536,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "L[str]",
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 4,
+   "tools": [
+    "emergency_credit_bureau_incident_transfer_1114",
+    "initial_transfer_to_human_agent_0218",
+    "initial_transfer_to_human_agent_1822",
+    "transfer_to_human_agents"
+   ],
+   "doc": false
+  },
+  {
+   "key": "write_rules",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 3,
+   "bytes": 3861,
+   "shp_raw": 2,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,text}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_declared_rules_for"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_identifying_arg_types_revive",
+   "dom": "banking_knowledge",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 834,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "get_current_time"
+   ],
+   "doc": true
+  },
+  {
+   "key": "write_once_keys",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 776,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,applies_when,keys}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_once_key_of"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 2,
+   "tools": [
+    "apply_checking_account_credit_5829",
+    "call_discoverable_agent_tool"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_write_once_keys",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 163,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "free_text_defaults",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 1,
+   "bytes": 39,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "L[str]"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "free_text_drop"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 1,
+   "tools": [
+    "close_bank_account_7392"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_free_text_defaults",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 902,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "close_bank_account_7392"
+   ],
+   "doc": true
+  },
+  {
+   "key": "distinct_args",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 1,
+   "bytes": 845,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{fail_feedback,pairs,policy_docs}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "distinct_args_violation"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "file_debit_card_transaction_dispute_6281"
+   ],
+   "doc": false
+  },
+  {
+   "key": "group_dup_policy_docs",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 44,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_group_dup_policy_docs",
+   "dom": "banking_knowledge",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 364,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  }
+ ],
+ "retail": [
+  {
+   "key": "_meta",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 3,
+   "bytes": 232,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "placeholders",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 13,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_placeholders",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 245,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "variant_operand",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 16,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "variant_spec",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "dict",
+   "n": 5,
+   "bytes": 146,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "resolve_operand"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 1,
+   "tools": [
+    "get_product_details"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_variant",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 152,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "get_product_details"
+   ],
+   "doc": true
+  },
+  {
+   "key": "gates",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "list",
+   "n": 8,
+   "bytes": 6185,
+   "shp_raw": 8,
+   "shp_norm": 8,
+   "shapes_norm": [
+    "D{applies_to,ask,id,kind,notice_text,predicate,satisfiers}",
+    "D{applies_to,ask,id,kind,predicate,satisfiers}",
+    "D{applies_to,checks,id,kind,predicate,steer_by_status_class}",
+    "D{applies_to,checks,id,kind}",
+    "D{applies_to,detail_id_arg,detail_producer,id,kind,message,orders_field,present_fields,present_label,user_id_arg,user_producer}",
+    "D{applies_to,entity_source,id,inspect,kind,note,predicate}",
+    "D{applies_to,id,kind,note,predicate,satisfiers}",
+    "D{applies_to,id,kind,owner_field,predicate,resolver_path,satisfiers,terminal}"
+   ],
+   "cons": [
+    [
+     "t2_compliance",
+     "domain_constants"
+    ],
+    [
+     "t2_dominance",
+     "dominating_gate"
+    ],
+    [
+     "t2_dominance",
+     "merged_text"
+    ],
+    [
+     "t2_dominance",
+     "requirements_for"
+    ],
+    [
+     "t2_eplan_patch",
+     "_term_grant_reminder_extra"
+    ],
+    [
+     "t2_eplan_patch",
+     "_terminal_grant_check"
+    ],
+    [
+     "t2_eplan_patch",
+     "load_write_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "_confirm_write_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ],
+    [
+     "t2_gate_patch",
+     "_env_verified_args"
+    ],
+    [
+     "t2_gate_patch",
+     "_install_regen_exec"
+    ],
+    [
+     "t2_gate_patch",
+     "_transfer_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "apply"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_gate_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "obs_tools_g"
+    ],
+    [
+     "t2_phase",
+     "_auth_gates"
+    ],
+    [
+     "t2_precedence",
+     "_raw_declarations"
+    ],
+    [
+     "t2_precedence",
+     "graph_for"
+    ],
+    [
+     "t2_prekb_patch",
+     "_notice_done"
+    ],
+    [
+     "t2_resolve",
+     "resolve_verify_persistence"
+    ]
+   ],
+   "n_cons": 21,
+   "n_tools": 12,
+   "tools": [
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "find_user_id_by_email",
+    "find_user_id_by_name_zip",
+    "get_order_details",
+    "get_user_details",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items",
+    "transfer_to_human_agents"
+   ],
+   "doc": false
+  },
+  {
+   "key": "present_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 2,
+   "bytes": 353,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{fields,id_field,label,nested_field,trigger_tool}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_install_regen_exec"
+    ],
+    [
+     "t2_gate_patch",
+     "apply"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 2,
+   "tools": [
+    "get_order_details",
+    "get_product_details"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_present_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 288,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "calc_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 4,
+   "bytes": 815,
+   "shp_raw": 3,
+   "shp_norm": 3,
+   "shapes_norm": [
+    "D{cond_field,cond_value,id_field,label,nested_field,op,rank_field,trigger_tool}",
+    "D{cond_field,cond_value,label,nested_field,op,trigger_tool}",
+    "D{item_field,label,nested_field,op,trigger_tool}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_install_regen_exec"
+    ],
+    [
+     "t2_gate_patch",
+     "apply"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 2,
+   "tools": [
+    "get_order_details",
+    "get_product_details"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_calc_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 325,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "_note_calc_ext",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 473,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "producers",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 1,
+   "bytes": 99,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{args_from,tool}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "get_user_details"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_minimize_a2",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 204,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "disamb_sub_args",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 8,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_provenance_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "default_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 1,
+   "bytes": 247,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,arg,resolver_path}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_apply_principle_default"
+    ],
+    [
+     "t2_gate_patch",
+     "_resolver_directive"
+    ]
+   ],
+   "n_cons": 2,
+   "n_tools": 5,
+   "tools": [
+    "exchange_delivered_order_items",
+    "get_order_details",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "return_delivered_order_items"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_default_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 456,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "regen_resolver_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 6,
+   "bytes": 772,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,arg,resolver_path}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_resolver_directive"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 2,
+   "tools": [
+    "get_order_details",
+    "modify_pending_order_address"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_regen_resolver_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 652,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 2,
+   "tools": [
+    "get_order_details",
+    "modify_user_address"
+   ],
+   "doc": true
+  },
+  {
+   "key": "_note_disamb_sub_args",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 313,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "calc_tool",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 11,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "calculate"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_calc_tool",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 277,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "eplan",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 5,
+   "bytes": 167,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "L[str]",
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_eplan_patch",
+     "<module>"
+    ],
+    [
+     "t2_eplan_patch",
+     "PlanLedger"
+    ],
+    [
+     "t2_eplan_patch",
+     "load_eplan_spec"
+    ],
+    [
+     "t2_gate_patch",
+     "_a2_procedural"
+    ],
+    [
+     "t2_gate_patch",
+     "_resolve_cap_ok"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "unused_grants"
+    ],
+    [
+     "t2_pin_read",
+     "pin_for"
+    ],
+    [
+     "t2_pin_read",
+     "selftest"
+    ],
+    [
+     "t2_prekb_patch",
+     "_dispatch_names"
+    ],
+    [
+     "t2_prekb_patch",
+     "_trigger_fams"
+    ],
+    [
+     "t2_prekb_patch",
+     "apply"
+    ],
+    [
+     "t2_resolve",
+     "_dispatch_since_last_user"
+    ],
+    [
+     "t2_resolve",
+     "_executed_dispatch_names"
+    ],
+    [
+     "t2_resolve",
+     "call_form_tools"
+    ],
+    [
+     "t2_resolve",
+     "resolve_action_operator"
+    ],
+    [
+     "t2_resolve",
+     "resolve_compute_params"
+    ],
+    [
+     "t2_scaffold_get",
+     "apply"
+    ]
+   ],
+   "n_cons": 18,
+   "n_tools": 2,
+   "tools": [
+    "get_order_details",
+    "get_user_details"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_eplan",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 475,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "tool_error_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 3,
+   "bytes": 726,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,class,hint,match}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "classify_tool_error"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 7,
+   "tools": [
+    "exchange_delivered_order_items",
+    "find_user_id_by_email",
+    "find_user_id_by_name_zip",
+    "get_order_details",
+    "get_product_details",
+    "get_user_details",
+    "modify_pending_order_items"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_tool_error_specs",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 116,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "operands",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 3,
+   "bytes": 808,
+   "shp_raw": 2,
+   "shp_norm": 2,
+   "shapes_norm": [
+    "D{address1}",
+    "D{item_ids,new_item_ids}"
+   ],
+   "cons": [
+    [
+     "t2_resolve",
+     "<module>"
+    ],
+    [
+     "t2_resolve",
+     "_discoverable_dispatchers"
+    ],
+    [
+     "t2_resolve",
+     "resolve_write"
+    ],
+    [
+     "t2_scaffold_get",
+     "_sub_fetch_formalize"
+    ],
+    [
+     "t2_scaffold_get",
+     "_sub_formalize"
+    ],
+    [
+     "t2_scaffold_get",
+     "_sub_inject"
+    ]
+   ],
+   "n_cons": 6,
+   "n_tools": 4,
+   "tools": [
+    "exchange_delivered_order_items",
+    "get_product_details",
+    "modify_pending_order_address",
+    "modify_pending_order_items"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_operands",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 112,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "action_tools",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "list",
+   "n": 7,
+   "bytes": 207,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "action_candidates"
+    ],
+    [
+     "t2_resolve",
+     "resolve_action_operator"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 7,
+   "tools": [
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_action_tools",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 512,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "modify_user_address"
+   ],
+   "doc": true
+  },
+  {
+   "key": "failure_markers",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "list",
+   "n": 1,
+   "bytes": 10,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_executed_tool_names"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_failure_markers",
+   "dom": "retail",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 594,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "write_once_keys",
+   "dom": "retail",
+   "layer": "L3",
+   "kind": "list",
+   "n": 2,
+   "bytes": 1082,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{applies_to,keys}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_once_key_of"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 2,
+   "tools": [
+    "exchange_delivered_order_items",
+    "modify_pending_order_items"
+   ],
+   "doc": false
+  }
+ ],
+ "airline": [
+  {
+   "key": "_meta",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 4,
+   "bytes": 330,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "gates",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "list",
+   "n": 3,
+   "bytes": 1288,
+   "shp_raw": 3,
+   "shp_norm": 3,
+   "shapes_norm": [
+    "D{applies_to,ask,id,kind,predicate,satisfiers}",
+    "D{applies_to,id,kind,note,predicate,satisfied_by,satisfiers}",
+    "D{applies_to,id,kind,owner_field,predicate,resolver_path,satisfiers,terminal}"
+   ],
+   "cons": [
+    [
+     "t2_compliance",
+     "domain_constants"
+    ],
+    [
+     "t2_dominance",
+     "dominating_gate"
+    ],
+    [
+     "t2_dominance",
+     "merged_text"
+    ],
+    [
+     "t2_dominance",
+     "requirements_for"
+    ],
+    [
+     "t2_eplan_patch",
+     "_term_grant_reminder_extra"
+    ],
+    [
+     "t2_eplan_patch",
+     "_terminal_grant_check"
+    ],
+    [
+     "t2_eplan_patch",
+     "load_write_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "_confirm_write_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ],
+    [
+     "t2_gate_patch",
+     "_env_verified_args"
+    ],
+    [
+     "t2_gate_patch",
+     "_install_regen_exec"
+    ],
+    [
+     "t2_gate_patch",
+     "_transfer_tools"
+    ],
+    [
+     "t2_gate_patch",
+     "apply"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_gate_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "obs_tools_g"
+    ],
+    [
+     "t2_phase",
+     "_auth_gates"
+    ],
+    [
+     "t2_precedence",
+     "_raw_declarations"
+    ],
+    [
+     "t2_precedence",
+     "graph_for"
+    ],
+    [
+     "t2_prekb_patch",
+     "_notice_done"
+    ],
+    [
+     "t2_resolve",
+     "resolve_verify_persistence"
+    ]
+   ],
+   "n_cons": 21,
+   "n_tools": 8,
+   "tools": [
+    "book_reservation",
+    "cancel_reservation",
+    "get_reservation_details",
+    "get_user_details",
+    "send_certificate",
+    "update_reservation_baggages",
+    "update_reservation_flights",
+    "update_reservation_passengers"
+   ],
+   "doc": false
+  },
+  {
+   "key": "producers",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 1,
+   "bytes": 99,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "D{args_from,tool}"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "get_user_details"
+   ],
+   "doc": false
+  },
+  {
+   "key": "identifying_arg_types",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "list",
+   "n": 4,
+   "bytes": 52,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_domain_a2"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_minimize_a2",
+   "dom": "airline",
+   "layer": "L3",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 227,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "eplan",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "dict",
+   "n": 3,
+   "bytes": 115,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_eplan_patch",
+     "<module>"
+    ],
+    [
+     "t2_eplan_patch",
+     "PlanLedger"
+    ],
+    [
+     "t2_eplan_patch",
+     "load_eplan_spec"
+    ],
+    [
+     "t2_gate_patch",
+     "_a2_procedural"
+    ],
+    [
+     "t2_gate_patch",
+     "_resolve_cap_ok"
+    ],
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_gate_patch",
+     "unused_grants"
+    ],
+    [
+     "t2_pin_read",
+     "pin_for"
+    ],
+    [
+     "t2_pin_read",
+     "selftest"
+    ],
+    [
+     "t2_prekb_patch",
+     "_dispatch_names"
+    ],
+    [
+     "t2_prekb_patch",
+     "_trigger_fams"
+    ],
+    [
+     "t2_prekb_patch",
+     "apply"
+    ],
+    [
+     "t2_resolve",
+     "_dispatch_since_last_user"
+    ],
+    [
+     "t2_resolve",
+     "_executed_dispatch_names"
+    ],
+    [
+     "t2_resolve",
+     "call_form_tools"
+    ],
+    [
+     "t2_resolve",
+     "resolve_action_operator"
+    ],
+    [
+     "t2_resolve",
+     "resolve_compute_params"
+    ],
+    [
+     "t2_scaffold_get",
+     "apply"
+    ]
+   ],
+   "n_cons": 18,
+   "n_tools": 2,
+   "tools": [
+    "get_reservation_details",
+    "get_user_details"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_eplan",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 126,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "action_tools",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "list",
+   "n": 6,
+   "bytes": 156,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ],
+    [
+     "t2_resolve",
+     "action_candidates"
+    ],
+    [
+     "t2_resolve",
+     "resolve_action_operator"
+    ]
+   ],
+   "n_cons": 3,
+   "n_tools": 6,
+   "tools": [
+    "book_reservation",
+    "cancel_reservation",
+    "send_certificate",
+    "update_reservation_baggages",
+    "update_reservation_flights",
+    "update_reservation_passengers"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_action_tools",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 617,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "failure_markers",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "list",
+   "n": 1,
+   "bytes": 10,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "_executed_tool_names"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 0,
+   "tools": [],
+   "doc": false
+  },
+  {
+   "key": "_note_failure_markers",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 594,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 0,
+   "tools": [],
+   "doc": true
+  },
+  {
+   "key": "calc_tool",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 11,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [
+    [
+     "t2_gate_patch",
+     "apply_unified_regen"
+    ]
+   ],
+   "n_cons": 1,
+   "n_tools": 1,
+   "tools": [
+    "calculate"
+   ],
+   "doc": false
+  },
+  {
+   "key": "_note_calc_tool",
+   "dom": "airline",
+   "layer": "L2",
+   "kind": "scalar",
+   "n": 1,
+   "bytes": 466,
+   "shp_raw": 1,
+   "shp_norm": 1,
+   "shapes_norm": [
+    "str"
+   ],
+   "cons": [],
+   "n_cons": 0,
+   "n_tools": 1,
+   "tools": [
+    "calculate"
+   ],
+   "doc": true
+  }
+ ]
+}
