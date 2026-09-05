@@ -205,6 +205,14 @@ RC=${PIPESTATUS[0]}
 _SRC="$GO_TAU2/data/simulations/$TAG/results.json"
 [ -f "$_SRC" ] || _SRC="$GO_TAU2/data/simulations/$TAG.json"
 _DST="$REPO/reports/facet_rft_2026/sim_results/$TAG.results.json.gz"
+# ★2026-09-06 — `provenance.json` 도 같이 회수한다. 이것이 **어느 스택이 이 결과를 냈는지**를
+#   적은 유일한 파일이다(`engine_sha`·`levers_on`·`max_concurrency`·`served_model`).
+#   결과 아카이브의 `git_commit` 은 **tau2-bench 리포**의 커밋이라 이 모델의 전 런이 동일하고
+#   아무것도 말해 주지 않는다. 이걸 안 챙겨서 «과거에서 대조 팔을 만들 수 없다»고 판단했고,
+#   그 판단 위에서 A/B 마다 대조를 새로 돌리는 비용을 계상했다 — 74 런 중 58 이 이미 갖고 있었다.
+_PROV="$GO_TAU2/data/simulations/$TAG/provenance.json"
+_PDST="$REPO/reports/facet_rft_2026/sim_results/$TAG.provenance.json"
+[ -f "$_PROV" ] && [ ! -f "$_PDST" ] && cp "$_PROV" "$_PDST" && echo "[run_ours] persist: $(basename "$_PDST")"
 if [ -f "$_SRC" ] && [ ! -f "$_DST" ]; then
   gzip -c "$_SRC" > "$_DST" && echo "[run_ours] persist: $(basename "$_DST") ($(stat -c%s "$_DST") bytes)"
 else
