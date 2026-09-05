@@ -95,9 +95,42 @@
   "dispatch_name_key": "agent_tool_name",
   "dispatch_args_key": "arguments",
   "write_tools": [
+   "activate_debit_card",
+   "apply_checking_account_credit",
+   "apply_credit_card_account_flag",
+   "apply_for_credit_card",
+   "apply_savings_account_credit",
+   "apply_statement_credit",
+   "approve_credit_limit_increase",
+   "change_debit_card_pin",
+   "change_user_email",
+   "clear_debit_card_fraud_alert",
+   "close_bank_account",
+   "close_credit_card_account",
+   "close_debit_card",
+   "deny_credit_limit_increase",
+   "deposit_check",
+   "example_agent_tool",
    "file_credit_card_transaction_dispute",
    "file_debit_card_transaction_dispute",
-   "submit_cash_back_dispute"
+   "freeze_debit_card",
+   "log_credit_card_closure_reason",
+   "open_bank_account",
+   "order_debit_card",
+   "order_replacement_credit_card",
+   "pay_credit_card_from_checking",
+   "request_human_agent_transfer",
+   "request_temporary_debit_card_limit_increase",
+   "reset_debit_card_pin",
+   "set_debit_card_recurring_block",
+   "submit_cash_back_dispute",
+   "submit_credit_limit_increase_request",
+   "submit_interest_discrepancy_report",
+   "submit_referral",
+   "submit_transaction",
+   "transfer_funds_between_bank_accounts",
+   "unfreeze_debit_card",
+   "update_transaction_rewards"
   ],
   "write_action_phrase": "file the dispute (or take the required action) for each remaining record the customer described",
   "intent_chains": [
@@ -155,7 +188,13 @@
   ],
   "_note_prekb_tools": "★C176(2026-07-25): PREKB-only 트리거(finalize 아님·close-체인 게이트와 무관). 클러스터① 실측(002/003/006/024/063 — card_type만 오선택·전부 프리미엄-bias·kbq=1 즉시신청): 신청 전 행동-키 KB 조회('apply for credit card procedure')로 자격/절차 문서를 문맥 유입. 문서=KB 실재(bronze_001 min score 640·diamond_001 invitation-only 등)·선택 자체는 모델 몫(gold-planting 0).",
   "unlock_tool": "unlock_discoverable_agent_tool",
-  "list_tool": "list_discoverable_agent_tools"
+  "list_tool": "list_discoverable_agent_tools",
+  "_note_write_tools_2026_09_05": "★2026-09-05 확장 — 이 목록이 write 결정점 레버 3종(T2_SPEC_AT_WRITE·T2_RULE_AT_WRITE·T2_ARG_POLICY_AT_WRITE)의 **유일한 사정권**이다(t2_gate_patch.py:12444 `_wrset` · :12448 `if _wc is not None`). 구판은 **3 도구**뿐이라 dispute 계열 밖의 write 를 원리적으로 못 봤다 — 캠페인 실패의 update_transaction_rewards(027·029) · open_bank_account(055·071) · close_debit_card(078·080) · submit_referral(010·015) 이 전부 사정권 밖이었다. `_confirm_write_tools(a2)` 는 banking 에 kind=confirm 게이트가 0개라 공집합을 돌려주므로 이 키가 사정권의 전부다. ★도출 = **env 의 `mutates=True`**(a2/env_surface.json banking_knowledge.tools · 원형 44 → 접미 정규화 42)에서 `_note_event_map_completion_2026_08_21` 이 **이미 선언한 배제 규칙**을 그대로 적용: 읽기 접두(get_/list_/query_/search_) · 절차 디스패처(call_/give_/unlock_/list_discoverable) · verify 쌍(verify_identity/log_verification) 제외 → **36**. 배제 실물 6 = call_discoverable_agent_tool · call_discoverable_user_tool · give_discoverable_user_tool · unlock_discoverable_agent_tool · log_verification · get_referral_link. 손으로 고른 이름 0 · gold/tasks 무참조([[23]]) · 새 엔진 규칙 0([[58]]). ⚠[[70]] 파는 것 미측정 — 사정권이 12배가 되므로 deny 턴·전달 바이트가 는다. 런이 판정한다.",
+  "_prev_write_tools_": [
+   "file_credit_card_transaction_dispute",
+   "file_debit_card_transaction_dispute",
+   "submit_cash_back_dispute"
+  ]
  },
  "_note_eplan": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || BANKING_FLOOR_LEVER_FIT §3.3(E-PLAN=discovery-read 강제 표적·[[14]]) 대응물 식별: floor 궤적 실존 직접 도구만 — 목록형 reader=get_credit_card_accounts_by_user(101콜·per-user 계좌 record 열거·account_id 필드), 상세형 reader=get_credit_card_transactions_by_user(188콜·gold 지배 read). ⚠최유력이나 retail 대응이 불완전한 구조적 한계 3건(엔진 사실·보고용): (a) banking 도구출력=포맷문자열(비JSON)→_extract_entity_ids 파싱 실패=listed 항상 ∅, (b) per-entity 상세 reader가 직접 도구에 없음(get_bank_account_transactions_9173류=디스패처 내부라 ledger가 이름 귀속 불가)·get_credit_card_transactions_by_user는 user_id 키라 entity_key=account_id로 examined 미갱신, (c) confirm 게이트 부재→_confirm_write_tools=∅→unified L1/L2 deny 비발화. 현 배선(T2_EPLAN)서 사실상 불활성 — 표적인 discovery-read 강제는 [[14]] 배선 진화 필요.",
  "operands": {
