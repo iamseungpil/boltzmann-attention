@@ -145,6 +145,22 @@ export T2_TRACE=$LOG/trace_${TAG}.jsonl
 echo "[run_ours] T2_AGENT_MAX_TOKENS=${T2_AGENT_MAX_TOKENS:-(미설정)} · T2_TOOL_SURFACE=${T2_TOOL_SURFACE:-(미선언)}"
 [ -n "${T2_TOOL_SURFACE:-}" ] || { echo "REFUSING: T2_TOOL_SURFACE 미선언 — 문법 표면형이 서버 파서와 어긋나면 도구 파싱이 전량 죽는다(x703)"; exit 1; }
 echo "[run_ours] 켜진 T2_/GO_ 변수 $(env | grep -cE '^(T2_|GO_)') 개"
+# ★2026-09-05 — **레버 설정을 회수 가능하게 남긴다**([[30]] 계기는 회수돼야 존재한다).
+#   결손: 이 줄은 여태 **개수만** 셌고 값을 안 남겼다. 그래서 Q3.8 회수분 296 sim 중
+#   «어느 런이 어떤 레버로 돌았는지» 를 복원할 방법이 없다 — `results.json` 의 `git_commit` 은
+#   **tau2-bench 리포**의 커밋이라 엔진(다른 리포)을 가리키지 않고(Q3.8 전 런이 fc0055dc 로
+#   동일하게 찍힌다 · 오늘 c93ab037 로 도는 런까지), 런 로그에도 `T2_*=값` 이 0건이다(1MB 로그 실측).
+#   ⇒ 과거에서 대조 팔을 만들 수 없어 A/B 를 늘 **두 팔 다** 새로 돌려야 했다. 그 비용의 원인이 이것이다.
+#   비커밋 관측이라 거동 변화 0 — 파일에만 쓴다.
+_ENVSNAP="${LOG:-/home/woori/scratch/logs}/env_${TAG}.txt"
+{
+  echo "# tag=$TAG port=$PORT arm=${ARM:-(없음)} host=$AGENT_HOST model=${EXPECT:-?}"
+  echo "# engine_sha=$(cd "$REPO" 2>/dev/null && git rev-parse --short HEAD 2>/dev/null || echo '?')"
+  echo "# engine_dirty=$(cd "$REPO" 2>/dev/null && git status --porcelain 2>/dev/null | wc -l)"
+  echo "# tau2_sha=$(cd "$GO_TAU2" 2>/dev/null && git rev-parse --short HEAD 2>/dev/null || echo '?')"
+  env | grep -E '^(T2_|GO_)' | sort
+} > "$_ENVSNAP" 2>/dev/null
+echo "[run_ours] 레버 스냅샷 -> $_ENVSNAP ($(grep -c . "$_ENVSNAP" 2>/dev/null) 줄)"
 # ★모델에 매인 유효값을 **발사 로그에 박는다** — Q2.5 와 Q3.8 을 동시에 돌릴 때 값이 새는지
 #   런이 끝나기 전에 보이게([[30]] 계기는 회수돼야 존재한다).
 echo "[run_ours] 유효 config: surface=${T2_TOOL_SURFACE:-?} ctx=${T2_MAX_MODEL_LEN:-?} agent_mt=${T2_AGENT_MAX_TOKENS:-?} probe_mt=${T2_PROBE_MAX_TOKENS:-?} think=${T2_THINK_BUDGET:-(없음)} view_scale=${T2_VIEW_SCALE:-off} view_mintotal=${T2_VIEW_COMPACT_MINTOTAL:-(파생)} arm=${ARM:-(없음)}"
