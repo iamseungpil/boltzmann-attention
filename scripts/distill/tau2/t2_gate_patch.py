@@ -10521,7 +10521,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                or ("Error: [ACTION] '{tool}' is run by the CUSTOMER, "
                                                    "not by you. There is no agent-side procedure to "
                                                    "look up for running it, so do not search for one "
-                                                   "and do not transfer for this. Once you have "
+                                                   # ★D12 수리 ⓐ (2026-09-05): 구판은 "and do not
+                                                   #   transfer for this." 였다 — **무조건절**이라
+                                                   #   한 태스크에서 모델이 이관 자체를 포기했고
+                                                   #   gold 의 이관 액션이 궤적에서 사라졌다
+                                                   #   (채점축 ACTION · MISSING 1 · 설계서 D12).
+                                                   #   절을 삭제하지 않고 **{tool} 로 좁힌다** —
+                                                   #   원 의도(이관으로 떠넘기지 말고 손님에게
+                                                   #   시켜라)는 그대로 보존된다.
+                                                   "and do not transfer the conversation in order to "
+                                                   "get {tool} run. Once you have "
                                                    "everything your recommendation rests on, tell the "
                                                    "customer in your reply to run {tool} themselves "
                                                    "with their details, then confirm the result. If "
@@ -10958,7 +10967,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                         _ufb = ""
                                     elif _sig is not None:
                                         self._t2_arb_sig = _sig
-                                    rw_fb = ((am.tool_calls or [None])[0], _ufb) if _ufb else None
+                                    # ★D12 수리 ⓑ (2026-09-05) — [ACTION] 문면을 **초안의 아무
+                                    #   호출에나** 붙이지 않는다. 구판 `(am.tool_calls or [None])[0]`
+                                    #   은 첫 호출이 무엇이든 거기 붙였고, 그래서 손님-실행 도구를
+                                    #   겨눈 문면이 **이관 호출의 오류 관측**으로 나가 gold 이관을
+                                    #   궤적에서 0회로 만들었다(설계서 D12 · 채점축 ACTION).
+                                    #   규칙(닫힌 술어): ⑴이관 도구에는 절대 붙이지 않는다
+                                    #   ⑵`_utgt` 와 이름이 같은 호출을 우선한다 ⑶둘 다 없으면
+                                    #   이관이 아닌 첫 호출에 붙인다(종전 거동 보존).
+                                    #   ⚠도메인 리터럴 0 — 이관 집합은 `_transfer_tools(a2)` 가
+                                    #   A2 의 notice 게이트에서 도출한다([[05]]).
+                                    _rw_c = None
+                                    if _ufb:
+                                        try:
+                                            _xfer = set(_transfer_tools(a2) or ())
+                                        except Exception:
+                                            _xfer = set()
+                                        _cands = [_c for _c in (am.tool_calls or [])
+                                                  if _eff_tool_name(_c) not in _xfer]
+                                        _rw_c = next((_c for _c in _cands
+                                                      if _utgt and _eff_tool_name(_c) == _utgt), None)
+                                        if _rw_c is None and _cands:
+                                            _rw_c = _cands[0]
+                                        if _rw_c is None:
+                                            print("[T2_ACTION_ATTACH] 부착 안 함 — 초안 호출이 전부 "
+                                                  "이관 도구다 (target=%r, 호출 %d개)"
+                                                  % (_utgt, len(am.tool_calls or [])),
+                                                  file=_sys.stderr, flush=True)
+                                    rw_fb = (_rw_c, _ufb) if (_ufb and _rw_c is not None) else None
                                     self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                     # ★큐 전진 환급(2026-08-07·task_101 부검). 요건이 셋인데 발화
                                     #   예산은 캡 하나를 공유한다 — 101은 신원 확인에서 헤매느라
