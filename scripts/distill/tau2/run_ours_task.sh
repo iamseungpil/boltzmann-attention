@@ -27,6 +27,12 @@ CONC=1
 # 시행 수 — 기본 1(base 대조군 규격). 결정론 신호가 필요하면 2 이상([[08]] pass^1 점추정 단독 금지).
 TRIALS=1
 POS=()
+# ★2026-09-05 `--seed` 노출 — flip 측정을 **완결된 패스의 반복**으로 쪼개기 위해서다.
+#   `--num_trials 3` 은 한 프로세스가 세 시행을 물고 있어 ⑴ 중간 산출이 없고 ⑵ 죽으면 셋이
+#   같이 죽고 ⑶ 레인 분할이 뻣뻣하다. 같은 통계 내용을 **97×nt=1 을 seed 바꿔 세 번**으로
+#   얻으면 매 패스가 그 자체로 완결된 97 점수이고 한 패스에서 멈춰도 산출이 남는다.
+#   ⚠안 주면 종전 거동 그대로(tau2 기본) — 기존 런과 비교 가능성 보존.
+#   ⚠`done_runs` 키가 (trial, task_id, seed) 라 seed 가 다르면 충돌하지 않는다.
 while [ $# -gt 0 ]; do
   case "$1" in
     --arm) ARM="$2"; shift 2 ;;
@@ -36,10 +42,12 @@ while [ $# -gt 0 ]; do
     --no-preflight) PREFLIGHT=0; shift ;;
     --concurrency) CONC="$2"; shift 2 ;;
     --trials) TRIALS="$2"; shift 2 ;;
+    --seed) SEED="$2"; shift 2 ;;
+    --seed=*) SEED="${1#*=}"; shift ;;
     --trials=*) TRIALS="${1#*=}"; shift ;;
     --concurrency=*) CONC="${1#*=}"; shift ;;
     -h|--help)
-      echo "사용: run_ours_task.sh [--profile 이름|경로] [--arm 이름] [--no-preflight] [--concurrency N] [--trials N] <TAG> <PORT> <TASK_IDS>"
+      echo "사용: run_ours_task.sh [--profile 이름|경로] [--arm 이름] [--no-preflight] [--concurrency N] [--trials N] [--seed N] <TAG> <PORT> <TASK_IDS>"
       ls -1 "$(dirname "$0")/arms" 2>/dev/null | sed 's|^|  팔: |'
       echo "  프로필 = model_profiles/<모델 id 의 / 를 __ 로 바꾼 이름>.env"
       ls -1 "$(dirname "$0")/model_profiles" 2>/dev/null | sed 's|^|  가용: |'
@@ -155,6 +163,7 @@ echo "[run_ours] 켜진 T2_/GO_ 변수 $(env | grep -cE '^(T2_|GO_)') 개"
 _ENVSNAP="${LOG:-/home/woori/scratch/logs}/env_${TAG}.txt"
 {
   echo "# tag=$TAG port=$PORT arm=${ARM:-(없음)} host=$AGENT_HOST model=${EXPECT:-?}"
+  echo "# trials=${TRIALS:-?} seed=${SEED:-(tau2 기본)} conc=${CONC:-?} tasks=$TASKS"
   echo "# engine_sha=$(cd "$REPO" 2>/dev/null && git rev-parse --short HEAD 2>/dev/null || echo '?')"
   echo "# engine_dirty=$(cd "$REPO" 2>/dev/null && git status --porcelain 2>/dev/null | wc -l)"
   echo "# tau2_sha=$(cd "$GO_TAU2" 2>/dev/null && git rev-parse --short HEAD 2>/dev/null || echo '?')"
@@ -180,7 +189,7 @@ export PYTHONPATH=src:$REPO/scripts/distill/tau2
   --domain banking_knowledge --gate 1 --retrieval_config alltools \
   --agent_model "$EXPECT" --agent_base "http://$AGENT_HOST:$PORT/v1" \
   --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 --user_reasoning_effort low \
-  --task_ids "$TASKS" --num_trials "$TRIALS" --max_concurrency "$CONC" --max_steps 200 \
+  --task_ids "$TASKS" --num_trials "$TRIALS" --max_concurrency "$CONC" --max_steps 200 ${SEED:+--seed "$SEED"} \
   --max_retries "${T2_MAX_RETRIES:-8}" --retry_delay "${T2_RETRY_DELAY:-20}" \
   --save_to "$TAG" 2>&1 | tee "$LOG/$TAG.log"
 # ★실행 결과를 **끝까지 들고 간다** (2026-09-01 사고): 아래 요약 `echo` 들이 마지막 명령이라
