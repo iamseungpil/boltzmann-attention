@@ -66,8 +66,14 @@ while true; do
   [ -z "$T" ] && { echo "[$LANE $(date '+%m-%d %H:%M')] 큐 소진 — 종료"; break; }
   TAG="${PREFIX}_${T}"
   echo "[$LANE $(date '+%m-%d %H:%M')] → $T (tag=$TAG)"
+  # ★SEED=DEFAULT 면 `--seed` 를 **안 넘긴다**. tau2 는 기저 seed 로 시행별 seed 를 파생한다
+  #   (`runner/batch.py:517-518` 축자: `random.seed(config.seed)` / `seeds = [random.randint(0,1000000) ...]`).
+  #   기본 300 이 첫 시행에 626729 를 준다 — 이미 돈 49 sim 이 그 값이므로 패스1 의 잔여는
+  #   기본을 그대로 써야 **같은 패스**가 된다. `--seed 626729` 를 주면 파생이 달라져 다른 패스가 된다.
+  SEEDARG=""
+  [ "$SEED" != "DEFAULT" ] && SEEDARG="--seed $SEED"
   T2_AGENT_HOST="$AHOST" bash ./run_ours_task.sh --arm viewmax2 --concurrency 1 --trials 1 \
-      --seed "$SEED" "$TAG" "$PORT" "$T" > "$LOG/${TAG}_driver.log" 2>&1
+      $SEEDARG "$TAG" "$PORT" "$T" > "$LOG/${TAG}_driver.log" 2>&1
   RC=$?
   RW=$(/home/woori/iso_tau3/venv/bin/python -c "
 import json,sys
