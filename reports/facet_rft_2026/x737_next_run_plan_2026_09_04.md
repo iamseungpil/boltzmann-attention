@@ -4579,3 +4579,111 @@ arm=viewmax2 · 2026-09-03 이후
     1.1배에서 56.4% (§5a). conc 4 로 발사해도 Running 은 늘 2 였다 — 엔진이 못 돌린 게
     아니라 매 턴 90k 를 다시 계산하느라 못 나아갔다.
 ```
+
+
+---
+
+## 9. 수리 큐 P1~P12 — **2026-09-06 확정 · 적용은 패스2 완료 후**
+
+> ⛔**코드 동결 중.** 워커가 태스크마다 `run_ours_task.sh` 를 새로 띄우므로 지금 고치면 **한 패스
+> 안에서 스택이 갈린다**([[54]]). 패스1/패스2 는 «seed 만 다른 짝» 이어야 하고 그것이 이 캠페인의
+> 유일한 깨끗한 대조다. 아래는 전부 **근거 확정 · 적용 대기**.
+
+### 9a. 왜 이 큐가 생겼나 — 오늘의 상위 발견 셋
+
+**⑴ 「flip」의 상당 부분이 우리 결함의 조건부 발화였다.** 「모델 변덕」으로 읽던 것이 실은
+«우리 층의 모순이 어떤 롤아웃에서만 발화» 하는 것이었다. 실물 둘(`task_003`·`task_004`)에서
+per-step 으로 확정했다(§9c·§9d).
+
+**⑵ flip 측정 자체가 오염돼 있었다.** flip 태스크 31개 중 **30개가 서로 다른 engine_sha 짝**이었다
+(x780). 즉 「같은 조건 재실행의 변동」이 아니라 「우리가 그 사이에 바꾼 것」을 재고 있었다.
+⇒ [[85]] 의 18.8~25% 바닥도 그만큼 재해석이 필요하다.
+
+**⑶ `provenance.json` 이 실재한다** — Q3.8 74 런 중 **58**에 `engine_sha`·`levers_on`·
+`max_concurrency`·`served_model` 이 있다. 「과거에서 대조를 만들 수 없다」는 판단은 **틀렸다**
+(`results.json` 의 `git_commit` 은 tau2-bench 리포 커밋이라 전 런 동일). 59개 회수·커밋 완료
+(`aa16bb9d`), 앞으로 자동 회수(`7ab02670`).
+
+### 9b. 큐 (우선순위 순)
+
+| # | 무엇 | 근거 (실측) | [[70]] 파는 것 | 상태 |
+|---|---|---|---|---|
+| **P9** | `T2_SIGNATURE` 의 `give_discoverable_user_tool` 선언 정정 | 반려 1,140 중 **143건이 이 하나**(고유 조합 1). 서버 `tools.py:533-534` 는 `arguments: str = "{}"` 를 **받고**, 본체가 그 인자를 파싱해 실제 도구 시그니처와 대조까지 한다. 발화 43 sim · 통과율 **28%**(전체 44.6%) | **없음** — 우리 보호를 없애도 서버가 더 정확히 같은 검사를 한다 | 확정 |
+| **P12** | scaffold 도구 스키마가 A2 의 `optional` 을 무시 | `t2_scaffold_get.py:1896` `"%s: str" % p` — 기본값 없음 ⇒ 파이썬 필수 ⇒ 스키마 required. `check_card_application_fit` 은 A2 가 **13/13 optional**(하나는 축자 *"leave this out"*)인데 스키마는 **13/13 required**. 그 스키마를 `_schema_required`(:2273)가 읽어 `[ARG-EMPTY]` 가 반려 | **없음** — 우리 선언과 우리 코드의 모순 | 확정 |
+| **P11** | `_enum_items` 의미-패턴 | `t2_eplan_patch.py:107`·`_ENUM_MIN=3`(:91). 실측: `"date of birth, current email, phone number, or mailing address"` → **4**(오발) · `"Please dispute the charges at Starbucks, Amazon, and Netflix"` → **0**(누락). `multi_entity_hint`(:283) → `discovery_L1`(:343) → E-PLAN L1 deny | 미측정 — coverage 실패가 돌아올 수 있다 | 확정(대안 미정) |
+| **P6** | `T2_VALUE_ACQUIRE` 에 R1 조건(「선언된 write 가 **이미 성공**했으면 침묵」) | x778 부호표(6,103 sim · VA 사이트 1,008): 발화 유지 **1001/1008(99.3%)** · 침묵 7 · gold 손실 **1**(task_041 · 이미 0.0) · **통과 sim 손실 0**. 주석이 지키려던 표적 031·039·048·051·**053**·035·022·040 전부 생존 | 통과 sim **0** | 확정 |
+| **P1** | `:4109`·`:6176` 이 `failure_markers` 5개를 읽게 | 선언 실재 `["Error:","Failed to","NOT_VERIFIED","Unknown discoverable tool","Unknown agent tool"]`. 두 자리가 `"Error:"` 하나만 봐서 실패 호출을 **성공으로 계상** ⚠`_executed_tool_names`(:4088)는 **제대로 읽는다** — 감사 보고를 정정함 | 선언 순증 0 | 확정 |
+| **P2** | `t2_phase.py:75` `gather = {"verify_identity"}` 제거 | 엔진에 은행 도구명 리터럴. [[05]] 정면 위반 | +1 선언 | 확정 |
+| **P5** | 관측 불가 레버에 `beat()` (x779 검증 19행) | 정본 헬퍼 `t2_lever_beat.beat()` 사용. ⚠**적용 전 x44 로 재선별** — x779 자신이 *"센서스를 다시 뽑아라, 오분류 최소 15건"* 이라 적었고 그것이 옳았다 | 인쇄만 | 재선별 필요 |
+| **P7** | D14 cap 회계 (`:14308` 호출당 → turn당) | 폐기될 재생성 라운드가 공유 `_t2_wev_deny` 를 **호출당** 올린다(메인 `:12840` 은 turn당 1). 주석 축자 *"전부 denied 면 원본 유지(부작용 0)"* 는 cap 축에서 거짓 | 미측정 | 확정 |
+| **P3** | `_is_effective_write`(:6209) 동사접두 정규식 → `action_tools` 선언 | 선언 8항목 실재 · 세 곳이 이미 읽는다 | **중** — write 사정권이 바뀐다 | ⚠**격리 프로브 선행**([[78]]) |
+| **P4** | `_parse_record_dump`(:2045) 유지/제거 **판정** | 같은 파일 `:7-11` 이 *"엔진-formalize = 구현 속임이므로 제거"* 라 박제한 코드가 `$` strip·콤마 strip 까지 그대로 돌아와 **생산 호출부 2곳**(`:2214`·`:2308`). 커밋 `d816f029`. 다만 같은 자리 문면이 *"Do NOT hand-copy … transcribed values are a common source of wrong ids"* — **미해소 설계 충돌**이지 은닉이 아니다 | — | **설계 결정 대기** |
+| ~~P10~~ | ~~E-PLAN 을 「reward_basis=ACTION 이고 gold 가 이관인 태스크」에서 억제~~ | ⛔**철회.** `reward_basis`·gold 액션은 `evaluation_criteria` 이고 [[23]] 이 금지한 출처다. **진단 서술로는 쓸 수 있어도 레버 조건이 될 수 없다** | — | 철회 |
+
+### 9c. `task_003` — P12 의 실물 (per-step 확정)
+
+이력 `[1,0,1,1,0]` = **flip**. 오늘 0.0.
+
+```
+A2 선언        13개 인자 전부 "optional" (min_cashback: "leave this out")
+스키마 생성    "def f(%s)" % ", ".join("%s: str" % p)   ← 기본값 없음
+파이썬          기본값 없는 인자 = 필수  →  13/13 required
+[ARG-EMPTY]    "the **required** argument(s) … as an empty string … filled in"
+모델           선언은 "빼라" 반려는 "채워라"  →  'null' 을 지어냄
+[PROVENANCE]   "it looks invented"  →  두 번째 반려
+              → credit_card_applications 에 틀린 카드 (E=2 M=2 · 고유 각 1)
+```
+
+★**통과 판(`k8141med1` · ours)도 같은 도구를 불렀고 반려는 0건**이었다 — 그때는 모델이 인자를
+**채웠다**. ⇒ 이 모순은 **모델이 우리 선언대로 「빼라」를 따랐을 때만 문다.** 우리 지시를 따르면
+우리가 벌을 준다.
+⚠base(`x599_q38base`)는 그 도구를 **0회** 부르고 2/4. 우리 도구가 경로를 하나 더 만들고 그 경로에
+모순이 놓여 있다.
+
+### 9d. `task_004` — P11 의 실물 (per-step 확정 · **회귀**)
+
+`reward_basis=['ACTION']` · gold 액션 **하나**: `transfer_to_human_agents`.
+
+| 팔 | msg | 이관 | reward |
+|---|---|---|---|
+| base `x599_q38base` | 23 | [19] | **1.0** |
+| base `x599_rev1` | 27 | [23] | **1.0** |
+| base `x599_rev3` | 28 | [24] | **1.0** |
+| ours `k151med1` | 26 | 있음 | 1.0 |
+| **ours 오늘** | **46** | **0회** | **0.0** |
+
+오늘 궤적: `KB_search_bm25` 6 + `KB_search_dense` 4 = **검색 10회**, 이관 0.
+우리 반려 둘: `[E-PLAN]`(*"This request may span MULTIPLE records. Before any write, first call
+… to list the customer's records"*) · `[SIGNATURE]`(P9 버그). 통과 런에는 이 반려가 없었다
+(대신 `[POLICY GATE GB2_NOTICE_BEFORE_TRANSFER]` 를 받고 통과).
+
+★**「수량 3」의 출처**: 대본에 다건이 없다(고객은 **이메일 변경 하나**를 원한다). 에이전트가
+*"Two of these for verification: date of birth, current email, phone number, or mailing address"*
+라고 쓴 **한 문장**을 `_enum_items` 가 **4** 로 셌다.
+⇒ **base 3/3 ↔ ours 1/2.** 이 태스크에서 우리 층은 사는 것이 없고 잃을 것만 있다([[70]]).
+
+⚠ 오늘의 `eplan.write_tools` 3→36 확대가 원인인지 검사했다 — **아니다**. task_004 가 부른 도구
+10종 중 신규 36 에 든 것이 **0개**다.
+
+### 9e. 분모 정정 (2026-09-06)
+
+정본 `TASK_LEVER_MAP_AND_EXCLUSIONS` §2-A 를 갱신했다(`61ceb5d1`).
+
+| | 판정 |
+|---|---|
+| `task_053` | 제외 유지 — 두 뿔이 다 닫힘 · Q3.8 0/3 |
+| `task_102` | 제외 유지 — 참값 출처가 env 에 없음(upstream #432) · Q3.8 0/2 |
+| **`task_005`** | ⛔**철회.** 센티널은 지금도 7회 있으나 **정체가 다르다** — 고객이 대는 가짜 우회 코드이고 **gold 가 그 값을 그대로 로깅한다**(`log_verification(name="9K2X…", user_id="9K2X…")`). 도달 가능. **Q3.8 6/6 통과** · Q2.5-32B 1/62 ⇒ 모델 한계였다 |
+
+⇒ **실효 분모 95. 목표 65% = 62/95.**
+
+### 9f. 이 캠페인이 지금까지 답한 것
+
+```
+A군(마지막 sim = 0.0) 통과 9 중
+   과거에도 통과 이력 있음  8   ← flip 재통과
+   과거 전무 → 최초         1   ← task_059 (그 sim 의 레버 발화 0)
+「한 번도 통과 못한 20」에서 산 것 = 0
+```
+⇒ **「새 태스크를 사는」 길은 지금까지 실측 +0.** 목표까지 +13 은 **flip 32 를 안정시키는 쪽**에서
+와야 한다. 그리고 §9c·§9d 는 그 flip 의 일부가 **우리 결함의 조건부 발화**임을 보인다.
