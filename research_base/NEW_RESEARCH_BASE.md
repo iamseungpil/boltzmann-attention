@@ -194,3 +194,52 @@ skip 조건은 `_green` 에서만 참(`_eco`·`_gold`·`_crypto` 는 레코드 �
 | 포화 계기 | `num_requests_waiting_by_reason{capacity}` + **prefix hits/queries 델타** | `num_preemptions_total` 만 보면 틀린다 |
 | user-sim 비용 | OpenRouter **$0.0183 / sim** (agent 측 $0) | 하네스가 어디 있든 동일 |
 | `engine_sha` | **엔진 버전 계기가 아니다** — 문서 커밋에도 움직인다 | 조건 동일성 근거로 쓰지 마라 |
+
+---
+
+## 9. 레버 충돌 census (2026-09-08 · `x848` · GPU 0)
+
+**컨트롤 타워는 이미 있다.** `t2_precedence`(선행 그래프) · `t2_arbitrate`+`t2_dominance`
+(근거등급 E1~E5 · *"명령은 하나, 사실은 합집합"*) · `t2_authority`(침묵 자격) ·
+`t2_speak`(이름 부르는 쪽 검사). `t2_speak` 는 **task_022 에서 이 사고를 이미 진단**해 놓았다 —
+*"one of our messages spent three cycles pushing the tool the other one was blocking."*
+
+**그런데 발화 모듈 넷이 중재기를 0회 호출한다**: `t2_eplan_patch` · `t2_resolve` ·
+`t2_phase` · `t2_scaffold_get`. 부르는 것은 `t2_gate_patch` 뿐이고 그것도 4군데다.
+⇒ **어젯밤 확정한 결함 둘이 정확히 그 우회 모듈에서 나왔다**
+(004 = `t2_resolve.py:338` · 049 = `t2_eplan_patch.py:477/566`).
+
+### 9-1 실측 (사이드카 1,829 파일 · 태그 있는 지시 39,934건)
+
+| | 값 |
+|---|---:|
+| 분석한 sim | 1,795 |
+| **내부모순이 있는 sim** | **576 = 32.1%** |
+| 고유 충돌 태그쌍 | **55** |
+
+**충돌에 가장 많이 끼는 레버** — 배선 우선순위 그대로:
+`UNLOCKED-NOT-CALLED` 250 · `DISCOVERY-STEP2` 169 · `FOLLOW-UP` 151 · `PROCEDURE` 148 ·
+`E-PLAN` 125 · `PROTOCOL` 82 · `TOOL-CHANNEL` 81 · `ORDER` 70 · `ACTION-REQUIRED` 61.
+⚠`BLOCKED`(480)와 `ISOLATED-FORMALIZATION`(360)은 **연쇄 메시지·격리 채널**이라 항상 동반 계상된다
+— 레버로 세지 마라.
+
+**가장 다투는 표적**: `unlock_discoverable_agent_tool` 225 · **`transfer_to_human_agents` 192** ·
+`give_discoverable_user_tool` 69 · `change_user_email` 54.
+⇒ **이관 결정이 스택 전체에서 가장 다투는 한 점**이다(PROTOCOL·KB DELIVERY·FOLLOW-UP·PROCEDURE·
+E-PLAN 이 서로 반대를 지시). 049 가 놓친 세 번째 gold 도 이관이었다.
+
+### 9-2 이 도구를 믿어도 되는 근거
+자기검정: **049 의 `PROCEDURE ↔ E-PLAN` 을 알려주지 않고 찾아냈다**(51 sim · 최다 표적
+`apply_credit_card_account_flag_6147` = `retention_offer` 노드의 도구). 004 의 기전도 독립적으로
+나왔다(`ACTION-REQUIRED ↔ ORDER` 44 sim · 표적 `change_user_email`).
+첫 판(`x845`)은 **실패했고** 그 실패가 발견이었다 — 도구명만 맞추면 못 본다.
+**두 레버가 같은 것을 다른 이름으로 부르기 때문**(PROCEDURE 는 도구 id, E-PLAN 은 역할 이름
+*"the retention offer"*). 별칭 사전의 출처는 A2 `procedures[].nodes[] = {id, tool|tool_any}` —
+선언이지 우리가 지은 목록이 아니다.
+
+### 9-3 그래서 orchestrator LLM 은?
+- **런타임 = 안 된다.** [[10]] 이 선택기·검증기를 결정론으로 못박는다. 런타임 LLM 중재자는
+  자기도 중재 안 되는 186번째 레버가 되고, 단일변수 A/B 가 불가능해 §3 판정을 통과할 수 없다.
+- **오프라인 저작 = 맞다.** 레버마다 (트리거 · 명령 극성 · 표적 · 근거등급 · LB칸)을 채우고
+  충돌쌍을 뽑아 **정적 표 하나**를 낳는다. 런타임에는 기존 결정론 타워가 그 표를 읽을 뿐이다.
+  `x848` 이 그 첫 산출이다.
