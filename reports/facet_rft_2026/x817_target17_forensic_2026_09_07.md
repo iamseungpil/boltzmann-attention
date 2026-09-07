@@ -645,3 +645,66 @@ _handed = _tool_given(state.messages, _gtool, _utgt)                            
 계기      [T2_ACTIONREQ] handover: …                                                  ← [[81]]
 ```
 `test_f8_handover_form.py` **7/7 PASS**(도메인 리터럴 0 검정 · 구판 폴백 검정 포함).
+
+---
+
+## §15 — 야간(2026-09-07 밤 ~ 09-08 새벽) 확정분
+
+### 15-1 클라우드 파동 전량 오염 · 아키텍처 전환
+
+클라우드 하네스 시기(09-07 05:33~14:43)의 **shell 호출 101건 중 101건**이 동일한 211자
+(`sandbox-runtime (srt) binary disappeared…`)를 돌려줬다. `TAU2_SANDBOX_FALLBACK` 은
+끝내 발효된 적이 없다. 발각은 계기가 아니라 사용자의 육감이었다([[87]]).
+
+오염 단위는 run 이 아니라 **sim** 이다 — shell 을 한 번도 안 부른 sim 은 무오염.
+완주 99 sim = 무오염 25 · 오염 74. 무오염 pass 16/25(64.0%) ↔ 오염 40/74(54.1%) 로
+결함이 두 집단을 갈라 주지도 않으므로 **어느 쪽 수치도 근거로 쓰지 않는다.**
+매니페스트 = `x818_cloud_srt_contamination_manifest.json`(sim 별 calls/failed/contaminated).
+
+⇒ 하네스를 사내(.153)로 옮기고 클라우드는 vLLM 만 남겼다(역터널). 그 뒤 shell 실패 0.
+⚠**「rep1 타깃 6/6 회복」 중간 판독은 이 오염분 위에 서 있었다 — 잠정으로 내린다.**
+
+### 15-2 base nt=4 통합(무오염분) — 09-08 05:35
+
+완결 nt=4 **50 태스크 / 200 sim** · 4/4(A셀) **21** · 0/4 **8** · flip 21 ·
+sim 단위 pass 134/200 = 67.0%. ⛔이 표본은 001~058 앞머리라 **모집단 값이 아니다.**
+분모는 [[68]] 대로 96(102 제외).
+
+### 15-3 task_048 — CONFIRMED 우리-층 결함 (base 3/4 → 1차 0/4)
+
+**① 주장**: A2 `prescription_redirect[0]` 이 «카드 해지 + 유지제안» 대화를 «분쟁 청구»로
+분류해 `apply_statement_credit` 을 12회 반려했고, 연쇄 `[BLOCKED]` 와 `[PROCEDURE]`
+(closure 전에 disputes 해소 요구)로 4 sim 전부 `db_match=False`(reward_basis=['DB']).
+
+**② 축자 + 위치**: `t2_gate_patch.py:11714-11715`
+```python
+_conv = " ".join(str(getattr(m2, "content", "") or "") for m2 in state.messages
+                 if getattr(m2, "role", None) in ("user", "tool")).lower()
+```
+신호 스캔 범위에 **`"tool"` 이 들어 있다** = 손님 발화가 아니라 **우리가 검색해 온 KB 문서**에서
+의도 신호를 찾는다. 선언은 `a2/banking_knowledge.gate.json:4731` +
+`a2/banking_knowledge.specific.json:4487`([[24]] 양 층).
+
+**③ 반증 조건**: 손님이 실제로 분쟁·미승인 결제를 말했다면 분류가 옳다.
+**실측 = 아니다.** 손님 발화 11턴 전부 해지·유지제안·신규신청이고 신호어 **0회**.
+신호 17회는 **전부 `role=tool`**, 걸린 문장은
+*"## Reasons for Closing a Debit Card — Lost card · Stolen card · Suspected
+fraud/unauthorized transactions …"* — **해지 태스크면 반드시 읽게 되는 해지 정책 문서**다.
+따라서 이 오탐은 우연이 아니라 **해지 계열에서 구조적으로 재현**된다.
+
+**④ 선행확인 경로**: `grep -rn "disputed or unauthorized charge" a2/*.json t2_*.py` ·
+`grep -rn "prescription_redirect" *.py`.
+
+**후보 수리**: 스캔 범위를 `("user",)` 로 좁힌다 — 닫힌 술어·도메인 일반·태스크 리터럴 0([[05]][[58]]).
+⛔**아직 구현하지 않는다**: `repo_rep1`(rep1 33건)과 `repo_rep2`(스모크)가 도는 중이라
+건드리면 조건이 바뀐다([[54]][[86]]). 선행 의무 = [[70]] 부호표 — 이 레버가 원래 잡던
+038 계열(신호가 **손님 발화**에 있던 사례)이 `("user",)` 로도 보존되는지 회수분에서 먼저 센다.
+
+### 15-4 A3 doc_index 는 검색에 연결된 적이 없다
+
+11군·71계열이 전부 **상품 계열 축**이다. `Internal:` 절차 문서 47건 중 **36건(77%)** 이
+계열 `_general_` 뿐인 군에 떨어진다 = 엔진 스스로 *"고를 것이 없는 축"* 이라 부르는 자리
+(`t2_gate_patch.py:4719`). `doc_index` 를 질의로 바꾸는 코드는 `x318_query_formation_iso.py`
+**하나뿐이고 그것은 격리 프로브**다 — 엔진 미import · 정본 런처 미등재([[81]]).
+격리 검정 = `x829`(팔 4개 · 표적은 env `TransferReasonLiteral` 19코드를 2개 이상 담은
+문서 = 698 중 정확히 1건 · gold 불참조).
