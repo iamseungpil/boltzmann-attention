@@ -1,0 +1,1219 @@
+{
+ "_source": "vast.ai cloud harness, 2026-09-07 05:33~14:43 KST (harness lived on the cloud box)",
+ "_defect": "shell tool failed outright: 101 of 101 shell calls returned the srt-missing error. TAU2_SANDBOX_FALLBACK never took effect.",
+ "_unit": "Contamination is per sim, not per run - a sim that never called shell is clean.",
+ "runs": {
+  "bank_x806_base_nt4_task_022": {
+   "sims": 0,
+   "note": "aborted at switchover - no completed sim"
+  },
+  "bank_x806_base_nt4_task_053": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_053",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_053",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 3,
+     "shell_failed": 3,
+     "contaminated": true
+    },
+    {
+     "task": "task_053",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_053",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 3
+  },
+  "bank_x806_base_nt4_task_059": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_059",
+     "trial": 2,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_059",
+     "trial": 3,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_059",
+     "trial": 0,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_059",
+     "trial": 1,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 0
+  },
+  "bank_x806_base_nt4_task_060": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_060",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_060",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_060",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_060",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "bank_x806_base_nt4_task_061": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_061",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_061",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_061",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 3,
+     "shell_failed": 3,
+     "contaminated": true
+    },
+    {
+     "task": "task_061",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "bank_x806_base_nt4_task_062": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_062",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_062",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_062",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_062",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 3
+  },
+  "bank_x806_base_nt4_task_063": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_063",
+     "trial": 0,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_063",
+     "trial": 1,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_063",
+     "trial": 3,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_063",
+     "trial": 2,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 0
+  },
+  "bank_x806_base_nt4_task_064": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_064",
+     "trial": 0,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_064",
+     "trial": 1,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_064",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_064",
+     "trial": 3,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 1
+  },
+  "bank_x806_base_nt4_task_065": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_065",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_065",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_065",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 3,
+     "shell_failed": 3,
+     "contaminated": true
+    },
+    {
+     "task": "task_065",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "bank_x806_base_nt4_task_066": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_066",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_066",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_066",
+     "trial": 1,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_066",
+     "trial": 2,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 2
+  },
+  "bank_x806_base_nt4_task_067": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_067",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_067",
+     "trial": 1,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_067",
+     "trial": 2,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_067",
+     "trial": 0,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 1
+  },
+  "bank_x806_base_nt4_task_068": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_068",
+     "trial": 0,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_068",
+     "trial": 3,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_068",
+     "trial": 2,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_068",
+     "trial": 1,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 0
+  },
+  "bank_x806_base_nt4_task_069": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_069",
+     "trial": 1,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_069",
+     "trial": 2,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_069",
+     "trial": 3,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_069",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 0
+  },
+  "bank_x806_base_nt4_task_070": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_070",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_070",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_070",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_070",
+     "trial": 3,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 3
+  },
+  "bank_x806_base_nt4_task_071": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_071",
+     "trial": 3,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_071",
+     "trial": 0,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_071",
+     "trial": 1,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_071",
+     "trial": 2,
+     "reward": null,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 0
+  },
+  "bank_x806_base_nt4_task_072": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_072",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_072",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_072",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_072",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 0
+  },
+  "bank_x806_base_nt4_task_073": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_073",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_073",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_073",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_073",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 2
+  },
+  "bank_x806_base_nt4_task_074": {
+   "sims": 0,
+   "note": "aborted at switchover - no completed sim"
+  },
+  "bank_x806_base_nt4_task_076": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_076",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_076",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_076",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_076",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "bank_x806_base_nt4_task_079": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_079",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_079",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_079",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_079",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 0
+  },
+  "bank_x806_base_nt4_task_089": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_089",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_089",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_089",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_089",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 1
+  },
+  "bank_x806_base_nt4_task_098": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_098",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_098",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_098",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 3,
+     "shell_failed": 3,
+     "contaminated": true
+    },
+    {
+     "task": "task_098",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "bank_x806_base_nt4_task_100": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_100",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_100",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_100",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_100",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "f1chk_024": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_024",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_024",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_024",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_024",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "rep1_task_003": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_003",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_003",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_003",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_003",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "rep1_task_004": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_004",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_004",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_004",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_004",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 2
+  },
+  "rep1_task_007": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_007",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_007",
+     "trial": 1,
+     "reward": 0.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_007",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_007",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "rep1_task_015": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_015",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_015",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_015",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_015",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "rep1_task_023": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_023",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_023",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_023",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_023",
+     "trial": 2,
+     "reward": 0.0,
+     "shell_calls": 5,
+     "shell_failed": 5,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 2
+  },
+  "rep1_task_024": {
+   "sims": 4,
+   "detail": [
+    {
+     "task": "task_024",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_024",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_024",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_024",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    }
+   ],
+   "contaminated_sims": 4
+  },
+  "rep1_task_047": {
+   "sims": 0,
+   "note": "aborted at switchover - no completed sim"
+  },
+  "rep1_task_050": {
+   "sims": 0,
+   "note": "aborted at switchover - no completed sim"
+  },
+  "x812_g3": {
+   "sims": 3,
+   "detail": [
+    {
+     "task": "task_002",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_001",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_005",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 2
+  },
+  "x812_g4": {
+   "sims": 12,
+   "detail": [
+    {
+     "task": "task_002",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_001",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_001",
+     "trial": 0,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_005",
+     "trial": 0,
+     "reward": 0.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_002",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_001",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 2,
+     "shell_failed": 2,
+     "contaminated": true
+    },
+    {
+     "task": "task_002",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_005",
+     "trial": 1,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_002",
+     "trial": 3,
+     "reward": 0.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_001",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 1,
+     "shell_failed": 1,
+     "contaminated": true
+    },
+    {
+     "task": "task_005",
+     "trial": 2,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    },
+    {
+     "task": "task_005",
+     "trial": 3,
+     "reward": 1.0,
+     "shell_calls": 0,
+     "shell_failed": 0,
+     "contaminated": false
+    }
+   ],
+   "contaminated_sims": 8
+  }
+ }
+}
