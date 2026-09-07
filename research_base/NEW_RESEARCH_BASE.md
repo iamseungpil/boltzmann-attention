@@ -243,3 +243,48 @@ E-PLAN 이 서로 반대를 지시). 049 가 놓친 세 번째 gold 도 이관�
 - **오프라인 저작 = 맞다.** 레버마다 (트리거 · 명령 극성 · 표적 · 근거등급 · LB칸)을 채우고
   충돌쌍을 뽑아 **정적 표 하나**를 낳는다. 런타임에는 기존 결정론 타워가 그 표를 읽을 뿐이다.
   `x848` 이 그 첫 산출이다.
+
+---
+
+## 10. 한 점 해부 — `transfer_to_human_agents` (`x850` · 2026-09-08)
+
+⚠**§9 정정**: 「이관이 가장 다투는 자리」는 과장이었다. 그 192 는 표면 부정어로 극성을 판정한
+탓에 부풀었다 — `[PROTOCOL] You are about to **use** X, but nothing you retrieved defines it` 은
+막는 말인데 REQUIRE 로, `[FOLLOW-UP] ... was **never** called` 은 미는 말인데 FORBID 로 읽혔다.
+부정어는 *상태 서술*이지 명령이 아니다. 극성은 사이드카 `kind` 에서 온다(구조적 기록).
+
+**다시 재면 이렇다**: `kind` 분포 = `reminder-user` **1,673** · `tool-deny` **14** · `route` 6.
+⇒ 이관은 **가장 다투는** 자리가 아니라 **가장 붐비는** 자리다. 열 레버가 같은 결정에 말을 쌓는데
+실제로 막는 일은 거의 없다(주입 : 거부 = 120 : 1).
+
+| 태그 | 효과(sim) | 무엇을 원하나 | 조건 | 출처 | 등급 | LB |
+|---|---|---|---|---|:--:|:--:|
+| `SEARCH-EXHAUST` | PUSH **478** | 중복검색 그만 — 다른 말로 찾거나 이관 | 같은 검색 N회 중복 | `t2_gate_patch.py:14958` | **E1** | LB5 |
+| `CLAIM-PROVENANCE` | PUSH **304** | 이 도구는 **네 것**이지 손님 것이 아니다 | 도구 소유 대조 | `a2 gate.json:4859` | E2 | LB3 |
+| `PROTOCOL` | PUSH **279** | 정의 문서를 아직 회수 안 했다 | 정의 문서 미회수 | `a2 gate.json:5002` | E3 | LB1 |
+| `KB DELIVERY` | PUSH **105** | 관련 문서 전문 배달 | 표적 도구 언급 문서 존재 | `t2_gate_patch.py:4469` | E2 | LB6 |
+| `PROCEDURE` | PUSH **104** · BLOCK 1 · REDIRECT 1 | 절차의 다음 단계를 먼저 | `procedures[].nodes` 미충족 | A2 `procedures` | E2 | LB1 |
+| `FOLLOW-UP` | PUSH **71** | 이관한다 해놓고 실제로 안 했다 | 실행 원장 대조 | `a2 gate.json:704` | **E1** | LB4 |
+| `ISOLATED-FORMALIZATION` | PUSH 21 | 격리 산출 검토 | 서브 호출 결과 | 엔진 | E5 | LB2 |
+| `OPERATOR-PROVENANCE` | BLOCK 4 · REDIRECT 4 | 검색으로 발견 안 된 이름 금지 | 발견 원장 부재 | `t2_resolve.py:215` | E3 | LB3 |
+| `VERDICT` | PUSH 2 | 손님 요구와 충돌 | 값 대조 | `t2_gate_patch.py:190` | E5 | LB2 |
+| `BLOCKED` | 6 | (연쇄 메시지 — **레버 아님**) | 같은 턴의 다른 호출이 막힘 | 엔진 | — | — |
+
+### 10-1 이 표가 말하는 것
+
+1. **열 중 아홉이 PUSH 다.** 이관을 실제로 막는 것은 `OPERATOR-PROVENANCE`(4)와 `PROCEDURE`(1)뿐이다.
+   나머지는 전부 **문면 주입** — 모델의 컨텍스트를 먹으면서 강제력은 없다.
+2. **등급이 이미 승자를 정한다.** `t2_arbitrate.GRADES` 대로면 실행 원장을 읽는
+   `SEARCH-EXHAUST`·`FOLLOW-UP`(E1)이 이기고, `PROTOCOL`(E3)·`ISOLATED-FORMALIZATION`(E5)은
+   스스로 말하는 대신 **치환**돼야 한다. 그런데 **열 중 어느 것도 `merge` 를 거치지 않는다** —
+   `t2_gate_patch` 의 중재 호출은 4군데(10798·10850·11238·11278)뿐이고 이 문면들은 그 밖이다.
+3. **`merge` 계약이 정확히 이 자리를 위해 쓰여 있다** — *"명령은 하나, 사실은 합집합."*
+   열 개를 배선하면 주입 1,673 이 **sim 당 한 문장**으로 접힌다.
+4. **LB 배정이 자동으로 따라온다**: LB1(PROTOCOL·PROCEDURE) · LB3(CLAIM-PROVENANCE·
+   OPERATOR-PROVENANCE) · LB4(FOLLOW-UP) · LB5(SEARCH-EXHAUST) · LB6(KB DELIVERY) ·
+   LB2(ISOLATED-FORMALIZATION·VERDICT). **한 칸 안에서 하나만 말한다**가 곧 배선 규칙이다.
+
+### 10-2 다음 (⛔도는 런 때문에 구현은 보류)
+`transfer_to_human_agents` 를 **첫 배선 표적**으로 삼는다 — 열 레버가 걸려 있고, 004 가 실패한
+자리이자 049 가 놓친 세 번째 gold 다. 배선 = 이 아홉을 `requirements_for`/`merged_text` 에 태우고
+한 문장으로 내보내는 것. 새 레버 0 · 새 판단 0.
