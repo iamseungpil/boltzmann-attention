@@ -708,3 +708,46 @@ fraud/unauthorized transactions …"* — **해지 태스크면 반드시 읽게
 **하나뿐이고 그것은 격리 프로브**다 — 엔진 미import · 정본 런처 미등재([[81]]).
 격리 검정 = `x829`(팔 4개 · 표적은 env `TransferReasonLiteral` 19코드를 2개 이상 담은
 문서 = 698 중 정확히 1건 · gold 불참조).
+
+### 15-5 task_049 — CONFIRMED 우리-층 결함 (base 3/4 → 1차 0/4) · 048 과 **다른** 레버
+
+⚠먼저 정정: 048 의 원인(`prescription_redirect` 오탐)이 계열 전체를 무너뜨린다고 적으려 했으나
+**049 에서는 PRESCRIPTION 이 4회뿐**이다(048 은 24회). 049 의 주도 레버는 **E-PLAN(48) · PROCEDURE(23)**.
+공통된 것은 «dispute 신호가 전부 `role=tool` 에서만 나온다»(048 74건 · 049 93건 · user 0건)는 사실뿐이다.
+
+**① 주장**: 우리 레버 둘이 **모든 sim 에서 정반대를 지시**했다.
+  - `[PROCEDURE]` (계정별로 계산된 6단 체크리스트): *"NEXT: retention_offer -> apply_statement_credit_8472"*
+    발화 s1567 3 · s361454 6 · s373753 3 · s626729 7
+  - `[E-PLAN]` (A2 `eplan/intent_chains[0].phrase` 의 **고정 산문**):
+    *"if it already contains a record, SKIP both the closure-reason logging and the retention offer"*
+    발화 4 · 8 · 4 · 4
+  모델은 skip 쪽을 택했고 `apply_statement_credit_8472` 를 **한 번도 부르지 않았다**.
+  base 는 그것을 **1회 부르고 통과**(3/4). 우리는 0/4.
+
+**② 축자 + 위치**: 선언 = `a2/banking_knowledge.gate.json:161` + `settings.json:150`
+  (`/eplan/intent_chains[0]`). 이 조건은 **엔진이 계산하지 않는다** — `phrase` 라는 고정 문자열로
+  모델에게 넘어가고, 판정은 모델의 계정별 기억에 맡겨진다. 반면 PROCEDURE 체크리스트는
+  계정별로 계산된다. **한쪽은 계산, 한쪽은 보일러플레이트 — 그래서 어긋난다.**
+
+**③ 반증 조건**: crypto 계정의 closure-reason history 에 레코드가 있었다면 skip 이 옳다.
+  **실측 = 없다.** 같은 sim 의 반환값:
+  `_green` **Found 1 record** · `_eco` **No closure reason record** · `_gold` 없음 · `_crypto` 없음.
+  미달 gold 는 `_crypto` 의 `log_credit_card_closure_reason_4521` 과 `apply_statement_credit_8472`
+  (+ `transfer_to_human_agents`, 이쪽은 `GB2_NOTICE_BEFORE_TRANSFER` 가 4회 차단).
+  ⇒ skip 조건은 **green 에서만 참**인데 대화 전체에 적용됐다.
+
+**④ 선행확인 경로**: `grep -rn "SKIP both the closure-reason logging" a2/*.json *.py` ·
+  `grep -rn "closure_reason_history" t2_eplan_patch.py t2_gate_patch.py` (엔진 계산 **없음**).
+
+**경위 (선언이 스스로 적어 둔 것)**: `_note_conditional_2026_09_01` —
+*"종전 문구는 로깅을 무조건 지시했고 … 모델이 green 에 simplifying_finances 를 폐쇄 뒤에 또 찍었다"*.
+09-01 에 **green 의 중복 로깅**을 막으려 문구를 조건부로 바꾼 것이, 카드 4장 대화에서
+**나머지 세 장의 retention offer 와 closure 로깅을 죽였다.** [[70]] 이 요구하는 «무엇을 팔았나»가
+그때 계상되지 않았다.
+
+**후보 수리(둘 중 하나, 부호표 후)**:
+  (a) skip 조건을 **엔진이 계정별로 계산**해 PROCEDURE 체크리스트와 같은 층에서 판정한다
+      (닫힌 술어: 해당 계정의 closure-reason history 반환에 레코드가 있는가) — [[10]] 정합.
+  (b) PROCEDURE 가 그 계정에 대해 `retention_offer` 를 NEXT 로 지목하는 동안에는 E-PLAN 의
+      skip 문구를 **발화하지 않는다**.
+⛔구현 보류 — `repo_rep1`·`repo_rep2` 가 도는 중이다([[54]][[86]]).
