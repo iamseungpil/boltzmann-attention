@@ -1,0 +1,1211 @@
+{
+ "domain": "banking_knowledge",
+ "dispatch": {
+  "agent_call": "call_discoverable_agent_tool",
+  "user_call": "call_discoverable_user_tool",
+  "unlock_tool": "unlock_discoverable_agent_tool",
+  "give_tool": "give_discoverable_user_tool",
+  "name_args": {
+   "unlock_discoverable_agent_tool": "agent_tool_name",
+   "call_discoverable_agent_tool": "agent_tool_name",
+   "give_discoverable_user_tool": "discoverable_tool_name",
+   "call_discoverable_user_tool": "discoverable_tool_name"
+  },
+  "payload_key": "arguments"
+ },
+ "failure_markers": [
+  "Error:",
+  "Failed to",
+  "NOT_VERIFIED",
+  "Unknown discoverable tool",
+  "Unknown agent tool"
+ ],
+ "LB1": {
+  "prerequisites": [
+   {
+    "dep": "log_verification",
+    "reads": [
+     "verify_identity",
+     "get_current_time"
+    ],
+    "source": "satisfier_requires"
+   },
+   {
+    "dep": "apply_for_credit_card",
+    "reads": [
+     "check_card_application_fit"
+    ],
+    "source": "require_tool_before"
+   },
+   {
+    "dep": "open_bank_account",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "source": "require_tool_before"
+   },
+   {
+    "dep": "submit_referral",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "source": "require_tool_before"
+   },
+   {
+    "dep": "pay_credit_card_from_checking",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "source": "require_tool_before"
+   },
+   {
+    "dep": "get_interest_correction",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "source": "requires_reads"
+   },
+   {
+    "dep": "check_cli_eligibility",
+    "reads": [
+     "get_credit_card_accounts_by_user",
+     "get_credit_limit_increase_history",
+     "get_payment_history"
+    ],
+    "source": "requires_reads"
+   },
+   {
+    "dep": "apply_checking_account_credit",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "source": "requires_reads"
+   },
+   {
+    "dep": "apply_savings_account_credit",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "source": "requires_reads"
+   },
+   {
+    "dep": "submit_interest_discrepancy_report",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "source": "requires_reads"
+   },
+   {
+    "dep": "file_debit_card_transaction_dispute",
+    "reads": [
+     "get_bank_account_transactions"
+    ],
+    "source": "requires_reads"
+   },
+   {
+    "dep": "get_atm_fee_discrepancies",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "source": "requires_reads"
+   },
+   {
+    "dep": "get_correct_savings_apy",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "source": "requires_reads"
+   },
+   {
+    "dep": "file_credit_card_transaction_dispute",
+    "reads": [
+     "get_credit_card_transactions_by_user",
+     "get_user_dispute_history"
+    ],
+    "source": "requires_reads"
+   }
+  ],
+  "gates": [
+   {
+    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS",
+    "predicate": "customer identity verified and logged (log_verification) in this conversation",
+    "satisfiers": [
+     "log_verification"
+    ],
+    "applies_to": [
+     "change_user_email",
+     "get_referrals_by_user",
+     "get_credit_card_transactions_by_user",
+     "get_credit_card_accounts_by_user",
+     "submit_referral",
+     "call_discoverable_agent_tool"
+    ],
+    "exempt": [
+     "initial_transfer_to_human_agent_0218",
+     "initial_transfer_to_human_agent_1822",
+     "emergency_credit_bureau_incident_transfer_1114"
+    ]
+   },
+   {
+    "id": "GB3_ELIGIBILITY_BEFORE_REFERRAL_ADVICE",
+    "predicate": "the customer's eligibility to submit referrals has been checked against their referral record",
+    "satisfiers": [
+     "get_referrals_by_user"
+    ],
+    "applies_to": [
+     "submit_referral"
+    ],
+    "exempt": []
+   }
+  ],
+  "procedures": [
+   {
+    "id": "credit_limit_increase",
+    "_source": [
+     "doc_credit_cards_credit_card_account_logistics_007 (Processing CLI Approvals and Denials)",
+     "doc_credit_cards_credit_card_account_logistics_006 (CLI Payment History and Approval Criteria)",
+     "doc_credit_cards_credit_card_account_logistics_005 (CLI Eligibility Requirements by Card Tier)"
+    ],
+    "_quote_order": "These steps MUST be followed in the exact order listed.",
+    "enforce": true,
+    "enter_when": {
+     "tool_any": [
+      "submit_credit_limit_increase_request_7392",
+      "approve_credit_limit_increase_5847",
+      "deny_credit_limit_increase_5848",
+      "check_cli_eligibility"
+     ],
+     "_note": "활성화는 **의도를 담은 도구**만 — 스모크 f에서 task_019(캐시백 분쟁)가 get_credit_limit_increase_history를 곁가지로 부르자 절차가 켜지고 write(요청 제출)를 고정할 뻔했다. 공용/조회 도구는 절차를 켜지 않는다."
+    },
+    "operands": {
+     "card_tier": {
+      "values": [
+       "entry",
+       "mid",
+       "premium"
+      ],
+      "_note": "정책이 카드명→등급 매핑을 주지 않는다. 모델이 형식화해 넘기는 상수이고 엔진은 표 조회만 한다([[52]]). 추측 매핑을 여기 넣지 말 것([[23]])."
+     }
+    },
+    "nodes": [
+     {
+      "id": "amount_within_tier_cap"
+     },
+     {
+      "id": "submit_request",
+      "tool": "submit_credit_limit_increase_request_7392",
+      "requires": [
+       "amount_within_tier_cap"
+      ]
+     },
+     {
+      "id": "cooldown",
+      "tool": "get_credit_limit_increase_history_4829",
+      "requires": [
+       "submit_request"
+      ]
+     },
+     {
+      "id": "disputes",
+      "tool": "get_user_dispute_history_7291",
+      "requires": [
+       "submit_request"
+      ]
+     },
+     {
+      "id": "pending_replacement",
+      "tool": "get_pending_replacement_orders_5765",
+      "requires": [
+       "submit_request"
+      ]
+     },
+     {
+      "id": "payment_history",
+      "tool": "get_payment_history_6183",
+      "requires": [
+       "submit_request"
+      ]
+     },
+     {
+      "id": "decision",
+      "tool_any": [
+       "approve_credit_limit_increase_5847",
+       "deny_credit_limit_increase_5848"
+      ],
+      "requires": [
+       "cooldown",
+       "disputes",
+       "pending_replacement",
+       "payment_history"
+      ]
+     }
+    ],
+    "tables": {
+     "max_increase_pct_by_tier": {
+      "entry": 25,
+      "mid": 50,
+      "premium": 50
+     },
+     "payment_months_by_tier": {
+      "entry": 6,
+      "mid": 3,
+      "premium": 3
+     },
+     "min_account_age_days_by_tier": {
+      "entry": 120,
+      "mid": 90,
+      "premium": 60
+     },
+     "cooldown_days_by_tier": {
+      "entry": 120,
+      "mid": 90,
+      "premium": 60
+     },
+     "max_utilization_pct_by_tier": {
+      "entry": 70,
+      "mid": 80,
+      "premium": 90
+     }
+    },
+    "feedback": {
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. ",
+     "_note_absent": "D1′(2026-08-05·ABSENCE_DRIVEN_PROCEDURE_DESIGN §2). 출처 = 이 절차의 `_quote_order` 재진술 + 관측 사실(어떤 단계가 실행됐나·그 단계의 도구·그 이름이 unlock됐나). 새 사실 0 ⇒ gold 경유가 구조적으로 불가([[23]]). unlock 문구의 근거 = 048 실측(지목된 도구를 8회 호출·매번 'has not been unlocked' 에러·모델에게 없던 정보는 단계 이름이 아니라 잠금 상태였다).",
+     "cap_exceeded": "[PROCEDURE] The requested amount is above the single-request cap for this card tier ({cap}%). Tell the customer the cap and ask whether to proceed with that amount - do not submit a request above it.",
+     "arg_from_table": "[PROCEDURE] '{arg}' of '{tool}' is fixed by the card tier: {value}.",
+     "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}. Determine this card's tier and use that value - do not use an arbitrary period."
+    },
+    "prohibits": {}
+   },
+   {
+    "id": "cash_back_dispute",
+    "_source": [
+     "doc_credit_cards_credit_cards_(general)_003 (Submitting a Cash Back Dispute)"
+    ],
+    "enter_when": {
+     "tool_any": [
+      "submit_cash_back_dispute_0589",
+      "get_reward_discrepancies"
+     ],
+     "_note": "이 흐름에만 있는 도구로 활성화한다."
+    },
+    "nodes": [],
+    "prohibits": {
+     "get_card_last_4_digits": {
+      "quote": "Do not collect sensitive card details; the tool uses the identifiers provided by the user."
+     }
+    },
+    "feedback": {
+     "prohibited": "[PROCEDURE] The policy forbids '{tool}' in this procedure - verbatim: \"{quote}\" Submit the dispute with only the customer's user_id and transaction_id."
+    }
+   },
+   {
+    "id": "credit_card_closure_retention",
+    "_source": [
+     "doc_credit_cards_credit_card_account_logistics_003 (Credit Card Retention Protocol)",
+     "doc_credit_cards_credit_card_account_logistics_002 (Processing Credit Card Account Closures)",
+     "doc_credit_cards_credit_card_account_logistics_001 (How can I close a credit card account?)"
+    ],
+    "_quote_order": "Check these in order: 1. Pending disputes … 2. No pending replacement cards … 3. Minimum account age … 4. Outstanding balance.",
+    "enforce": true,
+    "enter_when": {
+     "tool_any": [
+      "close_credit_card_account_7834",
+      "log_credit_card_closure_reason_4521",
+      "get_closure_reason_history_8293",
+      "check_card_closure_eligibility"
+     ],
+     "_note": "이 절차에만 있는 도구로 진입한다. 공용 read(분쟁 이력·교체 주문)는 진입시키지 않는다 — x80이 잰 28건 과차단의 원인이 그것이었다.",
+     "signals": [
+      "close my",
+      "cancel my card",
+      "close the account",
+      "close my credit card",
+      "close my platinum",
+      "close my account",
+      "cancel my credit card"
+     ],
+     "_note_signals": "2026-09-08 구 eplan.intent_chains[0].signals 이전 - 손님 발화(role=user 만)로도 절차가 열린다. 도구 출력의 정책 문장은 손님 말이 아니다(048)."
+    },
+    "nodes": [
+     {
+      "id": "disputes",
+      "tool": "get_user_dispute_history_7291"
+     },
+     {
+      "id": "pending_replacement",
+      "tool": "get_pending_replacement_orders_5765",
+      "requires": [
+       "disputes"
+      ]
+     },
+     {
+      "id": "prior_attempts",
+      "tool": "get_closure_reason_history_8293",
+      "requires": [
+       "disputes",
+       "pending_replacement"
+      ]
+     },
+     {
+      "id": "log_reason",
+      "tool": "log_credit_card_closure_reason_4521",
+      "requires": [
+       "prior_attempts"
+      ]
+     },
+     {
+      "id": "retention_offer",
+      "tool_any": [
+       "apply_statement_credit_8472",
+       "apply_credit_card_account_flag_6147",
+       "apply_for_credit_card"
+      ],
+      "requires": [
+       "log_reason"
+      ]
+     },
+     {
+      "id": "close",
+      "tool": "close_credit_card_account_7834",
+      "requires": [
+       "prior_attempts"
+      ]
+     }
+    ],
+    "tables": {
+     "retention_statement_credit_by_tier": {
+      "entry": 5,
+      "mid": 20,
+      "premium": 50
+     },
+     "retention_bonus_points_by_tier": {
+      "entry": 500,
+      "mid": 2000,
+      "premium": 5000
+     },
+     "min_account_age_days": {
+      "all": 60
+     }
+    },
+    "feedback": {
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. ",
+     "_note_absent": "D1′(2026-08-05·ABSENCE_DRIVEN_PROCEDURE_DESIGN §2). 출처 = 이 절차의 `_quote_order` 재진술 + 관측 사실(어떤 단계가 실행됐나·그 단계의 도구·그 이름이 unlock됐나). 새 사실 0 ⇒ gold 경유가 구조적으로 불가([[23]]). unlock 문구의 근거 = 048 실측(지목된 도구를 8회 호출·매번 'has not been unlocked' 에러·모델에게 없던 정보는 단계 이름이 아니라 잠금 상태였다).",
+     "prohibited": "[PROCEDURE] The policy forbids '{tool}' in this procedure - verbatim: \"{quote}\"",
+     "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}."
+    },
+    "prohibits": {}
+   },
+   {
+    "id": "incident_transfer_order",
+    "_source": [
+     "doc_credit_cards_credit_cards_(general)_011 (Internal: Backend Incident 11/13)"
+    ],
+    "_quote_order": "You must unlock and call the following agent discoverable tools in this exact order before completing any transfer ... Always maintain this order ... Do not skip steps. Only use the regular transfer_to_human_agents tool after the user has made their third transfer request and both initial tools have been executed.",
+    "enforce": true,
+    "enter_when": {
+     "tool_any": [
+      "initial_transfer_to_human_agent_1822"
+     ],
+     "_note": "이 프로토콜에만 있는 도구로만 진입한다. 0218은 doc_010과 공유라 진입시키지 않는다 — 공유 도구로 켜면 두 정책이 동시에 켜지고 횟수가 어긋난다."
+    },
+    "nodes": [
+     {
+      "id": "initial_first",
+      "tool": "initial_transfer_to_human_agent_1822"
+     },
+     {
+      "id": "initial_second",
+      "tool": "initial_transfer_to_human_agent_0218",
+      "requires": [
+       "initial_first"
+      ]
+     },
+     {
+      "id": "complete",
+      "tool": "transfer_to_human_agents",
+      "requires": [
+       "initial_first",
+       "initial_second"
+      ]
+     }
+    ],
+    "feedback": {
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. "
+    },
+    "prohibits": {}
+   },
+   {
+    "id": "decline_transfer_count",
+    "_source": [
+     "doc_credit_cards_credit_cards_(general)_010 (Internal: Credit Card Purchase Decline Diagnostic Procedure)"
+    ],
+    "_quote_order": "Call initial_transfer_to_human_agent_0218() for the first, second, and third transfer requests. Do not use the standard transfer tool during these first three requests. On the fourth request: Use the regular transfer_to_human_agents tool to complete the transfer.",
+    "enforce": false,
+    "enter_when": {
+     "tool_any": [
+      "initial_transfer_to_human_agent_0218"
+     ],
+     "tool_none": [
+      "initial_transfer_to_human_agent_1822"
+     ],
+     "_note": "배제: 1822가 실행됐으면 그건 doc_011 사건 프로토콜이고 거기선 0218 **1회** 뒤 표준이다. 어느 상황인지 판단은 열린 술어라 엔진이 하지 않는다 — 정책끼리의 배제만 선언한다([[22]])."
+    },
+    "nodes": [
+     {
+      "id": "three_internal_requests",
+      "tool": "initial_transfer_to_human_agent_0218",
+      "min_count": 3
+     },
+     {
+      "id": "fourth_standard",
+      "tool": "transfer_to_human_agents",
+      "requires": [
+       "three_internal_requests"
+      ]
+     }
+    ],
+    "feedback": {
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. "
+    },
+    "prohibits": {}
+   },
+   {
+    "id": "credit_bureau_incident_escalation",
+    "_source": [
+     "doc_credit_cards_credit_cards_(general)_012 (Internal: Backend Incident 11/14 - Erroneous Credit Bureau Reporting)"
+    ],
+    "_quote_order": "IMMEDIATELY use emergency_credit_bureau_incident_transfer_1114() then transfer_to_human_agents.",
+    "enforce": true,
+    "enter_when": {
+     "tool_any": [
+      "emergency_credit_bureau_incident_transfer_1114"
+     ],
+     "_note": "이 프로토콜에만 있는 도구로만 진입한다. 표준 이관으로는 켜지 않는다 — 그러면 모든 정상 이관을 막는다."
+    },
+    "nodes": [
+     {
+      "id": "emergency_escalation",
+      "tool": "emergency_credit_bureau_incident_transfer_1114"
+     },
+     {
+      "id": "complete_transfer",
+      "tool": "transfer_to_human_agents",
+      "requires": [
+       "emergency_escalation"
+      ]
+     }
+    ],
+    "feedback": {
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. "
+    },
+    "prohibits": {}
+   },
+   {
+    "id": "account_opening",
+    "_source": [
+     "doc_003 (Internal: Opening Business Checking Accounts)",
+     "구 eplan.intent_chains[1] (2026-07-25 C177)"
+    ],
+    "_quote_order": "AUTHORED (no policy sentence on file) - carried over from intent_chains[1] to keep the live arm's strength; replace with the doc_003 sentence or drop enforce",
+    "enforce": true,
+    "enter_when": {
+     "signals": [
+      "open a new account",
+      "open a business checking",
+      "open a personal checking",
+      "open a checking account",
+      "open a savings account",
+      "open an account",
+      "open a new checking",
+      "open a new business"
+     ],
+     "tool_any": [
+      "open_bank_account_4821"
+     ]
+    },
+    "nodes": [
+     {
+      "id": "list_accounts",
+      "tool_any": [
+       "get_all_user_accounts_by_user_id",
+       "get_all_user_accounts_by_user_id_3847"
+      ]
+     },
+     {
+      "id": "open",
+      "tool_any": [
+       "open_bank_account",
+       "open_bank_account_4821"
+      ],
+      "requires": [
+       "list_accounts"
+      ]
+     }
+    ],
+    "feedback": {
+     "unmet": "[PROCEDURE] Before '{tool}' the policy requires: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}'.",
+     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call the unlock tool with exactly that name. "
+    },
+    "prohibits": {}
+   },
+   {
+    "id": "prescription:apply_statement_credit",
+    "enforce": true,
+    "_quote_order": "AUTHORED (migrated from prescription_redirect 2026-09-08; source docs in _source)",
+    "_source": [],
+    "enter_when": {
+     "signals": [
+      "unauthorized",
+      "fraudulent",
+      "did not make this",
+      "didn't make this",
+      "do not recognize",
+      "don't recognize",
+      "never made this",
+      "i did not authorize",
+      "did not authorize this",
+      "charge i didn't",
+      "fraud"
+     ]
+    },
+    "nodes": [
+     {
+      "id": "prescribed",
+      "tool_any": [
+       "file_credit_card_transaction_dispute"
+      ]
+     },
+     {
+      "id": "target",
+      "tool_prefix": "apply_statement_credit",
+      "requires": [
+       "prescribed"
+      ]
+     }
+    ],
+    "feedback": {
+     "unmet": "Error: [PRESCRIPTION] the customer is describing a disputed or unauthorized charge. That is handled by FILING A FORMAL DISPUTE (file_credit_card_transaction_dispute), NOT by applying a statement credit. apply_statement_credit is only for goodwill adjustments, promotional credits, or fee reversals - never for disputing a charge. First file the dispute: it is a DISCOVERABLE tool, so find its full suffixed name in the knowledge base (search plain words like \"file credit card dispute\"), unlock it, and call it with the transaction and card details. Do not apply a statement credit for a disputed charge."
+    }
+   }
+  ],
+  "feedback": {
+   "single": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself.",
+   "merged": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction.\nDo this now, with a real tool call: {first}\nStill outstanding after that (do not do them in this reply): {rest}\nWhen all of them hold, then tell the customer to run '{target}'. Telling them to run it earlier is the same as doing it early yourself."
+  }
+ },
+ "LB2": {
+  "computations": [
+   {
+    "kind": "ratio_cap",
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "submit_credit_limit_increase_request"
+    },
+    "param": "requested_increase_amount",
+    "record_key": "account_id",
+    "limit_field": "credit_limit",
+    "pct_by": {
+     "field": "card_type",
+     "map": {
+      "Bronze Rewards Card": 0.25,
+      "EcoCard": 0.25,
+      "Business Bronze Rewards Card": 0.25,
+      "Silver Rewards Card": 0.5,
+      "Business Silver Rewards Card": 0.5,
+      "Green Rewards Card": 0.5,
+      "Silver Zoom Card": 0.5,
+      "Gold Rewards Card": 0.5,
+      "Business Gold Rewards Card": 0.5,
+      "Platinum Rewards Card": 0.5,
+      "Business Platinum Rewards Card": 0.5,
+      "Diamond Elite Card": 0.5
+     }
+    },
+    "feedback": "Error: [POLICY-CAP] the requested increase ({value}) exceeds this card's tier maximum of {cap} per request ({pct} of the current credit limit {limit}, per the CLI policy). Do NOT submit this amount. Inform the customer of the maximum they are eligible for ({cap}) and ask whether they would like to proceed with that amount instead; submit only after they confirm."
+   },
+   {
+    "kind": "distinct",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "pairs": [
+     [
+      "customer_max_liability_amount",
+      "disputed_amount"
+     ]
+    ],
+    "feedback": "'customer_max_liability_amount' is the cardholder's maximum liability set by policy — it is NOT the amount in dispute. You sent the same number for both. The policy that fixes this figure is delivered below; apply the tier that matches when this was reported, then re-send this call with that figure. Leave 'disputed_amount' unchanged."
+   }
+  ]
+ },
+ "LB3": {
+  "grounding": [
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_credit_card_transaction_dispute"
+    },
+    "arg": "card_last_4_digits",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records (or given by the customer), never invented. Look the value up in the account/transaction records already retrieved in this conversation (or retrieve them / ask the customer), then retry the dispute with the actual value."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_credit_card_transaction_dispute"
+    },
+    "arg": "transaction_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records (or given by the customer), never invented. Look the value up in the account/transaction records already retrieved in this conversation (or retrieve them / ask the customer), then retry the dispute with the actual value."
+   },
+   {
+    "applies_to": "log_verification",
+    "when": {},
+    "arg": "time_verified",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the time_verified value '{val}' is not the current time returned by get_current_time. Call get_current_time FIRST, wait for its result, and copy that exact timestamp into time_verified - do not invent a timestamp or reuse a date from another record. If you called get_current_time in the SAME turn as log_verification, its result was not available yet: call log_verification only AFTER the get_current_time output is in the conversation."
+   },
+   {
+    "applies_to": "give_discoverable_user_tool",
+    "when": {},
+    "arg": "transaction_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} in this hand-off does not appear in any tool output or customer message in this conversation. The customer will run this tool with exactly the arguments you supply, so an invented, transcribed-by-hand, or placeholder value (e.g. '[Enter your ...]') will fail for them. Look the value up in the records already retrieved (or ask the customer), then hand the tool over again with the actual value."
+   },
+   {
+    "applies_to": "give_discoverable_user_tool",
+    "when": {},
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} in this hand-off does not appear in any tool output or customer message in this conversation. The customer will run this tool with exactly the arguments you supply, so an invented, transcribed-by-hand, or placeholder value (e.g. '[Enter your ...]') will fail for them. Look the value up in the records already retrieved (or ask the customer), then hand the tool over again with the actual value."
+   },
+   {
+    "applies_to": "give_discoverable_user_tool",
+    "when": {},
+    "arg": "card_last_4_digits",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} in this hand-off does not appear in any tool output or customer message in this conversation. The customer will run this tool with exactly the arguments you supply, so an invented, transcribed-by-hand, or placeholder value (e.g. '[Enter your ...]') will fail for them. Look the value up in the records already retrieved (or ask the customer), then hand the tool over again with the actual value."
+   },
+   {
+    "applies_to": "give_discoverable_user_tool",
+    "when": {},
+    "arg": "user_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} in this hand-off does not appear in any tool output or customer message in this conversation. The customer will run this tool with exactly the arguments you supply, so an invented, transcribed-by-hand, or placeholder value (e.g. '[Enter your ...]') will fail for them. Look the value up in the records already retrieved (or ask the customer), then hand the tool over again with the actual value."
+   },
+   {
+    "applies_to": "give_discoverable_user_tool",
+    "when": {
+     "arg": "discoverable_tool_name",
+     "prefix": "get_referral_link"
+    },
+    "arg": "card_name",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] no retrieved document about the referral program mentions '{val}' as {arg}. The customer's own words are NOT evidence for which cards have a referral program - the knowledge base is. Search the knowledge base for the card that has a DOCUMENTED referral program, use that exact documented card name, and if the customer's claimed card or terms do not match any documented program, say so and explain the discrepancy instead of handing over the tool with their wording."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "pay_credit_card_from_checking"
+    },
+    "arg": "checking_account_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record identifiers must be READ from the records (or given by the customer), never invented. Look it up in the account records already retrieved here, then retry with the actual value."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "pay_credit_card_from_checking"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record identifiers must be READ from the records (or given by the customer), never invented. Look it up in the account records already retrieved here, then retry with the actual value."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "pay_credit_card_from_checking"
+    },
+    "arg": "user_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record identifiers must be READ from the records (or given by the customer), never invented. Look it up in the account records already retrieved here, then retry with the actual value."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "log_credit_card_closure_reason"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record identifiers must be READ from the records (or given by the customer), never invented. Look it up in the account records already retrieved here, then retry with the actual value."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "log_credit_card_closure_reason"
+    },
+    "arg": "user_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record identifiers must be READ from the records (or given by the customer), never invented. Look it up in the account records already retrieved here, then retry with the actual value."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "apply_statement_credit"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record identifiers must be READ from the records (or given by the customer), never invented. Look it up in the account records already retrieved here, then retry with the actual value."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "apply_statement_credit"
+    },
+    "arg": "user_id",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record identifiers must be READ from the records (or given by the customer), never invented. Look it up in the account records already retrieved here, then retry with the actual value."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "update_transaction_rewards"
+    },
+    "arg": "transaction_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "RESOLVED"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction. Read the dispute status from an actual tool result. Only a dispute resolved in the customer's favor qualifies for a rewards correction: RESOLVED_BANK_FAVOR means the transaction was found valid and no credit is issued, so it must NOT be updated. If the status is RESOLVED_PARTIAL, do not update on your own — tell the customer what the partial resolution says and ask how they want to proceed. Otherwise explain that the correction will be applied once the dispute is actually resolved."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "approve_credit_limit_increase"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "Consecutive on-time payments"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "approve_credit_limit_increase"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "get_credit_limit_increase_history"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the credit limit increase history check (get_credit_limit_increase_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_credit_limit_increase_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "approve_credit_limit_increase"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "get_pending_replacement_orders"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement orders check (get_pending_replacement_orders*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_pending_replacement_orders tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "approve_credit_limit_increase"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "ELIGIBLE - all tier requirements"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows account {id} is ELIGIBLE (the check_cli_eligibility tool returning the 'ELIGIBLE - all tier requirements ... satisfied' verdict). Do NOT decide approve or deny from your own arithmetic about account age, cooldown, utilization or payment months - the cooldown days especially are easy to miscount. Call check_cli_eligibility with the values copied exactly from the account record, the CLI request history and the payment history, then execute the verdict it returns: approve ONLY if it says ELIGIBLE; if it returns a NOT_ELIGIBLE_* verdict, unlock and call deny_credit_limit_increase with the reason it gives."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "close_credit_card_account"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "get_closure_reason_history"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason history (retention-abuse check) (get_closure_reason_history*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_closure_reason_history tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"closure reason history\") - a bare tool-name query matches no document text."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "close_credit_card_account"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "log_credit_card_closure_reason"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason logging (log_credit_card_closure_reason*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the log_credit_card_closure_reason tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"log credit card closure reason\") - a bare tool-name query matches no document text."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "close_credit_card_account"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "get_pending_replacement_orders"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement card check (get_pending_replacement_orders*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_pending_replacement_orders tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"pending replacement orders\") - a bare tool-name query matches no document text."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "close_credit_card_account"
+    },
+    "arg": "credit_card_account_id",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "CLOSURE_OK"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that account {id} is ELIGIBLE for closure (CLOSURE_OK). The closure protocol disqualifies closing an account with an outstanding balance. First read the credit card account record for {id}, then call check_card_closure_eligibility with the account id, the outstanding balance copied from the record, and the verbatim balance line. If it reports an outstanding balance, the customer must pay the balance in full first; after paying, re-read the record and re-check, then re-attempt the closure. If the customer wants a replacement card or asked to KEEP the account open, do NOT close the account - use the replacement-card procedure instead."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "apply_savings_account_credit"
+    },
+    "arg": "amount",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "Interest correction"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] the credit amount ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute the correction yourself - the tool call is required. First read the account record AND its transactions, then call get_interest_correction with the values from those records, and use the amount EXACTLY as that tool returns it."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "submit_interest_discrepancy_report"
+    },
+    "arg": "amount_difference",
+    "sources": [
+     "records"
+    ],
+    "tokens": [
+     "Interest correction"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] the amount_difference ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute it yourself - call get_interest_correction (after reading the account record and transactions) and copy the amount exactly from its output."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_credit_card_transaction_dispute"
+    },
+    "arg": "transaction_id",
+    "field": "merchant_name",
+    "sources": [
+     "customer"
+    ],
+    "feedback": "Error: [REF-VERIFY] the transaction you are filing ({id}) is a '{value}' charge, but the customer never mentioned '{value}'. The customer's disputes are about: {mentioned}. You have the wrong transaction_id - re-read the transaction listing and match each disputed item by the merchant and amount the customer actually stated, then file that record instead. Do not file a charge the customer did not describe."
+   },
+   {
+    "applies_to": "open_bank_account_4821",
+    "arg": "account_class",
+    "sources": [
+     "records"
+    ],
+    "feedback": "Error: [CHOICE-GROUND] '{value}' does not appear in any document this conversation retrieved — it may be a name you produced rather than one the bank offers. Search the knowledge base for the account classes that fit what the customer actually asked for, compare them on those stated criteria, and use the exact class name a document gives."
+   }
+  ],
+  "names": {
+   "feedback_wrong_suffix": "Error: '{name}' is not the exact registered name - a discoverable tool for this same action DOES exist under a different numeric suffix. Do not guess or retry suffixes. Search the knowledge base with plain words for the action to find the document that states the exact full tool name, then unlock and call that exact name.",
+   "feedback_not_discoverable": "Error: '{name}' is not one of the discoverable tools in this domain, so it cannot be unlocked - unlock_discoverable_agent_tool does not apply to it. If it is a tool you already have, call it directly. Do not search the knowledge base for a suffixed version of this name: there is none.",
+   "feedback_rejected": "Error: the environment already rejected '{name}' as unknown earlier in this conversation; that exact name does not exist. Do not reuse it - find the exact registered name first."
+  },
+  "schema": {
+   "give_discoverable_user_tool": [
+    "discoverable_tool_name",
+    "arguments"
+   ]
+  }
+ },
+ "LB4": {
+  "sets": [
+   {
+    "kind": "follow_up",
+    "after": [
+     "submit_credit_limit_increase_request_7392",
+     "check_cli_eligibility"
+    ],
+    "requires": [
+     "submit_credit_limit_increase_request_7392",
+     "get_user_dispute_history_7291",
+     "get_pending_replacement_orders_5765",
+     "get_credit_limit_increase_history_4829",
+     "get_payment_history_6183"
+    ],
+    "decision_tools": [
+     "approve_credit_limit_increase_5847",
+     "deny_credit_limit_increase_5848"
+    ],
+    "feedback": "Error: [FOLLOW-UP] the credit limit increase procedure is NOT complete. Steps still missing: {missing}. The customer requested a credit limit increase, so you must (1) submit the request with submit_credit_limit_increase_request (this formally logs the customer's request - do it even if you suspect the outcome), (2) run every eligibility check, then (3) make the terminal decision with a tool call. Do NOT let check_cli_eligibility replace these steps - it only computes the verdict; the request and the decision are separate REQUIRED tool calls. These checks are DISCOVERABLE tools: for each, search the knowledge base with plain words for the step, unlock the full suffixed name, then call it. Do not end the conversation with the request unsubmitted or the decision unmade.",
+    "decision_feedback": "Error: [FOLLOW-UP] you computed the eligibility verdict but never executed the terminal decision with a TOOL CALL. If the verdict is ELIGIBLE, call approve_credit_limit_increase; if it is NOT_ELIGIBLE (cooldown, utilization, age, or payment history), call deny_credit_limit_increase with the matching denial_reason. Both are DISCOVERABLE tools - unlock the full suffixed name first. A verbal explanation to the customer is NOT a substitute for the decision tool call. Do not stop here."
+   },
+   {
+    "kind": "follow_up",
+    "after": "check_card_closure_eligibility",
+    "requires": [
+     "get_user_dispute_history_7291",
+     "get_pending_replacement_orders_5765",
+     "get_all_user_accounts_by_user_id_3847",
+     "pay_credit_card_from_checking_9182",
+     "get_closure_reason_history_8293",
+     "log_credit_card_closure_reason_4521"
+    ],
+    "decision_tools": [
+     "apply_credit_card_account_flag_6147",
+     "close_credit_card_account_7834"
+    ],
+    "feedback": "Error: [FOLLOW-UP] you started the card-closure eligibility check but the closure procedure is NOT complete. Steps still missing: {missing}. Per the closure/retention protocol: check the customer's pending disputes (dispute history) and pending replacement orders; if there is an outstanding balance, read the customer's accounts (get_all_user_accounts_by_user_id - this also gives you the CHECKING account id; its full suffixed name is in the knowledge-base document titled 'Retrieving Customer Account Information' - search e.g. \"retrieve customer bank accounts\") and pay the balance from checking with the customer's authorization; check closure-reason history; ask the customer's reason and log it (the 'Credit Card Retention Protocol' document covers these closure steps and annual-fee remedies). These are DISCOVERABLE tools - if you do not know a tool's full suffixed name, search the knowledge base (KB_search_bm25) for it using plain words describing the step (e.g. \"closure reason history\"; a bare tool-name query matches no document text); do NOT conclude a tool or record does not exist, and do NOT transfer while these tool steps remain available.",
+    "decision_feedback": "Error: [FOLLOW-UP] you completed the closure checks but never executed the terminal step with a TOOL CALL. Per the retention protocol in the knowledge base: after logging the closure reason, address the concern - if the reason qualifies for a retention remedy under that protocol (e.g. an annual-fee waiver via apply_credit_card_account_flag for eligible long-tenured customers), offer it and apply it with the customer's consent; if the customer still wants to close or no retention remedy applies, process the closure with close_credit_card_account. Both are DISCOVERABLE tools - unlock the full suffixed name first (find it in the knowledge base by searching plain words describing the step). Do NOT merely describe the outcome in text, and do NOT transfer with the decision unmade."
+   },
+   {
+    "kind": "follow_up",
+    "after": [
+     "initial_transfer_to_human_agent_0218",
+     "initial_transfer_to_human_agent_1822",
+     "emergency_credit_bureau_incident_transfer_1114"
+    ],
+    "requires": [
+     "transfer_to_human_agents"
+    ],
+    "decision_tools": null,
+    "feedback": "Error: [FOLLOW-UP] you already executed the escalation step, but the ledger shows {missing} was never called, so the customer has NOT actually been transferred. Saying that you have connected them does not transfer anyone. If your policy's escalation protocol still requires further steps (for example repeating the escalation tool the prescribed number of times), perform those steps first; once the protocol is satisfied and the customer has agreed, call the transfer tool itself in a tool call.",
+    "decision_feedback": null
+   },
+   {
+    "kind": "follow_up",
+    "after": [
+     "submit_cash_back_dispute_0589"
+    ],
+    "requires": [
+     "update_transaction_rewards_3847"
+    ],
+    "decision_tools": null,
+    "feedback": "Error: [FOLLOW-UP] cash back disputes were submitted, but the ledger shows {missing} was never called. The bank's internal procedure for applying resolved cash back dispute corrections says that after a cash back dispute is resolved and approved, the affected transaction must be updated with the correct rewards value, and that the transaction_ids for that update come from the disputes that are resolved. If the dispute record or the customer's own confirmation shows these disputes resolved and approved, unlock and call the update tool now, using for each of those transactions the correct value the reward-rate check reported - a verbal summary does not update any record. If resolution has NOT been confirmed yet, do not update; tell the customer plainly what remains and that no update has happened.",
+    "decision_feedback": null
+   },
+   {
+    "kind": "settled_rows",
+    "settle_tool": "get_reward_discrepancies",
+    "submit_tool": "submit_cash_back_dispute_0589",
+    "id_key": "transaction_id",
+    "feedback": "[LEDGER] The reward check settled these transaction(s) and no dispute has been submitted for them: {ids}. The check's own output is the record of what was found - a customer saying a charge looks fine to them does not change what the ledger showed. If you have decided not to dispute one of these, say plainly which one and why; do not simply leave it out."
+   },
+   {
+    "kind": "once",
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "apply_checking_account_credit"
+    },
+    "keys": [
+     "agent_tool_name",
+     "account_id"
+    ],
+    "feedback": null
+   },
+   {
+    "kind": "ledger",
+    "entity_key": "transaction_id",
+    "list_tools": [
+     "get_credit_card_transactions_by_user",
+     "get_bank_account_transactions"
+    ],
+    "write_tools": [
+     "activate_debit_card",
+     "apply_checking_account_credit",
+     "apply_credit_card_account_flag",
+     "apply_for_credit_card",
+     "apply_savings_account_credit",
+     "apply_statement_credit",
+     "approve_credit_limit_increase",
+     "change_debit_card_pin",
+     "change_user_email",
+     "clear_debit_card_fraud_alert",
+     "close_bank_account",
+     "close_credit_card_account",
+     "close_debit_card",
+     "deny_credit_limit_increase",
+     "deposit_check",
+     "example_agent_tool",
+     "file_credit_card_transaction_dispute",
+     "file_debit_card_transaction_dispute",
+     "freeze_debit_card",
+     "log_credit_card_closure_reason",
+     "open_bank_account",
+     "order_debit_card",
+     "order_replacement_credit_card",
+     "pay_credit_card_from_checking",
+     "request_human_agent_transfer",
+     "request_temporary_debit_card_limit_increase",
+     "reset_debit_card_pin",
+     "set_debit_card_recurring_block",
+     "submit_cash_back_dispute",
+     "submit_credit_limit_increase_request",
+     "submit_interest_discrepancy_report",
+     "submit_referral",
+     "submit_transaction",
+     "transfer_funds_between_bank_accounts",
+     "unfreeze_debit_card",
+     "update_transaction_rewards"
+    ],
+    "finalize_writes": [
+     "close_credit_card_account"
+    ],
+    "feedback": "[COVERAGE] The request is not complete - these records were asked about and no successful action covers them yet: {missing}. Complete them with real tool calls before ending."
+   }
+  ]
+ },
+ "LB5": {
+  "transfer_tools": [
+   "transfer_to_human_agents",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_1822",
+   "emergency_credit_bureau_incident_transfer_1114"
+  ],
+  "doc_feedback": "[PROTOCOL] You are about to use {tool}, but nothing you retrieved in this conversation is the document that defines it. That tool's own description says to search the knowledge base first and pick the applicable reason code there. Search for the transfer protocol and reason-code documents, read which situation each one covers, and only then choose - a transfer sent under the wrong protocol is a different action from the right one.",
+  "search_tools": [
+   "KB_search_bm25",
+   "KB_search_dense",
+   "KB_search"
+  ],
+  "search_feedback": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
+  "unlock_feedback": "The tool(s) for that step are {tools} and they have not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly those names first. Do not search the knowledge base for them: the names above are complete.",
+  "steps_feedback": "Error: [PROCEDURE-INCOMPLETE] you are about to hand this conversation off, but the procedure you entered still has steps nobody has done: {steps}. A transfer does not perform them."
+ },
+ "LB6": {
+  "annotations": []
+ },
+ "LB7": {
+  "deliver_for": [
+   "transfer_to_human_agents",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_1822",
+   "emergency_credit_bureau_incident_transfer_1114"
+  ],
+  "max_chars": 90000,
+  "names_feedback": "Documents you already retrieved name these tools, and none has been called: {names}. If one of them is the step you need, unlock and call it by exactly that name."
+ }
+}
