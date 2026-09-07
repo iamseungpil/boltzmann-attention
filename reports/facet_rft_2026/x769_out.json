@@ -1,0 +1,202 @@
+{
+ "task_007": {
+  "tag": "bank_smokeD89_20260905_0203.results.json.gz",
+  "sim": "18ea14ff-651b-4252-b395-ab8bf5f776cf",
+  "reward": 0.0,
+  "nmsg": 24,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_010": {
+  "tag": "bank_010ctl_20260904_0007.results.json.gz",
+  "sim": "1c37ebc4-9c77-43f0-b079-f0b8dc11ed05",
+  "reward": 0.0,
+  "nmsg": 33,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_014": {
+  "tag": "bank_re151med1_20260904_0255.results.json.gz",
+  "sim": "f1298a07-3d47-4d68-8071-24a46c41943c",
+  "reward": 0.0,
+  "nmsg": 45,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_015": {
+  "tag": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "7d17a665-e239-4edb-bc23-b6a33f6b68bf",
+  "reward": 0.0,
+  "nmsg": 44,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_018": {
+  "tag": "bank_smokeD89_20260905_0203.results.json.gz",
+  "sim": "d3586730-4965-46e9-8009-e308ed3f3d96",
+  "reward": 0.0,
+  "nmsg": 45,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_029": {
+  "tag": "bank_re8143p11_20260904_1053.results.json.gz",
+  "sim": "66c23a6f-19be-480f-8be7-82c1dd217666",
+  "reward": 0.0,
+  "nmsg": 98,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_038": {
+  "tag": "bank_k8141med2_20260903_2256.results.json.gz",
+  "sim": "fd030dcc-3a50-4339-80d9-773481d68415",
+  "reward": 0.0,
+  "nmsg": 60,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_041": {
+  "tag": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "19d83bc3-a512-43c1-bfbe-a66ba522fd16",
+  "reward": 0.0,
+  "nmsg": 83,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_046": {
+  "tag": "bank_d8v046_20260905_0247.results.json.gz",
+  "sim": "3a28960c-7ffd-46fe-908e-ed0a387cd933",
+  "reward": 0.0,
+  "nmsg": 78,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_048": {
+  "tag": "bank_re8143p11_20260904_1053.results.json.gz",
+  "sim": "c221d987-b862-4e1b-a85b-91fb45cb9272",
+  "reward": 0.0,
+  "nmsg": 134,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_049": {
+  "tag": "bank_049treat_20260904_2343.results.json.gz",
+  "sim": "cb8fbd00-83cc-4796-8ed7-4306ef14c909",
+  "reward": 0.0,
+  "nmsg": 105,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_051": {
+  "tag": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "749e83ab-3897-4193-bb5f-91eef6873e85",
+  "reward": 0.0,
+  "nmsg": 71,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_054": {
+  "tag": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "724d355f-bd1b-46a3-8c04-f694f1f63703",
+  "reward": 0.0,
+  "nmsg": 46,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_061": {
+  "tag": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "d6500e26-4dee-4036-95ca-b9a309b68f53",
+  "reward": 0.0,
+  "nmsg": 53,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_066": {
+  "tag": "bank_re151med1_20260904_0255.results.json.gz",
+  "sim": "c249613b-5527-4d47-a349-f5722d92523f",
+  "reward": 0.0,
+  "nmsg": 85,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_069": {
+  "tag": "bank_d8ab151_01_20260905_0318.results.json.gz",
+  "sim": "967ecbb3-5a56-472e-8f69-ba97c78f982d",
+  "reward": 0.0,
+  "nmsg": 108,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_071": {
+  "tag": "bank_resume2p1_viewmax2_20260903_1418.results.json.gz",
+  "sim": "10694c58-b68a-48d7-b12f-0f8f7f0ffe8a",
+  "reward": 0.0,
+  "nmsg": 70,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_078": {
+  "tag": "bank_resume1p1_viewmax2_20260903_1418.results.json.gz",
+  "sim": "8463d485-0e8f-4c16-bf1f-571a753cce5b",
+  "reward": 0.0,
+  "nmsg": 56,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_079": {
+  "tag": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "91e6c49e-7ced-485b-87dd-5290e7353026",
+  "reward": 0.0,
+  "nmsg": 113,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_080": {
+  "tag": "bank_d8v080_20260905_0247.results.json.gz",
+  "sim": "a953f393-9c2b-4294-b530-bab95afb47c0",
+  "reward": 0.0,
+  "nmsg": 125,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_085": {
+  "tag": "bank_lost5_viewmax2_20260903_1610.results.json.gz",
+  "sim": "cfce8d28-bec5-4887-a93c-03daf2fcc2f0",
+  "reward": 0.0,
+  "nmsg": 68,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_091": {
+  "tag": "bank_x760_base091_20260904e.results.json.gz",
+  "sim": "443c78ef-fa51-400f-a764-440cdf9fcff6",
+  "reward": 0.0,
+  "nmsg": 103,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_092": {
+  "tag": "bank_lost2_viewmax2_20260903_1750.results.json.gz",
+  "sim": "1175b5ea-545b-4804-bcea-7a348abf4ba1",
+  "reward": 0.0,
+  "nmsg": 93,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_101": {
+  "tag": "bank_lost5_viewmax2_20260903_1610.results.json.gz",
+  "sim": "a3f4caee-09ed-4f70-a5c2-7edafe5625f0",
+  "reward": 0.0,
+  "nmsg": 76,
+  "type_hits": [],
+  "enum_hits": []
+ },
+ "task_102": {
+  "tag": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "63ca0750-49f6-47c2-b9f3-18eccf19a2b5",
+  "reward": 0.0,
+  "nmsg": 62,
+  "type_hits": [],
+  "enum_hits": []
+ }
+}

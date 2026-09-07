@@ -72,7 +72,15 @@ def phase_of(a2, messages, unwrap, executed=None, procedures_state=None):
         #   **거동은 그대로 두고 서술을 실제에 맞춘다**: 접두사를 살리는 쪽은 실측상 손해다
         #   (035가 38턴 중 30턴 verify가 되어 행동-유도가 통째로 지워진다). 넓히려면 별도 플래그와
         #   035 격리 arm이 선행이다 — 등대 §1.2: 침묵은 공짜가 아니다.
-        gather = {"verify_identity"}
+        # ★P2 (x737 §9b · 2026-09-07) — 엔진에 있던 은행 도구명 리터럴 `{"verify_identity"}` 를
+        #   **선언으로** 옮겼다([[05]] 정면 위반이었다 · [[58]] 특수 레버 금지).
+        #   의미는 그대로다: 「이 게이트에 대해 *검증을 시도했다*고 볼 도구들」.
+        #   ⚠미선언 도메인은 빈 집합 ⇒ `called & gather` 가 항상 거짓 ⇒ **거동 변화 0**.
+        #     실측 대조: airline(`G1_USER_ID_PROVIDED`)·retail(`G1_AUTH_FIRST`) 은 애초에
+        #     `verify_identity` 도구가 없어 이 가지가 발화한 적이 없다.
+        #   ⚠넓히지 마라 — 위 2026-08-06 부검대로 접두사로 넓히면 035 가 38턴 중 30턴 verify 가
+        #     되어 행동-유도가 통째로 지워진다.
+        gather = set(g.get("attempt_tools") or ())
         if called & gather:
             return "verify", "auth gate %s unsatisfied, verification attempted" % (g.get("id") or "?")
 

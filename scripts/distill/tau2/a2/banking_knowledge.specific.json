@@ -348,7 +348,7 @@
    "name": "get_reward_discrepancies",
    "description": "USE THIS whenever a customer questions or disputes their cash back / rewards and you need to find which specific transactions were rewarded incorrectly. First call get_credit_card_transactions_by_user to retrieve their transactions, then call this tool passing those transactions as clean JSON. It returns the transaction_ids whose recorded reward does NOT match the expected reward under Rho-Bank policy (it derives the correct per-card rate and does the arithmetic for you). Do the reward math with this tool — do not eyeball it yourself.",
    "params": {
-    "transactions": "A JSON array of the customer's credit card transactions that you read from the transaction records. Each element MUST have ONLY these raw fields, copied as-is: transaction_id (string), transaction_amount (number, no $), rewards_earned (number of points recorded, no ' points' text), credit_card_type (string, e.g. 'Gold Rewards Card' or 'EcoCard'), category (string, e.g. 'Green'). Do NOT compute anything — just copy the raw values; this tool computes the expected reward and finds discrepancies itself."
+    "transactions": "A JSON array of the customer's credit card transactions that you read from the transaction records. Each element MUST have ONLY these raw fields, copied as-is: transaction_id (string), transaction_amount (number, no $), rewards_earned (number of points recorded, no ' points' text), credit_card_type (string, e.g. 'Gold Rewards Card' or 'EcoCard'), category (string, e.g. 'Green'). Do NOT compute anything — just copy the raw values; this tool computes the expected reward and finds discrepancies itself. ⛔CRITICAL — copy credit_card_type EXACTLY as it appears in the record, character for character, INCLUDING any leading 'Business ' (e.g. 'Business Silver Rewards Card' is a DIFFERENT card from 'Silver Rewards Card' and earns a different rate). Never shorten, normalize, or drop the prefix. If you are unsure of the exact string, re-read the record instead of guessing - a wrong card name makes this tool compute the wrong expected reward and flag correct transactions as disputes."
    },
    "return_template": "Transactions whose recorded reward does NOT match the expected reward (these require a cash back dispute): {ids}",
    "return_template_empty": "This check compared the transactions it was given and found none whose recorded reward differs from the expected reward, so it identifies nothing to dispute. Do NOT open a dispute on the strength of this result, and do not tell the customer that every transaction is correct - this check only speaks for the transactions it compared. If the customer points to a specific transaction, read that record and run this check on it.",
@@ -361,6 +361,68 @@
     "tolerance": 1,
     "steps": {
      "rate": {
+      "op": "case",
+      "key": "r.credit_card_type",
+      "cases": {
+       "EcoCard": {
+        "op": "case",
+        "key": "r.category",
+        "cases": {
+         "Green": 5
+        },
+        "default": 1
+       },
+       "Bronze Rewards Card": 1,
+       "Gold Rewards Card": 2.5,
+       "Silver Rewards Card": {
+        "op": "case",
+        "key": "r.category",
+        "cases": {
+         "Travel": 4,
+         "Software": 4
+        },
+        "default": 1
+       },
+       "Platinum Rewards Card": 10,
+       "Diamond Elite Card": 5,
+       "Business Silver Rewards Card": {
+        "op": "case",
+        "key": "r.category",
+        "cases": {
+         "Travel": 10,
+         "Software": 10
+        },
+        "default": 1
+       },
+       "Business Gold Rewards Card": {
+        "op": "case",
+        "key": "r.category",
+        "cases": {
+         "Operations": 2.5
+        },
+        "default": 1
+       },
+       "Business Platinum Rewards Card": {
+        "op": "case",
+        "key": "r.category",
+        "cases": {
+         "Travel": 4,
+         "Software": 4,
+         "Media": 4
+        },
+        "default": 1.5
+       },
+       "Crypto-Cash Back": 2
+      },
+      "default": null
+     },
+     "expected": {
+      "op": "multiply",
+      "a": "r.transaction_amount",
+      "b": "steps.rate"
+     },
+     "_note_rate_x807_2026_09_06": "★2026-09-06 x807 감사 수리(A·B·D) — 전 요율을 KB 축자와 1:1 대조해 교체했다. 구판 결함 2건: ①`Platinum Rewards Card: 4` 는 **사업자 카드 값**이었다(`doc_business_credit_cards_business_platinum_rewards_card_002` 축자 \"Business Platinum Rewards Card: Earning 4% Cash Back\"). 소비자 정답 = `doc_credit_cards_platinum_rewards_card_002` 축자 \"Platinum Rewards Card: Earning 10% Cash Back\" ⇒ **10**. ②`Silver Rewards Card: 4` 는 평률이었으나 KB(`doc_credit_cards_silver_rewards_card_002` \"How to Earn 4% Cash Back on Travel and Software Purchases\")는 **카테고리 조건부**다 ⇒ Travel/Software 4 · 기타 1. 두 결함 모두 같은 A2 의 `check_card_application_fit` 카탈로그가 이미 정확히(10.0 / base 1.0 + cat 4.0) 적어둔 값과 **자기모순**이었다. ★신규 등재 4종(D) — 전부 `(credit_card_type, category)` 로 닫히는 것만: Business Silver Travel/Software 10·기타 1(\"Earn 10.0% ... eligible travel and software\" / \"Earn 1.0% cash back on all other purchases\") · Business Gold Operations 2.5·기타 1(\"Operations spending earns cash back at 2.5%\" / \"All other purchases earn cash back at 1.0%\") · Business Platinum Travel/Software/Media 4·기타 1.5(\"Travel, software, and media advertising purchases earn 4.0%\" / \"Purchases outside those categories earn 1.5%\") · Crypto-Cash Back 2(\"You earn 2.0% on eligible spend\"). 카테고리 리터럴은 **db 실측 값 축자**(Business Platinum = Media/Other/Shipping/Shopping/Software/Travel · Business Gold = Operations 외 6종). ⛔**의도적 미등재 3종**([[22]] 열린 술어 — 선언된 leaf 로 안 닫힌다·`default: null` 기권 유지): `Business Bronze Rewards Card`(머천트 기반 0% 제외 — WeWork/Regus/Industrious/Gusto/ADP/Paychex/Rippling + Slack/Zoom/HubSpot/Salesforce 는 12개월 후 0%) · `Silver Zoom Card`(promo 기간 3배수 — 날짜 미선언) · `Green Rewards Card`(\"qualifying sustainable merchants\" 머천트 기반 · db 거래 0건). 이 3종은 카드명이 **정확히** 전달되면 기권한다 — 그것이 옳은 거동이다. 출처 = KB 문서 + db 스키마뿐 · tasks.json/gold 무참조([[23]]) · 엔진 리터럴 0([[03b]]).",
+     "_prev_rate_x807_": {
       "op": "if_then",
       "cond": {
        "op": "str_eq",
@@ -387,11 +449,6 @@
        },
        "default": null
       }
-     },
-     "expected": {
-      "op": "multiply",
-      "a": "r.transaction_amount",
-      "b": "steps.rate"
      }
     },
     "expected_ref": "steps.expected"
@@ -691,7 +748,8 @@
    },
    "_note_ratefix": "C113: rate 결정론화. LLM=거래별 base_rate·promo formalize(KB해석·프로브 100%)·엔진=날짜판정+곱셈+discrepant. 엔진 도메인상수 0([[05]])·KB파싱 0([[03b]]). T2_A2_VARIANT=ratefix.",
    "dispatch_targets": true,
-   "_note_dispatch_targets": "2026-08-03 P8(AX32 설계서 §P8·T2_DISPATCH_LEDGER): 이 도구의 반환 ids = 후속 write의 대상 집합. 터미널 훅이 '지시 N건 중 M건 제출·잔여 [ids]'를 1회 표면화한다(deny 아님·020/027 부분제출 무감지 표적). 집합은 엔진이 계산한 값이라 A2엔 boolean 1개뿐."
+   "_note_dispatch_targets": "2026-08-03 P8(AX32 설계서 §P8·T2_DISPATCH_LEDGER): 이 도구의 반환 ids = 후속 write의 대상 집합. 터미널 훅이 '지시 N건 중 M건 제출·잔여 [ids]'를 1회 표면화한다(deny 아님·020/027 부분제출 무감지 표적). 집합은 엔진이 계산한 값이라 A2엔 boolean 1개뿐.",
+   "_note_cardname_x807_2026_09_06": "★2026-09-06 x807(E) — 실측: `task_020` 의 db 거래는 **전부** `Business Silver Rewards Card` 인데 인자 문자열은 정확한 이름 679 vs 절단형 `Silver Rewards Card` **571**. 절단되면 `default: null` 기권이 무력화되고 소비자 Silver 요율에 걸려 **정상 거래가 분쟁 대상으로 오탐**된다(예: `txn_a8f1c2d3e403` Travel $315 · 기록 3,150 = 10% **정답**인데 절단 시 기대 1,260 → 오탐). 엔진은 정상적으로 기권한다(`t2_compute.py` `if en is None or act is None: skipped += 1; continue`) — 결함은 **전달 문면**이었다([[84]] 레버 표면형 × 소비부)."
   },
   {
    "name": "verify_identity",
@@ -2872,7 +2930,7 @@
       "op": "if_then",
       "cond": {
        "op": "compare",
-       "cmp": ">",
+       "cmp": ">=",
        "a": "current_balance",
        "b": {
         "op": "multiply",
@@ -2976,7 +3034,7 @@
        "op": "if_then",
        "cond": {
         "op": "compare",
-        "cmp": ">",
+        "cmp": ">=",
         "a": "current_balance",
         "b": {
          "op": "multiply",
@@ -3052,7 +3110,8 @@
     "get_payment_history"
    ],
    "_note_requires_reads": "2026-08-18 신설(t7314 스모크 050 포렌식·死배선 4호). 엔진 게이트(`t2_scaffold_get.py:1572`·`T2_SG_REQREADS=1`)와 거부 문면은 **둘 다 있었는데** 이 목록이 세 층 어디에도 없어 게이트가 한 번도 안 걸렸다 — 그 결과 `check_cli_eligibility` 가 **선행 조회 0회**로 'ELIGIBLE - ... payment history ... satisfied' 를 발급하고 한도 증액이 그대로 승인됐다(t7314 treat task_050 축자). 값의 출처 = 이 도구의 description 과 `requires_reads_feedback` 축자뿐(gold 무참조·[[23]]). 이름은 접미사 없이 쓴다(`_eff_tool_name` 이 `_NNNN` 을 지우고 대조한다).",
-   "requires_reads_feedback": "Error: [READ-FIRST] before checking CLI eligibility you must first read the inputs from the records. Missing required reads: {missing}. Read the credit card account record (get_credit_card_accounts_by_user), the CLI request history (get_credit_limit_increase_history) and the payment history (get_payment_history) - the last two are DISCOVERABLE tools, so find each full suffixed name in the knowledge base (search plain words for the step), unlock and call it. Only after those reads are in the conversation can you copy exact values (balances, dates, approved-request date, on-time payment count) into check_cli_eligibility. Then call it again."
+   "requires_reads_feedback": "Error: [READ-FIRST] before checking CLI eligibility you must first read the inputs from the records. Missing required reads: {missing}. Read the credit card account record (get_credit_card_accounts_by_user), the CLI request history (get_credit_limit_increase_history) and the payment history (get_payment_history) - the last two are DISCOVERABLE tools, so find each full suffixed name in the knowledge base (search plain words for the step), unlock and call it. Only after those reads are in the conversation can you copy exact values (balances, dates, approved-request date, on-time payment count) into check_cli_eligibility. Then call it again.",
+   "_note_utilization_x807_2026_09_06": "★2026-09-06 x807 수리(C) — 이용률 비교를 `>` 에서 `>=` 로 고쳤다. KB 축자(`doc_credit_cards_credit_card_account_logistics_005`): \"Utilization **at or above** the threshold does not qualify\" · \"If your premium-tier utilization is **exactly 90%**, it does not meet the 'below' requirement\". 구판은 정확히 임계에 걸린 건을 ELIGIBLE 로 발급했다. ⚠연령·쿨다운·납입은 KB \"You qualify **on or after** the day the minimum is reached\" 와 `<` 가 정합하므로 **건드리지 않았다**. ⚠`Crypto-Cash Back` 은 KB Entry-tier 명시(\"Entry Tier (Bronze Rewards Card, EcoCard, Business Bronze Rewards Card, Crypto-Cash Back Card)\")이나 3개 case 표에 미등재 — 이번 수리 범위 밖(기권 유지)."
   },
   {
    "name": "check_card_application_fit",
@@ -3362,7 +3421,22 @@
     ],
     "_note": "C203/D4'(2026-07-26): 구 D4(scalar_fields=값-존재 검사) **폐기** — 006/023(손님이 말한 다른 값=소득 95000이 실재해 발명 제약 통과)·003(정성 표현 'no foreign transaction fees'를 0으로 수치화하자 정당 제약 드롭)·자기-그라운딩(도구 출력이 코퍼스에 들어가 2번째 호출부터 무력)로 순효용 0·오탐 실재. 대체=intent_fields: **값이 아니라 주제어의 실재**를 손님 발화(corpus=user·도구 출력 제외)에서 본다. 불성립=드롭(제약 소멸=후보 확대=안전 방향). 수치화는 모델 몫([[10]])·엔진은 부분문자열 대조만·어휘는 A2."
    },
-   "_note_d6": "C204/D6(2026-07-27·`D6_CATEGORY_RATE_DESIGN` rev2): category_rates/base_cashback=KB 원문 축자 재구조화(11행·2026-07-27 전수 대조: Platinum=all 10% 확정[본문 축자·C187 문구 오류]·Business Gold(operations 2.5/1.0)·Business Platinum(travel/software/media 4.0/1.5)은 표에 없던 문서화 사실 추가). 엔진=조회·주석만(선택·순위·값생성 0)·미제공=거동 변화 0·미등재 토큰=행별 주석 생략+정직 안내(rev2 결함1)."
+   "_note_d6": "C204/D6(2026-07-27·`D6_CATEGORY_RATE_DESIGN` rev2): category_rates/base_cashback=KB 원문 축자 재구조화(11행·2026-07-27 전수 대조: Platinum=all 10% 확정[본문 축자·C187 문구 오류]·Business Gold(operations 2.5/1.0)·Business Platinum(travel/software/media 4.0/1.5)은 표에 없던 문서화 사실 추가). 엔진=조회·주석만(선택·순위·값생성 0)·미제공=거동 변화 0·미등재 토큰=행별 주석 생략+정직 안내(rev2 결함1).",
+   "optional": [
+    "max_annual_fee",
+    "max_fx_fee",
+    "max_min_payment_pct",
+    "min_cashback",
+    "credit_score",
+    "business",
+    "invited",
+    "min_credit_limit",
+    "needs_purchase_protection",
+    "premium_subscriber",
+    "spend_category",
+    "spend_amount",
+    "spend_category_quote"
+   ]
   },
   {
    "name": "get_atm_fee_discrepancies",

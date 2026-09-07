@@ -401,6 +401,10 @@ def run14(window, calls, flag="1", pre_deny=0):
           "_arg_empty_deny": G._arg_empty_deny, "_ref_verify_deny": G._ref_verify_deny,
           "_eff_tool_name": G._eff_tool_name, "_exact_tool_name": G._exact_tool_name,
           "_args_dict": G._args_dict, "_lbeat": (lambda *a, **k: None),
+          # ★2026-09-07 — 블록이 모듈 최상위 `_LBEAT`(t2_gate_patch:55)을 부른다. 하네스가
+          #   소문자 `_lbeat` 만 주고 있어서 NameError 가 났다. **엔진 결함이 아니다** —
+          #   프로덕션에서는 같은 모듈 전역이라 그대로 보인다. 정본 함수를 그대로 넘긴다.
+          "_LBEAT": G._LBEAT,
           "la": None, "UserMessage": None}
     _o = os.environ.get(FLAG14)
     buf = io.StringIO()

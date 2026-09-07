@@ -1,0 +1,373 @@
+[
+ {
+  "task": "task_001",
+  "ts": "2026-09-04T01:51:45.167111",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "f0a6a1e7-a810-47aa-8196-a9e6b33cda70",
+  "reward": 1.0
+ },
+ {
+  "task": "task_002",
+  "ts": "2026-09-04T01:47:40.898990",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "17dae5f1-a916-48e6-95b8-6311f2a06afe",
+  "reward": 1.0
+ },
+ {
+  "task": "task_004",
+  "ts": "2026-09-04T00:18:57.186449",
+  "file": "bank_k151med1_20260903_2257.results.json.gz",
+  "sim": "fbb14232-e467-447d-97dd-a416423f5110",
+  "reward": 1.0
+ },
+ {
+  "task": "task_005",
+  "ts": "2026-09-03T23:52:36.445508",
+  "file": "bank_k151med1_20260903_2257.results.json.gz",
+  "sim": "717ea2ec-5194-4b16-948b-923e69f9e918",
+  "reward": 1.0
+ },
+ {
+  "task": "task_007",
+  "ts": "2026-09-05T02:11:43.854657",
+  "file": "bank_smokeD89_20260905_0203.results.json.gz",
+  "sim": "18ea14ff-651b-4252-b395-ab8bf5f776cf",
+  "reward": 0.0
+ },
+ {
+  "task": "task_008",
+  "ts": "2026-09-04T11:58:23.271610",
+  "file": "bank_re8143p11_20260904_1053.results.json.gz",
+  "sim": "52d9263c-4bd1-485d-95c7-f9e91ce04875",
+  "reward": 1.0
+ },
+ {
+  "task": "task_010",
+  "ts": "2026-09-04T01:35:33.702478",
+  "file": "bank_010ctl_20260904_0007.results.json.gz",
+  "sim": "1c37ebc4-9c77-43f0-b079-f0b8dc11ed05",
+  "reward": 0.0
+ },
+ {
+  "task": "task_012",
+  "ts": "2026-09-03T21:18:10.200267",
+  "file": "bank_g978143p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "97f40553-0eac-433a-942b-670ab49687df",
+  "reward": 1.0
+ },
+ {
+  "task": "task_014",
+  "ts": "2026-09-04T03:54:15.790737",
+  "file": "bank_re151med1_20260904_0255.results.json.gz",
+  "sim": "f1298a07-3d47-4d68-8071-24a46c41943c",
+  "reward": 0.0
+ },
+ {
+  "task": "task_015",
+  "ts": "2026-09-04T02:52:35.129651",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "7d17a665-e239-4edb-bc23-b6a33f6b68bf",
+  "reward": 0.0
+ },
+ {
+  "task": "task_016",
+  "ts": "2026-09-04T00:40:59.120785",
+  "file": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "e3f5efb5-2908-4e76-8a1b-61c3f98681c7",
+  "reward": 1.0
+ },
+ {
+  "task": "task_017",
+  "ts": "2026-09-03T22:34:25.729850",
+  "file": "bank_rega_viewmax2_20260903_1918.results.json.gz",
+  "sim": "c4a4ec1c-45b6-4f86-9af0-44614ae234d5",
+  "reward": 1.0
+ },
+ {
+  "task": "task_018",
+  "ts": "2026-09-05T03:12:53.771329",
+  "file": "bank_smokeD89_20260905_0203.results.json.gz",
+  "sim": "d3586730-4965-46e9-8009-e308ed3f3d96",
+  "reward": 0.0
+ },
+ {
+  "task": "task_020",
+  "ts": "2026-09-04T03:31:11.299329",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "7e993d5b-9660-460a-bb00-beb5003f7d5b",
+  "reward": 1.0
+ },
+ {
+  "task": "task_021",
+  "ts": "2026-09-04T04:15:53.785397",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "0dfd7222-a4b8-473e-8596-7151e34cbf6c",
+  "reward": 1.0
+ },
+ {
+  "task": "task_022",
+  "ts": "2026-09-03T22:59:00.266192",
+  "file": "bank_lost5_viewmax2_20260903_1610.results.json.gz",
+  "sim": "8b8192cc-6ec3-4826-ab47-733d9f39e3cc",
+  "reward": 1.0
+ },
+ {
+  "task": "task_029",
+  "ts": "2026-09-04T13:12:01.363003",
+  "file": "bank_re8143p11_20260904_1053.results.json.gz",
+  "sim": "66c23a6f-19be-480f-8be7-82c1dd217666",
+  "reward": 0.0
+ },
+ {
+  "task": "task_032",
+  "ts": "2026-09-05T02:14:45.306130",
+  "file": "bank_smokeD89_20260905_0203.results.json.gz",
+  "sim": "a10f85b0-8de8-4dc5-b121-6100ad3bde1f",
+  "reward": 1.0
+ },
+ {
+  "task": "task_033",
+  "ts": "2026-09-03T20:33:10.288516",
+  "file": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "e634c508-5f85-4005-877d-0f8a23892d62",
+  "reward": 1.0
+ },
+ {
+  "task": "task_034",
+  "ts": "2026-09-03T21:16:43.573716",
+  "file": "bank_g978143p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "377abefb-0a1a-4cea-8db9-515f0bbcae61",
+  "reward": 1.0
+ },
+ {
+  "task": "task_035",
+  "ts": "2026-09-04T03:49:48.759495",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "d4417398-394f-4945-a3cf-a20d0e1ae8fd",
+  "reward": 1.0
+ },
+ {
+  "task": "task_038",
+  "ts": "2026-09-04T00:31:34.868620",
+  "file": "bank_k8141med2_20260903_2256.results.json.gz",
+  "sim": "fd030dcc-3a50-4339-80d9-773481d68415",
+  "reward": 0.0
+ },
+ {
+  "task": "task_041",
+  "ts": "2026-09-03T22:56:54.696356",
+  "file": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "19d83bc3-a512-43c1-bfbe-a66ba522fd16",
+  "reward": 0.0
+ },
+ {
+  "task": "task_043",
+  "ts": "2026-09-04T04:17:43.367186",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "72f3ef3c-8c4c-4427-bd53-5441c3ecf053",
+  "reward": 1.0
+ },
+ {
+  "task": "task_045",
+  "ts": "2026-09-04T03:40:30.387581",
+  "file": "bank_re151med1_20260904_0255.results.json.gz",
+  "sim": "df858755-3173-47a7-b8df-ecef01f31ed5",
+  "reward": 1.0
+ },
+ {
+  "task": "task_046",
+  "ts": "2026-09-05T03:18:01.695411",
+  "file": "bank_d8v046_20260905_0247.results.json.gz",
+  "sim": "3a28960c-7ffd-46fe-908e-ed0a387cd933",
+  "reward": 0.0
+ },
+ {
+  "task": "task_048",
+  "ts": "2026-09-04T14:41:53.881006",
+  "file": "bank_re8143p11_20260904_1053.results.json.gz",
+  "sim": "c221d987-b862-4e1b-a85b-91fb45cb9272",
+  "reward": 0.0
+ },
+ {
+  "task": "task_049",
+  "ts": "2026-09-05T01:19:12.280056",
+  "file": "bank_049treat_20260904_2343.results.json.gz",
+  "sim": "cb8fbd00-83cc-4796-8ed7-4306ef14c909",
+  "reward": 0.0
+ },
+ {
+  "task": "task_050",
+  "ts": "2026-09-03T20:58:42.180987",
+  "file": "bank_rega_viewmax2_20260903_1918.results.json.gz",
+  "sim": "7698f18e-aecc-4a3a-9bb9-347775d6266c",
+  "reward": 1.0
+ },
+ {
+  "task": "task_051",
+  "ts": "2026-09-04T04:55:42.507888",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "749e83ab-3897-4193-bb5f-91eef6873e85",
+  "reward": 0.0
+ },
+ {
+  "task": "task_054",
+  "ts": "2026-09-04T04:44:37.950802",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "724d355f-bd1b-46a3-8c04-f694f1f63703",
+  "reward": 0.0
+ },
+ {
+  "task": "task_058",
+  "ts": "2026-09-04T05:12:38.926228",
+  "file": "bank_re151med1_20260904_0255.results.json.gz",
+  "sim": "773236c3-d3f7-4927-a488-076e587991f8",
+  "reward": 1.0
+ },
+ {
+  "task": "task_061",
+  "ts": "2026-09-03T22:07:11.310736",
+  "file": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "d6500e26-4dee-4036-95ca-b9a309b68f53",
+  "reward": 0.0
+ },
+ {
+  "task": "task_062",
+  "ts": "2026-09-03T17:44:01.590175",
+  "file": "bank_lost5_viewmax2_20260903_1610.results.json.gz",
+  "sim": "116f475e-028e-4092-be54-a8dba6b82557",
+  "reward": 1.0
+ },
+ {
+  "task": "task_065",
+  "ts": "2026-09-03T15:36:24.562779",
+  "file": "bank_resume1p1_viewmax2_20260903_1418.results.json.gz",
+  "sim": "54ceb019-a281-41f2-b379-a85765202319",
+  "reward": 1.0
+ },
+ {
+  "task": "task_066",
+  "ts": "2026-09-04T05:13:48.392928",
+  "file": "bank_re151med1_20260904_0255.results.json.gz",
+  "sim": "c249613b-5527-4d47-a349-f5722d92523f",
+  "reward": 0.0
+ },
+ {
+  "task": "task_071",
+  "ts": "2026-09-03T15:16:05.162090",
+  "file": "bank_resume2p1_viewmax2_20260903_1418.results.json.gz",
+  "sim": "10694c58-b68a-48d7-b12f-0f8f7f0ffe8a",
+  "reward": 0.0
+ },
+ {
+  "task": "task_073",
+  "ts": "2026-09-03T22:57:05.898230",
+  "file": "bank_rega_viewmax2_20260903_1918.results.json.gz",
+  "sim": "bbd1702e-279e-40b4-8997-e47b24309580",
+  "reward": 1.0
+ },
+ {
+  "task": "task_075",
+  "ts": "2026-09-03T22:22:02.476476",
+  "file": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "05bbdd92-61c4-401a-b6e0-74127d82045d",
+  "reward": 1.0
+ },
+ {
+  "task": "task_076",
+  "ts": "2026-09-04T05:34:33.007724",
+  "file": "bank_re151med1_20260904_0255.results.json.gz",
+  "sim": "42ec6181-560f-4192-90ea-29fb43b0ed8a",
+  "reward": 1.0
+ },
+ {
+  "task": "task_078",
+  "ts": "2026-09-03T15:52:34.844154",
+  "file": "bank_resume1p1_viewmax2_20260903_1418.results.json.gz",
+  "sim": "8463d485-0e8f-4c16-bf1f-571a753cce5b",
+  "reward": 0.0
+ },
+ {
+  "task": "task_079",
+  "ts": "2026-09-04T05:57:48.095584",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "91e6c49e-7ced-485b-87dd-5290e7353026",
+  "reward": 0.0
+ },
+ {
+  "task": "task_081",
+  "ts": "2026-09-04T01:47:41.257894",
+  "file": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "c98195fc-8dcc-4bc1-8ae6-e2241e2dc175",
+  "reward": 1.0
+ },
+ {
+  "task": "task_085",
+  "ts": "2026-09-03T17:32:32.587831",
+  "file": "bank_lost5_viewmax2_20260903_1610.results.json.gz",
+  "sim": "cfce8d28-bec5-4887-a93c-03daf2fcc2f0",
+  "reward": 0.0
+ },
+ {
+  "task": "task_091",
+  "ts": "2026-09-04T23:45:47.153431",
+  "file": "bank_x760_base091_20260904e.results.json.gz",
+  "sim": "443c78ef-fa51-400f-a764-440cdf9fcff6",
+  "reward": 0.0
+ },
+ {
+  "task": "task_092",
+  "ts": "2026-09-03T18:54:47.368787",
+  "file": "bank_lost2_viewmax2_20260903_1750.results.json.gz",
+  "sim": "1175b5ea-545b-4804-bcea-7a348abf4ba1",
+  "reward": 0.0
+ },
+ {
+  "task": "task_093",
+  "ts": "2026-09-03T16:42:40.579345",
+  "file": "bank_lost5_viewmax2_20260903_1610.results.json.gz",
+  "sim": "e57af006-4804-47e4-af82-e33519d29895",
+  "reward": 1.0
+ },
+ {
+  "task": "task_094",
+  "ts": "2026-09-03T15:26:09.535656",
+  "file": "bank_resume2p1_viewmax2_20260903_1418.results.json.gz",
+  "sim": "19ba9960-fd45-4995-ba23-79b3afc94ba4",
+  "reward": 1.0
+ },
+ {
+  "task": "task_095",
+  "ts": "2026-09-03T18:04:24.854806",
+  "file": "bank_lost2_viewmax2_20260903_1750.results.json.gz",
+  "sim": "6c137d81-1381-4ea5-90bb-2bd76917ef40",
+  "reward": 1.0
+ },
+ {
+  "task": "task_098",
+  "ts": "2026-09-04T05:48:22.249701",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "4da7c534-1d96-4170-b142-9c436c925006",
+  "reward": 1.0
+ },
+ {
+  "task": "task_100",
+  "ts": "2026-09-04T06:54:43.065481",
+  "file": "bank_k8143med1_20260904_0135.results.json.gz",
+  "sim": "de650a34-d184-47c7-a0ee-5be22aebeff8",
+  "reward": 1.0
+ },
+ {
+  "task": "task_101",
+  "ts": "2026-09-03T18:56:36.449278",
+  "file": "bank_lost5_viewmax2_20260903_1610.results.json.gz",
+  "sim": "a3f4caee-09ed-4f70-a5c2-7edafe5625f0",
+  "reward": 0.0
+ },
+ {
+  "task": "task_102",
+  "ts": "2026-09-04T02:55:41.132783",
+  "file": "bank_g97151p11_viewmax2_20260903_1924.results.json.gz",
+  "sim": "63ca0750-49f6-47c2-b9f3-18eccf19a2b5",
+  "reward": 0.0
+ }
+]

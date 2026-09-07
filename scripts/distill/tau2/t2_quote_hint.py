@@ -20,12 +20,29 @@ task_046이 자기 두 trial로 원인을 확정했다. 같은 태스크·같은
 import os
 import re
 
+# ★2026-09-06 — 계기 부여용 공용 심. 임포트/호출 실패가 런을 죽이지 않는다.
+try:
+    from t2_lever_beat import beat as _LBEAT_RAW
+except Exception:                                    # pragma: no cover
+    _LBEAT_RAW = None
+def _LBEAT(flag, detail=""):
+    try:
+        if _LBEAT_RAW is not None:
+            _LBEAT_RAW(flag, detail)
+    except Exception:
+        pass
+
+
 MAX_LINES = 2
 _WS = re.compile(r"\s+")
 
 
 def enabled():
-    return os.environ.get("T2_QUOTE_HINT") == "1"
+    # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+    _on = os.environ.get("T2_QUOTE_HINT") == "1"
+    if _on:
+        _LBEAT("T2_QUOTE_HINT", "인용 힌트 경로 활성")
+    return _on
 
 
 def _norm(s):

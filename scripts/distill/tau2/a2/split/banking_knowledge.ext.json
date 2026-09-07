@@ -290,7 +290,8 @@
  ],
  "tool_signatures": {
   "give_discoverable_user_tool": [
-   "discoverable_tool_name"
+   "discoverable_tool_name",
+   "arguments"
   ]
  },
  "view_field_annotations": [
@@ -302,5 +303,6 @@
    "note": "[FIELD NOTE] This record shows BOTH account_status: ACTIVE and status: CLOSED. Per the knowledge base ('What Happens When You Order a Replacement Card'): ordering a replacement cancels the current CARD and issues a new one, while 'your account number remains unchanged' and account functions continue. Do not treat a replaced/cancelled card as a closed ACCOUNT - the account's state is account_status. Account-level operations (e.g. credit limit requests) are governed by their own knowledge-base eligibility criteria, which do not include any card-replacement condition.",
    "_note": "2026-07-22 §2bs(rall10 054 실측): dispute(cancel_and_reissue)+교체주문이 DB에 status: CLOSED/closed_date 기록(account_status: ACTIVE 병존)→모델이 '계좌 폐쇄→CLI 불가' 오독·CLI 12액션 미시도(user-sim 수긍 STOP). KB 근거=replacements_003('account number remains unchanged')+CLI 자격 문서(logistics_004/005/006)에 계좌-상태/교체 요건 부재(2026-07-22 census·역방향 grep 0건). rall9 15/17은 submit 전 재조회 안 해서 통과=운. 인스턴스-완화 — 근본 클래스(모호 상태 오추론)=INFER-calibration(learn) 영역."
   }
- ]
+ ],
+ "_note_p9_sync": "P9 (2026-09-07): gate/specific 층은 2026-09-05 에 `arguments` 를 추가했는데 이 split 층만 남아 있었다([[24]] 양방향 위반). 서버 tools.py 는 arguments: str = \"{}\" 를 받는다."
 }

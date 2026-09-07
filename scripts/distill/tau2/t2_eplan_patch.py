@@ -276,6 +276,20 @@ class PlanLedger:
         if q > self.qty_mentioned:
             self.qty_mentioned = q
         e = _enum_items(user_text)
+        # ★P11 (x737 §9b · x817 실측 · 2026-09-07) — **같은 발화의 명시 수량이 나열 추정을 이긴다.**
+        #   `_enum_items` 는 쉼표 나열을 세는 추정치다. 손님이 자기 요청의 건수를 **말했으면**
+        #   그것이 우리 추정보다 권위 있다 — 우리는 손님의 말을 다시 세는 자가 아니다([[25]]).
+        #   실물(task_004 · 통과판 궤적 축자): «here are two items: - Email … - Phone …» 에서
+        #   손님은 **two** 라고 적었는데 `_enum_items` 가 **3** 을 냈고, 그 3이 `multi_entity_hint`
+        #   를 켜 E-PLAN L1 이 "이 요청은 여러 레코드에 걸친다"고 단정했다(x737 §9d 의 「수량 3」).
+        #   ⚠x737 §9d 는 이것을 «에이전트 문장을 셌다»로 적었는데 **부정확**하다 — 이 함수는
+        #     `role == "user"` 만 먹는다(`t2_eplan_patch.py:618`). 오발원은 손님 발화였다.
+        #   ⚠[[70]] 부호표 (회수분 user 발화 37,119건 전수): 충돌 105건 =
+        #     **사는 쪽 실패 sim 95(34 태스크) : 파는 쪽 통과 sim 10(7 태스크 004 007 010 017 057 075 100)**.
+        #     파는 쪽 7 태스크는 검증 런에 함께 넣는다.
+        #   ⚠수량 미언급(q=0)이면 **종전 그대로** — 나열만 있는 발화는 손대지 않는다.
+        if q >= 1 and e > q:
+            e = q
         if e > self.enum_items:
             self.enum_items = e
 
@@ -539,15 +553,34 @@ def branch_reground_reminder(chain, messages, spec=None, for_finalize=False):
         parts.append("read (unlock+call): " + ", ".join(mr))
     if simple_w:
         parts.append("then execute (consent already given): " + ", ".join(simple_w))
+    # ★2026-09-06 [[64]] — 지명할 선행 단계가 하나도 없으면 발화하지 않는다.
+    #   실측: 전 회수분 80 발화 중 **29 건**이 빈 슬롯이었다("before you close: **.**") —
+    #   무엇을 하면 풀리는지 이름도 못 대면서 close 를 막았다. 거부는 처방을 말해야 한다.
+    #   (⊖ 파는 것 실측 0: 이 게이트 발화 sim 17/17 이 전부 reward 0.0 — 통과 sim 무발화)
+    #   ⛔2026-09-07 정정: 이 검사가 아래 `doc_order`(POLICY 블록) **앞**에 있어서, 남은 write 가
+    #     **전부 정책문서를 가진** 경우까지 침묵시켰다 — 그때 처방은 `doc_names[doc]` 라벨로
+    #     **실재한다**(문서와 대상 도구 이름을 둘 다 준다). [[64]] 의 요구는 "이름을 대라"이지
+    #     "문서로 대면 안 된다"가 아니다. `test_branch_reground.py` ⑥ 이 이것을 잡았다.
+    if not parts and not doc_order:
+        return None
     tail = (" " + chain["phrase"]) if chain.get("phrase") else ""
-    if for_finalize:
-        intro = ("[E-PLAN] STOP — do NOT close/finalize yet. Required prerequisite steps remain "
-                 "and MUST be completed FIRST, before you close: ")
+    if not parts:
+        # 이름 슬롯이 비었지만 정책문서 처방이 있다 — 빈 슬롯("… now: .")을 만들지 않는다.
+        intro = ("[E-PLAN] STOP — do NOT close/finalize yet. The policy you already retrieved "
+                 "names the step(s) that remain; apply it now."
+                 if for_finalize else
+                 "[E-PLAN] This request is not finished — the policy you already retrieved names "
+                 "the step(s) that remain; apply it now.")
+        body = intro + tail
     else:
-        intro = ("[E-PLAN] This request is not finished — required steps remain before you "
-                 "close/finalize. Do NOT end or defer to the user. Complete them now: ")
-    body = (intro + "; ".join(parts) + "." + tail
-            + " Find each discoverable tool's full suffixed name in the knowledge base if needed.")
+        if for_finalize:
+            intro = ("[E-PLAN] STOP — do NOT close/finalize yet. Required prerequisite steps remain "
+                     "and MUST be completed FIRST, before you close: ")
+        else:
+            intro = ("[E-PLAN] This request is not finished — required steps remain before you "
+                     "close/finalize. Do NOT end or defer to the user. Complete them now: ")
+        body = (intro + "; ".join(parts) + "." + tail
+                + " Find each discoverable tool's full suffixed name in the knowledge base if needed.")
     for doc in doc_order:
         body += ("\n\n[POLICY you already retrieved — apply it now for %s]\n%s"
                  % (", ".join(doc_names[doc]), doc))

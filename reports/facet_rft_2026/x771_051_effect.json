@@ -1,0 +1,324 @@
+{
+ "wired_arm": "B_post",
+ "alive": false,
+ "live_denies_051": [
+  61,
+  63,
+  65,
+  67
+ ],
+ "order_after_first_deny": [
+  "DUP_DENY",
+  "PIN_call",
+  "REGEN_forced"
+ ],
+ "cases": [
+  {
+   "case": "T1 051 resubmit @turn61",
+   "pre": "DENY",
+   "pre_tpl": "MUT_FB",
+   "pre_at": 23,
+   "post": "PASS",
+   "post_tpl": null,
+   "flip": true,
+   "note": "gold 051_7 = 051_2 바이트 동일"
+  },
+  {
+   "case": "T1b 창=msgs[0:23] (앞선 성공 없음)",
+   "pre": "PASS",
+   "pre_tpl": null,
+   "pre_at": null,
+   "post": "PASS",
+   "post_tpl": null,
+   "flip": false,
+   "note": "부정통제"
+  },
+  {
+   "case": "T2 pay_credit_card 재호출 @61",
+   "pre": "DENY",
+   "pre_tpl": "MUT_FB",
+   "pre_at": 59,
+   "post": "PASS",
+   "post_tpl": null,
+   "flip": true,
+   "note": "미선언 -> 보호 상실"
+  },
+  {
+   "case": "T2b 같은 호출 @창 msgs[0:59]",
+   "pre": "PASS",
+   "pre_tpl": null,
+   "pre_at": null,
+   "post": "PASS",
+   "post_tpl": null,
+   "flip": false,
+   "note": "부정통제"
+  },
+  {
+   "case": "T3 동일 호출 재제출",
+   "pre": "DENY",
+   "pre_tpl": "ONCE_FB",
+   "pre_at": 38,
+   "post": "DENY",
+   "post_tpl": "ONCE_FB",
+   "flip": false,
+   "note": "선언됨 -> 둘 다 막혀야"
+  },
+  {
+   "case": "T4 [파생] 같은 계좌·다른 금액",
+   "pre": "DENY",
+   "pre_tpl": "ONCE_FB",
+   "pre_at": 38,
+   "post": "DENY",
+   "post_tpl": "ONCE_FB",
+   "flip": false,
+   "note": "t7378 074 형 · once 만 잡는다"
+  },
+  {
+   "case": "T5 다른 계좌(회수 실물 msg41)",
+   "pre": "PASS",
+   "pre_tpl": null,
+   "pre_at": null,
+   "post": "PASS",
+   "post_tpl": null,
+   "flip": false,
+   "note": "둘 다 통과해야"
+  }
+ ],
+ "census": {
+  "once": 8,
+  "mut": 213,
+  "mut_targets": {
+   "submit_credit_limit_increase_request": 6,
+   "unlock_discoverable_agent_tool": 1,
+   "file_debit_card_transaction_dispute": 11,
+   "order_debit_card": 5,
+   "submit_interest_discrepancy_report": 6,
+   "open_bank_account": 15,
+   "file_credit_card_transaction_dispute": 5,
+   "apply_checking_account_credit": 2,
+   "close_debit_card": 1,
+   "return_delivered_order_items": 37,
+   "modify_pending_order_items": 14,
+   "exchange_delivered_order_items": 47,
+   "cancel_pending_order": 18,
+   "modify_pending_order_address": 15,
+   "modify_user_address": 11,
+   "calculate": 16,
+   "modify_pending_order_payment": 3
+  },
+  "once_targets": {
+   "apply_checking_account_credit": 2,
+   "modify_pending_order_items": 4,
+   "exchange_delivered_order_items": 2
+  }
+ },
+ "census_banking": {
+  "once": 2,
+  "mut": 52,
+  "targets": {
+   "mut|submit_credit_limit_increase_request": 6,
+   "mut|unlock_discoverable_agent_tool": 1,
+   "mut|file_debit_card_transaction_dispute": 11,
+   "mut|order_debit_card": 5,
+   "mut|submit_interest_discrepancy_report": 6,
+   "mut|open_bank_account": 15,
+   "mut|file_credit_card_transaction_dispute": 5,
+   "mut|apply_checking_account_credit": 2,
+   "once|apply_checking_account_credit": 2,
+   "mut|close_debit_card": 1
+  }
+ },
+ "p6c_three": {
+  "deposit_check": 0,
+  "order_replacement_credit_card": 0,
+  "request_temporary_debit_card_limit_increase": 0
+ },
+ "risky_pass_sims": [
+  [
+   "bank_t7360_smoke_20260826",
+   "task_050#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "106#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "107#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "14#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "18#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "23#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "29#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "40#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "42#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "46#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "49#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "51#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "52#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "53#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "55#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "69#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "70#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "73#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "75#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "8#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "81#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "84#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "87#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "92#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "94#s626729"
+  ],
+  [
+   "bank_t7391_retail_20260829",
+   "97#s626729"
+  ],
+  [
+   "bank_t7391_retail_smoke_20260829",
+   "0#s626729"
+  ],
+  [
+   "bank_x607_A_control_20260829",
+   "16#s626729"
+  ],
+  [
+   "bank_x607_C_undeclared_20260829",
+   "1#s626729"
+  ],
+  [
+   "bank_x607_C_undeclared_20260829",
+   "16#s626729"
+  ],
+  [
+   "bank_x607_C_undeclared_20260829",
+   "9#s626729"
+  ]
+ ],
+ "risky_pass_banking": [
+  [
+   "bank_t7360_smoke_20260826",
+   "task_050#s626729"
+  ]
+ ],
+ "risky_banking_tools": {
+  "bank_t7360_smoke_20260826|task_050#s626729": [
+   "submit_credit_limit_increase_request"
+  ]
+ },
+ "reward_table": {
+  "mut|reward=0.0": 62,
+  "mut|reward=None": 5,
+  "mut|reward=1.0": 31,
+  "once|reward=1.0": 1,
+  "once|reward=None": 3
+ },
+ "signtable": {
+  "current": {
+   "buy": 0,
+   "sell": 221
+  },
+  "D6_declared_only": {
+   "buy": 213,
+   "sell": 8
+  },
+  "lever_off": {
+   "buy": 221,
+   "sell": 0
+  }
+ },
+ "wiring_T2_DUP_WRITE": {
+  "values": {
+   "go_stack.sh": [
+    "1"
+   ],
+   "run_ours_task.sh": [
+    "1"
+   ],
+   "run_night_ab.sh": [
+    "1"
+   ],
+   "run_t7363_night.sh": [
+    "1"
+   ],
+   "run_t7364.sh": [
+    "1"
+   ],
+   "run_t7365.sh": [
+    "1"
+   ]
+  },
+  "agree": true
+ },
+ "postfix_check": {
+  "live_is_post": true,
+  "wired_verdict": "PASS",
+  "other_arm_verdict": "DENY",
+  "live_flip": true
+ },
+ "verdict": "WIRED-PASS"
+}

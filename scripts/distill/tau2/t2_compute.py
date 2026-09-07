@@ -14,6 +14,19 @@ import os
 import re
 import sys as _sys
 
+# ★2026-09-06 — 계기 부여용 공용 심. 임포트/호출 실패가 런을 죽이지 않는다.
+try:
+    from t2_lever_beat import beat as _LBEAT_RAW
+except Exception:                                    # pragma: no cover
+    _LBEAT_RAW = None
+def _LBEAT(flag, detail=""):
+    try:
+        if _LBEAT_RAW is not None:
+            _LBEAT_RAW(flag, detail)
+    except Exception:
+        pass
+
+
 
 def _get(ctx, path):
     """ref 경로 해소: 'params.disputed_amount' · 'args.x' · 'records[*].field' · 리터럴."""
@@ -763,6 +776,9 @@ def _apply_op(spec, ctx):
                 #   미사용 식별자 키 우선(x35 ③: 다른 인자 재조회 성공 73/138 = **즉시-ASK가 놓칠 회복
                 #   상한 52.9%**) ⑵찾지 못하면 손님에게 말하고 다른 식별자 요청 ⑶줄 수 없으면 종결
                 #   ⑷검증 통과 전 기록 금지(긍정형·[[42]]).
+                # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+                if os.environ.get("T2_NOREC_BRANCH") == "1" and spec.get("no_record_template_v2"):
+                    _LBEAT("T2_NOREC_BRANCH", "무레코드 v2 분기 템플릿 사용")
                 tpl = ((spec.get("no_record_template_v2")
                         if os.environ.get("T2_NOREC_BRANCH") == "1" else None)
                        or spec.get("no_record_template") or spec.get("unmet_template") or "{count}")

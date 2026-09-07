@@ -1,0 +1,3342 @@
+{
+ "rows": [
+  {
+   "run": "bank_010ctl_20260904_0007",
+   "sim": "task_010#s373753",
+   "turn": 21,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_010ctl_20260904_0007",
+   "sim": "task_010#s373753",
+   "turn": 21,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_010ctl_20260904_0007",
+   "sim": "task_010#s373753",
+   "turn": 26,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_010ctl_20260904_0007",
+   "sim": "task_010#s373753",
+   "turn": 26,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_010ctl_20260904_0007",
+   "sim": "task_010#s373753",
+   "turn": 28,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_010ctl_20260904_0007",
+   "sim": "task_010#s373753",
+   "turn": 28,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_d8ab8143_01_20260905_0402",
+   "sim": "task_028#s626729",
+   "turn": 34,
+   "utgt": "submit_transaction",
+   "task": "task_028",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_d8ab8143_01_20260905_0402",
+   "sim": "task_028#s626729",
+   "turn": 36,
+   "utgt": "submit_transaction",
+   "task": "task_028",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_d8ab8143_01_20260905_0402",
+   "sim": "task_028#s626729",
+   "turn": 44,
+   "utgt": "submit_transaction",
+   "task": "task_028",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_d8ab8143_01_20260905_0402",
+   "sim": "task_028#s626729",
+   "turn": 46,
+   "utgt": "submit_transaction",
+   "task": "task_028",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 3,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 3,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 18,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 18,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 20,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 20,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 9,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 24,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 13,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 24,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 38,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 38,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 40,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 40,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 42,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_102#s626729",
+   "turn": 42,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_015#s626729",
+   "turn": 11,
+   "utgt": "submit_referral",
+   "task": "task_015",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_015#s626729",
+   "turn": 11,
+   "utgt": "submit_referral",
+   "task": "task_015",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_015#s626729",
+   "turn": 15,
+   "utgt": "submit_referral",
+   "task": "task_015",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_015#s626729",
+   "turn": 15,
+   "utgt": "submit_referral",
+   "task": "task_015",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_015#s626729",
+   "turn": 17,
+   "utgt": "submit_referral",
+   "task": "task_015",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_015#s626729",
+   "turn": 17,
+   "utgt": "submit_referral",
+   "task": "task_015",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_098#s626729",
+   "turn": 22,
+   "utgt": "submit_referral",
+   "task": "task_098",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_098#s626729",
+   "turn": 22,
+   "utgt": "submit_referral",
+   "task": "task_098",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_100#s626729",
+   "turn": 10,
+   "utgt": "submit_referral",
+   "task": "task_100",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_100#s626729",
+   "turn": 10,
+   "utgt": "submit_referral",
+   "task": "task_100",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_100#s626729",
+   "turn": 20,
+   "utgt": "submit_referral",
+   "task": "task_100",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_100#s626729",
+   "turn": 20,
+   "utgt": "submit_referral",
+   "task": "task_100",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_100#s626729",
+   "turn": 44,
+   "utgt": "submit_referral",
+   "task": "task_100",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_k8143med1_20260904_0135",
+   "sim": "task_100#s626729",
+   "turn": 44,
+   "utgt": "submit_referral",
+   "task": "task_100",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_lost5_viewmax2_20260903_1610",
+   "sim": "task_101#s626729",
+   "turn": 12,
+   "utgt": "submit_referral",
+   "task": "task_101",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_lost5_viewmax2_20260903_1610",
+   "sim": "task_101#s626729",
+   "turn": 12,
+   "utgt": "submit_referral",
+   "task": "task_101",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_lost5_viewmax2_20260903_1610",
+   "sim": "task_101#s626729",
+   "turn": 30,
+   "utgt": "submit_referral",
+   "task": "task_101",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_lost5_viewmax2_20260903_1610",
+   "sim": "task_101#s626729",
+   "turn": 30,
+   "utgt": "submit_referral",
+   "task": "task_101",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_night2p1_t3prime_20260901_2341",
+   "sim": "task_010#s626729",
+   "turn": 26,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_night2p1_t3prime_20260901_2341",
+   "sim": "task_010#s626729",
+   "turn": 26,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 12,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 12,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 34,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 34,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 36,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 36,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 40,
+   "utgt": "submit_referral",
+   "task": "task_014",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 3,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 5,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 5,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 11,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 13,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 21,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 31,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_057#s626729",
+   "turn": 29,
+   "utgt": "apply_for_credit_card",
+   "task": "task_057",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_057#s626729",
+   "turn": 29,
+   "utgt": "apply_for_credit_card",
+   "task": "task_057",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 31,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_057#s626729",
+   "turn": 29,
+   "utgt": "apply_for_credit_card",
+   "task": "task_057",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_057#s626729",
+   "turn": 29,
+   "utgt": "apply_for_credit_card",
+   "task": "task_057",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 35,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 41,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 41,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 3,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 5,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 5,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 11,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 13,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 21,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 29,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 29,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s373753",
+   "turn": 43,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 5,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 5,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 11,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 11,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 13,
+   "utgt": "submit_transaction",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 13,
+   "utgt": "submit_transaction",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 37,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 37,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 3,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 3,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s626729",
+   "turn": 5,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 7,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s626729",
+   "turn": 7,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 17,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 17,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 21,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 21,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s626729",
+   "turn": 11,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s626729",
+   "turn": 11,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s626729",
+   "turn": 11,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 25,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 25,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s626729",
+   "turn": 23,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s626729",
+   "turn": 23,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s626729",
+   "turn": 23,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 29,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 29,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 31,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 31,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 3,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 5,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 5,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 11,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 13,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 17,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 19,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 27,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 29,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 29,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 37,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 37,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 39,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 39,
+   "utgt": "submit_referral",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s373753",
+   "turn": 41,
+   "utgt": "submit_transaction",
+   "task": "task_016",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 3,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 5,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 5,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 9,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 9,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 13,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_074#s626729",
+   "turn": 55,
+   "utgt": "submit_transaction",
+   "task": "task_074",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 41,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 41,
+   "utgt": "apply_for_credit_card",
+   "task": "task_063",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_074#s373753",
+   "turn": 47,
+   "utgt": "submit_transaction",
+   "task": "task_074",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_074#s373753",
+   "turn": 55,
+   "utgt": "submit_transaction",
+   "task": "task_074",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x713_nightB_20260901",
+   "sim": "task_036#s626729",
+   "turn": 13,
+   "utgt": "submit_transaction",
+   "task": "task_036",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x713_nightB_20260901",
+   "sim": "task_099#s626729",
+   "turn": 18,
+   "utgt": "submit_referral",
+   "task": "task_099",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x713_nightB_20260901",
+   "sim": "task_099#s626729",
+   "turn": 18,
+   "utgt": "submit_referral",
+   "task": "task_099",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x723_t3B_viewscale_max_20260901_1106",
+   "sim": "task_010#s626729",
+   "turn": 28,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x723_t3B_viewscale_max_20260901_1106",
+   "sim": "task_010#s626729",
+   "turn": 28,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x723_t3B_viewscale_max_20260901_1106",
+   "sim": "task_010#s626729",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x723_t3B_viewscale_max_20260901_1106",
+   "sim": "task_010#s626729",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_010",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x724_t2prime_A_20260901",
+   "sim": "task_036#s626729",
+   "turn": 13,
+   "utgt": "submit_transaction",
+   "task": "task_036",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x732_qB_t3prime_20260901_1621",
+   "sim": "task_101#s626729",
+   "turn": 13,
+   "utgt": "submit_referral",
+   "task": "task_101",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x732_qB_t3prime_20260901_1621",
+   "sim": "task_101#s626729",
+   "turn": 13,
+   "utgt": "submit_referral",
+   "task": "task_101",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x732_qB_t3prime_20260901_1621",
+   "sim": "task_101#s626729",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_101",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x732_qB_t3prime_20260901_1621",
+   "sim": "task_101#s626729",
+   "turn": 23,
+   "utgt": "submit_referral",
+   "task": "task_101",
+   "reward": 1.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 33,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 41,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 41,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": true,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": true,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 51,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 51,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": 53,
+   "utgt": "submit_referral",
+   "task": "task_102",
+   "reward": 0.0,
+   "pre_set": [],
+   "pre_silences": false,
+   "utgt_absent": false,
+   "post_A_set": [],
+   "post_A_silences": false,
+   "post_B_set": [
+    "transfer_to_human_agents"
+   ],
+   "post_B_silences": false,
+   "post_C_set": [],
+   "post_C_silences": false
+  }
+ ],
+ "flips": {
+  "A": 0,
+  "B": 151,
+  "C": 0
+ },
+ "n": 175,
+ "xfer": [
+  "transfer_to_human_agents"
+ ],
+ "skipped": {
+  "results 없음": 9,
+  "turn > 메시지 수": 2
+ }
+}

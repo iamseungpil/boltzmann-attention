@@ -1,0 +1,88 @@
+{
+ "_note": "★2026-09-07 x814 rev2 §2e — 처방 → 행동 술어 사상. **이것만이 도메인 몫**이다. 엔진은 이 선언 위에서 집합 연산만 한다(도구명 리터럴 0 · [[58]]/[[05]]). LLM 판정 없음(P2b 프록시 회피). 출처 = 각 레버가 프롬프트에 실제로 넣는 문면의 명령 동사와 그 목적어 도구명 — 코드/A2 축자에서 읽었고 gold 를 보지 않았다([[23]]).",
+ "_schema": {
+  "lever": "레버 식별자(플래그 또는 감사 §2 좌석 이름)",
+  "push": "그 처방이 **하라고 미는** 도구명 목록 (없으면 [])",
+  "block": "그 처방이 **하지 마라고 막는** 도구명 목록 (없으면 [])",
+  "prescription_class": "닫힌 메뉴 R①~⑤ 중 어디인가. ④표면화는 구성적 d=0 이라 판정 면제(x814 §2c)",
+  "source": "문면을 읽은 파일:줄 또는 A2 경로 (검산 경로 · [[77]]②)"
+ },
+ "_note_scope": "현재 4건만 등재했다 — x814 rev2 §4 의 S3(미분류 103↔55 배터리 판정)이 끝나야 전수가 된다. **S3 전에는 이 파일의 d 값을 인용하지 마라**(x814 §6 리스크).",
+ "levers": [
+  {
+   "lever": "FOLLOWUP_REQUIRED/COVERAGE_FU",
+   "alias": [
+    "T2_FOLLOWUP_REQUIRED",
+    "T2_COVERAGE_FOLLOWUP"
+   ],
+   "push": [
+    "give_discoverable_user_tool"
+   ],
+   "block": [],
+   "push_arg": {
+    "discoverable_tool_name": "submit_cash_back_dispute_0589"
+   },
+   "prescription_class": "R5",
+   "audit_seat": "A-코어 · read-강제(R⑤)",
+   "source": "a2/banking_knowledge.gate.json $.scaffold_get_tools[0].follow_up.feedback",
+   "text_head": "you found reward discrepancies ... call 'give_discoverable_user_tool'",
+   "marker": [
+    "[T2_FOLLOWUP] fired",
+    "[T2_COVERAGE_FU] fired"
+   ]
+  },
+  {
+   "lever": "RESOLVE_recommend_offer",
+   "alias": [
+    "T2_RESOLVE"
+   ],
+   "push": [
+    "give_discoverable_user_tool"
+   ],
+   "block": [],
+   "prescription_class": "R3",
+   "audit_seat": "B-협곡 · RESOLVE user-action instruct",
+   "source": "t2_resolve.py:1022 RECOMMEND_OFFER_FB",
+   "text_head": "Offer it now by calling '{offer}' with {name_key}='{action}'",
+   "marker": [
+    "[T2_RESOLVE] recommendation-offer"
+   ]
+  },
+  {
+   "lever": "CLAIMPROV_pending",
+   "alias": [
+    "T2_CLAIMPROV"
+   ],
+   "push": [],
+   "block": [
+    "transfer_to_human_agents",
+    "request_human_agent_transfer"
+   ],
+   "prescription_class": "R3",
+   "audit_seat": "B-협곡 · CLAIMPROV (3b 강등 확정)",
+   "source": "a2/base/shared.json $.claim_audit.feedback_pending",
+   "text_head": "only transfer or end the conversation after the actions are actually executed",
+   "marker": [
+    "[T2_CLAIMPROV] window hit(resign)"
+   ]
+  },
+  {
+   "lever": "WRITE_EVIDENCE_closure",
+   "alias": [
+    "T2_WRITE_EVIDENCE"
+   ],
+   "push": [],
+   "block": [
+    "close_credit_card_account_7834"
+   ],
+   "prescription_class": "R3",
+   "audit_seat": "A-코어 · 게이트",
+   "source": "a2/banking_knowledge.gate.json (write_evidence · CLOSURE_OK require_tokens)",
+   "text_head": "no tool output in this conversation shows that account {id} is ELIGIBLE for closure",
+   "marker": [
+    "[T2_WRITE_EVIDENCE]"
+   ]
+  }
+ ],
+ "_note_marker": "★2026-09-07: `marker` 는 **레버 계열 태그가 아니라 그 처방의 축자**다. x810 이 잰 «태그↔플래그 이름 불일치 35건» 이 여기서도 났다 — 선언에 플래그명(T2_FOLLOWUP_REQUIRED)을 쓰면 실제 태그([T2_FOLLOWUP])와 안 맞아 발화가 0 으로 잘못 잡힌다. 그리고 계열 태그([T2_RESOLVE])는 다른 처방까지 삼켜 d_eff 를 부풀린다. ⇒ 처방 단위 축자만 쓴다."
+}

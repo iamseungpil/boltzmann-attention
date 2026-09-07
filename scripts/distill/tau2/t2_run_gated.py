@@ -12,6 +12,19 @@ import argparse
 import os
 import sys
 
+# ★2026-09-06 — 계기 부여용 공용 심. 임포트/호출 실패가 런을 죽이지 않는다.
+try:
+    from t2_lever_beat import beat as _LBEAT_RAW
+except Exception:                                    # pragma: no cover
+    _LBEAT_RAW = None
+def _LBEAT(flag, detail=""):
+    try:
+        if _LBEAT_RAW is not None:
+            _LBEAT_RAW(flag, detail)
+    except Exception:
+        pass
+
+
 
 def _install_failed_persist(env_cls):
     """★P10(C208②·DAY5_PRESCRIPTIONS §P10): 실패-sim 궤적 사이드카 영속(모듈-레벨=테스트 가능).
@@ -228,6 +241,11 @@ def main():
         if _unified:
             if ground_on:
                 raise SystemExit("[t2_run] T2_PROV_GROUND is not supported in unified mode (E-COMP scope). Use T2_GROUND=1.")
+            # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+            #   ⚠이 분기는 5 플래그 공유다 — 어느 것이 켰는지 detail 로 귀속한다.
+            if regen_on:
+                _LBEAT("T2_PROV_REGEN", "unified regen 진입(공유: badwords=%s ground=%s ground2=%s disamb=%s)"
+                       % (badwords_on, ground_on, ground2_on, disamb_on))
             t2_gate_patch.apply_unified_regen(
                 max_prov_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")),
                 domain=a.domain,
@@ -612,6 +630,8 @@ def main():
                                  "선언" if os.environ.get("T2_THINK_BUDGET") else "상한의 절반 파생"),
                               file=_sys_tr.stderr, flush=True)
             if _t2_probe_terse and _is_probe and _cn not in _t2_probe_calls:
+                # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+                _LBEAT("T2_PROBE_TERSE", "probe 축약 적용 call=%s" % (_cn,))
                 _kw = dict(_kw)
                 _jmt2 = _t2_judge_mt
                 _cur2 = _kw.get("max_tokens")
@@ -730,6 +750,8 @@ def main():
                 _kw["extra_body"] = _eb2
             _terse = _kw.pop("_t2_terse", False)
             if _t2_notc and _kw.get("tool_choice") == "required":
+                # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+                _LBEAT("T2_NO_FORCE_TOOLCHOICE", "tool_choice=required 를 해제")
                 _kw = dict(_kw)
                 _kw.pop("tool_choice", None)
                 _kw["_t2_stripped_tc"] = True
@@ -764,6 +786,8 @@ def main():
             _p2 = None
             if (_t2_p2 and not (getattr(_r, "tool_calls", None) or None)
                     and _t2_p2_used[0] < _t2_p2_cap):
+                # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+                _LBEAT("T2_P2_REGEN", "봉투 미완 → P2 재생성")
                 _c2 = str(getattr(_r, "content", None) or "")
                 _o2 = _c2.count("<tool_call>"); _cl2 = _c2.count("</tool_call>")
                 # ★전손(content 0 ∧ tool_calls 0)도 같은 사다리로 보낸다 (§S-2 1층·기본 ON).
@@ -833,6 +857,8 @@ def main():
             _rsn = _reasoning_of(_r)
             _salv = None
             if _t2_salvage and not (getattr(_r, "tool_calls", None) or None):
+                # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+                _LBEAT("T2_TC_SALVAGE", "tool_calls 0 → salvage 시도")
                 _salv = _t2_salvage_calls(_r, _kw)
             # ★T2_FAILDUMP (2026-08-30·§L-13) — **실패한 그 호출의 요청을 통째로** 떨군다.
             #   왜: 궤적(results.json)에 기록된 문맥으로 재생하면 **정상 파싱된다**(실측).

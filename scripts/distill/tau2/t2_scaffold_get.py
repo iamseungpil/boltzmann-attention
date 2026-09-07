@@ -1367,7 +1367,27 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         #   말할 수 없었다(부검 §G-3). 서브 자신의 getter 출력에서 레코드 수를 세어 나란히 찍는다.
         #   판정하지 않는다 — **두 수를 남길 뿐**이다(도메인 리터럴 0·거동 변화 0).
         _src_rows = 0
+        # ★2026-09-06 분모 중복 계수 수리 ([[25]] 우리 도구는 100% 정답 의무).
+        #   `_ok_outs` 는 :1146 `_mat["texts"]` 로 시작해 :1254 에서 도구 결과마다 append 되고,
+        #   ground-피드백 재시도(`서브 재시도(N라운드)` → continue)가 **같은 출력을 다시 담는다**.
+        #   분모가 라운드 수만큼 배가됐다 — task_074 실측(전 코퍼스 sim 접두 귀속):
+        #       08-28 t7370_radius  source=29 · atm_withdrawal=16   ← db.json 실측과 일치
+        #       09-04 re8143p11     source=58 · atm_withdrawal=32   = 정확히 2×
+        #       09-05 lev6c         source=58 · atm_withdrawal=32
+        #   서브는 16/16 전수를 넘겼는데 guard 가 16/32 를 보고 ⚠SHORT 를 선언해
+        #   `return_template_short` 로 갈아 `{delta_total}` 문장을 지웠다. 지워진 값 3.70 이
+        #   gold `074_12` 의 amount 다 — **분모가 틀려서 정답을 막았다.**
+        #   ⚠세는 자리에서만 유일화한다 — `_ok_outs` 자체는 내용으로 다른 곳에서 쓰이므로 불변.
+        #   ⚠술어는 문자열 동일성 하나(닫힘) · 도메인 리터럴 0 · 임계 0 · gold 무참조.
+        _uniq_outs, _seen_outs = [], set()
         for _t in _ok_outs:
+            if _t not in _seen_outs:
+                _seen_outs.add(_t)
+                _uniq_outs.append(_t)
+        if len(_uniq_outs) != len(_ok_outs):
+            print("[T2_SG_ROW_COUNT] 분모 중복 제거: %d -> %d 출력"
+                  % (len(_ok_outs), len(_uniq_outs)), file=_sys.stderr, flush=True)
+        for _t in _uniq_outs:
             _src_rows += _t.count("Record ID:")
         # ★종류별 분모 (2026-08-28 · `T2_SG_ROW_COUNT` 의 재료 · 세기만 · 판정 0).
         #   `_omitted_rows_note` 가 2026-08-14 에 무효화된 이유가 **분모가 틀렸다**는 것이었다:
@@ -1383,7 +1403,7 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         _kind_rows = 0
         if _kind:
             _kre = re.compile(r"(?im)^[ \t]*type:[ \t]*%s[ \t]*$" % re.escape(_kind))
-            for _t in _ok_outs:
+            for _t in _uniq_outs:                      # ★유일화(2026-09-06)
                 _kind_rows += len(_kre.findall(_t))
         # 중복 행 제거 (2026-08-28 · t7378 `task_074#s361454` 실물 · [[25]] 우리 도구는 100% 정답 의무).
         #   실측: 같은 계좌·같은 원장인데 첫 호출은 16행, 손님이 총액 확인을 청한 뒤의 재호출은
@@ -1893,7 +1913,21 @@ def _build_tool(Tool, d):
     doc = [str(d.get("description") or name).strip(), ""]
     for p, desc in params.items():
         doc.append(":param %s: %s" % (p, str(desc).replace("\n", " ").strip()))
-    src = "def %s(%s):\n    pass\n" % (name, ", ".join("%s: str" % p for p in params))
+    # ★P12 (x737 §9b · 2026-09-07) — A2 가 `optional` 로 선언한 인자는 **기본값을 준다**.
+    #   그러지 않으면 파이썬이 전부 필수로 만들고, tau2 `parse_data` 가 그 시그니처에서
+    #   스키마 required 를 유도하며, `_schema_required`(t2_gate_patch:2325)가 그것을 읽어
+    #   `[ARG-EMPTY]` 로 반려한다. 실물: `check_card_application_fit` 은 A2 가 **13/13 optional**
+    #   (하나는 축자 *"leave this out"*)인데 스키마는 13/13 required 였다 ⇒ 우리 선언대로
+    #   «빼라»를 따른 모델을 우리가 벌줌다(x737 §9c `task_003` · x808 §7-2 `task_023` turn 67·70).
+    #   ⚠optionality 는 **선언에서만** 온다 — 설명 문자열을 패턴매칭하지 않는다([[59]]).
+    #   ⚠기본값 있는 인자는 파이썬 문법상 뒤에 와야 하므로 필수→선택 순으로 낸다.
+    #     docstring 순서는 위 `params.items()` 그대로라 모델이 보는 설명 순서는 안 바뀐다.
+    #   ⚠`optional` 미선언 도구는 **거동 변화 0**(현재 10 도구 중 9 가 그러하다).
+    _opt = set(d.get("optional") or [])
+    _req_p = [p for p in params if p not in _opt]
+    _opt_p = [p for p in params if p in _opt]
+    src = "def %s(%s):\n    pass\n" % (
+        name, ", ".join(["%s: str" % p for p in _req_p] + ['%s: str = ""' % p for p in _opt_p]))
     ns = {}
     exec(compile(src, "<a2_tool:%s>" % name, "exec"), ns)          # noqa: S102 — A2 선언서 생성
     fn = ns[name]
@@ -2108,6 +2142,15 @@ def _resolve_ref_output(orch, ref):
             continue
         c = getattr(m, "content", None)
         if not isinstance(c, str):
+            continue
+        # ★2026-09-06 — READ_DEDUP 이 심은 **우리 스텁**은 레코드 덤프가 아니다.
+        #   `t2_gate_patch.py:7973/7979/8018` 이 원 출력을 이 문면으로 갈아끼우는데
+        #   `error=(_n_rep >= 3)` 라 3회 미만은 non-error 로 남아 여기서 골라졌다.
+        #   그 결과 BYREF 가 "not a record dump" 로 **옳은 참조를 반려**했다(실측 4발/2 sim,
+        #   3건 전부 reward 0.0 = 통과 sim 무발화 ⇒ ⊖ 실측 0).
+        #   ⚠도메인 텍스트가 아니라 **우리가 찍은 리터럴**을 보므로 [[59]] 패턴매칭이 아니다.
+        #   ⚠넓히기만 한다 — 기존 `resolved by reference` 42건은 그대로 성립한다.
+        if c.startswith("[DUPLICATE-READ]") or c.startswith("[NEAR-DUPLICATE-READ]"):
             continue
         mid = getattr(m, "id", None)
         if kind == "@call" and mid == key:

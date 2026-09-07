@@ -1,0 +1,4370 @@
+{
+ "n": 244,
+ "flips": 52,
+ "xfer": [
+  "transfer_to_human_agents"
+ ],
+ "buy": 52,
+ "legit": 3,
+ "other": 189,
+ "sold": 0,
+ "rows": [
+  {
+   "run": "bank_071v_20260813t",
+   "sim": "task_071#s1567",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_a3fill_20260810a",
+   "sim": "task_099",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_all6a_20260811",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_all6a_20260811",
+   "sim": "task_010#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_alllevers_20260810",
+   "sim": "task_100",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "submit_referral",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "submit_referral"
+   ],
+   "killed_pre": "submit_referral",
+   "killed_post": "submit_referral",
+   "flip": false
+  },
+  {
+   "run": "bank_alllevers_20260810",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_anchorslot_20260809q",
+   "sim": "task_100",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_anchorslot_20260809s",
+   "sim": "task_100",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_anchorslot_20260809s",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_anchorslot_20260809s14",
+   "sim": "task_100",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "submit_referral",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "submit_referral"
+   ],
+   "killed_pre": "submit_referral",
+   "killed_post": "submit_referral",
+   "flip": false
+  },
+  {
+   "run": "bank_anchorslot_20260809s14",
+   "sim": "task_100",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "KB_search_dense",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "KB_search_dense"
+   ],
+   "killed_pre": "KB_search_dense",
+   "killed_post": "KB_search_dense",
+   "flip": false
+  },
+  {
+   "run": "bank_anchorslot_20260809v010",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_anchorslot_20260809v010",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "log",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_anchorslot_20260809x010",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_anchorslot_20260809y010",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_anchorslot_20260809y010",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_asubON_20260810",
+   "sim": "task_099",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_asub_20260810s",
+   "sim": "task_099",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "call_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "call_discoverable_agent_tool"
+   ],
+   "killed_pre": "call_discoverable_agent_tool",
+   "killed_post": "call_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_batch4_20260812",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_batch4_20260812",
+   "sim": "task_100#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_batch4_20260812",
+   "sim": "task_099#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "KB_search_dense",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "KB_search_dense"
+   ],
+   "killed_pre": "KB_search_dense",
+   "killed_post": "KB_search_dense",
+   "flip": false
+  },
+  {
+   "run": "bank_dbw_on_20260812",
+   "sim": "task_070#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_dbw_on_20260812",
+   "sim": "task_070#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_g97151p11_viewmax2_20260903_1924",
+   "sim": "task_016#s626729",
+   "turn": 13,
+   "utgt": "submit_referral",
+   "landed": "shell",
+   "calls": [
+    "get_referrals_by_user",
+    "log_verification"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "shell",
+    "get_referrals_by_user",
+    "log_verification"
+   ],
+   "killed_pre": "shell",
+   "killed_post": "shell",
+   "flip": false
+  },
+  {
+   "run": "bank_isoOFF_20260810",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_isoOFF_20260810",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_isoON_20260810",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_judge6_b_20260812k",
+   "sim": "task_100#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6_b_20260812k",
+   "sim": "task_010#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "get_referrals_by_user",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "get_referrals_by_user"
+   ],
+   "killed_pre": "get_referrals_by_user",
+   "killed_post": "get_referrals_by_user",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6_b_20260812k",
+   "sim": "task_099#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6_b_20260812k",
+   "sim": "task_099#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6_b_20260812k",
+   "sim": "task_099#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "submit_referral",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "submit_referral"
+   ],
+   "killed_pre": "submit_referral",
+   "killed_post": "submit_referral",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6p_b_20260813p",
+   "sim": "task_100#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6p_b_20260813p",
+   "sim": "task_010#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_judge6p_b_20260813p",
+   "sim": "task_010#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_judge6p_b_20260813p",
+   "sim": "task_099#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6q_b_20260813q",
+   "sim": "task_010#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_judge6q_b_20260813q",
+   "sim": "task_100#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6q_b_20260813q",
+   "sim": "task_100#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "KB_search_dense",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "KB_search_dense"
+   ],
+   "killed_pre": "KB_search_dense",
+   "killed_post": "KB_search_dense",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6q_b_20260813q",
+   "sim": "task_010#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_judge6r_a_20260812m",
+   "sim": "task_098#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_kb_20260811",
+   "sim": "task_010#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_lever4_b_20260812j",
+   "sim": "task_010#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_lever_070_20260812g",
+   "sim": "task_070#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_lever_071_20260812d",
+   "sim": "task_071#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_014#s626729",
+   "turn": 43,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "transfer_to_human_agents"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_re151med1_20260904_0255",
+   "sim": "task_058#s626729",
+   "turn": 74,
+   "utgt": "apply_for_credit_card",
+   "landed": "shell",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "shell",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "shell",
+   "killed_post": "shell",
+   "flip": false
+  },
+  {
+   "run": "bank_rederive_20260809k",
+   "sim": "task_100",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_rederive_20260809k",
+   "sim": "task_100",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "log",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_rederive_20260809k",
+   "sim": "task_099",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "KB_search_dense",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "KB_search_dense"
+   ],
+   "killed_pre": "KB_search_dense",
+   "killed_post": "KB_search_dense",
+   "flip": false
+  },
+  {
+   "run": "bank_rederive_20260809m",
+   "sim": "task_100",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7274w_a_20260813w",
+   "sim": "task_074#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7275_a_20260813v",
+   "sim": "task_074#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7275_b_20260813v",
+   "sim": "task_073#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "apply_checking_account_credit",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "apply_checking_account_credit"
+   ],
+   "killed_pre": "apply_checking_account_credit",
+   "killed_post": "apply_checking_account_credit",
+   "flip": false
+  },
+  {
+   "run": "bank_t7276_a_20260813x",
+   "sim": "task_074#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7281_a_20260814c",
+   "sim": "task_074#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7285_a_20260814g",
+   "sim": "task_074#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7285_a_20260814g",
+   "sim": "task_074#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7285_a_20260814g",
+   "sim": "task_074#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "get_bank_account_transactions",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "get_bank_account_transactions"
+   ],
+   "killed_pre": "get_bank_account_transactions",
+   "killed_post": "get_bank_account_transactions",
+   "flip": false
+  },
+  {
+   "run": "bank_t7286_a_20260814h",
+   "sim": "task_049#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "get_all_user_accounts_by_user_id",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "killed_pre": "get_all_user_accounts_by_user_id",
+   "killed_post": "get_all_user_accounts_by_user_id",
+   "flip": false
+  },
+  {
+   "run": "bank_t7286_a_20260814h",
+   "sim": "task_049#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "log_credit_card_closure_reason",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "log_credit_card_closure_reason"
+   ],
+   "killed_pre": "log_credit_card_closure_reason",
+   "killed_post": "log_credit_card_closure_reason",
+   "flip": false
+  },
+  {
+   "run": "bank_t7286_b_20260814h",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7286_b_20260814h",
+   "sim": "task_036#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7289_a_20260814k",
+   "sim": "task_074#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7291_a_20260814n",
+   "sim": "task_074#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7291_a_20260814n",
+   "sim": "task_072#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7291_a_20260814n",
+   "sim": "task_072#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7291_a_20260814n",
+   "sim": "task_072#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "apply_checking_account_credit",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "apply_checking_account_credit"
+   ],
+   "killed_pre": "apply_checking_account_credit",
+   "killed_post": "apply_checking_account_credit",
+   "flip": false
+  },
+  {
+   "run": "bank_t7291_a_20260814n",
+   "sim": "task_072#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "apply_checking_account_credit",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "apply_checking_account_credit"
+   ],
+   "killed_pre": "apply_checking_account_credit",
+   "killed_post": "apply_checking_account_credit",
+   "flip": false
+  },
+  {
+   "run": "bank_t7295_a_20260815n",
+   "sim": "task_074#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7295_a_20260815n",
+   "sim": "task_010#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7295_a_20260815n",
+   "sim": "task_070#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7295_a_20260815n",
+   "sim": "task_074#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7295_b_20260815n",
+   "sim": "task_036#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7295_b_20260815n",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7295_b_20260815n",
+   "sim": "task_036#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7295_b_20260815n",
+   "sim": "task_036#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7295_b_20260815n",
+   "sim": "task_100#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7296_ctl_20260815p",
+   "sim": "task_071#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7296_ctl_20260815p",
+   "sim": "task_071#s1567",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7297_ctl_20260815q",
+   "sim": "task_098#s514337",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7297_treat_20260815q",
+   "sim": "task_072#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7297_treat_20260815q",
+   "sim": "task_072#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7297_treat_20260815q",
+   "sim": "task_072#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "apply_checking_account_credit",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "apply_checking_account_credit"
+   ],
+   "killed_pre": "apply_checking_account_credit",
+   "killed_post": "apply_checking_account_credit",
+   "flip": false
+  },
+  {
+   "run": "bank_t7297_treat_20260815q",
+   "sim": "task_072#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "apply_checking_account_credit",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "apply_checking_account_credit"
+   ],
+   "killed_pre": "apply_checking_account_credit",
+   "killed_post": "apply_checking_account_credit",
+   "flip": false
+  },
+  {
+   "run": "bank_t7297_treat_20260815q",
+   "sim": "task_098#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7297_treat_20260815q",
+   "sim": "task_072#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7297_treat_20260815q",
+   "sim": "task_072#s1567",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "get_atm_fee_discrepancies",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "get_atm_fee_discrepancies"
+   ],
+   "killed_pre": "get_atm_fee_discrepancies",
+   "killed_post": "get_atm_fee_discrepancies",
+   "flip": false
+  },
+  {
+   "run": "bank_t7298_20260816a",
+   "sim": "task_098#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7298_20260816a",
+   "sim": "task_055#s361454",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7299_treat_20260816b",
+   "sim": "task_098#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7299_treat_20260816b",
+   "sim": "task_055#s1567",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7302_probe2b_20260816e",
+   "sim": "task_022#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7303_ctl_20260816g",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7303_ctl_20260816h",
+   "sim": "task_098#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7303_treat_20260816g",
+   "sim": "task_024#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7303_treat_20260816h",
+   "sim": "task_098#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7303_treat_20260816h",
+   "sim": "task_024#s1567",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_ctl_20260816i",
+   "sim": "task_024#s361454",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_ctl_20260816j",
+   "sim": "task_098#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_ctl_20260816j",
+   "sim": "task_098#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816i",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816i",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "KB_search_dense",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "KB_search_dense"
+   ],
+   "killed_pre": "KB_search_dense",
+   "killed_post": "KB_search_dense",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816i",
+   "sim": "task_098#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816j",
+   "sim": "task_098#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816j",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816j",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "KB_search_dense",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "KB_search_dense"
+   ],
+   "killed_pre": "KB_search_dense",
+   "killed_post": "KB_search_dense",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816j",
+   "sim": "task_098#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816j",
+   "sim": "task_098#s1567",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7305_ctl_20260817a",
+   "sim": "task_055#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7305_ctl_20260817a",
+   "sim": "task_055#s863145",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7305_ctl_20260817a",
+   "sim": "task_055#s863145",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7305_ctl_20260817a",
+   "sim": "task_098#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7305_treat_20260817a",
+   "sim": "task_055#s363271",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7305_treat_20260817a",
+   "sim": "task_024#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7305_treat_20260817a",
+   "sim": "task_098#s361454",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7307_ctl_20260818b",
+   "sim": "task_027#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7307_ctl_20260818b",
+   "sim": "task_027#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "get_user_dispute_history",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "get_user_dispute_history"
+   ],
+   "killed_pre": "get_user_dispute_history",
+   "killed_post": "get_user_dispute_history",
+   "flip": false
+  },
+  {
+   "run": "bank_t7308_ctl_20260818c",
+   "sim": "task_029#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "update_transaction_rewards",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "update_transaction_rewards"
+   ],
+   "killed_pre": "update_transaction_rewards",
+   "killed_post": "update_transaction_rewards",
+   "flip": false
+  },
+  {
+   "run": "bank_t7310_ctl_20260818e",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7310_ctl_20260818e",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7310_ctl_20260818e",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7313_ctl_20260818h",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7314_treat_20260818j",
+   "sim": "task_098#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7326_halfA_20260819q",
+   "sim": "task_024#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7326_halfA_20260819q",
+   "sim": "task_100#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7326_halfB_20260819q",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7328_halfA_20260819r",
+   "sim": "task_055#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7328_halfA_20260819r",
+   "sim": "task_100#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7328_halfB_20260819r2",
+   "sim": "task_063#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7332_smoke_20260821",
+   "sim": "task_024#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "sim": "task_024#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "sim": "task_024#s514337",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "sim": "task_024#s363271",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7333_ctl_rest_20260821c",
+   "sim": "task_055#s626729",
+   "turn": null,
+   "utgt": "call_discoverable_user_tool",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7333_ctl_rest_20260821c",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7333_ctl_rest_20260821c",
+   "sim": "task_025#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7333_treat_rest_20260821c",
+   "sim": "task_003#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7334_val_hot_20260821",
+   "sim": "task_024#s363271",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "sim": "task_063#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfA_20260821",
+   "sim": "task_055#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_033#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "open_bank_account",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "open_bank_account"
+   ],
+   "killed_pre": "open_bank_account",
+   "killed_post": "open_bank_account",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "open_bank_account",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "open_bank_account"
+   ],
+   "killed_pre": "open_bank_account",
+   "killed_post": "open_bank_account",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 3,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_074#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "sim": "task_063#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7337_halfB_20260822",
+   "sim": "task_016#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7337_halfB_20260822",
+   "sim": "task_016#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7337_halfB_20260822",
+   "sim": "task_033#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7342_halfB_20260822",
+   "sim": "task_016#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7345_smoke_20260822",
+   "sim": "task_024#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7345_smoke_20260822_b",
+   "sim": "task_024#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "sim": "task_055#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "sim": "task_074#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "sim": "task_100#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "sim": "task_016#s626729",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "sim": "task_016#s626729",
+   "turn": 62,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "KB_search_dense"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents",
+    "KB_search_dense"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": "KB_search_dense",
+   "flip": true
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "sim": "task_057#s626729",
+   "turn": 14,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "sim": "task_063#s626729",
+   "turn": 28,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "sim": "task_057#s373753",
+   "turn": 46,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "open_bank_account"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "open_bank_account"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "sim": "task_063#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "sim": "task_016#s626729",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "sim": "task_016#s626729",
+   "turn": 62,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "KB_search_dense"
+   ],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents",
+    "KB_search_dense"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": "KB_search_dense",
+   "flip": true
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "sim": "task_057#s626729",
+   "turn": 14,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "sim": "task_063#s626729",
+   "turn": 28,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "sim": "task_057#s373753",
+   "turn": 46,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "open_bank_account"
+   ],
+   "src": "log",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "open_bank_account"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7354_grpA3_20260825",
+   "sim": "task_016#s373753",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "landed": "get_referrals_by_user",
+   "calls": [
+    "get_current_time"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "get_referrals_by_user",
+    "get_current_time"
+   ],
+   "killed_pre": "get_referrals_by_user",
+   "killed_post": "get_referrals_by_user",
+   "flip": false
+  },
+  {
+   "run": "bank_t7354_grpA4_20260825",
+   "sim": "task_063#s373753",
+   "turn": 26,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "log_verification"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "log_verification"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7356_grpA1_20260826",
+   "sim": "task_074#s373753",
+   "turn": 26,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_atm_fee_discrepancies",
+    "unlock_discoverable_agent_tool"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_atm_fee_discrepancies",
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7356_grpB3_20260826",
+   "sim": "task_016#s373753",
+   "turn": 46,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "KB_search_dense"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents",
+    "KB_search_dense"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": "KB_search_dense",
+   "flip": true
+  },
+  {
+   "run": "bank_t7356_grpB4_20260826",
+   "sim": "task_063#s626729",
+   "turn": 18,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7356_grpB4_20260826",
+   "sim": "task_063#s373753",
+   "turn": 8,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7356_grpB4_20260826",
+   "sim": "task_063#s361454",
+   "turn": 24,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "verify_identity"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "verify_identity"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7356_grpB6_20260826",
+   "sim": "task_055#s626729",
+   "turn": 39,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "open_bank_account"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "open_bank_account"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7360_smoke_20260826",
+   "sim": "task_040#s626729",
+   "turn": 35,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_credit_card_transactions_by_user"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_credit_card_transactions_by_user"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7360_smoke_20260826",
+   "sim": "task_100#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7362_A_ctl_20260826",
+   "sim": "task_074#s626729",
+   "turn": 58,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_atm_fee_discrepancies"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_atm_fee_discrepancies"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7362_A_ctl_20260826",
+   "sim": "task_074#s626729",
+   "turn": 58,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_atm_fee_discrepancies"
+   ],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_atm_fee_discrepancies"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_055#s626729",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_055#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_055#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_063#s373753",
+   "turn": 8,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 3,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_hard0_20260827",
+   "sim": "task_072#s373753",
+   "turn": 41,
+   "utgt": "submit_transaction",
+   "landed": "get_atm_fee_discrepancies",
+   "calls": [
+    "get_bank_account_transactions",
+    "unlock_discoverable_agent_tool"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "get_atm_fee_discrepancies",
+    "get_bank_account_transactions",
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "get_atm_fee_discrepancies",
+   "killed_post": "get_atm_fee_discrepancies",
+   "flip": false
+  },
+  {
+   "run": "bank_t7363_smoke_20260827",
+   "sim": "task_016#s626729",
+   "turn": 34,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "transfer_to_human_agents"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7364_hard0_20260827",
+   "sim": "task_016#s373753",
+   "turn": 8,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7364_smoke_20260827",
+   "sim": "task_016#s626729",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7365_hard0_20260827",
+   "sim": "task_016#s373753",
+   "turn": 34,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "transfer_to_human_agents"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7365_smoke_20260827",
+   "sim": "task_016#s626729",
+   "turn": 42,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "transfer_to_human_agents"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7366_smoke_20260827",
+   "sim": "task_016#s626729",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7366_smoke_20260827",
+   "sim": "task_016#s626729",
+   "turn": 46,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "KB_search_dense"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents",
+    "KB_search_dense"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": "KB_search_dense",
+   "flip": true
+  },
+  {
+   "run": "bank_t7367_hard0_20260827",
+   "sim": "task_016#s373753",
+   "turn": 14,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "verify_identity"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "verify_identity"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7367_hard0_20260827",
+   "sim": "task_016#s1567",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7368_hard0_20260827",
+   "sim": "task_057#s626729",
+   "turn": 82,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_credit_card_transactions_by_user"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_credit_card_transactions_by_user"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7368_hard0_20260827",
+   "sim": "task_074#s626729",
+   "turn": 37,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_all_user_accounts_by_user_id"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7368_hard0_20260827",
+   "sim": "task_085#s626729",
+   "turn": 54,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "file_debit_card_transaction_dispute"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "file_debit_card_transaction_dispute"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7368_hard0_20260827",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7368_hard0_20260827",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7368_hard0_20260827",
+   "sim": "task_074#s373753",
+   "turn": 97,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "KB_search_bm25"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents",
+    "KB_search_bm25"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": "KB_search_bm25",
+   "flip": true
+  },
+  {
+   "run": "bank_t7368_smoke_20260827",
+   "sim": "task_072#s626729",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7370_radius_20260828",
+   "sim": "task_072#s626729",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7370_radius_20260828",
+   "sim": "task_072#s626729",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7370_radius_20260828",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7370_radius_20260828",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7370_radius_20260828",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 3,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7370_radius_20260828",
+   "sim": "task_072#s373753",
+   "turn": 32,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_bank_account_transactions"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_bank_account_transactions"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_063#s626729",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_063#s626729",
+   "turn": 16,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_016#s373753",
+   "turn": 42,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "transfer_to_human_agents"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_063#s373753",
+   "turn": 8,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_063#s373753",
+   "turn": 8,
+   "utgt": "apply_for_credit_card",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_072#s373753",
+   "turn": 6,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_user_information_by_name"
+   ],
+   "src": "trace",
+   "occ": 3,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_user_information_by_name"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7372_control_20260828",
+   "sim": "task_072#s373753",
+   "turn": 38,
+   "utgt": "submit_transaction",
+   "landed": "apply_credit_to_account",
+   "calls": [
+    "get_bank_account_transactions"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "apply_credit_to_account",
+    "get_bank_account_transactions"
+   ],
+   "killed_pre": "apply_credit_to_account",
+   "killed_post": "apply_credit_to_account",
+   "flip": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_016#s626729",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7385_hA1_20260829",
+   "sim": "task_063#s373753",
+   "turn": 10,
+   "utgt": "submit_transaction",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_016#s626729",
+   "turn": 8,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_user_information_by_email"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_user_information_by_email"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_063#s373753",
+   "turn": 18,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_correct_savings_apy"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_correct_savings_apy"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7386_hA2_20260829",
+   "sim": "task_074#s373753",
+   "turn": 31,
+   "utgt": "submit_transaction",
+   "landed": "adjust_account_balance",
+   "calls": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "adjust_account_balance",
+    "get_all_user_accounts_by_user_id"
+   ],
+   "killed_pre": "adjust_account_balance",
+   "killed_post": "adjust_account_balance",
+   "flip": false
+  },
+  {
+   "run": "bank_x411_fniso_smoke_20260819",
+   "sim": "task_016#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_x411_fniso_smoke_20260819",
+   "sim": "task_016#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_x722_t2A_viewscale_max_20260901_1106",
+   "sim": "task_063#s626729",
+   "turn": 88,
+   "utgt": "apply_for_credit_card",
+   "landed": "shell",
+   "calls": [
+    "check_card_application_fit"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "shell",
+    "check_card_application_fit"
+   ],
+   "killed_pre": "shell",
+   "killed_post": "shell",
+   "flip": false
+  },
+  {
+   "run": "bank_x723_t3B_viewscale_max_20260901_1106",
+   "sim": "task_010#s626729",
+   "turn": 45,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "transfer_to_human_agents"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_x733_qB_t3prime_20260901_1621",
+   "sim": "task_102#s626729",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "KB_search_bm25",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "KB_search_bm25"
+   ],
+   "killed_pre": "KB_search_bm25",
+   "killed_post": "KB_search_bm25",
+   "flip": false
+  },
+  {
+   "run": "bank_anchorslot_20260809zb010",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_anchorslot_20260809zb010",
+   "sim": "task_010",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_k8141med1_20260903_2256",
+   "sim": "task_064#s626729",
+   "turn": 40,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [
+    "get_correct_savings_apy"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool",
+    "get_correct_savings_apy"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_016#s373753",
+   "turn": null,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_063#s373753",
+   "turn": null,
+   "utgt": "apply_for_credit_card",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_063#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "unlock_discoverable_agent_tool",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "unlock_discoverable_agent_tool"
+   ],
+   "killed_pre": "unlock_discoverable_agent_tool",
+   "killed_post": "unlock_discoverable_agent_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "sim": "task_074#s373753",
+   "turn": null,
+   "utgt": "submit_transaction",
+   "landed": "transfer_to_human_agents",
+   "calls": [],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  },
+  {
+   "run": "bank_t7366_smoke_20260827",
+   "sim": "task_016#s626729",
+   "turn": 58,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "KB_search_dense"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents",
+    "KB_search_dense"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": "KB_search_dense",
+   "flip": true
+  },
+  {
+   "run": "bank_t7366_smoke_20260827",
+   "sim": "task_016#s626729",
+   "turn": 6,
+   "utgt": "submit_referral",
+   "landed": "give_discoverable_user_tool",
+   "calls": [
+    "get_current_time"
+   ],
+   "src": "trace",
+   "occ": 2,
+   "action_channel": true,
+   "names": [
+    "give_discoverable_user_tool",
+    "get_current_time"
+   ],
+   "killed_pre": "give_discoverable_user_tool",
+   "killed_post": "give_discoverable_user_tool",
+   "flip": false
+  },
+  {
+   "run": "bank_t7367_smoke_20260827",
+   "sim": "task_016#s626729",
+   "turn": 46,
+   "utgt": "submit_referral",
+   "landed": "transfer_to_human_agents",
+   "calls": [
+    "transfer_to_human_agents"
+   ],
+   "src": "trace",
+   "occ": 1,
+   "action_channel": true,
+   "names": [
+    "transfer_to_human_agents"
+   ],
+   "killed_pre": "transfer_to_human_agents",
+   "killed_post": null,
+   "flip": true
+  }
+ ]
+}

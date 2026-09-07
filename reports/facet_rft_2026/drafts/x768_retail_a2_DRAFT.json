@@ -1,0 +1,1410 @@
+{
+ "_meta_": {
+  "id": "x768_retail_a2_DRAFT",
+  "date": "2026-09-05",
+  "domain": "retail",
+  "status": "DRAFT - not wired. a2/ was read, never written.",
+  "sources_used": [
+   "specs/retail_policy.md (6,699 chars / 137 lines; byte-identical to a2/env_surface_airline_retail.json[retail][policy], asserted at author time)",
+   "a2/env_surface_airline_retail.json[retail][tools] - 16 tools, argument NAMES only"
+  ],
+  "gold_compliance_[[23]]": "gold, evaluation_criteria and tasks.json were NOT opened. *.results.json.gz was NOT opened. Engine .py files were read for CONTRACT SHAPE only (which fields each consumer reads). a2/banking_knowledge.gate.json was read to obtain the four contract schemas and as the control pool; nothing from it was copied into a declaration.",
+  "engine_compliance_[[05]]_[[58]]": "no engine file was modified and no new engine rule is requested by any adopted item. The one adopted amendment appends two existing tool names to an existing declaration's applies_to.",
+  "tool_inventory": {
+   "n_tools": 16,
+   "n_write_mutates_true": 7,
+   "n_read": 7,
+   "n_generic": 2,
+   "write_tools": [
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items"
+   ],
+   "discoverable_user_tools": [],
+   "user_tools": [],
+   "_note_": "tools == exposed (16 == 16). This set is gate 2's answer key; every adopted item was checked against it, including the tool names that appear inside feedback prose."
+  },
+  "gate2_tool_names_used_by_adopted_items": [
+   "cancel_pending_order",
+   "exchange_delivered_order_items",
+   "find_user_id_by_email",
+   "find_user_id_by_name_zip",
+   "get_order_details",
+   "get_user_details",
+   "modify_pending_order_address",
+   "modify_pending_order_items",
+   "modify_pending_order_payment",
+   "modify_user_address",
+   "return_delivered_order_items"
+  ],
+  "authoring_wall_clock": "start 2026-09-04T23:55:16Z (first read of specs/retail_policy.md) -> end 2026-09-05T00:26Z. ~31 minutes for one agent, covering: tool inventory + policy read, 4 engine contract schemas read from source, a 79-candidate pool, 28 machine-verified quotes, a 66-row rejection ledger, 7 adopted declarations, and an 8/8 isolation probe. No paid run, no model call ([[09]])."
+ },
+ "_funnel_": {
+  "candidates_total": 79,
+  "gate1_source_pass": 51,
+  "gate2_target_pass": 51,
+  "gate3_closure_pass": 13,
+  "adopted_new_slots": 11,
+  "adopted_new_declarations": 7,
+  "already_declared_reproduced": 2,
+  "adopted_as_amendment_to_existing_declaration": 2,
+  "by_contract": {
+   "write_arg_grounding": {
+    "candidates": 29,
+    "gate1": 29,
+    "gate2": 29,
+    "gate3": 11,
+    "adopted_slots": 11,
+    "adopted_declarations": 7
+   },
+   "write_arg_enum": {
+    "candidates": 29,
+    "gate1": 5,
+    "gate2": 5,
+    "gate3": 0,
+    "adopted_slots": 0,
+    "adopted_declarations": 0
+   },
+   "write_evidence_specs": {
+    "candidates": 14,
+    "gate1": 13,
+    "gate2": 13,
+    "gate3": 0,
+    "adopted_slots": 0,
+    "adopted_declarations": 0,
+    "adopted_as_amendment": 2
+   },
+   "write_once_keys": {
+    "candidates": 7,
+    "gate1": 4,
+    "gate2": 4,
+    "gate3": 2,
+    "adopted_slots": 0,
+    "adopted_declarations": 0,
+    "already_declared": 2
+   }
+  },
+  "rejected_by_gate": {
+   "gate1_source": 28,
+   "gate2_target": 0,
+   "gate3_closure": 38
+  },
+  "rejected_by_reason": {
+   "G1-NO-ENUMERATION-IN-SOURCE": 24,
+   "G3-FREETEXT-NOT-INVARIANT": 12,
+   "G3-LIST-ARG-NOT-RESOLVED": 5,
+   "G3-DUPLICATE-OF-LIVE-GATE": 4,
+   "G3-WRONG-VALUE-SPACE": 4,
+   "G1-NO-ONCE-ONLY-SENTENCE": 3,
+   "G3-MISSING-OP-NUMERIC": 3,
+   "G3-MISSING-OP-JOIN": 2,
+   "G3-SCOPE-AMBIGUOUS-CONTRADICTED": 2,
+   "G3-WRONG-HOME-ADOPTED-ELSEWHERE": 2,
+   "G1-NO-PRECONDITION-SENTENCE": 1,
+   "G3-DEAD-SHAPE-MISMATCH": 1,
+   "G3-ENUM-LITERAL-NOT-A-CORPUS-VAL": 1,
+   "G3-MISSING-OP-DISJUNCTION": 1,
+   "G3-MISSING-OP-INEQUALITY": 1
+  },
+  "quote_substring_check": {
+   "pass": 28,
+   "fail": 0,
+   "failures": []
+  },
+  "control_pool_banking_transplant": {
+   "_what_": "the alternative authoring method - copy banking's four write_* contracts and edit. Measured mechanically: every applies_to in those rows vs the retail 16-tool inventory.",
+   "rows": 31,
+   "gate2_pass": 0,
+   "gate2_fail": 31,
+   "_detail_": "write_arg_grounding 7 (call_discoverable_agent_tool / give_discoverable_user_tool / log_verification), write_evidence_specs 14, write_arg_enum 9, write_once_keys 1 - all naming call_discoverable_agent_tool. retail has discoverable_user_tools == [] and user_tools == [], so the dispatcher those rows are built on does not exist here."
+  }
+ },
+ "_isolation_probe_": {
+  "script": "scratchpad/x768_probe.py - calls the engine consumer t2_gate_patch._write_arg_ground_deny(messages, tool_call, SPECS) directly with the adopted specs read back out of this file. No prompt, no model, no env ([[78]]).",
+  "result": "8/8",
+  "cases": [
+   "order_id present in a tool output                  -> PASS (no deny)",
+   "order_id fabricated                                -> DENY",
+   "user_id stated only by the customer                -> DENY  (corpus_roles=['tool'], = L10)",
+   "same user_id present in an auth tool output        -> PASS",
+   "negative control: undeclared arg absent from corpus-> PASS (not blocked) [[57]]",
+   "negative control: undeclared tool                  -> PASS (not touched) [[57]]",
+   "payment_method_id fabricated                       -> DENY",
+   "item_ids fabricated, everything else grounded      -> PASS  <-- see below"
+  ],
+  "_case_8_is_the_evidence_for_a_gate3_rejection_": "case 8 is the empirical proof of the G3-LIST-ARG-NOT-RESOLVED rejection (ledger G03/G04/G12/G13/G29). The call carries a fabricated item_ids and nothing else wrong, and the engine does not deny. Had item_ids been adopted into grounded_args it would have been a dead declaration - A2 volume with zero delivery, which is exactly the failure this experiment is measuring.",
+  "_note_": "This proves the declarations fire in isolation. It does NOT prove they fire in the live run, and it says nothing about reward ([[85]], [[69]]). T2_WRITE_ARG_GROUND=1 is already exported by go_stack.sh:227,388, so the flag half of [[81]] is satisfied for this contract - unlike the two contracts that adopted nothing (T2_WRITE_ARG_ENUM absent from go_stack.sh; T2_DUP_WRITE=0 at go_stack.sh:695)."
+ },
+ "_amend_gates_": {
+  "_why_this_is_not_a_mergeable_key_": "gates is a LIST. Emitting a `gates` key here would REPLACE all 8 live retail gates on merge. This block is underscore-prefixed so no engine consumer reads it. Applying it means hand-editing the existing G5 item in a2/retail.settings.json - which is out of scope for this pass (a2/ is read-only here, audit before wiring).",
+  "target": "a2/retail.settings.json -> gates[id=G5_STATUS_PRECONDITION]",
+  "edit_1": {
+   "path": "applies_to",
+   "op": "append",
+   "values": [
+    "modify_pending_order_address",
+    "modify_pending_order_payment"
+   ]
+  },
+  "edit_2": {
+   "path": "checks[0].applies_to",
+   "op": "append",
+   "note": "checks[0] is the allow=['pending'] check with resolver_path [order_id, get_order_details, status]",
+   "values": [
+    "modify_pending_order_address",
+    "modify_pending_order_payment"
+   ]
+  },
+  "sources": [
+   {
+    "doc": "specs/retail_policy.md:L96",
+    "quote": "An order can only be modified if its status is 'pending', and you should check its status before taking the action."
+   },
+   {
+    "doc": "specs/retail_policy.md:L98",
+    "quote": "For a pending order, you can take actions to modify its shipping address, payment method, or product item options, but nothing else."
+   },
+   {
+    "doc": "specs/retail_policy.md:L82",
+    "quote": "Generally, you can only take action on pending or delivered orders."
+   }
+  ],
+  "_gate_1_": "PASS - L96 is verbatim and its section heading (L94 '## Modify pending order') plus L98 name shipping address and payment method as the modifications it governs.",
+  "_gate_2_": "PASS - both tools are in the 16-tool inventory and mutates=True.",
+  "_gate_3_": "PASS - no new checker. The check shape already exists and is pure set membership: resolve_field([order_id, get_order_details, status]) then `cur in ['pending']` (gate_interpreter.py:392-407). Unresolvable -> `continue` = fail-open.",
+  "_contradicts_": "a2/retail.settings.json G5._note says verbatim: 'address/payment 도구는 status-무관→제외=false-block 회피'. That claim is contradicted by L96 read together with L98. Disclosing rather than silently overwriting ([[70]]): the exclusion was a false-block hedge, and the hedge costs the two writes that L96 covers. Counter-evidence I could not obtain: whether the retail env itself already rejects these two writes on a non-pending order - that needs a tool return value and the path to those is results.json.gz, which carries evaluation_criteria ([[23]]), so it was not opened.",
+  "_sign_to_count_": "[POLICY GATE G5_STATUS_PRECONDITION] denies on these two tool names. If the count is 0 at first ignition the wiring is wrong, not the rule ([[81]])."
+ },
+ "_rejection_ledger_": [
+  {
+   "id": "G02",
+   "contract": "write_arg_grounding",
+   "tool": "cancel_pending_order",
+   "arg": "reason",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "the value is a policy ENUM LITERAL, not a record value. The customer says 'I don't need it anymore'; the API requires the literal 'no longer needed'. Requiring the literal to appear in the corpus makes the verdict depend on the customer's phrasing of the same situation -> not variation-invariant -> false-block.",
+   "named_fix": "belongs in `write_arg_enum` (closed value set from L90) - which itself fails gate 3, see E30.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L90",
+     "quote": "The user needs to confirm the order id and the reason (either 'no longer needed' or 'ordered by mistake') for cancellation. Other reasons are not acceptable."
+    }
+   ],
+   "reason_code": "G3-ENUM-LITERAL-NOT-A-CORPUS-VAL"
+  },
+  {
+   "id": "G03",
+   "contract": "write_arg_grounding",
+   "tool": "exchange_delivered_order_items",
+   "arg": "item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "list-valued arg. `_write_arg_ground_deny` builds its lookup dict with `for k2,v2 in args.items(): if not isinstance(v2,(dict,list)): inner.setdefault(k2,v2)` (t2_gate_patch.py:2124-2126), so a list arg is never resolved -> gs=='' -> `continue`. The declaration can never fire; if the model instead sent a JSON string, str(list) would never substring-match a tool output. Verdict varies with the call's surface form = not variation-invariant.",
+   "named_fix": "missing op: per-element grounding over a list-valued arg (same class as the airline strand's `multi_arg producer + per-element list iteration`).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L120",
+     "quote": "The user needs to confirm the order id and the list of items to be returned."
+    }
+   ],
+   "reason_code": "G3-LIST-ARG-NOT-RESOLVED"
+  },
+  {
+   "id": "G04",
+   "contract": "write_arg_grounding",
+   "tool": "exchange_delivered_order_items",
+   "arg": "new_item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "list-valued arg. `_write_arg_ground_deny` builds its lookup dict with `for k2,v2 in args.items(): if not isinstance(v2,(dict,list)): inner.setdefault(k2,v2)` (t2_gate_patch.py:2124-2126), so a list arg is never resolved -> gs=='' -> `continue`. The declaration can never fire; if the model instead sent a JSON string, str(list) would never substring-match a tool output. Verdict varies with the call's surface form = not variation-invariant.",
+   "named_fix": "missing op: per-element grounding over a list-valued arg (same class as the airline strand's `multi_arg producer + per-element list iteration`).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L112",
+     "quote": "For a pending order, each item can be modified to an available new item of the same product but of different product option."
+    }
+   ],
+   "reason_code": "G3-LIST-ARG-NOT-RESOLVED"
+  },
+  {
+   "id": "G07",
+   "contract": "write_arg_grounding",
+   "tool": "modify_pending_order_address",
+   "arg": "address1",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G08",
+   "contract": "write_arg_grounding",
+   "tool": "modify_pending_order_address",
+   "arg": "address2",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G09",
+   "contract": "write_arg_grounding",
+   "tool": "modify_pending_order_address",
+   "arg": "city",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G10",
+   "contract": "write_arg_grounding",
+   "tool": "modify_pending_order_address",
+   "arg": "country",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G12",
+   "contract": "write_arg_grounding",
+   "tool": "modify_pending_order_address",
+   "arg": "state",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G13",
+   "contract": "write_arg_grounding",
+   "tool": "modify_pending_order_address",
+   "arg": "zip",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G14",
+   "contract": "write_arg_grounding",
+   "tool": "modify_pending_order_items",
+   "arg": "item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "list-valued arg. `_write_arg_ground_deny` builds its lookup dict with `for k2,v2 in args.items(): if not isinstance(v2,(dict,list)): inner.setdefault(k2,v2)` (t2_gate_patch.py:2124-2126), so a list arg is never resolved -> gs=='' -> `continue`. The declaration can never fire; if the model instead sent a JSON string, str(list) would never substring-match a tool output. Verdict varies with the call's surface form = not variation-invariant.",
+   "named_fix": "missing op: per-element grounding over a list-valued arg (same class as the airline strand's `multi_arg producer + per-element list iteration`).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L120",
+     "quote": "The user needs to confirm the order id and the list of items to be returned."
+    }
+   ],
+   "reason_code": "G3-LIST-ARG-NOT-RESOLVED"
+  },
+  {
+   "id": "G15",
+   "contract": "write_arg_grounding",
+   "tool": "modify_pending_order_items",
+   "arg": "new_item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "list-valued arg. `_write_arg_ground_deny` builds its lookup dict with `for k2,v2 in args.items(): if not isinstance(v2,(dict,list)): inner.setdefault(k2,v2)` (t2_gate_patch.py:2124-2126), so a list arg is never resolved -> gs=='' -> `continue`. The declaration can never fire; if the model instead sent a JSON string, str(list) would never substring-match a tool output. Verdict varies with the call's surface form = not variation-invariant.",
+   "named_fix": "missing op: per-element grounding over a list-valued arg (same class as the airline strand's `multi_arg producer + per-element list iteration`).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L112",
+     "quote": "For a pending order, each item can be modified to an available new item of the same product but of different product option."
+    }
+   ],
+   "reason_code": "G3-LIST-ARG-NOT-RESOLVED"
+  },
+  {
+   "id": "G20",
+   "contract": "write_arg_grounding",
+   "tool": "modify_user_address",
+   "arg": "address1",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G21",
+   "contract": "write_arg_grounding",
+   "tool": "modify_user_address",
+   "arg": "address2",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G22",
+   "contract": "write_arg_grounding",
+   "tool": "modify_user_address",
+   "arg": "city",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G23",
+   "contract": "write_arg_grounding",
+   "tool": "modify_user_address",
+   "arg": "country",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G24",
+   "contract": "write_arg_grounding",
+   "tool": "modify_user_address",
+   "arg": "state",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G26",
+   "contract": "write_arg_grounding",
+   "tool": "modify_user_address",
+   "arg": "zip",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "free-text value the customer speaks, split by the agent into 6 structured fields. The engine's test is case-sensitive exact substring (`if gs in c`, t2_gate_patch.py:2156). '123 Main St' vs the customer's '123 main street, apt 4' is the same legitimate address with a different verdict -> not variation-invariant -> guaranteed false-block.",
+   "named_fix": "missing op: normalized/tokenized comparison. (banking's own authoring rule says the same verbatim: a2/banking_knowledge write_arg_grounding._note - 'grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)')",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "reason_code": "G3-FREETEXT-NOT-INVARIANT"
+  },
+  {
+   "id": "G27",
+   "contract": "write_arg_grounding",
+   "tool": "return_delivered_order_items",
+   "arg": "item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "list-valued arg. `_write_arg_ground_deny` builds its lookup dict with `for k2,v2 in args.items(): if not isinstance(v2,(dict,list)): inner.setdefault(k2,v2)` (t2_gate_patch.py:2124-2126), so a list arg is never resolved -> gs=='' -> `continue`. The declaration can never fire; if the model instead sent a JSON string, str(list) would never substring-match a tool output. Verdict varies with the call's surface form = not variation-invariant.",
+   "named_fix": "missing op: per-element grounding over a list-valued arg (same class as the airline strand's `multi_arg producer + per-element list iteration`).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L120",
+     "quote": "The user needs to confirm the order id and the list of items to be returned."
+    }
+   ],
+   "reason_code": "G3-LIST-ARG-NOT-RESOLVED"
+  },
+  {
+   "id": "E01",
+   "contract": "write_arg_enum",
+   "tool": "cancel_pending_order",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E02",
+   "contract": "write_arg_enum",
+   "tool": "cancel_pending_order",
+   "arg": "reason",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "DEAD DECLARATION - shape mismatch with the consumer. Both consumers of `write_arg_enum` read the value out of a NESTED dispatcher payload: t2_gate_patch.py:12026 `_ia = _ad.get(\"arguments\")` and t2_gate_patch.py:3390 `inner = outer.get(\"arguments\")`. A direct call cancel_pending_order(order_id=..., reason=...) has no 'arguments' key, so _ia == {} -> _val == '' -> `if not (_val and _grp and _names): continue` (fail-open). retail has discoverable_user_tools == [] and user_tools == [] : there is no dispatcher, so this contract cannot fire on ANY retail tool. Second, independent kill: the block is gated on `os.environ.get(\"T2_WRITE_ARG_ENUM\")==\"1\"` and T2_WRITE_ARG_ENUM does not appear in go_stack.sh at all ([[81]]).",
+   "named_fix": "engine-side: the consumer would have to fall back to the outer args dict when no nested 'arguments' payload exists. That is an engine edit -> out of scope for this authoring pass ([[05]]/[[58]]).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L90",
+     "quote": "The user needs to confirm the order id and the reason (either 'no longer needed' or 'ordered by mistake') for cancellation. Other reasons are not acceptable."
+    }
+   ],
+   "reason_code": "G3-DEAD-SHAPE-MISMATCH"
+  },
+  {
+   "id": "E03",
+   "contract": "write_arg_enum",
+   "tool": "exchange_delivered_order_items",
+   "arg": "item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E04",
+   "contract": "write_arg_enum",
+   "tool": "exchange_delivered_order_items",
+   "arg": "new_item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E05",
+   "contract": "write_arg_enum",
+   "tool": "exchange_delivered_order_items",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E06",
+   "contract": "write_arg_enum",
+   "tool": "exchange_delivered_order_items",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "the enumeration in the policy names payment method TYPES ('gift card', 'paypal account', 'credit card') but the argument's value space is payment method IDs. Declaring the type names as `values` would deny every legitimate call. Wrong value space = the set comparison is well-defined but always false.",
+   "named_fix": "none in this contract. Id-existence is already covered by the adopted `write_arg_grounding` row for this tool.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L39",
+     "quote": "There are three types of payment methods: **gift card**, **paypal account**, **credit card**."
+    }
+   ],
+   "reason_code": "G3-WRONG-VALUE-SPACE"
+  },
+  {
+   "id": "E07",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_address",
+   "arg": "address1",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E08",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_address",
+   "arg": "address2",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E09",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_address",
+   "arg": "city",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E10",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_address",
+   "arg": "country",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E11",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_address",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E12",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_address",
+   "arg": "state",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E13",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_address",
+   "arg": "zip",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E14",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_items",
+   "arg": "item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E15",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_items",
+   "arg": "new_item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E16",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_items",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E17",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_items",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "the enumeration in the policy names payment method TYPES ('gift card', 'paypal account', 'credit card') but the argument's value space is payment method IDs. Declaring the type names as `values` would deny every legitimate call. Wrong value space = the set comparison is well-defined but always false.",
+   "named_fix": "none in this contract. Id-existence is already covered by the adopted `write_arg_grounding` row for this tool.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L39",
+     "quote": "There are three types of payment methods: **gift card**, **paypal account**, **credit card**."
+    }
+   ],
+   "reason_code": "G3-WRONG-VALUE-SPACE"
+  },
+  {
+   "id": "E18",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_payment",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E19",
+   "contract": "write_arg_enum",
+   "tool": "modify_pending_order_payment",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "the enumeration in the policy names payment method TYPES ('gift card', 'paypal account', 'credit card') but the argument's value space is payment method IDs. Declaring the type names as `values` would deny every legitimate call. Wrong value space = the set comparison is well-defined but always false.",
+   "named_fix": "none in this contract. Id-existence is already covered by the adopted `write_arg_grounding` row for this tool.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L39",
+     "quote": "There are three types of payment methods: **gift card**, **paypal account**, **credit card**."
+    }
+   ],
+   "reason_code": "G3-WRONG-VALUE-SPACE"
+  },
+  {
+   "id": "E20",
+   "contract": "write_arg_enum",
+   "tool": "modify_user_address",
+   "arg": "address1",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E21",
+   "contract": "write_arg_enum",
+   "tool": "modify_user_address",
+   "arg": "address2",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E22",
+   "contract": "write_arg_enum",
+   "tool": "modify_user_address",
+   "arg": "city",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E23",
+   "contract": "write_arg_enum",
+   "tool": "modify_user_address",
+   "arg": "country",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E24",
+   "contract": "write_arg_enum",
+   "tool": "modify_user_address",
+   "arg": "state",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E25",
+   "contract": "write_arg_enum",
+   "tool": "modify_user_address",
+   "arg": "user_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E26",
+   "contract": "write_arg_enum",
+   "tool": "modify_user_address",
+   "arg": "zip",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E27",
+   "contract": "write_arg_enum",
+   "tool": "return_delivered_order_items",
+   "arg": "item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E28",
+   "contract": "write_arg_enum",
+   "tool": "return_delivered_order_items",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim closed enumeration for this argument exists in either source. The policy never enumerates its value space, and the local tool schema carries argument NAMES only - no type, no required flag, no enum (a2/env_surface_airline_retail.json[retail][tools]), and the 2026-08-29 run's info.environment_info.tool_defs was null.",
+   "named_fix": "none - do not author it ([[77]]: the box cannot be filled, so it stays empty).",
+   "sources": [],
+   "reason_code": "G1-NO-ENUMERATION-IN-SOURCE"
+  },
+  {
+   "id": "E29",
+   "contract": "write_arg_enum",
+   "tool": "return_delivered_order_items",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "the enumeration in the policy names payment method TYPES ('gift card', 'paypal account', 'credit card') but the argument's value space is payment method IDs. Declaring the type names as `values` would deny every legitimate call. Wrong value space = the set comparison is well-defined but always false.",
+   "named_fix": "none in this contract. Id-existence is already covered by the adopted `write_arg_grounding` row for this tool.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L39",
+     "quote": "There are three types of payment methods: **gift card**, **paypal account**, **credit card**."
+    }
+   ],
+   "reason_code": "G3-WRONG-VALUE-SPACE"
+  },
+  {
+   "id": "W01",
+   "contract": "write_evidence_specs",
+   "tool": "cancel_pending_order",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "DUPLICATE of a strictly more precise declaration that retail already carries: gates[G5_STATUS_PRECONDITION] (kind=preconditions) resolves the exact `status` FIELD via resolver_path [order_id, get_order_details, status] and tests `cur in allow` (gate_interpreter.py:392-407, :459). The write_evidence form can only test substring co-occurrence of the id and a token in one tool output - which is strictly weaker and wrong here: 'pending' is a substring of 'pending (items modifed)', so the token would pass exactly the state the policy forbids. Not variation-invariant.",
+   "named_fix": "already covered - no new declaration needed.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L88",
+     "quote": "An order can only be cancelled if its status is 'pending', and you should check its status before taking the action."
+    }
+   ],
+   "reason_code": "G3-DUPLICATE-OF-LIVE-GATE"
+  },
+  {
+   "id": "W02",
+   "contract": "write_evidence_specs",
+   "tool": "modify_pending_order_address",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "same predicate as the G5 rows, and it is NOT currently declared for this tool - G5.applies_to lists only 4 of the 5 status-gated writes. But the substring encoding is the wrong home for the same reason as the duplicates ('pending' matches 'pending (items modifed)'). The correct home is the applies_to slot of the gates declaration that already exists.",
+   "named_fix": "ADOPTED IN A DIFFERENT SLOT: append this tool to gates[G5_STATUS_PRECONDITION].applies_to and to its first check.applies_to (allow=['pending']). See `_amend_gates_`.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L96",
+     "quote": "An order can only be modified if its status is 'pending', and you should check its status before taking the action."
+    }
+   ],
+   "reason_code": "G3-WRONG-HOME-ADOPTED-ELSEWHERE"
+  },
+  {
+   "id": "W03",
+   "contract": "write_evidence_specs",
+   "tool": "modify_pending_order_items",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "DUPLICATE of a strictly more precise declaration that retail already carries: gates[G5_STATUS_PRECONDITION] (kind=preconditions) resolves the exact `status` FIELD via resolver_path [order_id, get_order_details, status] and tests `cur in allow` (gate_interpreter.py:392-407, :459). The write_evidence form can only test substring co-occurrence of the id and a token in one tool output - which is strictly weaker and wrong here: 'pending' is a substring of 'pending (items modifed)', so the token would pass exactly the state the policy forbids. Not variation-invariant.",
+   "named_fix": "already covered - no new declaration needed.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L96",
+     "quote": "An order can only be modified if its status is 'pending', and you should check its status before taking the action."
+    }
+   ],
+   "reason_code": "G3-DUPLICATE-OF-LIVE-GATE"
+  },
+  {
+   "id": "W04",
+   "contract": "write_evidence_specs",
+   "tool": "modify_pending_order_payment",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "same predicate as the G5 rows, and it is NOT currently declared for this tool - G5.applies_to lists only 4 of the 5 status-gated writes. But the substring encoding is the wrong home for the same reason as the duplicates ('pending' matches 'pending (items modifed)'). The correct home is the applies_to slot of the gates declaration that already exists.",
+   "named_fix": "ADOPTED IN A DIFFERENT SLOT: append this tool to gates[G5_STATUS_PRECONDITION].applies_to and to its first check.applies_to (allow=['pending']). See `_amend_gates_`.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L96",
+     "quote": "An order can only be modified if its status is 'pending', and you should check its status before taking the action."
+    }
+   ],
+   "reason_code": "G3-WRONG-HOME-ADOPTED-ELSEWHERE"
+  },
+  {
+   "id": "W05",
+   "contract": "write_evidence_specs",
+   "tool": "return_delivered_order_items",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "DUPLICATE of a strictly more precise declaration that retail already carries: gates[G5_STATUS_PRECONDITION] (kind=preconditions) resolves the exact `status` FIELD via resolver_path [order_id, get_order_details, status] and tests `cur in allow` (gate_interpreter.py:392-407, :459). The write_evidence form can only test substring co-occurrence of the id and a token in one tool output - which is strictly weaker and wrong here: 'pending' is a substring of 'pending (items modifed)', so the token would pass exactly the state the policy forbids. Not variation-invariant.",
+   "named_fix": "already covered - no new declaration needed.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L118",
+     "quote": "An order can only be returned if its status is 'delivered', and you should check its status before taking the action."
+    }
+   ],
+   "reason_code": "G3-DUPLICATE-OF-LIVE-GATE"
+  },
+  {
+   "id": "W06",
+   "contract": "write_evidence_specs",
+   "tool": "exchange_delivered_order_items",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "DUPLICATE of a strictly more precise declaration that retail already carries: gates[G5_STATUS_PRECONDITION] (kind=preconditions) resolves the exact `status` FIELD via resolver_path [order_id, get_order_details, status] and tests `cur in allow` (gate_interpreter.py:392-407, :459). The write_evidence form can only test substring co-occurrence of the id and a token in one tool output - which is strictly weaker and wrong here: 'pending' is a substring of 'pending (items modifed)', so the token would pass exactly the state the policy forbids. Not variation-invariant.",
+   "named_fix": "already covered - no new declaration needed.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L130",
+     "quote": "An order can only be exchanged if its status is 'delivered', and you should check its status before taking the action."
+    }
+   ],
+   "reason_code": "G3-DUPLICATE-OF-LIVE-GATE"
+  },
+  {
+   "id": "W07",
+   "contract": "write_evidence_specs",
+   "tool": "modify_pending_order_payment",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "requires 'the argument must DIFFER from a resolved record field' (the order's original payment method). The preconditions op is `cur in allow` over a literal allow-set and the write_evidence op is substring co-occurrence; neither can express inequality against a field read at call time.",
+   "named_fix": "missing op: `deny_when_equal_to_record_field` (arg vs resolver_path value).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L102",
+     "quote": "The user can only choose a single payment method different from the original payment method."
+    }
+   ],
+   "reason_code": "G3-MISSING-OP-INEQUALITY"
+  },
+  {
+   "id": "W08",
+   "contract": "write_evidence_specs",
+   "tool": "modify_pending_order_payment",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "requires a NUMERIC comparison (gift-card balance >= amount). Every engine op available to this contract is set/substring membership. Also unknown ([[77]]): whether the gift-card balance is even a readable field - the local tool schema has no return schema, and the policy only says the profile contains 'payment methods' (L37). Confirming it would need a tool return value, and the path to those (results.json.gz) carries evaluation_criteria, so it was not opened.",
+   "named_fix": "missing op: `ge_record` (numeric compare of an arg-derived amount against a record field).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L104",
+     "quote": "If the user wants the modify the payment method to gift card, it must have enough balance to cover the total amount."
+    }
+   ],
+   "reason_code": "G3-MISSING-OP-NUMERIC"
+  },
+  {
+   "id": "W09",
+   "contract": "write_evidence_specs",
+   "tool": "modify_pending_order_items",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "requires a NUMERIC comparison (gift-card balance >= amount). Every engine op available to this contract is set/substring membership. Also unknown ([[77]]): whether the gift-card balance is even a readable field - the local tool schema has no return schema, and the policy only says the profile contains 'payment methods' (L37). Confirming it would need a tool return value, and the path to those (results.json.gz) carries evaluation_criteria, so it was not opened.",
+   "named_fix": "missing op: `ge_record` (numeric compare of an arg-derived amount against a record field).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L114",
+     "quote": "The user must provide a payment method to pay or receive refund of the price difference. If the user provides a gift card, it must have enough balance to cover the price difference."
+    }
+   ],
+   "reason_code": "G3-MISSING-OP-NUMERIC"
+  },
+  {
+   "id": "W10",
+   "contract": "write_evidence_specs",
+   "tool": "exchange_delivered_order_items",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "requires a NUMERIC comparison (gift-card balance >= amount). Every engine op available to this contract is set/substring membership. Also unknown ([[77]]): whether the gift-card balance is even a readable field - the local tool schema has no return schema, and the policy only says the profile contains 'payment methods' (L37). Confirming it would need a tool return value, and the path to those (results.json.gz) carries evaluation_criteria, so it was not opened.",
+   "named_fix": "missing op: `ge_record` (numeric compare of an arg-derived amount against a record field).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L134",
+     "quote": "The user must provide a payment method to pay or receive refund of the price difference. If the user provides a gift card, it must have enough balance to cover the price difference."
+    }
+   ],
+   "reason_code": "G3-MISSING-OP-NUMERIC"
+  },
+  {
+   "id": "W11",
+   "contract": "write_evidence_specs",
+   "tool": "return_delivered_order_items",
+   "arg": "payment_method_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "requires a DISJUNCTION over two different resolver paths (the order's original payment method OR any gift card in the user's profile). Pinning either branch as the allow-set false-blocks the other branch, which the policy explicitly permits.",
+   "named_fix": "missing op: `allow_any_of` / `member_of_record` - the same op the airline strand named for its C08/C09 (that pass found no single op unlocking more than 2 candidates either).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L124",
+     "quote": "The refund must either go to the original payment method, or an existing gift card."
+    }
+   ],
+   "reason_code": "G3-MISSING-OP-DISJUNCTION"
+  },
+  {
+   "id": "W12",
+   "contract": "write_evidence_specs",
+   "tool": "modify_pending_order_items",
+   "arg": "new_item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "requires a RELATIONAL JOIN: map each old item_id and each new item_id to its product id (get_item_details), assert equality of the product, inequality of the option, and read an `available` flag - per element of two parallel lists. No op in this contract iterates a list or joins two records. (The parts that ARE closed are already declared: gates[G7_OP_CONSTRAINTS] carries op=disjoint and op=equal_len over the same two fields.)",
+   "named_fix": "missing op: per-element join over two list-valued args.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L112",
+     "quote": "For a pending order, each item can be modified to an available new item of the same product but of different product option."
+    }
+   ],
+   "reason_code": "G3-MISSING-OP-JOIN"
+  },
+  {
+   "id": "W13",
+   "contract": "write_evidence_specs",
+   "tool": "exchange_delivered_order_items",
+   "arg": "new_item_ids",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "requires a RELATIONAL JOIN: map each old item_id and each new item_id to its product id (get_item_details), assert equality of the product, inequality of the option, and read an `available` flag - per element of two parallel lists. No op in this contract iterates a list or joins two records. (The parts that ARE closed are already declared: gates[G7_OP_CONSTRAINTS] carries op=disjoint and op=equal_len over the same two fields.)",
+   "named_fix": "missing op: per-element join over two list-valued args.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L132",
+     "quote": "For a delivered order, each item can be exchanged to an available new item of the same product but of different product option."
+    }
+   ],
+   "reason_code": "G3-MISSING-OP-JOIN"
+  },
+  {
+   "id": "W14",
+   "contract": "write_evidence_specs",
+   "tool": "modify_user_address",
+   "arg": null,
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no verbatim precondition sentence for this action exists in the policy. Searched: the whole 137-line document; modify_user_address is named only by L7 ('modify their default user address') and is otherwise governed by the authentication clause (L10) which is already declared as gates[G1_AUTH_FIRST]. There is nothing to cite.",
+   "named_fix": "none - leave the box empty ([[77]]).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L7",
+     "quote": "modify their default user address"
+    }
+   ],
+   "reason_code": "G1-NO-PRECONDITION-SENTENCE"
+  },
+  {
+   "id": "O1",
+   "contract": "write_once_keys",
+   "tool": "modify_pending_order_items",
+   "arg": "order_id",
+   "verdict": "ALREADY-DECLARED",
+   "gate_failed": null,
+   "why": "this exact row is already live in a2/retail.specific.json[write_once_keys] with the same uniqueness key ['order_id'] and the same L84 citation. The 3-gate pass reproduces it and adds nothing. (Note: the consumer is gated on T2_DUP_WRITE, and go_stack.sh:695 exports T2_DUP_WRITE=0 - the row is shipped but off, [[81]].)",
+   "named_fix": null,
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L84",
+     "quote": "Exchange or modify order tools can only be called once per order."
+    }
+   ],
+   "reason_code": null
+  },
+  {
+   "id": "O2",
+   "contract": "write_once_keys",
+   "tool": "exchange_delivered_order_items",
+   "arg": "order_id",
+   "verdict": "ALREADY-DECLARED",
+   "gate_failed": null,
+   "why": "this exact row is already live in a2/retail.specific.json[write_once_keys] with the same uniqueness key ['order_id'] and the same L84 citation. The 3-gate pass reproduces it and adds nothing. (Note: the consumer is gated on T2_DUP_WRITE, and go_stack.sh:695 exports T2_DUP_WRITE=0 - the row is shipped but off, [[81]].)",
+   "named_fix": null,
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L84",
+     "quote": "Exchange or modify order tools can only be called once per order."
+    }
+   ],
+   "reason_code": null
+  },
+  {
+   "id": "O3",
+   "contract": "write_once_keys",
+   "tool": "modify_pending_order_address",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "the SCOPE of L84's 'Exchange or modify order tools' is not decidable from the text, and the document contradicts the wide reading twice: L110 scopes the once-only clause to the items action ('This action can only be called once'), and L106 says that after a payment modification 'the order status will be kept as pending' - i.e. the order stays actionable. A once-only key here would deny a legitimate corrective second call. Two readings of the same sentence give opposite verdicts on the same call = not variation-invariant.",
+   "named_fix": "none. If the wide reading is ever confirmed from a source, the row is one line - but it must not be authored on an inference ([[23]]).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L106",
+     "quote": "After user confirmation, the order status will be kept as 'pending'."
+    }
+   ],
+   "reason_code": "G3-SCOPE-AMBIGUOUS-CONTRADICTED"
+  },
+  {
+   "id": "O4",
+   "contract": "write_once_keys",
+   "tool": "modify_pending_order_payment",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 3,
+   "why": "the SCOPE of L84's 'Exchange or modify order tools' is not decidable from the text, and the document contradicts the wide reading twice: L110 scopes the once-only clause to the items action ('This action can only be called once'), and L106 says that after a payment modification 'the order status will be kept as pending' - i.e. the order stays actionable. A once-only key here would deny a legitimate corrective second call. Two readings of the same sentence give opposite verdicts on the same call = not variation-invariant.",
+   "named_fix": "none. If the wide reading is ever confirmed from a source, the row is one line - but it must not be authored on an inference ([[23]]).",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L106",
+     "quote": "After user confirmation, the order status will be kept as 'pending'."
+    }
+   ],
+   "reason_code": "G3-SCOPE-AMBIGUOUS-CONTRADICTED"
+  },
+  {
+   "id": "O5",
+   "contract": "write_once_keys",
+   "tool": "cancel_pending_order",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no 'only once' sentence names this action. L84 names 'Exchange or modify order tools'; this tool is neither an exchange nor an order-modify tool.",
+   "named_fix": "none - leave it out ([[77]]).",
+   "sources": [],
+   "reason_code": "G1-NO-ONCE-ONLY-SENTENCE"
+  },
+  {
+   "id": "O6",
+   "contract": "write_once_keys",
+   "tool": "return_delivered_order_items",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no 'only once' sentence names this action. L84 names 'Exchange or modify order tools'; this tool is neither an exchange nor an order-modify tool.",
+   "named_fix": "none - leave it out ([[77]]).",
+   "sources": [],
+   "reason_code": "G1-NO-ONCE-ONLY-SENTENCE"
+  },
+  {
+   "id": "O7",
+   "contract": "write_once_keys",
+   "tool": "modify_user_address",
+   "arg": "order_id",
+   "verdict": "REJECT",
+   "gate_failed": 1,
+   "why": "no 'only once' sentence names this action. L84 names 'Exchange or modify order tools'; this tool is neither an exchange nor an order-modify tool.",
+   "named_fix": "none - leave it out ([[77]]).",
+   "sources": [],
+   "reason_code": "G1-NO-ONCE-ONLY-SENTENCE"
+  }
+ ],
+ "_note_write_once_keys_": "DELIBERATELY ABSENT from this file. 0 new rows were adopted, and retail already carries 2 live rows in a2/retail.specific.json. Emitting `write_once_keys: []` here would wipe them on a naive merge. See ledger O1-O7.",
+ "write_arg_grounding": [
+  {
+   "applies_to": "cancel_pending_order",
+   "grounded_args": [
+    "order_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records, never invented, guessed, or reconstructed from memory. Call get_user_details for this customer to list their orders and payment methods, or get_order_details for the order itself, then call this tool again with {arg} copied verbatim from that output.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L90",
+     "quote": "The user needs to confirm the order id and the reason (either 'no longer needed' or 'ordered by mistake') for cancellation. Other reasons are not acceptable."
+    },
+    {
+     "doc": "specs/retail_policy.md:L12",
+     "quote": "help the user look up order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L68",
+     "quote": "unique order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "_note_": "closed predicate: the scalar value must appear as a substring of some role=tool or role=user message. order_id and payment_method_id are opaque record tokens with no paraphrase variants, so the verdict does not move with surface form. [[70]] what this sells: if the customer types the id in a different surface form than the record prints it (e.g. 'W0000000' vs '#W0000000') and the agent normalises it, this denies a legitimate call. The deny is recoverable and names the lookup, and G1_AUTH_FIRST already forces get_user_details before these writes, so the record form is in the corpus. Sign to be counted at first ignition: [T2_WRITE_ARG_GROUND] deny lines per sim."
+  },
+  {
+   "applies_to": "exchange_delivered_order_items",
+   "grounded_args": [
+    "order_id",
+    "payment_method_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records, never invented, guessed, or reconstructed from memory. Call get_user_details for this customer to list their orders and payment methods, or get_order_details for the order itself, then call this tool again with {arg} copied verbatim from that output.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L12",
+     "quote": "help the user look up order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L68",
+     "quote": "unique order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L122",
+     "quote": "The user needs to provide a payment method to receive the refund."
+    },
+    {
+     "doc": "specs/retail_policy.md:L124",
+     "quote": "The refund must either go to the original payment method, or an existing gift card."
+    },
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "_note_": "closed predicate: the scalar value must appear as a substring of some role=tool or role=user message. order_id and payment_method_id are opaque record tokens with no paraphrase variants, so the verdict does not move with surface form. [[70]] what this sells: if the customer types the id in a different surface form than the record prints it (e.g. 'W0000000' vs '#W0000000') and the agent normalises it, this denies a legitimate call. The deny is recoverable and names the lookup, and G1_AUTH_FIRST already forces get_user_details before these writes, so the record form is in the corpus. Sign to be counted at first ignition: [T2_WRITE_ARG_GROUND] deny lines per sim."
+  },
+  {
+   "applies_to": "modify_pending_order_address",
+   "grounded_args": [
+    "order_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records, never invented, guessed, or reconstructed from memory. Call get_user_details for this customer to list their orders and payment methods, or get_order_details for the order itself, then call this tool again with {arg} copied verbatim from that output.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L12",
+     "quote": "help the user look up order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L68",
+     "quote": "unique order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "_note_": "closed predicate: the scalar value must appear as a substring of some role=tool or role=user message. order_id and payment_method_id are opaque record tokens with no paraphrase variants, so the verdict does not move with surface form. [[70]] what this sells: if the customer types the id in a different surface form than the record prints it (e.g. 'W0000000' vs '#W0000000') and the agent normalises it, this denies a legitimate call. The deny is recoverable and names the lookup, and G1_AUTH_FIRST already forces get_user_details before these writes, so the record form is in the corpus. Sign to be counted at first ignition: [T2_WRITE_ARG_GROUND] deny lines per sim."
+  },
+  {
+   "applies_to": "modify_pending_order_items",
+   "grounded_args": [
+    "order_id",
+    "payment_method_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records, never invented, guessed, or reconstructed from memory. Call get_user_details for this customer to list their orders and payment methods, or get_order_details for the order itself, then call this tool again with {arg} copied verbatim from that output.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L12",
+     "quote": "help the user look up order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L68",
+     "quote": "unique order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L122",
+     "quote": "The user needs to provide a payment method to receive the refund."
+    },
+    {
+     "doc": "specs/retail_policy.md:L124",
+     "quote": "The refund must either go to the original payment method, or an existing gift card."
+    },
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "_note_": "closed predicate: the scalar value must appear as a substring of some role=tool or role=user message. order_id and payment_method_id are opaque record tokens with no paraphrase variants, so the verdict does not move with surface form. [[70]] what this sells: if the customer types the id in a different surface form than the record prints it (e.g. 'W0000000' vs '#W0000000') and the agent normalises it, this denies a legitimate call. The deny is recoverable and names the lookup, and G1_AUTH_FIRST already forces get_user_details before these writes, so the record form is in the corpus. Sign to be counted at first ignition: [T2_WRITE_ARG_GROUND] deny lines per sim."
+  },
+  {
+   "applies_to": "modify_pending_order_payment",
+   "grounded_args": [
+    "order_id",
+    "payment_method_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records, never invented, guessed, or reconstructed from memory. Call get_user_details for this customer to list their orders and payment methods, or get_order_details for the order itself, then call this tool again with {arg} copied verbatim from that output.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L12",
+     "quote": "help the user look up order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L68",
+     "quote": "unique order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L122",
+     "quote": "The user needs to provide a payment method to receive the refund."
+    },
+    {
+     "doc": "specs/retail_policy.md:L124",
+     "quote": "The refund must either go to the original payment method, or an existing gift card."
+    },
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "_note_": "closed predicate: the scalar value must appear as a substring of some role=tool or role=user message. order_id and payment_method_id are opaque record tokens with no paraphrase variants, so the verdict does not move with surface form. [[70]] what this sells: if the customer types the id in a different surface form than the record prints it (e.g. 'W0000000' vs '#W0000000') and the agent normalises it, this denies a legitimate call. The deny is recoverable and names the lookup, and G1_AUTH_FIRST already forces get_user_details before these writes, so the record form is in the corpus. Sign to be counted at first ignition: [T2_WRITE_ARG_GROUND] deny lines per sim."
+  },
+  {
+   "applies_to": "modify_user_address",
+   "grounded_args": [
+    "user_id"
+   ],
+   "corpus_roles": {
+    "user_id": [
+     "tool"
+    ]
+   },
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} was never returned by a tool in this conversation. The customer stating their own user id is not enough - the policy requires you to LOCATE it: call find_user_id_by_email, or find_user_id_by_name_zip, and then pass the id exactly as that tool returned it.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L10",
+     "quote": "you have to authenticate the user identity by locating their user id via email, or via name + zip code. This has to be done even when the user already provides the user id."
+    },
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "_note_": "corpus_roles restricts the authoritative corpus for user_id to role=tool messages. That is the verbatim policy, not an inference: L10 says the id must be LOCATED via email or name+zip 'even when the user already provides the user id', so the customer's own statement of it is explicitly not sufficient. The engine default is ('tool','user') (t2_gate_patch.py:2148), which would accept the customer's claim. Distinct from gates[G1_AUTH_FIRST] (which asks whether an auth call happened) and from gates[G3_SINGLE_USER] (whose owner resolve fails open on a nonexistent id): this row catches a transcription slip on a correctly authenticated conversation."
+  },
+  {
+   "applies_to": "return_delivered_order_items",
+   "grounded_args": [
+    "order_id",
+    "payment_method_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records, never invented, guessed, or reconstructed from memory. Call get_user_details for this customer to list their orders and payment methods, or get_order_details for the order itself, then call this tool again with {arg} copied verbatim from that output.",
+   "sources": [
+    {
+     "doc": "specs/retail_policy.md:L120",
+     "quote": "The user needs to confirm the order id and the list of items to be returned."
+    },
+    {
+     "doc": "specs/retail_policy.md:L12",
+     "quote": "help the user look up order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L68",
+     "quote": "unique order id"
+    },
+    {
+     "doc": "specs/retail_policy.md:L122",
+     "quote": "The user needs to provide a payment method to receive the refund."
+    },
+    {
+     "doc": "specs/retail_policy.md:L124",
+     "quote": "The refund must either go to the original payment method, or an existing gift card."
+    },
+    {
+     "doc": "specs/retail_policy.md:L18",
+     "quote": "You should not make up any information or knowledge or procedures not provided by the user or the tools"
+    }
+   ],
+   "_note_": "closed predicate: the scalar value must appear as a substring of some role=tool or role=user message. order_id and payment_method_id are opaque record tokens with no paraphrase variants, so the verdict does not move with surface form. [[70]] what this sells: if the customer types the id in a different surface form than the record prints it (e.g. 'W0000000' vs '#W0000000') and the agent normalises it, this denies a legitimate call. The deny is recoverable and names the lookup, and G1_AUTH_FIRST already forces get_user_details before these writes, so the record form is in the corpus. Sign to be counted at first ignition: [T2_WRITE_ARG_GROUND] deny lines per sim."
+  }
+ ],
+ "write_evidence_specs": [],
+ "write_arg_enum": [],
+ "_note_empty_contracts_": "write_evidence_specs and write_arg_enum are emitted as empty lists on purpose: 0 candidates survived all three gates, and neither key exists in the live retail A2, so [] is exactly the current state (merge-safe). Do not fill them to make the file look complete ([[77]])."
+}

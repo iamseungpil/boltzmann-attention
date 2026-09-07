@@ -46,6 +46,19 @@ import atexit  # noqa: E402
 #   등록한다 — 바깥에서 `*_fb` 변수명으로 플래그를 되짚는 것은 추측이고, 실제로 틀렸다.
 #   `orch`를 안 주면 종전 stderr 한 줄뿐이라 기존 호출부 거동은 불변이다.
 from t2_lever_beat import beat as _lbeat  # noqa: E402
+
+# ★2026-09-06 — 계기 부여용 공용 심. 임포트/호출 실패가 런을 죽이지 않는다.
+try:
+    from t2_lever_beat import beat as _LBEAT_RAW
+except Exception:                                    # pragma: no cover
+    _LBEAT_RAW = None
+def _LBEAT(flag, detail=""):
+    try:
+        if _LBEAT_RAW is not None:
+            _LBEAT_RAW(flag, detail)
+    except Exception:
+        pass
+
 atexit.register(_lever_health_report)
 
 
@@ -1301,6 +1314,8 @@ def apply():
                     results.append(_deny_msg(tc, pd[0], pd[1] + extra))
                     continue
             if label_on:  # ★T2_ARG_LABEL: env 가 다른 필드로 낸 값을 이 인자에 넣은 것을 반려
+                # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+                _LBEAT("T2_ARG_LABEL", "라벨 오배치 검사 진입")
                 _lm = _label_mismatch_deny(tc, a2, _rec_labels(),
                                            selectors=_selector_args_cached(env))
                 if _lm:
@@ -2652,6 +2667,17 @@ def _value_acquire_fb(am, messages, specs, a2=None, executed=None):
                 continue
         except Exception:
             pass
+        # ⑤ ★P6 (x737 §9b · R1 조건 · 2026-09-07): **선언된 write 가 이미 성공했으면 침묵.**
+        #   이 넛지는 "값을 얻어 W 로 가라"는 것인데, W 가 이미 성공했으면 그 말은 할 일이 없다.
+        #   x778 부호표(6,103 sim · VA 사이트 1,008) 실측: 발화 **유지 1001/1008(99.3%)** ·
+        #   침묵 7 · gold 손실 1(task_041 · 그 sim 은 이미 0.0) · **통과 sim 손실 0**.
+        #   주석이 지키려던 표적 031·039·048·051·053·035·022·040 은 **전부 생존**한다.
+        #   ⚠④ 뒤에 둔다 — 앞에 두면 애초에 말할 생각이 없던 턴까지 "침묵"으로 세어 계기가
+        #     부풀어 오른다(2026-08-06 rev2 에서 98건이 그렇게 찍혔다).
+        if W in (executed or ()):
+            print("[T2_VALUE_ACQUIRE] 침묵: 선언 write=%s 가 이미 성공 (P6)" % W,
+                  file=sys.stderr, flush=True)
+            continue
         fb = sp.get("feedback") or VALUE_ACQUIRE_FEEDBACK_DEFAULT
         return (fb.replace("{arg}", str(arg)).replace("{acquire_tool}", str(acq))
                   .replace("{give_tool}", str(give)).replace("{write}", str(W)))
@@ -4091,7 +4117,7 @@ def _executed_tool_names(messages, a2=None):
     return ok
 
 
-def _executed_tool_counts(messages):
+def _executed_tool_counts(messages, a2=None):
     """Same as `_executed_tool_names`, keeping how many times — a set threw the count away.
 
     The purchase-decline document does not order steps, it counts them: the internal
@@ -4099,6 +4125,26 @@ def _executed_tool_counts(messages):
     one the fourth. A `Counter` still answers membership the way a set did, so every
     existing caller reads it unchanged.
     """
+    # ★P1 (x737 §9b · 2026-09-07) — 실패 표지를 `"Error:"` 하나로만 보면 **실패한 호출을
+    #   성공으로 계상**한다. 이 환경은 오류를 평문으로도 돌려주고(A2 가 `failure_markers` 로
+    #   선언한 5종), 그러면 의존 그래프가 조기 전진한다. `_executed_tool_names`(:4079)는 이미
+    #   제대로 읽는데 **이 쌍둥이만** 안 읽고 있었다 — 같은 판정이 두 자리에서 갈렸다.
+    #   ⚠`a2` 미전달이면 구판과 동일(거동 변화 0) — 호출부를 하나씩 옮긴다.
+    # ★P1 부호표 반영 (x817 §7 · 2026-09-07) — 표지를 **두 부류로 가른다**.
+    #   회수분 전수(4,575 sim) 실측:
+    #       `NOT_VERIFIED` × verify_identity   3,353회  (통과 sim 704 · 실패 2,649)
+    #       `Failed to`    × log_verification    536회  (통과 sim  87 · 실패   719)
+    #   `verify_identity` 가 `NOT_VERIFIED` 를 돌려준 것은 **도구가 정상 작동한 결과**(판정이
+    #   «불일치»)이지 미실행이 아니다. 그것까지 실패로 세면 절차 단계 계수가 통과 sim 704건에서
+    #   흔들린다([[70]] 파는 쪽). 반면 `Failed to` × `log_verification` 은 P1 이 겨눈 바로 그것 —
+    #   실패한 호출을 성공으로 계상해 게이트가 조기 전진하던 자리다.
+    #   ⇒ 의미 판단은 엔진이 하지 않는다([[59]]/[[66]]) — **A2 가 `verdict_markers` 로 가른다.**
+    #   ⚠쌍둥이 `_executed_tool_names` 와 여기서 답이 갈리는 것은 **의도된 것**이다: 그쪽은
+    #     「이 도구가 성공했나」를, 여기는 「이 단계가 수행됐나」를 묻는다. 검증을 시도해 «불일치»를
+    #     받은 것은 두 번째 물음에는 «했다»가 맞다.
+    _a2 = a2 or {}
+    marks = tuple(m for m in (_a2.get("failure_markers") or ())
+                  if m not in set(_a2.get("verdict_markers") or ()))
     out, pending = collections.Counter(), {}
     for m in messages or []:
         for tc in (getattr(m, "tool_calls", None) or []):
@@ -4106,7 +4152,9 @@ def _executed_tool_counts(messages):
         if getattr(m, "role", None) == "tool":
             nm = pending.pop(getattr(m, "id", None) or getattr(m, "tool_call_id", None), None)
             txt = str(getattr(m, "content", "") or "").lstrip()
-            if nm and not (getattr(m, "error", False) or txt.startswith("Error:")):
+            failed = (getattr(m, "error", False) or txt.startswith("Error:")
+                      or any(txt.startswith(k) for k in marks))
+            if nm and not failed:
                 out[nm] += 1
     return out
 
@@ -4248,7 +4296,7 @@ def _read_routine_pin(agent, a2, messages):
             if getattr(_m, "role", None) == "user":
                 return None
             break
-    done = _executed_tool_counts(messages)
+    done = _executed_tool_counts(messages, a2)
     unlocked = _unlocked_names(messages, a2)
     for p in _PROC.active_procedures(procs, done):
         st = _PROC.render_state(p, done, unlocked, None)
@@ -4766,6 +4814,9 @@ def _rearm_subjects(agent, po, gs, done, messages):
     #   빠지는데, 그것이 바로 016 의 원래 결손(Bronze 만 배달된 채 Silver 가 닫힌 자리)이다.
     #   두 조각은 하나의 처방이라 한 플래그로 묶는다. OFF 면 바이트 동일.
     _uonly = os.environ.get("T2_REARM_USER_ONLY") == "1"
+    # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+    if _uonly:
+        _LBEAT("T2_REARM_USER_ONLY", "재무장 대상을 user 발화로 한정")
     _roles = ("user",) if _uonly else ("user", "assistant")
     for g in gs:
         if g not in done or g not in served_at:
@@ -6318,6 +6369,50 @@ def _fu_target_called(msgs, tool, tool_args):
                 ar = _args_dict(tc)
                 if all(str(ar.get(k, "")) == str(v) for k, v in tool_args.items()):
                     return True
+    return False
+
+
+def _sg_produced_findings(msgs, decl):
+    """★F1 (2026-09-07 · x808 §7-1) — 이 scaffold_get 도구가 **비지 않은 결과**를 냈는가.
+
+    종전 `follow_up` 장전 조건은 «그 도구를 불렀나»뿐이었다(아래 `_d0.get("name") in _called0`).
+    실측(`bank_p1_task_024` · seed 626729): 모델이 **가상 6행**으로 `get_reward_discrepancies` 를
+    부르자(그 호출 자체도 우리 `[DECLARATION]` 재생성이 강제했다) 도구는 축자로
+    *"No transaction ... needs a dispute"* 를 반환했는데, 그 뒤 우리 follow_up 이
+    *"**you found reward discrepancies** ... call 'give_discoverable_user_tool' with
+    discoverable_tool_name='submit_cash_back_dispute_0589'"* 를 발화했다. 모델이 순응해 나간
+    give 한 줄이 `user_discoverable_tools` 에 ONLY-PRED 행을 만들어 **db_match 를 깼다**(reward 0).
+    우리 문구가 참이 아닌 것을 말하면 그건 우리 결함이다([[25]]).
+
+    술어 = **A2 가 선언한 `return_template_empty` 와 같은 문면인가**(닫힘·변이 불변·판단 0·[[22]]).
+    선언이 없으면 종전대로 «불렸으면 참» → 거동 변화 0. 변이(`T2_A2_VARIANT=ratefix` 등)는
+    정본 병합기 `t2_scaffold_get._variant` 를 그대로 쓴다(사본 금지·[[67]]).
+    """
+    try:
+        from t2_scaffold_get import _variant as _sg_variant
+        _eff = _sg_variant(decl) or decl
+    except Exception:
+        _eff = decl
+    _empty = " ".join(str(_eff.get("return_template_empty") or "").split())
+    if not _empty:
+        return True                                   # empty 선언 없음 = 종전 거동
+    _name = decl.get("name")
+    _ids = set()
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if getattr(tc, "name", None) == _name:
+                _i = getattr(tc, "id", None)
+                if _i:
+                    _ids.add(_i)
+    _head = _empty[:80]
+    for m in msgs:
+        if getattr(m, "role", None) != "tool" or getattr(m, "error", False):
+            continue
+        if getattr(m, "id", None) not in _ids:
+            continue
+        _c = " ".join(str(getattr(m, "content", "") or "").split())
+        if _c and not _c.startswith(_head):
+            return True                               # 비지 않은 결과가 하나라도 있다
     return False
 
 
@@ -9545,7 +9640,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     import t2_procedure as _PROC
                     # 개수-보존: `min_count` 노드(정책이 "첫 3회"처럼 세는 규칙)를 위해서다.
                     # Counter는 집합처럼 멤버십도 답하므로 나머지 판정은 그대로다.
-                    _done = _executed_tool_counts(state.messages)
+                    _done = _executed_tool_counts(state.messages, a2)
                     for c in (am.tool_calls or []):
                         _ar = _args_dict(c)
                         _also = {str(_ar.get(k)) for k in
@@ -9625,7 +9720,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and os.environ.get("T2_PROC_ABSENT") == "1"):
                 try:
                     import t2_procedure as _PROC
-                    _done2 = _executed_tool_counts(state.messages)
+                    _done2 = _executed_tool_counts(state.messages, a2)
                     _unl = _unlocked_names(state.messages, a2)
                     _pat = ((a2 or {}).get("discoverable_name_check") or {}).get("pattern")
                     _K = int(os.environ.get("T2_PROC_ABSENT_K", "3"))
@@ -9851,7 +9946,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and not getattr(self, "_t2_tls_fired", False)):
                 try:
                     import t2_procedure as _PROC16
-                    _done16 = _executed_tool_counts(state.messages)
+                    _done16 = _executed_tool_counts(state.messages, a2)
                     _unl16 = _unlocked_names(state.messages, a2)
                     for c in (am.tool_calls or []):
                         _tn16 = _exact_tool_name(c)
@@ -10205,7 +10300,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     < int(os.environ.get("T2_VALUE_ACQUIRE_CAP", "3"))):
                 try:
                     _va = _value_acquire_fb(am, state.messages, va_specs, a2=a2,
-                                            executed=_executed_tool_names(state.messages))
+                                            executed=_executed_tool_names(state.messages, a2))
                     if _va:
                         # ★C9(2026-08-05·048·사용자 제안 "매핑을 알려주면 안 되나"): 값을 얻는 길만
                         #   말하면 048처럼 **아무 데도 쓰지 않을 값**을 열 메시지 동안 쫓는다. 그 값을
@@ -10581,7 +10676,44 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #   우리 문구가 참이 아닌 것을 말하면 그건 우리 결함이다([[25]]).
                                     #   ⇒ 주장을 **누가 실행하는가**로 좁히고, 추천 뒤에 남은 일은
                                     #     모델 판단에 되돌린다(무엇이 부족한지는 말하지 않는다).
-                                    _ufb = str((a2 or {}).get("user_action_feedback")
+                                    # ★F8‴ (사용자 제안 2026-09-07 · x817 §14-6): **호출 형식과
+                                    #   도구를 쌍으로** 말한다. 구판은 문면이 1종이라 «손님에게
+                                    #   시켜라»만 했는데, discoverable 은 **먼저 건네야** 손님이
+                                    #   부를 수 있다. 도메인 정책 축자: *"Just explaining isn't
+                                    #   enough, you must use the `give_discoverable_user_tool(
+                                    #   discoverable_tool_name)` function"* ([[23]] 정책 출처).
+                                    #   ⚠2026-08-23 R8-⑶ 이 이 모순을 이미 지적했다 —
+                                    #     *"대기집합에만 넣고 문면을 그대로 두면 우리 층이 무엇을
+                                    #     하면 풀리는지를 **틀리게** 말하게 된다"*. 그 처방이 이것이다.
+                                    #   실측(회수분 전수): `[ACTION]` 발화 1,824회 중 **1,653(91%)**이
+                                    #     «아직 안 건네진» 도구를 지목하면서 «시켜라»라고 했다 —
+                                    #     49 태스크. 015 는 그 자리에서 gold 의 give 까지 막혔다.
+                                    #   ⚠술어는 닫혀 있다: `_tool_given`(이미 존재)만 본다. 해석 0.
+                                    #   ⚠give 도구 이름은 **A2 선언**에서 온다(엔진 리터럴 0·[[05]]).
+                                    #   ⚠이미 건네진 경우는 **구판 문면 그대로** — 거동 변화 0.
+                                    _gtool = ((a2 or {}).get("value_acquisition") or [{}])[0].get("give_tool")                                              or ((a2 or {}).get("dispatcher_role_check") or {}).get("give_tool")
+                                    _handed = True
+                                    if _gtool:
+                                        try:
+                                            _handed = bool(_tool_given(state.messages, _gtool, _utgt))
+                                        except Exception:
+                                            _handed = True
+                                    if _gtool and not _handed:
+                                        _hb = str((a2 or {}).get("user_action_handover_feedback")
+                                                  or ("Error: [ACTION] '{tool}' is run by the CUSTOMER, not by "
+                                                      "you - but they cannot run it until you hand it over. "
+                                                      "Explaining is not enough. Call '{give}' with "
+                                                      "discoverable_tool_name='{tool}' now, then tell them to "
+                                                      "run it and confirm the result. Do not search for an "
+                                                      "agent-side procedure for '{tool}' and do not transfer "
+                                                      "the conversation in order to get '{tool}' run.")
+                                                  ).replace("{tool}", _utgt).replace("{give}", str(_gtool))
+                                        print("[T2_ACTIONREQ] handover: %s 는 아직 손님에게 건네지지 "
+                                              "않았다 — '시켜라'가 아니라 '건네라'가 처방이다 (F8‴)"
+                                              % _utgt, file=_sys.stderr, flush=True)
+                                        _ufb = _hb
+                                    else:
+                                        _ufb = str((a2 or {}).get("user_action_feedback")
                                                or ("Error: [ACTION] '{tool}' is run by the CUSTOMER, "
                                                    "not by you. There is no agent-side procedure to "
                                                    "look up for running it, so do not search for one "
@@ -12887,6 +13019,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 #   max_tokens=450/20을 하드코딩해 강제 JSON이 절단된 아티팩트(vLLM #19051/#36794)였음 —
                 #   _gen의 max_tokens 하한이 교정. 병리적 runaway(039 퇴행루프)만 _gen 폴백으로 강등.
                 if os.environ.get("T2_HAVE_VALUE_FORCE", "1") == "1":
+                    # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+                    _LBEAT("T2_HAVE_VALUE_FORCE", "have-value 강제 경로")
                     force_required = True
             # ★출구 ② 배선 (2026-08-07·"단일 출구" 전제 교정). `admit()`은 `_ap_regen`(텍스트 발화)
             #   한 곳에만 걸려 있었는데, deny·치환 문구는 **이 `fb` 배치**라는 두 번째 출구로 나간다.
@@ -14063,7 +14197,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if _procsR and os.environ.get("T2_PROC_REGEN", "1") == "1":
                 try:
                     import t2_procedure as _PROCR
-                    _doneR = _executed_tool_counts(state.messages)
+                    _doneR = _executed_tool_counts(state.messages, a2)
                     _hitR = _proc_first_deny(_am2)
                     if _hitR is not None:
                         _cR, _dcR = _hitR
@@ -14237,6 +14371,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠[[57]] 부정통제 = `T2_REGEN_WRITE_GATES=1↔0` 한 칸 · 계수 = `[T2_REGEN_WGATE] deny` 줄.
             self._t2_regen_wgate_denied = set()
             if os.environ.get("T2_REGEN_WRITE_GATES") == "1":
+                # ★2026-09-06 계기 부여 — x44 상 ON·무발화(=마커 없어 관측 불가)였다. beat 는 정본 헬퍼.
+                _LBEAT("T2_REGEN_WRITE_GATES", "재생성 write 게이트 재적용")
                 try:
                     # 게이트·prov 라운드의 조언-계열 배제는 메인 경로와 **같은 술어**를 쓴다(A7).
                     # 루프가 이 턴에 그 자리를 못 지났으면(=평가할 게이트가 없던 턴) 기본 False.
@@ -14845,6 +14981,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 # ★C212/A1: tool_args 선언 시 인자-대조 이행 판정 — 무관-대상 동명 give가
                 #   조건을 영구 충족시키던 갭(day7 022/027 [S]) 차단. 미선언=종전 동작.
                 if (_ft and _d0.get("name") in _called0
+                        # ★F1(2026-09-07): 「불렸나」가 아니라 「비지 않은 결과를 냈나」.
+                        and _sg_produced_findings(state.messages, _d0)
                         and not _fu_target_called(state.messages, _ft,
                                                   _fu.get("tool_args") or {})
                         and _fu.get("feedback")):
@@ -15014,7 +15152,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             try:
                 import t2_procedure as _PL
                 _procs = (a2 or {}).get("procedures") or []
-                _done = _executed_tool_counts(state.messages)
+                _done = _executed_tool_counts(state.messages, a2)
                 _rows, _pids = [], []
                 for _p in _PL.active_procedures(_procs, _done):
                     for _nid, _tools, _ok in _PL.checklist(_p, _done):

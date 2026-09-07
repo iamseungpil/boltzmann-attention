@@ -1,0 +1,925 @@
+{
+ "_meta": {
+  "id": "x768_airline_a2_DRAFT",
+  "domain": "airline",
+  "date": "2026-09-05",
+  "status": "DRAFT — a2/ 미배선. 감사 통과 전 배선 금지.",
+  "authoring_rule": "3관문 수용성 필터(출처·대상·닫힘). 하나라도 못 넘으면 버린다(고쳐 넣지 않는다).",
+  "sources_used": [
+   "airline policy.md 167줄 = a2/env_surface_airline_retail.json['airline']['policy'] (7,676 B)",
+   "airline 도구 스키마 14종 = 같은 파일 ['airline']['tools'] (name/args/mutates/tool_type/desc)"
+  ],
+  "sources_NOT_used": "gold · evaluation_criteria · tasks.json · *.results.json.gz — 하나도 열지 않았다([[23]]).",
+  "engine_files_touched": 0,
+  "a2_files_touched": 0
+ },
+ "_gate2_inventory_": {
+  "_doc": "관문2의 기준표. 출처 = a2/env_surface_airline_retail.json['airline'] (리모트 레지스트리 실측).",
+  "tools_total": 14,
+  "tools": [
+   "book_reservation",
+   "calculate",
+   "cancel_reservation",
+   "get_flight_status",
+   "get_reservation_details",
+   "get_user_details",
+   "list_all_airports",
+   "search_direct_flight",
+   "search_onestop_flight",
+   "send_certificate",
+   "transfer_to_human_agents",
+   "update_reservation_baggages",
+   "update_reservation_flights",
+   "update_reservation_passengers"
+  ],
+  "write_mutates_true": [
+   "book_reservation",
+   "cancel_reservation",
+   "send_certificate",
+   "update_reservation_baggages",
+   "update_reservation_flights",
+   "update_reservation_passengers"
+  ],
+  "read": [
+   "get_flight_status",
+   "get_reservation_details",
+   "get_user_details",
+   "list_all_airports",
+   "search_direct_flight",
+   "search_onestop_flight"
+  ],
+  "generic": [
+   "calculate",
+   "transfer_to_human_agents"
+  ],
+  "discoverable_user_tools": [],
+  "user_tools": [],
+  "tools_eq_exposed": true,
+  "write_scalar_args": {
+   "book_reservation": [
+    "cabin",
+    "destination",
+    "flight_type",
+    "flights",
+    "insurance",
+    "nonfree_baggages",
+    "origin",
+    "passengers",
+    "payment_methods",
+    "total_baggages",
+    "user_id"
+   ],
+   "cancel_reservation": [
+    "reservation_id"
+   ],
+   "send_certificate": [
+    "amount",
+    "user_id"
+   ],
+   "update_reservation_baggages": [
+    "nonfree_baggages",
+    "payment_id",
+    "reservation_id",
+    "total_baggages"
+   ],
+   "update_reservation_flights": [
+    "cabin",
+    "flights",
+    "payment_id",
+    "reservation_id"
+   ],
+   "update_reservation_passengers": [
+    "passengers",
+    "reservation_id"
+   ]
+  },
+  "_note_scalar": "write_arg_grounding·write_evidence_specs 는 **스칼라 인자만** 본다 — `_write_arg_ground_deny` 의 평탄화가 `if not isinstance(v2,(dict,list))` 로 리스트/딕트 인자를 뺀다(t2_gate_patch:2124). 따라서 flights·passengers·payment_methods 는 이 계약의 대상이 될 수 없다(관문2 구조적 제외)."
+ },
+ "_funnel_": {
+  "_doc": "★이 실험의 주 산출. 통과율이 아니라 **어디서 얼마나 떨어지는가**.",
+  "level0_contract_roster_screen": {
+   "a2_top_level_keys_3domain_union": 72,
+   "dead_no_live_engine_reader": 4,
+   "live_contract_keys": 68,
+   "already_declared_by_airline": 7,
+   "_already_list": [
+    "action_tools",
+    "calc_tool",
+    "eplan",
+    "failure_markers",
+    "gates",
+    "identifying_arg_types",
+    "producers"
+   ],
+   "pre_eliminated_required_surface_absent": 43,
+   "_pre_eliminated_groups": {
+    "discoverable/dispatcher/user-executed-tool surface absent (airline user_tools=[] discoverable_user_tools=[])": [
+     "discoverable_name_check",
+     "dispatcher_role_check",
+     "function_agents",
+     "scaffold_get_tools",
+     "unavailable_tools",
+     "nonlisted_tool_feedback",
+     "tool_signatures",
+     "tool_unlock_hint",
+     "completion_guard",
+     "value_acquisition",
+     "have_value_reask",
+     "recommendation_verify",
+     "param_cap_check",
+     "prescription_redirect",
+     "withdrawn_row_check",
+     "transcription_check",
+     "view_field_annotations",
+     "write_initiation"
+    ],
+    "document corpus / KB-search surface absent (airline: 0 doc tool, 0 doc file)": [
+     "policy_ontology",
+     "require_doc_before",
+     "group_dup_policy_docs",
+     "catalog_arg_docs",
+     "search_exhaust_escalation",
+     "arg_producers",
+     "ref_verify",
+     "ref_iso",
+     "reference_filter",
+     "arbitration",
+     "choice_grounding",
+     "distinct_args",
+     "derived",
+     "relations",
+     "name_rules",
+     "ledger_metrics",
+     "follow_up_chains",
+     "analysis_producers",
+     "assertion_operands",
+     "compute_ops",
+     "suppression_authority"
+    ],
+    "tool-arg surface absent": [
+     "transfer_reason_policy",
+     "free_text_defaults"
+    ],
+    "retail-only trigger tool absent (get_product_details)": [
+     "variant_spec",
+     "variant_operand"
+    ]
+   },
+   "carried_into_candidate_collection": 18,
+   "authoring_slots": 19,
+   "_note_slots": "18 + `gates`(이미 선언됐지만 미사용 kind 5종을 위해 재개방) = 19",
+   "_note_completion_guard": "completion_guard 는 여기서 사전탈락시켰는데, claim_bindings 를 채택하면 `_compose_claim_audit(:200)` 이 그것을 **자동 생성**한다. 사전탈락은 '직접 저작 대상 아님' 이라는 뜻이지 '꺼진다' 는 뜻이 아니다.",
+   "_note_distinct_args": "distinct_args 는 표면 부재 외에 **하드 반증**이 하나 더 있다 — t2_gate_patch:3888 `_dom = (a2 or {}).get(\"_domain\") or \"banking_knowledge\"` 인데 `_domain` 은 어느 A2 에도 설정돼 있지 않아 airline 이 이 키를 선언하면 **banking 문서를 축자로 배달**한다."
+  },
+  "level1_candidate_funnel": {
+   "candidates": 106,
+   "gate1_source_pass": 56,
+   "gate2_target_pass": 53,
+   "gate3_closure_pass": 31,
+   "adopted_and_authored_here": 17,
+   "passed_but_deferred": 14,
+   "rejected_at_gate1": 50,
+   "rejected_at_gate2": 3,
+   "rejected_at_gate3": 22,
+   "per_slot": [
+    [
+     "gates:notice",
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "gates:preconditions",
+     12,
+     12,
+     11,
+     0,
+     0
+    ],
+    [
+     "gates:constraints",
+     4,
+     4,
+     3,
+     0,
+     0
+    ],
+    [
+     "gates:select_confirm",
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "gates:exhaust_before_escalate",
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "write_arg_grounding",
+     19,
+     8,
+     8,
+     8,
+     8
+    ],
+    [
+     "write_evidence_specs",
+     6,
+     3,
+     2,
+     2,
+     2
+    ],
+    [
+     "write_once_keys",
+     6,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "write_arg_enum",
+     4,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "policy_facts_file (A3 axes)",
+     14,
+     14,
+     14,
+     14,
+     0
+    ],
+    [
+     "arg_source_reads",
+     14,
+     6,
+     6,
+     6,
+     6
+    ],
+    [
+     "claim_bindings",
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     "present_specs",
+     4,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "calc_specs",
+     5,
+     5,
+     5,
+     0,
+     0
+    ],
+    [
+     "operands",
+     3,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "default_specs",
+     2,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "regen_resolver_specs",
+     2,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "disamb_sub_args",
+     3,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "placeholders",
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     "procedures",
+     3,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "tool_error_specs",
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   ],
+   "_note_headline": "병목은 **관문1(50건)** 이고 그 다음이 관문3(22)·관문2(3)다. x765(airline-state) 는 관문3 이 병목이라고 보고했는데 모순이 아니다 — 그 갈래의 후보 모집단은 '정책 문장' 이라 구성상 전부 관문1 을 통과한다. 후보를 **계약이 요구하는 필드**까지 넓히면 떨어지는 자리가 옮겨간다: 정책 산문은 있는데 **레코드 키 이름·인자 enum 리터럴·도구 에러 문자열**이 없다. tau2 는 도구 **반환 스키마**를 주지 않고 로컬 인자 스키마에도 타입·required·enum 이 없다 ⇒ resolver_path·nested_field·id_field·values·match 를 요구하는 계약은 airline 에서 원리적으로 저작 불가다.",
+   "_note_filter_bites": "필터는 실제로 물었다. 사전 조사가 권한 2건이 여기서 죽었다 — ①write_once_keys(조사 우선순위 2위·'선언 비용 1줄')는 airline 정책·도구 설명 어디에도 '한 번만' 이 축자로 없어 관문1 탈락. ②transfer notice 게이트('안 쓴 것')는 정책이 **도구 호출 먼저·문구 나중**이라고 축자로 말하는데 notice kind 는 그 반대 순서를 강제하므로 관문1 탈락."
+  }
+ },
+ "_rejection_ledger_": [
+  {
+   "slot": "gates:notice",
+   "candidate": "transfer_to_human_agents 앞에 이관 통지 강제",
+   "gate": 1,
+   "why": "정책 축자는 **도구 호출이 먼저**다 — \"To transfer, first make a tool call to transfer_to_human_agents, and then send the message '...' to the user.\" 그런데 notice kind 는 `transfer_msg_sent` 가 False 면 **도구 호출을 막는다**(gate_interpreter:358-365 · t2_gate_patch:1417) = 통지가 먼저. 선언의 술어가 출처와 **반대 순서**라 관문1 탈락.",
+   "fix_would_need": "호출 **뒤** 의무를 보는 새 kind(post-call obligation). 그건 새 검사기라 [[58]]·관문3 이 함께 막는다. ⇒ 버린다.",
+   "collateral": "★retail G4_TRANSFER_MSG 도 같은 문장을 출처로 두고 같은 반대-순서를 강제한다(specs/retail_policy.md:24 = airline L15 **동일 문장**). 이 필터를 retail 에 적용하면 이미 배선된 게이트 하나가 떨어진다 — 부모에게 보고한다."
+  },
+  {
+   "slot": "gates:preconditions",
+   "candidates": 12,
+   "gate": "1→12 / 2→11 / 3→0",
+   "why": "x765 갈래 결과를 그대로 승계한다(재유도 금지). 관문2 1건 = 보험 추가 금지(대상 도구 부재), 관문3 11건 = 8종의 서로 다른 닫힌 op 결손(exists_where·allow_any_of·member_of_record·ge_record·equal_len_record·다인자 producer·unchanged_fields·다의적 write 판별자).",
+   "source": "drafts/x765_a2_airline_state_precondition_DRAFT_2026_09_05.json"
+  },
+  {
+   "slot": "gates:constraints",
+   "candidate": "Each reservation can have at most five passengers.",
+   "gate": 3,
+   "why": "엔진 op 어휘는 {disjoint, equal_len} 둘뿐이다(gate_interpreter:412-421). max_len 이 없다.",
+   "fix_would_need": "새 op = [[58]] 위반. 버린다."
+  },
+  {
+   "slot": "gates:constraints",
+   "candidate": "Cabin class must be the same across all the flights in a reservation.",
+   "gate": 2,
+   "why": "constraints 의 op 는 **두 인자를 맞댄다**(fields=[f1,f2]). 그런데 cabin 은 book_reservation·update_reservation_flights 둘 다에서 **스칼라 하나**다 — 맞댈 두 번째 필드가 인벤토리에 없다 ⇒ 이 게이트는 영원히 발화하지 못한다."
+  },
+  {
+   "slot": "gates:constraints",
+   "candidate": "Each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards.",
+   "gate": 3,
+   "why": "타입별 개수 세기(count_by_type)가 필요하다. 없다.",
+   "fix_would_need": "새 op. 버린다."
+  },
+  {
+   "slot": "gates:constraints",
+   "candidate": "The user can modify passengers but cannot modify the number of passengers.",
+   "gate": 3,
+   "why": "equal_len 은 **같은 호출의 두 인자** 길이를 맞대는데, 여기서 맞댈 상대는 **저장된 레코드**의 승객 수다. 인자↔레코드 비교 op 가 없다."
+  },
+  {
+   "slot": "gates:select_confirm",
+   "candidate": "write 앞에 이 사용자의 예약 전부를 제시",
+   "gate": 1,
+   "why": "필수 필드 `orders_field`(사용자 레코드의 예약 목록 키)·`present_fields`(예약 레코드의 표시 필드)가 **레코드 키 리터럴**인데 정책·도구 스키마 어디에도 축자로 없다. 추정해 넣으면 관문1 위반."
+  },
+  {
+   "slot": "gates:exhaust_before_escalate",
+   "candidate": "이관 전 후보 예약 전수 열람 강제",
+   "gate": 1,
+   "why": "`entity_source.resolver_path` 의 마지막 칸이 사용자 레코드의 예약 목록 필드 이름인데 축자 출처가 없다. (덧: retail 판본도 스스로 '정식 스택 미채택'이라 적는다.)"
+  },
+  {
+   "slot": "write_arg_grounding",
+   "candidates_rejected": 11,
+   "gate": 1,
+   "why_by_group": {
+    "계산·협상으로 정해지는 값 4건 (send_certificate.amount · book/baggages 의 total_baggages·nonfree_baggages)": "정책이 **산술로** 정한다 — \"$100 times the number of passengers\" · \"Each extra baggage is 50 dollars\" · 회원등급별 무료 수하물 표. 레코드에서 전사하는 값이 아니므로 '접지' 선언의 출처가 없다(오히려 출처가 반대를 말한다). banking 규약과 동형: grounded_args=식별자만.",
+    "손님이 고르는 값 4건 (cabin ×2 · flight_type · insurance)": "레코드에서 읽는 값이 아니다. 출처 없음.",
+    "origin·destination 2건": "정책 축자가 지목하는 출처는 **손님의 말**이다 — \"The agent should then ask for the trip type, origin, destination.\" 그런데 인자에 실리는 것은 공항 **코드**다(list_all_airports). 손님 발화와 인자 값 사이에 번역이 끼므로 부분문자열 술어가 정책-준수 행동을 오차단한다. ⇒ 선언이 자기 출처와 안 맞는다.",
+    "search_direct_flight/search_onestop_flight 의 origin·destination 1건": "write 도구가 아니다"
+   },
+   "note": "19 후보 = 6개 write 도구의 **스칼라** 인자 전수(리스트 인자는 계약이 구조적으로 못 본다)."
+  },
+  {
+   "slot": "write_evidence_specs",
+   "candidate": "send_certificate 앞 사실 확인 강제",
+   "gate": 2,
+   "why": "관문1 은 통과한다 — \"Always confirms the facts before offering compensation.\" 가 축자다. 그러나 확인해야 할 '사실'은 **예약**의 결항/지연인데 send_certificate 의 인자는 (amount, user_id) 뿐이라 그 엔티티를 **가리키는 인자가 없다**. id_key=user_id 로 세우면 대상이 틀린다.",
+   "fix_would_need": "도구가 reservation_id 를 받아야 한다 = env 변경. 우리 몫이 아니다."
+  },
+  {
+   "slot": "write_evidence_specs",
+   "candidates_rejected": 3,
+   "gate": 1,
+   "why": "book_reservation·update_reservation_baggages·update_reservation_passengers 에는 'API 가 검사하지 않으니 호출 전에 규칙이 성립하는지 확인하라' 형태의 축자가 없다. L123(\"The user can add but not remove checked bags.\")·L127 은 선행 read 요구를 **추론**해야 나온다 ⇒ 버린다."
+  },
+  {
+   "slot": "write_once_keys",
+   "candidates": 6,
+   "gate": 1,
+   "why": "airline 정책 167줄과 도구 설명 14개에 '한 번만/only once/once per' 축자가 **없다**. 검색 경로 = policy 전문 grep(once·only·again·twice) · TOOLS[*].desc 전수(\"Cancel the whole reservation.\" · \"Book a reservation.\" · \"Send a certificate to a user. Be careful!\" — 유일성 진술 0). retail 은 정책 L84 축자(\"can only be called once per order\")가 있어서 통과했던 것이다.",
+   "note": "⚠사전 조사의 저작 우선순위 2위가 여기서 죽었다. '명백한 once-only' 는 추론이지 축자가 아니다."
+  },
+  {
+   "slot": "write_arg_enum",
+   "candidates": 4,
+   "gate": 1,
+   "why": "인자가 **받는 값의 리터럴 형태**를 주는 출처가 없다. ①도구 스키마: airline 14종 어디에도 type·required·enum 이 없고 desc 는 한 줄이다(env_surface 실측). ②2026-08-29 런의 `info.environment_info.tool_defs` 는 null 이었다(retail 갈래 확인). ③정책은 **표시 이름**을 산문으로 준다 — \"three cabin classes: **basic economy**, **economy**, **business**\" · \"two types of trip: **one way** and **round trip**\". 이것이 인자 값 리터럴인지(`basic economy` vs `basic_economy`, `one way` vs `one_way`) **모른다**. 틀린 명단을 박으면 정당 값을 오차단한다.",
+   "note": "banking 판본이 통과한 이유는 도구 사용법 문서가 축자로 \"Must be one of: '...'\" 를 선언했기 때문이다 — airline 에는 그 문서가 없다. (덧: T2_WRITE_ARG_ENUM 은 go_stack.sh 에 export 자체가 없어 지금 켜도 꺼져 있다.)"
+  },
+  {
+   "slot": "present_specs",
+   "candidates": 4,
+   "gate": 1,
+   "why": "`nested_field`·`id_field`·`fields` 가 전부 **레코드 키 리터럴**이다. 정책 불릿(\"- flights\" · \"- passengers\")과 도구 인자명(flight_number)까지는 축자로 있으나 표시 필드는 없다. 추정 금지."
+  },
+  {
+   "slot": "calc_specs",
+   "candidates": 5,
+   "gate": 3,
+   "why": "엔진 op 는 전부 **trigger_tool 출력의 중첩 리스트**를 접는다{count_where·count·sum·argmax_where·argmin_where·most_recent}. airline 의 산수는 \"$100 times the number of passengers\" 처럼 **상수 × 개수**라 대응하는 op 가 없다.",
+   "note": "관문1·2 는 통과한다(문장 축자 실재·calculate 도구 실재). 떨어지는 자리는 닫힘이다."
+  },
+  {
+   "slot": "operands",
+   "candidates": 3,
+   "gate": 1,
+   "why": "entity_key·items_key·items_id_path 가 레코드 키 리터럴을 요구한다. 없다."
+  },
+  {
+   "slot": "default_specs",
+   "candidates": 2,
+   "gate": 1,
+   "why": "resolver_path 가 레코드 키 리터럴을 요구한다. 또 '원 결제수단이 기본' 같은 축자가 airline 에 없다."
+  },
+  {
+   "slot": "regen_resolver_specs",
+   "candidates": 2,
+   "gate": 1,
+   "why": "위와 동일(레코드 키 부재)."
+  },
+  {
+   "slot": "disamb_sub_args",
+   "candidates": 3,
+   "gate": 1,
+   "why": "retail 판본은 스스로 '측정-도출'이라고 적는다(_note_disamb_sub_args: c51 [M]). airline 에는 그 측정도 없고 정책·스키마 축자도 없다."
+  },
+  {
+   "slot": "placeholders",
+   "candidates": 1,
+   "gate": 1,
+   "why": "retail 은 주문 id placeholder 포맷 `#W0000000` 을 갖지만 airline 정책·스키마에 id 포맷 축자가 없다."
+  },
+  {
+   "slot": "procedures",
+   "candidates": 3,
+   "gate": 3,
+   "why": "Book/Modify/Cancel 절을 절차로 적으면 정책이 이름 붙인 단계 대부분이 **도구 호출이 아니다**(\"obtain the user id from the user\" · \"ask for the trip type, origin, destination\"). 도구를 명명하지 않은 노드는 `_satisfied` 가 None 을 돌려 **관측 불가로 보고만 되고 차단하지 않는다**(t2_procedure.py:107 독스트링 축자). 즉 규칙이 아니라 문서다 ⇒ 死선언.",
+   "note": "관문1·2 는 통과한다(절 제목·순서 축자 실재·도구 실재)."
+  },
+  {
+   "slot": "tool_error_specs",
+   "candidates": 0,
+   "why": "재료가 없다 — `match` 는 env 가 내는 **에러 문자열**을 축자로 요구하는데 로컬에 airline tools.py 가 없고 env_surface 에 에러 카탈로그가 없다. 검색 경로 = a2/env_surface_airline_retail.json 전수(desc 만 있음) · a2/airline.*.json · specs/ (retail_policy.md 만 존재). [[77]]: **모른다**, 없다고 단정하지 않는다."
+  },
+  {
+   "slot": "write_rules",
+   "candidates": 0,
+   "gate": "[[58]] 사전 제외",
+   "why": "write_rules 는 '어느 정책 문장을 어느 write 결정점에 놓을지'를 손으로 고르는 계약이다 — 엔진 독스트링 스스로 \"오늘 남은 유일한 케이스별 저작\" 이라고 적는다(t2_gate_patch:_policy_rows_for). 3관문 이전에 [[58]] 케이스 입법 금지가 막는다. 일반형은 A3 policy_facts 의 **동일성 조인**이다(아래 _note_a3_deferred_).",
+   "note": "덧: go_stack.sh:650 `export T2_RULE_AT_WRITE=0` 이라 켜져 있지도 않다."
+  }
+ ],
+ "_note_a3_deferred_": {
+  "verdict": "3관문 **전부 통과**. 그러나 이 산출물(A2 파일 하나)에 담을 수 없어 **미저작**으로 남긴다.",
+  "why_deferred": [
+   "형식: `policy_facts_file` 은 **파일 이름**을 값으로 받고 행은 `a2/<그 파일>` 에 산다(t2_gate_patch:_policy_facts:696). 한 파일 산출 규격과 충돌한다.",
+   "배선: go_stack.sh:776 `export T2_ARG_POLICY_AT_WRITE=0` — 정본 스택에서 A3 전달은 현재 0회다([[81]]). 켜기 전에 저작하면 또 하나의 '고쳐 놓고 켠 적 없는 레버'가 된다."
+  ],
+  "why_it_passes": "행 스키마 = {subject, axis, value, sources:[{doc,quote}]} 이고 조인이 **동일성**(axis == write 인자 이름)이라 검색 0·순위 0·유사도 0 = 관문3 통과. 축 공간이 작다 — airline write 인자 이름은 14개뿐이다.",
+  "axis_manifest_ready_to_author": {
+   "passengers": [
+    "Each reservation can have at most five passengers.",
+    "All passengers must fly the same flights in the same cabin.",
+    "The user can modify passengers but cannot modify the number of passengers.",
+    "Even a human agent cannot modify the number of passengers."
+   ],
+   "payment_methods": [
+    "Each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards.",
+    "All payment methods must already be in user profile for safety reasons.",
+    "The remaining amount of a travel certificate is not refundable."
+   ],
+   "payment_id": [
+    "If the flights are changed, the user needs to provide a single gift card or credit card for payment or refund method. The payment method must already be in user profile for safety reasons."
+   ],
+   "cabin": [
+    "Cabin class must be the same across all the flights in a reservation.",
+    "Basic economy flights cannot be modified.",
+    "Cabin cannot be changed if any flight in the reservation has already been flown.",
+    "In other cases, all reservations, including basic economy, can change cabin without changing the flights.",
+    "Cabin class must remain the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.",
+    "If the price after cabin change is higher than the original price, the user is required to pay for the difference."
+   ],
+   "insurance": [
+    "The travel insurance is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.",
+    "The user cannot add insurance after initial booking."
+   ],
+   "total_baggages": [
+    "Each extra baggage is 50 dollars.",
+    "Do not add checked bags that the user does not need.",
+    "The user can add but not remove checked bags."
+   ],
+   "nonfree_baggages": [
+    "Each extra baggage is 50 dollars.",
+    "The user can add but not remove checked bags."
+   ],
+   "amount": [
+    "Do not proactively offer a compensation unless the user explicitly asks for one.",
+    "Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.",
+    "Only compensate if the user is a silver/gold member or has travel insurance or flies business.",
+    "Do not offer compensation for any other reason than the ones listed above."
+   ],
+   "flights": [
+    "Basic economy flights cannot be modified.",
+    "Other reservations can be modified without changing the origin, destination, and trip type.",
+    "Some flight segments can be kept, but their prices will not be updated based on the current price."
+   ],
+   "flight_type": [
+    "Other reservations can be modified without changing the origin, destination, and trip type."
+   ],
+   "origin": [
+    "Other reservations can be modified without changing the origin, destination, and trip type."
+   ],
+   "destination": [
+    "Other reservations can be modified without changing the origin, destination, and trip type."
+   ],
+   "user_id": [
+    "The agent must first obtain the user id from the user.",
+    "The user must provide their user id."
+   ],
+   "reservation_id": [
+    "If the user doesn't know their reservation id, the agent should help locate it using available tools."
+   ]
+  },
+  "_note": "이 14축은 전부 축자 검산을 통과한다(build 스크립트가 같은 방식으로 확인). 저작 = 이 문장들을 {subject:'airline reservation', axis, value, sources:[{doc:'airline policy.md', quote}]} 로 옮기는 것뿐이다 — 새 판단 0.",
+  "quote_check": "34/34 PASS",
+  "axes": 14,
+  "rows": 34
+ },
+ "_verification_": {
+  "gate1_quote_substring_check": "18/18 PASS (0 FAIL) — 채택된 선언이 인용한 모든 quote 를 airline policy 전문 / 도구 스키마 JSON 덤프에 대해 파이썬 `in` 으로 검산.",
+  "isolation_consumer_test": "13/13 PASS — 초안을 A2 3층에 **병합만** 해서(파일 미수정) 엔진 소비자를 직접 불렀다: 적재(_compose_claim_audit KeyError 0) · _write_arg_ground_deny 양성 4/음성 4 · _wev_deny_msgs 양성 3/음성 2. 부정통제 포함(선언 안 한 도구·리스트 인자·근거 있는 값은 통과).",
+  "script": "scratchpad/x768/{build.py,iso.py}",
+  "control": "초안 없이 같은 병합을 하면 claim_prov 가 생기지 않는다(=현 라이브 상태) — 확인됨.",
+  "negative_claim_checks": {
+   "once_words_policy_and_desc": {
+    "only once": [
+     0,
+     0
+    ],
+    "once per": [
+     0,
+     0
+    ],
+    " once ": [
+     0,
+     0
+    ],
+    "twice": [
+     0,
+     0
+    ],
+    "again": [
+     1,
+     0
+    ]
+   },
+   "tools_declaring_enum_or_type_or_required": 0,
+   "_note": "write_once_keys(관문1 탈락)·write_arg_enum(관문1 탈락) 의 '없다' 를 뒷받침하는 계수. 검색 경로 = airline policy 전문 + 14 도구 desc 전수 + 도구 스키마 키 전수."
+  }
+ },
+ "write_arg_grounding": [
+  {
+   "applies_to": "book_reservation",
+   "grounded_args": [
+    "user_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or user message in this conversation - record identifiers must be READ from the records (or given by the user), never invented. Look {arg} up with the read tool that produces it (or ask the user for it), then retry this call with the actual value.",
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "The agent must first obtain the user id from the user."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "You should not provide any information, knowledge, or procedures not provided by the user or available tools"
+    }
+   ],
+   "_note_": "관문1=L65·L106 축자(사용자가 user id 를 준다) + L9 일반 접지문. 코퍼스는 기본값(tool ∪ user) — 정책이 '사용자가 준다'고 하지만 tool-only 로 좁히면 사용자가 형식을 달리 적었을 때 정당 호출을 오차단한다([[70]] 판다: 발화 표기 흔들림 내성)."
+  },
+  {
+   "applies_to": "send_certificate",
+   "grounded_args": [
+    "user_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or user message in this conversation - record identifiers must be READ from the records (or given by the user), never invented. Look {arg} up with the read tool that produces it (or ask the user for it), then retry this call with the actual value.",
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "The user must provide their user id."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "You should not provide any information, knowledge, or procedures not provided by the user or available tools"
+    }
+   ],
+   "_note_": "위와 동형. amount 는 제외한다 — 정책이 산술로 정하는 값이지 레코드에서 읽는 값이 아니다."
+  },
+  {
+   "applies_to": "cancel_reservation",
+   "grounded_args": [
+    "reservation_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or user message in this conversation - record identifiers must be READ from the records (or given by the user), never invented. Look {arg} up with the read tool that produces it (or ask the user for it), then retry this call with the actual value.",
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "If the user doesn't know their reservation id, the agent should help locate it using available tools."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "You should not provide any information, knowledge, or procedures not provided by the user or available tools"
+    }
+   ],
+   "_note_": "관문1=L107/L137 축자. 예약 id 의 정당 출처가 '사용자 발화 ∪ 도구 출력' 과 정확히 일치한다."
+  },
+  {
+   "applies_to": "update_reservation_flights",
+   "grounded_args": [
+    "reservation_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or user message in this conversation - record identifiers must be READ from the records (or given by the user), never invented. Look {arg} up with the read tool that produces it (or ask the user for it), then retry this call with the actual value.",
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "If the user doesn't know their reservation id, the agent should help locate it using available tools."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "You should not provide any information, knowledge, or procedures not provided by the user or available tools"
+    }
+   ],
+   "_note_": "위와 동형(Modify flight 절의 같은 문장)."
+  },
+  {
+   "applies_to": "update_reservation_baggages",
+   "grounded_args": [
+    "reservation_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or user message in this conversation - record identifiers must be READ from the records (or given by the user), never invented. Look {arg} up with the read tool that produces it (or ask the user for it), then retry this call with the actual value.",
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "If the user doesn't know their reservation id, the agent should help locate it using available tools."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "You should not provide any information, knowledge, or procedures not provided by the user or available tools"
+    }
+   ],
+   "_note_": "위와 동형."
+  },
+  {
+   "applies_to": "update_reservation_passengers",
+   "grounded_args": [
+    "reservation_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or user message in this conversation - record identifiers must be READ from the records (or given by the user), never invented. Look {arg} up with the read tool that produces it (or ask the user for it), then retry this call with the actual value.",
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "If the user doesn't know their reservation id, the agent should help locate it using available tools."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "You should not provide any information, knowledge, or procedures not provided by the user or available tools"
+    }
+   ],
+   "_note_": "위와 동형."
+  },
+  {
+   "applies_to": "update_reservation_flights",
+   "grounded_args": [
+    "payment_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output in this conversation. The policy requires the payment method to already be in the user's profile, so the user simply naming a card is NOT enough: call get_user_details first, read the payment method id verbatim out of that profile, and retry with that id.",
+   "corpus_roles": {
+    "payment_id": [
+     "tool"
+    ]
+   },
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "The payment method must already be in user profile for safety reasons."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "Each user has a profile containing:"
+    }
+   ],
+   "_note_": "관문1=L131 축자. 권위자가 **프로필**이라고 정책이 명시하므로 corpus_roles=[tool] (손님이 '내 비자로' 라고 말한 것은 프로필이 아니다·banking corpus_roles 선례와 동형). [[70]] 판다: 프로필을 아직 안 읽고 결제 id 를 맞춘 호출 1회를 되돌린다."
+  },
+  {
+   "applies_to": "update_reservation_baggages",
+   "grounded_args": [
+    "payment_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output in this conversation. The policy requires the payment method to already be in the user's profile, so the user simply naming a card is NOT enough: call get_user_details first, read the payment method id verbatim out of that profile, and retry with that id.",
+   "corpus_roles": {
+    "payment_id": [
+     "tool"
+    ]
+   },
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "The payment method must already be in user profile for safety reasons."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "Each user has a profile containing:"
+    }
+   ],
+   "_note_": "위와 동형(추가 수하물 결제도 같은 절의 결제 규칙을 받는다)."
+  }
+ ],
+ "write_evidence_specs": [
+  {
+   "applies_to": "cancel_reservation",
+   "id_key": "reservation_id",
+   "feedback": "Error: [WRITE-EVIDENCE] you have not retrieved this reservation anywhere in this conversation (reservation_id = {id}), so you cannot know whether the cancellation rules apply to it. The policy is explicit that the API will not check them for you. Call get_reservation_details for {id} first, read whether any segment has already been flown, when it was created, its cabin and its travel insurance, and only then cancel.",
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "The API does not check that cancellation rules are met, so the agent must make sure the rules apply before calling the API!"
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "If any portion of the flight has already been flown, the agent cannot help and transfer is needed."
+    }
+   ],
+   "_note_": "require_tokens/require_tokens_any 를 **선언하지 않는다** ⇒ 엔진 술어는 '대상 reservation_id 가 어떤 도구 출력에 부분문자열로 실재하는가' 하나로 축약된다(t2_gate_patch:1966 `str(idv) in c and all(t in c for t in [])`). 이것이 정책 축자가 요구하는 것의 **필요조건**이고, 엔진이 집합/문자열 대조만으로 판정할 수 있는 유일한 몫이다 — '규칙이 성립하는가' 자체는 열린 판단이라 관문3 탈락(x765 확인). ⚠[[70]] 판다: 사용자가 예약 id 를 직접 말했고 에이전트가 곧장 취소하는 흐름 1회를 되돌린다. ⚠약점: get_user_details 출력이 예약 번호를 담으므로(L27) 프로필만 읽어도 충족된다 — 즉 이 게이트가 막는 것은 '어느 도구 출력에도 없는 예약 id' 뿐이다."
+  },
+  {
+   "applies_to": "update_reservation_flights",
+   "id_key": "reservation_id",
+   "feedback": "Error: [WRITE-EVIDENCE] you have not retrieved this reservation anywhere in this conversation (reservation_id = {id}), so you cannot know whether it may be modified at all. The policy is explicit that the API will not check the modification rules for you, and that basic economy flights cannot be modified. Call get_reservation_details for {id} first, read its cabin, its flights and its origin/destination/trip type, and only then update it.",
+   "sources": [
+    {
+     "doc": "airline policy.md",
+     "quote": "The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!"
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "Basic economy flights cannot be modified."
+    }
+   ],
+   "_note_": "위와 동형. 근거 축자는 Change flights 절의 같은 형태 문장(L113)이다."
+  }
+ ],
+ "arg_source_reads": {
+  "reservation_id": [
+   "get_user_details"
+  ],
+  "payment_id": [
+   "get_user_details"
+  ],
+  "payment_methods": [
+   "get_user_details"
+  ],
+  "origin": [
+   "list_all_airports"
+  ],
+  "destination": [
+   "list_all_airports"
+  ],
+  "flights": [
+   "search_direct_flight",
+   "search_onestop_flight"
+  ],
+  "_note_": "소비자 = t2_gate_patch._fab_fix_note (FAB_STRIP 차단 노트에 '무엇을 읽으면 풀리나'를 채운다·[[64]]) 와 _label_mismatch_deny. 후자는 airline 에서 **구조적으로 무발화**다 — `_record_labels` 가 `_DUMP_MARK = \"Record ID:\"` 를 담은 도구 출력에서만 라벨을 뽑는데 airline 도구는 JSON 을 돌려주므로 labels={} 이고 `if not (asr and labels): return None` 에서 빠진다(t2_gate_patch:1087·1146). ⇒ 이 선언의 airline 내 효과는 **거부 문면 보강뿐**이고 새 차단은 0이다. 목록 순서 = 해소 순서. user_id 는 넣지 않는다 — 정책이 '사용자가 준다'고 하고 그것을 내는 read 가 없다(관문1 탈락).",
+  "_sources_": {
+   "reservation_id/payment_id/payment_methods": [
+    {
+     "doc": "airline tool schema (env registry)",
+     "quote": "Get the details of a user, including their reservations."
+    },
+    {
+     "doc": "airline policy.md",
+     "quote": "- payment methods"
+    }
+   ],
+   "origin/destination": [
+    {
+     "doc": "airline tool schema (env registry)",
+     "quote": "Returns a list of all available airports."
+    }
+   ],
+   "flights": [
+    {
+     "doc": "airline tool schema (env registry)",
+     "quote": "Search for direct flights between two cities on a specific date."
+    },
+    {
+     "doc": "airline tool schema (env registry)",
+     "quote": "Search for one-stop flights between two cities on a specific date."
+    }
+   ]
+  }
+ },
+ "claim_bindings": {
+  "kinds": "search|book|modify|cancel|compensate|transfer|write",
+  "event_map": {
+   "search": [
+    "search_direct_flight",
+    "search_onestop_flight",
+    "get_flight_status",
+    "list_all_airports",
+    "get_reservation_details",
+    "get_user_details"
+   ],
+   "book": [
+    "book_reservation"
+   ],
+   "modify": [
+    "update_reservation"
+   ],
+   "cancel": [
+    "cancel_reservation"
+   ],
+   "compensate": [
+    "send_certificate"
+   ],
+   "transfer": [
+    "transfer_to_human_agents"
+   ],
+   "write": "__effective_write__"
+  },
+  "reserve_kinds": [
+   "book",
+   "modify",
+   "cancel",
+   "compensate",
+   "transfer",
+   "write"
+  ],
+  "user_execution_tool": null,
+  "kind_guidance": "(book for creating a reservation, modify for changing an existing reservation's flights, cabin, baggages or passengers, cancel for cancelling a reservation, compensate for sending a certificate)",
+  "sources": [
+   {
+    "doc": "airline policy.md",
+    "quote": "you can help users **book**, **modify**, or **cancel** flight reservations. You also handle **refunds and compensation**."
+   },
+   {
+    "doc": "airline policy.md",
+    "quote": "To transfer, first make a tool call to transfer_to_human_agents"
+   }
+  ],
+  "_note_": "gate_interpreter._compose_claim_audit(:165) 가 L1 `base/shared.json` 의 `claim_audit` 산문과 이 결합을 합쳐 `claim_prov` 를 만든다 — 즉 **산문 저작 0**이고 도메인 몫은 '어느 도구가 어느 kind 인가' 뿐이다([[58]] 준수). kind 낱말은 정책 L5 축자(book/modify/cancel/compensation)와 L15(transfer)에서 그대로 왔고, 값은 전부 실재 도구 이름이다. `modify` 는 접두 매칭이라 update_reservation_{flights,baggages,passengers} 셋을 한 줄로 덮는다. ⚠필수 키 3개(kinds·event_map·reserve_kinds)를 빠뜨리면 `_compose_claim_audit` 이 KeyError 로 **A2 적재 자체를 죽인다**(try 없음) — 전부 채웠다. ⚠[[81]]/[[84]] 배달 확인 의무: 이 키를 켠 첫 런에서 `[T2_CLAIM_PROV]` 발화와 `{claims}` 문면이 'None: None' 이 아닌지 확인하라(banking 에서 2026-09-01~04 에 그 증상이 있었다). 확인 전에는 '전달된다'고 말하지 마라. ⚠[[70]] 결합 부작용 공개: `_compose_claim_audit(:200)` 은 `cb[\"user_execution_tool\"]` 를 **필수 키로 대괄호 접근**하고(없으면 KeyError → A2 적재 사망) 같은 자리에서 `completion_guard` 를 함께 만든다. 즉 이 한 줄을 채우면 `T2_WRITE_PROV`(go_stack=1) 완료-주장 감사도 airline 에서 함께 켜진다. 값 `null` 은 사실 진술이다 — env 실측 `airline.user_tools = []` · `discoverable_user_tools = []` 라 손님이 실행하는 도구가 이 도메인에 없다. null 은 `out.add(...)` 뒤 `if x` 필터에서 걸러져 무해하다(t2_gate_patch:3690·3700)."
+ },
+ "_flags_required_": {
+  "write_arg_grounding": "T2_WRITE_ARG_GROUND=1 — go_stack.sh:227·388 에 이미 있다(ON).",
+  "write_evidence_specs": "T2_WRITE_EVIDENCE=1 (T2_WEV_ROUNDS=2) — go_stack.sh:227 (ON).",
+  "arg_source_reads": "플래그 없음 — `_fab_fix_note` 는 상시(T2_FAB_STRIP=1·go_stack.sh:217).",
+  "claim_bindings": "T2_CLAIM_PROV=1 (go_stack.sh:279) · 딸려 켜지는 T2_WRITE_PROV=1 (go_stack.sh:227).",
+  "_note": "[[81]] 의무 — 네 키 모두 정본 런처에서 이미 켜져 있다. 그래도 **첫 런에서 발화를 확인**하라(0이면 경로가 틀렸다)."
+ },
+ "_elapsed_": {
+  "start": "2026-09-05 08:55:14",
+  "end": "2026-09-05 09:18:18",
+  "minutes": 23.1,
+  "_note": "★이 실험의 종점이 '쉽게 저작되는가' 이므로 이 수가 데이터다. 포함: 도구 인벤토리 확정 · 정책 167줄 정독 · 엔진 소비자 계약 판독(gate_interpreter·t2_gate_patch·t2_eplan_patch·t2_procedure) · 68 계약 로스터 선별 · 106 후보 3관문 통과 · 저작 · 축자 검산 18/18 · 격리 13/13. 제외: 없음(단일 세션 연속 작업)."
+ }
+}

@@ -1028,6 +1028,33 @@ RECOMMEND_OFFER_FB = (
 )
 
 
+# ★F2 (x808 §7-5 · x817 §7 부호표 · 2026-09-07) — 에이전트가 **이미 들고 있는** 행동 도구는
+#   배포로 넘기라고 하지 않는다. 위 문면은 `{offer}` 를 A2 `offer_tool`(= 배포 도구)로 **고정**해
+#   두었는데, 회수분 전수에서 이 레버가 발화한 **20 태스크 전부에서 gold 는 직접 호출을 요구**했고
+#   배포가 정답인 태스크는 **0** 이었다(사는 쪽 24통과/36실패 · 파는 쪽 0). x808 §7-2 축자:
+#   023 turn 64 에 우리가 "give_discoverable_user_tool 로 넘겨라"라고 했고, 모델은 **자기 도구
+#   목록에 이미 있는 이름을 KB 에서 찾기 시작**했다. base 4/4 는 그 도구를 직접 불러 통과했다.
+#   ⚠권위는 `agent.tools`(프레임워크 레지스트리)뿐이다 — `registry_names` 를 쓰면 아직 발견되지
+#     않은 discoverable 까지 합쳐 "직접 불러라"가 **또 다른 거짓말**이 된다(:186 선례와 같은 이유).
+RECOMMEND_OFFER_DIRECT_FB = (
+    "[RECOMMEND-OFFER] the user wants '{action}', but you are only describing options in text (or "
+    "deflecting) instead of doing it. Based on the user's hard requirements and the available "
+    "options, '{operand}={correct}' is the match. '{action}' is a tool you already have — call it "
+    "directly with {operand}='{correct}'. Do not hand it to the user and do not search the "
+    "knowledge base for it. If no option satisfies all requirements, tell the user that plainly."
+)
+
+
+def _agent_holds(agent, name):
+    """이 이름이 **에이전트 자신의 도구 목록**에 있는가 (닫힌 술어·도메인 리터럴 0)."""
+    if agent is None or not name:
+        return False
+    try:
+        return str(name) in {getattr(t, "name", None) for t in (getattr(agent, "tools", None) or [])}
+    except Exception:
+        return False
+
+
 def _parse_nested_args(v):
     """give_discoverable_user_tool의 arguments(JSON 문자열 or dict) → dict."""
     if isinstance(v, dict):
@@ -1167,10 +1194,20 @@ def resolve_recommendation(am, msgs, a2, agent=None, la=None, UserMessage=None, 
     _rt = spec.get("research_tool")
     if _rt and _rt not in _tool_names(msgs):
         return {"status": "ok"}
-    if _offered_in_history(msgs, offer, action, name_key):
+    # ★F2: 에이전트가 그 행동 도구를 이미 들고 있으면 «직접 호출»이 처방이다.
+    _direct = _agent_holds(agent, action)
+    if _direct and action in _tool_names(msgs):
+        return {"status": "ok"}       # 이미 직접 불렀다 → 중복 nag 금지
+    if not _direct and _offered_in_history(msgs, offer, action, name_key):
         return {"status": "ok"}       # 이전에 제안함 → 중복 nag 금지
     applies, correct = _formalize_recommendation(agent, la, UserMessage, msgs, action, operand)
     if applies and correct:
+        if _direct:
+            print("[T2_RECOMMEND_OFFER] direct: %s 는 에이전트 보유 도구 — 배포 대신 직접 호출을 "
+                  "처방한다(F2)" % action, file=sys.stderr, flush=True)
+            return {"status": "deny", "reason": "recommendation-offer",
+                    "feedback": RECOMMEND_OFFER_DIRECT_FB.format(
+                        action=action, operand=operand, correct=correct)}
         return {"status": "deny", "reason": "recommendation-offer",
                 "feedback": RECOMMEND_OFFER_FB.format(name_key=name_key, 
                     action=action, operand=operand, correct=correct, offer=offer)}

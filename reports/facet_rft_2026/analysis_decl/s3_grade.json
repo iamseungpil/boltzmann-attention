@@ -1,0 +1,238 @@
+{
+ "T2_ACTION_CANDSET": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_ARBITRATE": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_ARG_LABEL": {
+  "grade": "?",
+  "sites": 1
+ },
+ "T2_CALLABLE_HINT": {
+  "grade": "?",
+  "sites": 1
+ },
+ "T2_CARD_DOCS": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_CHOICE_GROUND": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_COMPUTE": {
+  "grade": "미도달?",
+  "sites": 0
+ },
+ "T2_DD_FB": {
+  "grade": "미도달?",
+  "sites": 0
+ },
+ "T2_DISCOVERY_NAMES": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_DISPATCH_LEDGER": {
+  "grade": "R4",
+  "sites": 3
+ },
+ "T2_DUP_WRITE": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_FREE_TEXT_ARG": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_GIVE_QUOTE": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_GROUND_HDR": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_KB_NOHIT_SURFACE": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_KEEP_DENY_BODY": {
+  "grade": "R4",
+  "sites": 3
+ },
+ "T2_LEDGER": {
+  "grade": "R4",
+  "sites": 2
+ },
+ "T2_MATCH_COUNT": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_NOREC_BRANCH": {
+  "grade": "R4",
+  "sites": 2
+ },
+ "T2_P2_EMPTY": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_PHASE_OWNER": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_PIN_READ": {
+  "grade": "?",
+  "sites": 1
+ },
+ "T2_PIN_READ_STEPS": {
+  "grade": "R1235",
+  "sites": 3
+ },
+ "T2_PROCEDURE": {
+  "grade": "R1235",
+  "sites": 2
+ },
+ "T2_PROC_ABSENT": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_PROC_PIN_REARM": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_PROC_REGEN": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_QUOTE_HINT": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_QUOTE_PIN": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_REARM_USER_ONLY": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_REGEN_KEEP_MUTATING": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_REGEN_WRITE_GATES": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_REQUIRE_DOC": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_REQUIRE_DOC_DELIVER": {
+  "grade": "R4",
+  "sites": 2
+ },
+ "T2_RETURN_EMPTY": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SCOPE_AT_DISPATCH_ONLY": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SEARCH_REARM": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SELF_DECLARATION": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_SG_DOCS": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SG_ISO_FILL_ONLY": {
+  "grade": "R4",
+  "sites": 2
+ },
+ "T2_SG_RESULT_RANGE": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SG_SCHEMA": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_SG_WINDOW_ABSTAIN": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SOURCE": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SPEAK_PROHIBIT": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SUPPRESS_AUTH": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_SURFACE_BUS": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_TC_SALVAGE": {
+  "grade": "?",
+  "sites": 1
+ },
+ "T2_TOOL_CHANNEL": {
+  "grade": "R1235",
+  "sites": 2
+ },
+ "T2_TOOL_SIGNATURE": {
+  "grade": "R1235",
+  "sites": 3
+ },
+ "T2_TRANSCRIBE": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_TRANSFER_LEAVES_STEPS": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_TRANSFER_TIER": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_UNCALLED_UNLOCK": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_UNINSTRUCTABLE": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_UNVERIFIED_FOLLOWUP": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_VERDICT_SURFACE": {
+  "grade": "R1235",
+  "sites": 1
+ },
+ "T2_WINDOW": {
+  "grade": "R4",
+  "sites": 1
+ },
+ "T2_WITHDRAWN_ROW": {
+  "grade": "R4",
+  "sites": 1
+ }
+}
