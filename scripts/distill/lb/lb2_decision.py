@@ -203,15 +203,25 @@ def _select_discrepant(spec, ctx):
     order = list(range(len(recs)))
     if spec.get("order_field"):
         order.sort(key=lambda i: (date(recs[i].get(spec["order_field"])) or datetime.datetime.max, i))
+    dups = _duplicates(recs, idf, spec.get("dup_field"))     # rows the caller marked as a second fee line
     ordinals = {}
     for name, st in steps.items():
         if isinstance(st, dict) and st.get("op") == "ordinal":
             count, vals = {}, [None] * len(recs)
             for i in order:
+                if not isinstance(recs[i], dict) or str(recs[i].get(idf)) in dups:
+                    continue                                    # a duplicate line consumes no free withdrawal
                 key = str(get({"r": recs[i]}, st.get("partition"))) if st.get("partition") else "*"
                 count[key] = count.get(key, 0) + 1
                 vals[i] = count[key]
             ordinals[name] = vals
+    # rebate axis (declared per level): a level whose document promises fee rebates up to a monthly cap
+    # is judged net of rebates on both sides - actual_net = charged - rebated, expected_net = documented
+    # rate - min(rate, cap left). The rebate owed is computed on the documented rate, not the charge,
+    # so an overcharge is returned once. Undeclared cap (null) = this axis is off.
+    rb = spec.get("rebate") or {}
+    cap = rb.get("cap")
+    cap_left = num(evaluate_op(cap, ctx) if isinstance(cap, dict) else cap)
     out, skipped, details = [], 0, ctx.setdefault("_details", [])
     for i in order:
         r = recs[i]
@@ -222,15 +232,59 @@ def _select_discrepant(spec, ctx):
         for name, st in steps.items():
             rctx["steps"][name] = ordinals[name][i] if name in ordinals else evaluate_op(st, rctx)
         exp = get(rctx, spec["expected_ref"]) if spec.get("expected_ref") else evaluate_op(spec.get("expected"), rctx)
+        if str(r.get(idf)) in dups:
+            exp = 0                                             # the whole duplicate line is wrongly charged
         en, act = num(exp), num(r.get(af))
         if en is None or act is None:
             skipped += 1
             continue
+        if rb.get("field") and cap_left is not None:
+            if rb["field"] not in r:
+                skipped += 1                                    # not judged: no rebate fact was formalized
+                continue
+            due = min(en, cap_left) if en > 0 else 0.0
+            cap_left = round(cap_left - due, 2)
+            en = round(en - due, 2)
+            act = round(act - (num(r.get(rb["field"])) or 0.0), 2)
         if abs(en - act) > tol:
             out.append(r.get(idf))
             details.append({"id": r.get(idf), "actual": act, "expected": en, "delta": round(act - en, 2)})
     ctx["_stats"] = {"judged": len(recs) - skipped, "skipped": skipped, "total": len(recs)}
     return out
+
+
+def _duplicates(recs, idf, dupf):
+    """Ids the caller marked as a duplicate fee line (row[dupf] names the original).
+
+    Every marked row is a duplicate, except that when a group points at each other and at least two
+    are marked, the first by input position is the original and stays charged.
+    """
+    if not dupf:
+        return set()
+    rows = [r for r in recs if isinstance(r, dict) and r.get(idf) not in (None, "")]
+    marked = {str(r[idf]) for r in rows if r.get(dupf)}
+    pos = {}
+    for i, r in enumerate(rows):
+        pos.setdefault(str(r[idf]), i)
+    parent = {}
+
+    def root(x):
+        while parent.get(x, x) != x:
+            x = parent[x]
+        return x
+    for r in rows:
+        if r.get(dupf) and str(r.get(dupf)) in pos:
+            a, b = root(str(r[idf])), root(str(r[dupf]))
+            if a != b:
+                parent[a] = b
+    groups = {}
+    for k in pos:
+        groups.setdefault(root(k), []).append(k)
+    for members in groups.values():
+        hit = sorted((m for m in members if m in marked), key=lambda k: pos[k])
+        if len(hit) >= 2:
+            marked.discard(hit[0])
+    return marked
 
 
 def _catalog_filter(spec, ctx):
@@ -684,6 +738,21 @@ if __name__ == "__main__":
     c2 = {"tx": [{"id": "t1", "card": "Gold", "amt": 100, "got": 250}, {"id": "t2", "card": "Gold", "amt": 100, "got": 100},
                  {"id": "t3", "card": "Silver", "cat": "Travel", "amt": 10, "got": 40}]}
     assert evaluate_op(sd, c2) == ["t2"] and c2["_details"][0]["delta"] == -150.0
+    # rebate axis: task_072 Bluest facts - documented $2.00 out-of-network fee, rebated up to $50 a cycle.
+    # 11/14 charged 2.00 with no rebate -> owed 2.00; 11/20 charged 2.50 rebated 2.00 -> owed 0.50;
+    # 11/18 charged 2.00 rebated 2.00 -> nothing; a row with no rebate fact is not judged.
+    rbs = {"op": "select_discrepant", "over": "tx", "id_field": "id", "actual_field": "fee", "order_field": "d",
+           "expected": {"op": "const", "value": 2.0}, "rebate": {"field": "rb", "cap": 50.0}}
+    c3 = {"tx": [{"id": "a", "d": "11/20/2025", "fee": 2.5, "rb": 2.0}, {"id": "b", "d": "11/18/2025", "fee": 2.0, "rb": 2.0},
+                 {"id": "c", "d": "11/14/2025", "fee": 2.0, "rb": 0}, {"id": "n", "d": "11/12/2025", "fee": 2.0}]}
+    assert evaluate_op(rbs, c3) == ["c", "a"], c3["_details"]
+    assert {e["id"]: e["delta"] for e in c3["_details"]} == {"c": 2.0, "a": 0.5} and c3["_stats"]["skipped"] == 1
+    # duplicate fee lines: the marked second line is expected 0 and consumes no free withdrawal
+    dps = {"op": "select_discrepant", "over": "tx", "id_field": "id", "actual_field": "fee", "dup_field": "dup",
+           "steps": {"n": {"op": "ordinal"}}, "expected": {"op": "lookup_table", "key": "steps.n", "table": [{"cmp": "<=", "thr": 1, "result": 0}, {"result": 1.5}]}}
+    c4 = {"tx": [{"id": "x", "fee": 0}, {"id": "y", "fee": 1.5, "dup": "x"}, {"id": "z", "fee": 1.5}]}
+    assert evaluate_op(dps, c4) == ["y"] and c4["_details"][0]["delta"] == 1.5, c4["_details"]
+    assert _duplicates([{"id": "x", "dup": "y"}, {"id": "y", "dup": "x"}], "id", "dup") == {"y"}
     assert evaluate_op({"op": "if_then", "cond": {"op": "compare", "cmp": "<", "a": {"op": "days_between", "a": "x", "b": "y"}, "b": 90},
                         "then": {"op": "const", "value": "YOUNG"}, "else": {"op": "const", "value": "OLD"}},
                        {"x": "01/01/2026", "y": "03/01/2026"}) == "YOUNG"
