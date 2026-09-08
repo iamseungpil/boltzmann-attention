@@ -8,6 +8,7 @@
 #   lb_ctl.sh status                what is running, what is queued, where each lane is
 #   lb_ctl.sh watch                 run the watcher once
 #   lb_ctl.sh watchdog <seconds>    run the watcher on a loop into lb_alerts.log
+#   lb_ctl.sh tick <seconds>        sample every task once a minute into lb_tick.log
 #
 # Killing by `pgrep -f` once matched this script's own command line and took the ssh session with
 # it, which orphaned two runs onto init. Everything here uses pid files and process groups.
@@ -79,5 +80,12 @@ case "${1:-status}" in
       fi
       sleep "$every"
     done ;;
-  *) sed -n '2,12p' "$0" ;;
+  tick)
+    every=${2:-60}
+    echo "$$" > "$RUN/tick.pid"
+    while true; do
+      (cd "$LB" && PYTHONIOENCODING=utf-8 $PY lb_tick.py --logs "$LOGS") >> "$LOGS/lb_tick.log" 2>&1
+      sleep "$every"
+    done ;;
+  *) sed -n '2,13p' "$0" ;;
 esac
