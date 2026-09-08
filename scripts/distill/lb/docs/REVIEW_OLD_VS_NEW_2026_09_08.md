@@ -66,3 +66,30 @@
 2. `python lb_replay.py sim_results/bank_x806_base_nt4_task_*.results.json.gz` — base 통과 sim 에서 deny 가 늘면 그 규칙을 읽는다
 3. 8141 프로브: 레버별 대표 태스크 nt=1, 1분 단위 `lb_tick.py`
 4. 그 뒤에만 라이브
+
+## 5. 규칙별 손실 위험 대 이익 가능 (base 201 sim 재현, 2026-09-08 오후)
+
+판정 기준(사용자 지시): **4/4 태스크에서 잃는 규칙은, 다른 태스크에서 얻는 것이 확실할 때만 고친다. 확실치 않으면 뺀다.**
+
+| 규칙 | 통과 sim 발화 | 실패 sim 발화 | 구 원장 §7-1 의 양의 칸 |
+|---|---|---|---|
+| LB1 requirement deny | 97 | 67 | — |
+| LB4 follow-up | 36 | 35 | — |
+| LB5 steps-open | 20 | 2 | HANDOFF_PREDICATE **028 0/2→2/2** (음: 019·029) |
+| LB1 procedure surface | 17 | 7 | — |
+| LB5 uncalled-unlock | 13 | 15 | UNLOCK_QUIET **010 +1** (음: 099) |
+| LB7 value-acquire | 12 | 5 | VALUE_ACQUIRE = 전제가 거짓(원장 124) |
+| LB7 deliver | (호출 턴) | — | DELIVER_PRECOMMIT **024 2/4→3/4** |
+| LB1 procedure deny | 0 | 10 | — |
+
+`LB1 procedure deny` 는 통과 sim 발화 0 이다 — 위험 없는 유일한 deny.
+`LB5 steps-open` 은 20 대 2 로 위험이 크다. 028(양)·029(음) 프로브로 정한다.
+
+## 6. 구 원장이 이미 적어 둔 두 결함이 오늘 재현됐다
+
+- `T2_CLAIM_PROV`(원장 123): *"log_verification 이 양쪽 sim 에서 실행됐는데 ledger shows no such event"*. 오늘 프로브 004 에서 같은 문장이 나왔다. 원인은 실행과 성공의 혼동이었고(`NOT_VERIFIED` 를 실패 표지로 셈), `Turn.attempted` 로 분리했다.
+- `T2_TOOL_SIGNATURE`(원장 116): *"task_017 tr0 turn 53 · submit_cash_back_dispute_0589 · reward 0.0"* — gold 호출을 막았다. 우리 LB3 schema 는 래퍼 인자만 보므로 그 사거리 밖이고, 오늘 017 프로브에서 같은 호출이 두 번 통과했다.
+
+## 7. 프로브 집합 (이익 칸과 손해 칸을 함께)
+
+017 031 048 049 004 028 001 010 029 024 007 023 — base 성적 = 017·001·004·007·023·024 4/4 · 028 3/4 · 010·029 0/4.
