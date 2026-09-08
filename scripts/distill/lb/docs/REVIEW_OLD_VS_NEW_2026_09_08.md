@@ -197,3 +197,27 @@ task_010 (base 0/4 · 우리 0/1 · 개입 0): 값 계산은 전부 맞았고, �
 **049**: sim2·sim3 은 "$5?" 뒤 크레딧 대신 크립토 카드를 **닫았다**(gold 에 두 번째 폐쇄 없음). 절차 선언이 `close` 를 `prior_attempts` 만 요구하는 독립 노드로 두어 체크리스트에 `[ ] close` 가 계속 남았다. 정책 Step 6 *"If the customer declines the retention offer … proceed with closure"* 대로 `retention_offer`+`close` 를 `log_reason` 뒤의 **결과 노드 하나(tool_any)** 로 합쳤다(데이터, `banking_knowledge.specific.json`). sim1 은 쓰기·이관 reason 이 gold·base 통과 sim 과 같은데 실패 — 미상.
 **070**: 추천 판단(F3). gold `Sky Blue`(창업 4년 이내). sim0 은 Sky Blue 를 골랐다가 손님 압박에 Lime Green 으로 바꿈. 우리 개입은 거짓 `value-acquire` 1회(수정됨). 규칙 자리 아님.
 **072**: 우리 ATM 검증기의 등급표 오류(Bluest = $2 정액 vs 문서 "전액 환급") → $12/$14. 검증기 제거(`_table_audited`). 재실행은 8141 fx 레인.
+
+## 18. 072 정정 · 049 정책 근거 — 21:30
+
+**072 — §17 의 진단은 틀렸다.** 등급표는 문서와 전부 일치한다(blue_001/_012 · bluest_003/_007/_010 · green_001/_012 · purple_001/_004/_012 · dark_green_001/_002 · evergreen_001/_008 · light_green_001 · light_blue_004/_006 재대조). 진짜 원인은 **이전 누락**: 구 `t2_compute.py:982` 의 `rebate`(양쪽 순액화·월 상한 소진) 와 `dup_field`(중복 수수료 줄 기대 0) 축이 새 `lb2_decision._select_discrepant` 에 없었다. 그래서 11/14 의 환급 없는 $2.00 수수료가 문서 요율 $2.00 과 "일치" 로 나갔고 $12/$14 가 됐다 — 구 노트 `_note_absence_free_rebate_2026_08_24` 가 적어 둔 바로 그 행("072 Bluest 11/14 +2.00 — 우리 12.00 ↔ gold 14.00 의 정체"). base 의 $14 도 순액 기준이다(11/14 $2.00 미환급 + 11/20 $0.50 부족). 수리 = 두 축 복원(`2c01485d`) · Gold Years/Green Fee-Free 문서 축자 추가 · `_table_audited` 필터 삭제(`d2734d49`). 자기검정: 072 Bluest 실측 행 → {11/14: 2.00, 11/20: 0.50}, 환급 칸 없는 행은 미판정.
+
+**049 — "flip" 이 아니다.** `policy_header.md` 5항: *"Do not transfer without asking the user first."* · 6항: 우리 능력 안이면 먼저 돕고, 4회 요구 뒤 이관 가능. base 통과 sim 3개는 전부 손님이 "transfer me" 한 뒤 $5 를 처리하고 되물은 다음, 손님이 자기 도구 `request_human_agent_transfer` 를 실행한 **뒤에** 이관했다. 우리 실패 sim(run1 sim2) 은 손님 도구 실행 없이 바로 이관했다. 사이드카에는 그 구간에 deny·advice 가 없다 — 우리 스택이 되묻기를 막은 것은 아니다.
+
+이관 13개 태스크 base 검사(되묻기 A · 손님 도구 U · 손님 요구 횟수):
+
+| 태스크 | base 통과 sim | gold 손님 도구 |
+|---|---|---|
+| 004 | A-1 A-1 --1 A-2 | 없음 |
+| 005 | --1 --1 --2 --4 | 없음 |
+| 008 | --2 --3 A-0 --1 | 없음 |
+| 012 | A-1 A-1 A-1 | 없음 |
+| 014 | --1 --1 --1 | 없음 |
+| 032 | --4 --4 --4 A-4 | 없음 |
+| 035 | --0 --0 --0 --0 | 없음 |
+| 034 | -U11 -U8 | 있음 |
+| 049 | AU2 AU2 -U2 | 있음 |
+| 081 | AU4 AU4 | 있음 |
+| 088 · 092 | 통과 0 (HARD) | 없음 (user_tools 에는 있음) |
+
+⇒ "이관 전에 되물어라" 를 전 태스크 게이트로 두면 005·014·035 등 되묻기 없이 통과하는 gold 이관을 한 턴 미룬다(사용자 우려대로). 반면 **손님 도구가 gold 에 있는 3개(034·049·081)에서는 base 통과 sim 전부 손님 도구가 이관에 선행**한다. 판단 없는 형태는 하나뿐이다: *env `user_tools` 에 `request_human_agent_transfer` 가 있는 태스크에서 `transfer_to_human_agents` 는 그 손님 도구 실행 뒤에만* — LB1 2노드 절차, 활성 조건은 registry(`user`) 소속(데이터), 만족자는 손님 도구 실행(`build_turn` 은 user 역할의 tool_calls 도 executed 로 센다). 파는 곳: 088·092(user_tools 에 있으나 gold 는 에이전트 이관만) — base·Max 모두 0/4 라 측정된 손실은 없고 deny 예산 6 뒤 풀린다. 미구현 — 승인 대기.
