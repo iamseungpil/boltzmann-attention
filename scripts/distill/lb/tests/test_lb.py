@@ -27,6 +27,15 @@ def check(name, cond, detail=""):
     print("%s %s %s" % ("ok  " if cond else "FAIL", name, detail))
 
 
+import glob
+import py_compile
+for p in sorted(glob.glob(os.path.join(ROOT, "*.py"))):      # the tau2-bound modules have no self-test;
+    try:                                                       # a syntax error there killed a probe lane
+        py_compile.compile(p, doraise=True)
+        check("compiles " + os.path.basename(p), True)
+    except py_compile.PyCompileError as e:
+        check("compiles " + os.path.basename(p), False, str(e).splitlines()[-1])
+
 for m in MODULES:
     r = subprocess.run([sys.executable, os.path.join(ROOT, m + ".py")], capture_output=True, text=True)
     check("selftest " + m, r.returncode == 0, (r.stdout + r.stderr).strip().splitlines()[-1:] if r.returncode else "")
