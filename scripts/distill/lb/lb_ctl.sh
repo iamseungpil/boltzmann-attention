@@ -50,6 +50,15 @@ stop() {
 
 case "${1:-status}" in
   start)   start "$2" "${3:-1}" ;;
+  probe)   # probe <port> <task...>: nt=1, tag probe_<task>, its own queue; never touches q_lb.txt
+    port=$2; shift 2; pf=$(pidfile "$port")
+    [ -f "$pf" ] && kill -0 "$(cat "$pf")" 2>/dev/null && { echo "lane $port already running"; exit 1; }
+    printf '%s
+' "$@" > "$RUN/q_probe.txt"
+    sed -i 's/
+$//' "$LB/lane_lb.sh"
+    LB_QUEUE="$RUN/q_probe.txt" setsid bash "$LB/lane_lb.sh" "$port" 1 1 probe </dev/null > "$LOGS/lane_lb_$port.log" 2>&1 &
+    echo $! > "$pf"; sleep 8; echo "probe lane $port started (pid $(cat "$pf")):"; tail -2 "$LOGS/lane_lb_$port.log" ;;
   stop)    stop "$2" ;;
   restart-all)
     for pf in "$RUN"/lane_*.pid; do [ -f "$pf" ] && stop "$(basename "$pf" .pid | sed 's/lane_//')"; done
@@ -80,11 +89,11 @@ case "${1:-status}" in
       fi
       sleep "$every"
     done ;;
-  tick)
-    every=${2:-60}
+  tick)    # tick <seconds> [prefix]: one line per minute per task into lb_tick.log
+    every=${2:-60}; prefix=${3:-lb}
     echo "$$" > "$RUN/tick.pid"
     while true; do
-      (cd "$LB" && PYTHONIOENCODING=utf-8 $PY lb_tick.py --logs "$LOGS") >> "$LOGS/lb_tick.log" 2>&1
+      (cd "$LB" && PYTHONIOENCODING=utf-8 $PY lb_tick.py --logs "$LOGS" --prefix "$prefix") >> "$LOGS/lb_tick.log" 2>&1
       sleep "$every"
     done ;;
   *) sed -n '2,13p' "$0" ;;

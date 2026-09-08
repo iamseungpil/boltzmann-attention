@@ -10,6 +10,8 @@ Written for a per-minute loop (lb_ctl.sh tick), so the line is short and the col
 """
 
 import argparse
+
+PREFIX = "lb"
 import collections
 import glob
 import io
@@ -49,8 +51,8 @@ def tail_status(path):
 
 
 def line(logs, task, now):
-    fb = os.path.join(logs, "fb_lb_%s.jsonl" % task)
-    drv = os.path.join(logs, "lb_%s_drv.log" % task)      # the tag is lb_<task>, the sidecar is fb_lb_<task>
+    fb = os.path.join(logs, "fb_%s_%s.jsonl" % (PREFIX, task))
+    drv = os.path.join(logs, "%s_%s_drv.log" % (PREFIX, task))      # tag <prefix>_<task>, sidecar fb_<prefix>_<task>
     rows = sidecar(fb)
     kinds = collections.Counter(r.get("kind") for r in rows)
     last = ""
@@ -70,8 +72,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--logs", default="/home/woori/scratch/logs")
     ap.add_argument("--tasks", nargs="*", default=None)
+    ap.add_argument("--prefix", default="lb")
     a = ap.parse_args()
-    tasks = a.tasks or sorted(os.path.basename(p)[6:-6] for p in glob.glob(os.path.join(a.logs, "fb_lb_*.jsonl")))
+    global PREFIX
+    PREFIX = a.prefix
+    n = len("fb_%s_" % PREFIX)
+    tasks = a.tasks or sorted(os.path.basename(p)[n:-6] for p in glob.glob(os.path.join(a.logs, "fb_%s_*.jsonl" % PREFIX)))
     now = time.time()
     for t in tasks:
         print(line(a.logs, t, now))
