@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Runtime: wires the seven engines into the tau2 agent loop. install(domain) patches two hooks.
+"""Runtime: wires the seven engines into the tau2 agent loop. install(domain) patches three hooks.
 
-Each turn: LB6 reduces the generation view, the model generates, the engines evaluate, the
-coordinator speaks. A deny becomes an error tool result for that call; advice becomes a user message;
-both go into a non-committed buffer and the model regenerates (at most ROUNDS times). The committed
-history never sees our text (replay stays clean). Harness only: context-window overflow ends the
-simulation gracefully instead of crashing it.
+Generation hook  each turn: LB6 reduces the view, the model generates, the engines evaluate, the
+                 coordinator speaks. A deny becomes an error tool result for that call; advice becomes
+                 a user message; both go into a non-committed buffer and the model regenerates (at
+                 most ROUNDS times). The committed history never sees our text.
+Execution hook   LB2 verifier tools (A2["LB2"]["tools"]) are injected into the agent's tool list and
+                 executed here deterministically; after a declared read ran, LB2 derived facts are
+                 appended to that read's output.
+Sub-call door    `ask(prompt, name)` - one generation with no tools over a minimal context - is the
+                 only way an engine talks to the model. fetch_formalize lets that sub-call read
+                 records through declared getter tools (executed by the environment, off-ledger).
 """
 
 import collections
@@ -14,8 +19,9 @@ import os
 import sys
 
 import lb_a2
+import lb2_decision
 import lb6_load
-from lb_coordinator import Turn, evaluate, say, fam, FAILSAFE_DENY
+from lb_coordinator import Turn, evaluate, say, fam, as_dict
 
 ROUNDS = 3
 GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
@@ -27,19 +33,25 @@ def install(domain):
     a2 = lb_a2.load(domain)
     if a2 is None:
         raise SystemExit("no a2/%s.lb.json - run: python lb_a2.py migrate %s" % (domain, domain))
-    orig_init = BaseOrchestrator.__init__
+    orig_init, orig_exec = BaseOrchestrator.__init__, BaseOrchestrator._execute_tool_calls
 
     def init(self, *a, **kw):
         orig_init(self, *a, **kw)
         agent = getattr(self, "agent", None)
         if agent is not None:
             agent._lb_a2, agent._lb_orch = a2, self
+            inject_tools(agent, a2)
+
+    def exec_hook(self, tool_calls):
+        return execute(self, a2, tool_calls, orig_exec)
 
     BaseOrchestrator.__init__ = init
+    BaseOrchestrator._execute_tool_calls = exec_hook
     LLMAgent._generate_next_message = turn_hook
-    print("[lb] installed for %s" % domain, flush=True)
+    print("[lb] installed for %s (%d verifier tools)" % (domain, len((a2.get("LB2") or {}).get("tools") or [])), flush=True)
 
 
+# ---- generation hook ---------------------------------------------------------------------------------
 def turn_hook(self, message, state):
     from tau2.data_model.message import MultiToolMessage, ToolMessage, UserMessage
     state.messages.extend(message.tool_messages if isinstance(message, MultiToolMessage) else [message])
@@ -59,18 +71,18 @@ def turn_hook(self, message, state):
     return am
 
 
-def generate(self, messages, force=False, pin=None):
+def generate(self, messages, force=False, pin=None, tools=None, call_name="lb_turn"):
     import tau2.agent.llm_agent as la
-    kw, tools = dict(self.llm_args), self.tools
+    kw = dict(self.llm_args)
+    tools = self.tools if tools is None else tools
     if pin:
         tools, choice = pinned(tools, *pin)
-        if choice:
-            kw["tool_choice"] = choice
+        kw["tool_choice"] = choice
     elif force:
         kw["tool_choice"] = "required"
     try:
-        return la.generate(model=self.llm, tools=tools, messages=self._system_messages + messages,
-                           call_name="lb_turn", **kw)
+        return la.generate(model=self.llm, tools=tools or None, messages=self._system_messages + messages,
+                           call_name=call_name, **kw)
     except Exception as e:
         if "ContextWindow" not in type(e).__name__:
             raise
@@ -84,7 +96,6 @@ def generate(self, messages, force=False, pin=None):
 
 
 def pinned(tools, tool_name, arg, value):
-    """Narrow the pinned tool's argument to one value and force that tool (LB1 PIN)."""
     import copy
     out = []
     for t in tools or []:
@@ -93,19 +104,37 @@ def pinned(tools, tool_name, arg, value):
             continue
         t2 = copy.deepcopy(t)
         try:
-            schema = t2.openai_schema["function"]["parameters"]["properties"]
-            if arg and value is not None and arg in schema:
-                schema[arg] = dict(schema[arg], enum=[value])
+            props = t2.openai_schema["function"]["parameters"]["properties"]
+            if arg and value is not None and arg in props:
+                props[arg] = dict(props[arg], enum=[value])
         except Exception:
             pass
         out.append(t2)
     return out, {"type": "function", "function": {"name": tool_name}}
 
 
+def ask_fn(agent):
+    """The sub-call door: one tool-less generation over the prompt alone. Cached per (name, prompt)."""
+    def ask(prompt, name="lb_ask"):
+        from tau2.data_model.message import UserMessage
+        cache = agent.__dict__.setdefault("_lb_ask_cache", {})
+        key = (name, prompt)
+        if key not in cache:
+            try:
+                r = generate(agent, [UserMessage(role="user", content=prompt)], tools=[], call_name=name)
+                cache[key] = str(getattr(r, "content", "") or "")
+            except Exception as e:
+                print("[lb] ask failed: %r" % (e,), file=sys.stderr, flush=True)
+                cache[key] = ""
+        return cache[key]
+    return ask
+
+
+# ---- turn state ----------------------------------------------------------------------------------------
 def build_turn(agent, a2, messages, am):
     env = getattr(getattr(agent, "_lb_orch", None), "environment", None)
     executed, unlocked, pending = collections.Counter(), set(), {}
-    dispatch, name_args = a2.get("dispatch") or {}, (a2.get("dispatch") or {}).get("name_args") or {}
+    dispatch = a2.get("dispatch") or {}
     probe = Turn(a2, [], am)
     for m in messages:
         for c in (getattr(m, "tool_calls", None) or []):
@@ -120,7 +149,7 @@ def build_turn(agent, a2, messages, am):
                 executed[name] += 1
     return Turn(a2, messages, am, executed=executed, unlocked=unlocked,
                 visible_tools={getattr(t, "name", None) for t in (agent.tools or [])},
-                registry=registry_of(env), corpus=corpus())
+                registry=registry_of(env), corpus=corpus(), extras={"ask": ask_fn(agent)})
 
 
 def registry_of(env):
@@ -143,7 +172,183 @@ def corpus():
     if d not in _CORPUS:
         docs = {}
         for f in sorted(os.listdir(d)):
-            if f.endswith((".md", ".txt")):
+            if f.endswith((".md", ".txt", ".json")):
                 docs[os.path.splitext(f)[0]] = io.open(os.path.join(d, f), encoding="utf-8", errors="replace").read()
         _CORPUS[d] = docs
     return _CORPUS[d]
+
+
+# ---- execution hook: verifier tools and derived facts ---------------------------------------------
+def inject_tools(agent, a2):
+    from tau2.environment.tool import Tool
+    have = {getattr(t, "name", None) for t in (agent.tools or [])}
+    for d in (a2.get("LB2") or {}).get("tools") or []:
+        if d["name"] in have:
+            continue
+        params, optional = d.get("params") or {}, set(d.get("optional") or [])
+        sig = ", ".join(["%s: str" % p for p in params if p not in optional] + ['%s: str = ""' % p for p in params if p in optional])
+        ns = {}
+        exec(compile("def %s(%s):\n    pass\n" % (d["name"], sig), "<lb2_tool:%s>" % d["name"], "exec"), ns)
+        fn = ns[d["name"]]
+        fn.__doc__ = "\n".join([str(d.get("description") or d["name"]).strip(), ""]
+                               + [":param %s: %s" % (p, " ".join(str(t).split())) for p, t in params.items()])
+        agent.tools.append(Tool(fn, examples=list(d.get("examples") or [])))
+
+
+def execute(orch, a2, tool_calls, orig_exec):
+    from tau2.data_model.message import ToolMessage
+    decls = {d["name"]: d for d in (a2.get("LB2") or {}).get("tools") or []}
+    ours, rest = {}, []
+    for tc in tool_calls:
+        d = decls.get(getattr(tc, "name", None)) if getattr(tc, "requestor", "assistant") == "assistant" else None
+        if d is None:
+            rest.append(tc)
+        else:
+            ours[id(tc)] = (tc, d)
+    results = list(orig_exec(orch, rest)) if rest else []
+    by_id = {getattr(r, "id", None): r for r in results}
+    agent = getattr(orch, "agent", None)
+    for tc, d in ours.values():
+        args = {k: v for k, v in (as_dict(tc.arguments) or {}).items()}
+        iso = d.get("isolate") or {}
+        if iso.get("mode") == "fetch_formalize" and not all(args.get(k) for k in iso.get("operand_keys") or []):
+            args.update(fetch_formalize(orch, agent, d, iso, args, orig_exec) or {})
+        elif iso.get("over") and iso.get("operand_schema"):
+            formalize_rows(orch, agent, iso, args, orig_exec)
+        text, err = lb2_decision.run_tool(d, args, corpora_of(orch, agent), evidence_of(orch, d))
+        by_id[tc.id] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=err, content=text)
+        print("[lb2] tool %s -> %s" % (d["name"], "error" if err else "ok"), file=sys.stderr, flush=True)
+    out = [by_id[getattr(tc, "id", None)] for tc in tool_calls if getattr(tc, "id", None) in by_id]
+    append_facts(orch, a2, agent, out)
+    return out
+
+
+def corpora_of(orch, agent):
+    msgs = orch.get_messages() if hasattr(orch, "get_messages") else []
+    tools = [str(getattr(m, "content", "") or "") for m in msgs if getattr(m, "role", None) == "tool"]
+    users = [str(getattr(m, "content", "") or "") for m in msgs if getattr(m, "role", None) == "user"]
+    return {"kb": list(corpus().values()) + tools, "ledger": tools + users, "ledger_tools": tools, "user": users}
+
+
+def evidence_of(orch, d):
+    msgs = orch.get_messages() if hasattr(orch, "get_messages") else []
+    outs, pending = {}, {}
+    for m in msgs:
+        for c in (getattr(m, "tool_calls", None) or []):
+            pending[getattr(c, "id", None)] = getattr(c, "name", None)
+        if getattr(m, "role", None) == "tool" and not getattr(m, "error", False):
+            n = pending.get(getattr(m, "id", None))
+            if n:
+                outs[n] = str(getattr(m, "content", "") or "")
+    return {"__tool_outputs": outs, "__user_text": " ".join(str(getattr(m, "content", "") or "")
+                                                             for m in msgs if getattr(m, "role", None) == "user")}
+
+
+def fetch_formalize(orch, agent, d, iso, args, orig_exec):
+    """A sub-agent with only the declared getter tools reads the records and returns the operands as JSON."""
+    from tau2.data_model.message import UserMessage
+    import tau2.agent.llm_agent as la
+    ref = {k: args.get(k) for k in iso.get("ref_params") or [] if args.get(k) not in (None, "")}
+    getters = [t for t in (agent.tools or []) if getattr(t, "name", None) in set(iso.get("getter_tools") or [])]
+    if not ref or not getters:
+        return None
+    prompt = "%s\n\n=== REFERENCE ===\n%s\n\n%s" % (iso.get("instructions", ""),
+                                                   "\n".join("%s: %s" % kv for kv in ref.items()), iso.get("answer_format", ""))
+    msgs, kw = [UserMessage(role="user", content=prompt)], {k: v for k, v in agent.llm_args.items() if "tool" not in k}
+    for rnd in range(int(iso.get("max_rounds", 4))):
+        last = rnd == int(iso.get("max_rounds", 4)) - 1
+        try:
+            resp = la.generate(model=agent.llm, tools=None if last else getters, messages=msgs, call_name="lb2_fetch",
+                               **(dict(kw, tool_choice="required") if rnd == 0 else kw))
+        except Exception as e:
+            print("[lb2] fetch failed: %r" % (e,), file=sys.stderr, flush=True)
+            return None
+        calls = list(getattr(resp, "tool_calls", None) or [])
+        if not calls:
+            found = [r for r in lb2_decision.records_in(str(getattr(resp, "content", "") or ""))
+                     if set(r) & set(iso.get("operand_keys") or [])]
+            return {k: v for r in found for k, v in r.items() if k in set(iso.get("operand_keys") or [])} or None
+        msgs.append(resp)
+        msgs.extend(orig_exec(orch, calls))
+    return None
+
+
+def formalize_rows(orch, agent, iso, args, orig_exec):
+    """Row mode: a sub-agent with the declared getter tools fills each row's operands ({id: {...}}) in place.
+
+    A cited quote must exist in the corpus and a rate must lie in the declared range; otherwise that
+    row keeps no operand and the tool reports it as unverified. Nothing else of the old multi-stage
+    prompt survives - the declaration's instructions and answer format are the whole prompt.
+    """
+    from tau2.data_model.message import UserMessage
+    import tau2.agent.llm_agent as la
+    rows = args.get(iso["over"])
+    rows = lb2_decision._list(rows) if isinstance(rows, str) else rows
+    if not isinstance(rows, list) or not rows:
+        return
+    args[iso["over"]] = rows
+    idf, fields = iso.get("id_field"), iso.get("row_fields") or []
+    items = [{f: r.get(f) for f in fields if r.get(f) is not None} for r in rows if isinstance(r, dict)]
+    schema = {str(r.get(idf)): iso["operand_schema"] for r in rows if isinstance(r, dict)}
+    prompt = "%s\n\n=== ITEMS ===\n%s\n\n%s" % (iso.get("instructions", ""), json_dumps(items),
+                                                 lb2_decision.fill(iso.get("answer_format", ""), schema=json_dumps(schema)))
+    getters = [t for t in (agent.tools or []) if getattr(t, "name", None) in set(iso.get("getter_tools") or [])]
+    msgs, kw = [UserMessage(role="user", content=prompt)], {k: v for k, v in agent.llm_args.items() if "tool" not in k}
+    if iso.get("temperature") is not None:
+        kw["temperature"] = iso["temperature"]
+    got = None
+    for rnd in range(int(iso.get("max_rounds", 4))):
+        last = rnd == int(iso.get("max_rounds", 4)) - 1
+        try:
+            resp = la.generate(model=agent.llm, tools=None if (last or not getters) else getters, messages=msgs,
+                               call_name="lb2_rows", **kw)
+        except Exception as e:
+            print("[lb2] row formalize failed: %r" % (e,), file=sys.stderr, flush=True)
+            return
+        calls = list(getattr(resp, "tool_calls", None) or [])
+        if not calls:
+            got = next((r for r in lb2_decision.records_in(str(getattr(resp, "content", "") or "")) if set(r) & set(schema)), None)
+            break
+        msgs.append(resp)
+        msgs.extend(orig_exec(orch, calls))
+    if not got:
+        return
+    hay = " ".join(corpora_of(orch, agent)["kb"]).lower()
+    lo, hi = (iso.get("rate_range") or [None, None])[:2]
+    for r in rows:
+        ops = got.get(str(r.get(idf)))
+        if not isinstance(ops, dict):
+            continue
+        quote = str(ops.get(iso.get("quote_field") or "") or "").strip()
+        rate = lb2_decision.num(ops.get(iso.get("rate_field") or ""))
+        if (quote and " ".join(quote.lower().split()) not in " ".join(hay.split())) or                 (rate is not None and lo is not None and not (lo <= rate <= hi)):
+            continue                                       # unsupported: the row stays unverified
+        r.update({k: v for k, v in ops.items() if k in iso["operand_schema"] and v not in ("", None)})
+
+
+def json_dumps(o):
+    import json
+    return json.dumps(o, ensure_ascii=False)
+
+
+def append_facts(orch, a2, agent, results):
+    """After a declared read ran, LB2 derived facts are appended to its output (reads only)."""
+    nodes = (a2.get("LB2") or {}).get("derived") or []
+    triggers = {fam(i[5:]) for n in nodes for i in (n.get("inputs") or []) if i.startswith("tool:")}
+    if not triggers or agent is None:
+        return
+    ev = evidence_of(orch, None)
+    outs = dict(ev["__tool_outputs"])
+    id_to_name = {}
+    for m in orch.get_messages() if hasattr(orch, "get_messages") else []:
+        for c in (getattr(m, "tool_calls", None) or []):
+            id_to_name[getattr(c, "id", None)] = getattr(c, "name", None)
+    for r in results:
+        name = id_to_name.get(getattr(r, "id", None))
+        if not name or fam(name) not in triggers or getattr(r, "error", False):
+            continue
+        outs[name] = str(getattr(r, "content", "") or "")
+        facts = lb2_decision.derived_facts(a2, outs, ask_fn(agent), a3_rows=(a2.get("LB2") or {}).get("a3_rows") or ())
+        if facts:
+            r.content = outs[name] + "\n\n[FACTS] " + " ".join(t for _o, _v, t in facts)
+            print("[lb2] facts appended to %s: %d" % (name, len(facts)), file=sys.stderr, flush=True)

@@ -50,6 +50,9 @@ def migrate(domain):
     d, ep, arb = src.get("dispatcher_role_check") or {}, src.get("eplan") or {}, src.get("arbitration") or {}
     names = src.get("discoverable_name_check") or {}
     procedures = [_procedure(p) for p in src.get("procedures") or []]
+    metrics = {m.get("trigger_tool"): m for m in src.get("ledger_metrics") or []}
+    base = _read(os.path.join("base", "shared.json")) or {}
+    audit, bind = base.get("claim_audit") or {}, src.get("claim_bindings") or {}
     for sp in src.get("prescription_redirect") or []:
         procedures.append(_prescription(sp))
     out = {
@@ -67,8 +70,16 @@ def migrate(domain):
             "procedures": procedures,
             "feedback": {"single": arb.get("dominated_push_feedback"), "merged": arb.get("merged_requirement_feedback")},
         },
-        "LB2": {"computations":
-                [dict(kind="ratio_cap", applies_to=s.get("applies_to"), when=_when(s), param=s.get("param"),
+        "LB2": {"tools": [_tool(t) for t in src.get("scaffold_get_tools") or []],
+                "derived": [_derived(n, metrics) for n in src.get("derived") or []],
+                "a3_rows": [{"axis": r.get("axis"), "subject": r.get("subject"), "value": r.get("value")}
+                            for r in (src.get("policy_ontology") or {}).get("rows") or []],
+                "computations":
+                [dict(kind="select", applies_to=r.get("dispatch_tool"), when={"arg": d.get("name_args", {}).get(r.get("dispatch_tool"), "agent_tool_name"), "prefix": r.get("tool_prefix")},
+                      param=r.get("param"), key_field=r.get("key_field"), require=r.get("require"),
+                      criteria_fields=r.get("criteria_fields"), match=r.get("match"), on_ambiguous=r.get("on_ambiguous", "none"))
+                 for r in src.get("reference_filter") or []]
+                + [dict(kind="ratio_cap", applies_to=s.get("applies_to"), when=_when(s), param=s.get("param"),
                       record_key=s.get("record_key_field"), limit_field=s.get("limit_field"), pct_by=s.get("pct_by"),
                       feedback=s.get("feedback")) for s in src.get("param_cap_check") or []]
                 + [dict(kind="distinct", tool=t, pairs=s.get("pairs"), feedback=s.get("fail_feedback"))
@@ -89,6 +100,7 @@ def migrate(domain):
                       "feedback_not_discoverable": names.get("feedback_not_discoverable"),
                       "feedback_rejected": names.get("feedback_rejected") or REJECTED},
             "schema": src.get("tool_signatures") or {},
+            "identifying": {"args": (src.get("field_ops") or {}).get("id_ref") or [], "min_len": 5, "feedback": UNGROUNDED},
         },
         "LB4": {"sets":
                 [dict(kind="follow_up", after=c.get("after"), requires=c.get("requires"), decision_tools=c.get("decision_tools"),
@@ -101,7 +113,12 @@ def migrate(domain):
                    for s in src.get("write_once_keys") or []]
                 + ([dict(kind="ledger", entity_key=ep.get("entity_key"), list_tools=_list(ep.get("list_enumerator")),
                          write_tools=ep.get("write_tools") or [], finalize_writes=ep.get("finalize_writes") or [],
-                         feedback=ep.get("coverage_feedback") or COVERAGE)] if ep.get("entity_key") else [])},
+                         feedback=ep.get("coverage_feedback") or COVERAGE)] if ep.get("entity_key") else [])
+                + ([dict(kind="claims", question=audit.get("question"), kinds=bind.get("kinds", ""),
+                         kind_guidance=bind.get("kind_guidance", ""), event_map=bind.get("event_map") or {},
+                         write_tools=ep.get("write_tools") or [], transfer_tools=(src.get("require_doc_before") or {}).get("tools") or [],
+                         feedback=audit.get("feedback"), feedback_pending=audit.get("feedback_pending"))]
+                   if audit.get("question") and bind else [])},
         "LB5": {"transfer_tools": (src.get("require_doc_before") or {}).get("tools") or [],
                 "doc_feedback": (src.get("require_doc_before") or {}).get("feedback"),
                 "search_tools": src.get("search_tools") or [], "search_feedback": src.get("search_exhaust_escalation"),
@@ -109,7 +126,7 @@ def migrate(domain):
         "LB6": {"annotations": [{"field": a.get("field"), "note": a.get("note")}
                                 for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")]},
         "LB7": {"deliver_for": (src.get("require_doc_before") or {}).get("tools") or [], "max_chars": 90000,
-                "names_feedback": NAMES},
+                "names_feedback": NAMES, "have_value": _have_value(src)},
     }
     path = os.path.join(A2_DIR, "%s.lb.json" % domain)
     io.open(path, "w", encoding="utf-8").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
@@ -124,6 +141,76 @@ STEPS = ("Error: [PROCEDURE-INCOMPLETE] you are about to hand this conversation 
          "still has steps nobody has done: {steps}. A transfer does not perform them.")
 NAMES = ("Documents you already retrieved name these tools, and none has been called: {names}. If one of them is "
          "the step you need, unlock and call it by exactly that name.")
+
+
+UNGROUNDED = ("Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or "
+              "customer message in this conversation - record values must be read from the records or given by the "
+              "customer, never invented. Look it up (or ask), then retry with the actual value.")
+VARIANTS = ("ledger", "ratefix")          # the live arm's declaration variants, applied once here
+CATALOG_CONSTRAINTS = [                    # what the old catalog_filter hard-coded; now data
+    {"param": "max_annual_fee", "field": "annual_fee", "sense": "le"},
+    {"param": "max_fx_fee", "field": "fx_fee", "sense": "le"},
+    {"param": "max_min_payment_pct", "field": "min_payment_pct", "sense": "le"},
+    {"param": "min_cashback", "field": "cashback", "sense": "ge"},
+    {"param": "min_credit_limit", "field": "limit_max", "sense": "ge"},
+    {"param": "needs_virtual_card", "field": "virtual_card", "sense": "flag"},
+    {"param": "needs_purchase_protection", "field": "purchase_protection", "sense": "flag"},
+    {"param": "credit_score", "field": "min_score", "sense": "le"},
+    {"param": "invited", "field": "invite_only", "sense": "unless"},
+]
+
+
+def _clean(o):
+    if isinstance(o, dict):
+        return {k: _clean(v) for k, v in o.items() if not str(k).startswith("_note")}
+    if isinstance(o, list):
+        return [_clean(v) for v in o]
+    return o
+
+
+def _tool(t):
+    d = dict(t)
+    have = d.pop("variants", None) or {}
+    hit = next((v for v in VARIANTS if isinstance(have.get(v), dict)), None)
+    if hit:
+        d.update(have[hit])
+    d = _clean(d)
+    op = d.get("op") or {}
+    if op.get("op") == "catalog_filter":
+        op = dict(op, constraints=CATALOG_CONSTRAINTS, segment={"param": "business", "field": "business"}, label_field="card")
+        d["op"] = op
+    keep = ("name", "description", "params", "optional", "examples", "op", "ground", "isolate", "requires_reads",
+            "return_template", "return_template_empty", "missing_hint", "result_round", "result_range",
+            "result_range_feedback", "grounded_params")
+    return {k: d[k] for k in keep if k in d}
+
+
+def _derived(n, metrics):
+    node = _clean(dict(n))
+    src = next((i[5:] for i in node.get("inputs") or [] if i.startswith("tool:")), None)
+    m = metrics.get(src) or next(iter(metrics.values()), {}) if metrics else {}
+    if node.get("op") == "formalize" and node.get("prompt") in m:
+        node["prompt"] = m[node["prompt"]]
+    texts = {"window_remaining": "window_text", "days_since_earliest": "age_text", "subtract_by_group": "exhausted_text"}
+    key = texts.get(node.get("op"))
+    text = next((mm.get(key) for mm in metrics.values() if key and mm.get(key)), None)
+    if text:
+        node["text"] = text.replace("{remaining}", "{remaining_groups}") if node["op"] == "subtract_by_group" else text
+    return node
+
+
+def _have_value(src):
+    out = {}
+    for s in src.get("have_value_reask") or []:
+        marker = s.get("value_pattern") or ""
+        out[s.get("write")] = {"write": s.get("write"), "arg": s.get("arg"), "producer_marker": s.get("producer_marker"),
+                               "value_after": marker.split("\\s*")[0].strip() if marker else None,
+                               "reask_signals": s.get("reask_signals"), "feedback": s.get("feedback")}
+    for s in src.get("value_acquisition") or []:
+        e = out.setdefault(s.get("write"), {"write": s.get("write"), "arg": s.get("arg"),
+                                            "producer_marker": s.get("producer_marker"), "reask_signals": s.get("reask_signals")})
+        e.update({"acquire_tool": s.get("acquire_tool"), "give_tool": s.get("give_tool"), "acquire_feedback": s.get("feedback")})
+    return list(out.values())
 
 
 def _when(s):

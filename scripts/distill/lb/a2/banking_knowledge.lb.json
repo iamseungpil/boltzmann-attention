@@ -616,7 +616,4499 @@
   }
  },
  "LB2": {
+  "tools": [
+   {
+    "name": "get_reward_discrepancies",
+    "description": "USE THIS whenever a customer questions or disputes their cash back / rewards and you need to find which specific transactions were rewarded incorrectly. First call get_credit_card_transactions_by_user to retrieve their transactions, then call this tool passing those transactions as clean JSON. It returns the transaction_ids whose recorded reward does NOT match the expected reward under Rho-Bank policy (it derives the correct per-card rate and does the arithmetic for you). Do the reward math with this tool — do not eyeball it yourself.",
+    "params": {
+     "transactions": "JSON array. For EACH transaction include ONLY these raw fields, normalized to plain values:\n- transaction_id (string), transaction_amount (NUMBER, e.g. 126.36 — strip any currency symbol), rewards_earned (NUMBER, e.g. 126 — strip any unit word), transaction_date (MM/DD/YYYY)\n- credit_card_type, merchant_name, category — copied from the transaction record\n- account_open (MM/DD/YYYY) — the opening date of the account that card belongs to, copied EXACTLY from the account record you fetched (do NOT guess it from transaction dates)\n★Do NOT look up, reason about, or provide reward RATES, promos, or any computed value — a separate deterministic system reads the reward-rate policy and computes the expected reward itself.",
+     "account_open": "OPTIONAL. Normally leave this empty and put account_open inside each transaction row instead. Use this argument ONLY when you pass 'transactions' by \"@last:\" reference: then pass this too as \"@last:<the tool whose output contains the account records>\" and the deterministic system fills each row's account_open by exact record match."
+    },
+    "examples": [
+     "get_reward_discrepancies(transactions=[{\"transaction_id\":\"txn_ab12\",\"transaction_amount\":175.00,\"rewards_earned\":175,\"credit_card_type\":\"EcoCard\",\"category\":\"Green\"},{\"transaction_id\":\"txn_cd34\",\"transaction_amount\":320.00,\"rewards_earned\":775,\"credit_card_type\":\"Gold Rewards Card\",\"category\":\"Shopping\"}])  -> returns the transaction_ids with a reward discrepancy that need a cash back dispute"
+    ],
+    "op": {
+     "op": "select_discrepant",
+     "over": "transactions",
+     "id_field": "transaction_id",
+     "actual_field": "rewards_earned",
+     "tolerance": 1,
+     "steps": {
+      "promo_elig": {
+       "op": "date_between",
+       "x": "r.account_open",
+       "lo": "r.promo_start",
+       "hi": "r.promo_end"
+      },
+      "promo_active": {
+       "op": "date_in_window",
+       "anchor": "r.account_open",
+       "target": "r.transaction_date",
+       "months": "r.promo_window_months"
+      },
+      "mult": {
+       "op": "if_then",
+       "cond": {
+        "op": "bool_expr",
+        "all": [
+         {
+          "ref": "steps.promo_elig"
+         },
+         {
+          "ref": "steps.promo_active"
+         }
+        ]
+       },
+       "then": {
+        "op": "ref",
+        "path": "r.promo_mult"
+       },
+       "else": {
+        "op": "const",
+        "value": 1
+       }
+      },
+      "rate": {
+       "op": "multiply",
+       "a": "r.base_rate",
+       "b": "steps.mult"
+      },
+      "expected": {
+       "op": "multiply",
+       "a": "r.transaction_amount",
+       "b": "steps.rate"
+      }
+     },
+     "expected_ref": "steps.expected"
+    },
+    "isolate": {
+     "over": "transactions",
+     "id_field": "transaction_id",
+     "row_fields": [
+      "transaction_id",
+      "transaction_amount",
+      "rewards_earned",
+      "transaction_date",
+      "credit_card_type",
+      "merchant_name",
+      "category",
+      "account_open"
+     ],
+     "getter_tools": [
+      "KB_search_bm25",
+      "KB_search_dense",
+      "KB_search"
+     ],
+     "max_rounds": 4,
+     "temperature": 0,
+     "instructions": "You determine cash-back reward rates by reading this bank's reward-rate policy documents.\nFIRST search the knowledge base for the reward-rate policy of EACH card below — including its exceptions/exclusions — using the search tool. Search before you answer; do not answer from memory.\nThen, for EACH item, report ONLY these values, read from the policy documents:\n- base_rate: the base cash-back rate that applies to THIS item, as a percent number (e.g. 10 for 10%, 4 for 4%, 0 if this item earns nothing). It depends on the card, the purchase category, the merchant (policies may exclude specific merchants), and how long a subscription has run.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo exists, use promo_mult=1 and empty dates.\n★Do NOT compute the final rate, do NOT apply the promo, do NOT multiply, and do NOT judge whether the promo dates apply — a deterministic system does all of that. Report only what the documents say.\n★Cards often list DIFFERENT rates per purchase category (e.g. a boosted rate for some categories and a base rate for everything else). For each item you MUST use the rate matching THAT item's category, quoting the category-specific rate line — quoting the base-rate line for a boosted-category purchase is the most common error and silently hides real discrepancies. If you cannot find a documented rate for an item, answer null for that item's base_rate instead of guessing — a wrong rate is worse than an unverified row.",
+     "operand_schema": {
+      "base_rate": "<percent number for this card+category+merchant>",
+      "exclusion_quote": "<exact excluding sentence from the docs, or empty>",
+      "promo_mult": "<promo multiplier e.g. 2 for double, or 1 if no promo>",
+      "promo_window_months": "<promo window length in months, or 0>",
+      "promo_start": "<promo period start MM/DD/YYYY, or empty>",
+      "promo_end": "<promo period end MM/DD/YYYY, or empty>",
+      "exclusion_policy_merchant": "<if you downgraded this item because the policy EXCLUDES this specific merchant: the merchant name EXACTLY and COMPLETELY as the policy text names it, copied verbatim from your exclusion_quote — copy the WHOLE name the policy uses (e.g. 'Target'), never a fragment of it. Empty otherwise>",
+      "exclusion_pin_kind": "<'named_merchant' if the exclusion sentence names this specific merchant; 'category' if it excludes a TYPE of merchant or purchase (e.g. 'General Retailers', 'Gaming Subscription Merchants') and you judged this item to belong to that type; empty if no exclusion applies>"
+     },
+     "answer_format": "When you are done searching, reply with EXACTLY one JSON object and nothing else:\n{schema}",
+     "inject_docs": true,
+     "group_by": [
+      "credit_card_type",
+      "category"
+     ],
+     "rate_field": "base_rate",
+     "quote_field": "exclusion_quote",
+     "quote_min": 8,
+     "quote_must_contain_field": "merchant_name",
+     "rate_range": [
+      0,
+      20
+     ],
+     "max_batch": 2,
+     "range_retry_prompt": "\n\n★FEEDBACK: your base_rate for item(s) {ids} was outside the declared valid range [{lo}, {hi}] for this field. Report the rate NUMBER exactly as the policy states it per dollar; do NOT convert units or scale by 100. Reply again with the same full JSON object.",
+     "inject_instructions": "You are a bank rewards specialist. Below are ALL policy documents for the {group}, then the customer's transactions on that card. For EACH transaction report:\n- base_rate: the cash-back RATE that applies to THIS transaction (percent number: e.g. 10, 5, 4, 1, or 0 if it truly earns nothing). This is the rate the documents assign to this transaction's CATEGORY and MERCHANT — it may be an ELEVATED/bonus rate (when the card gives a higher rate for that category) or the standard rate.\n  ★If the documents give a HIGHER rate for this transaction's category, APPLY that higher rate. Do NOT fall back to the standard/base rate just because you are unsure whether the merchant qualifies — downgrade to the standard rate ONLY when a document EXPLICITLY names this specific merchant in an exclusion list, and then copy that exact excluding sentence into 'exclusion_quote' (else leave empty).\n  ★★The transaction's 'category' field is the bank's OWN authoritative classification of that purchase — treat it as final. If a category qualifies for a bonus rate, apply that bonus rate to EVERY transaction in that category. Do NOT second-guess an individual transaction using how many merchants you think are 'partners', how large the partner network is, or whether YOU personally recognize the merchant — the bank has already classified it. The ONLY thing that lowers the rate is an explicit merchant name in an exclusion list.\n  ★Do NOT return 0 just because a purchase is not a premium/bonus category — almost every card earns a base rate on all other purchases; apply it.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo, use promo_mult=1, promo_window_months=0, empty dates.\n★Do NOT apply the promo or multiply or judge whether the promo dates apply — a separate deterministic system does that from your parameters. Just give the base_rate and the raw promo parameters.\n\n=== {group} — POLICY DOCUMENTS ===\n{docs}\n\n=== TRANSACTIONS ===\n{items}\n\nReply with EXACTLY one JSON object mapping each transaction_id to the fields above:\n{schema}\n★A merchant pin names ONE business; words describing a TYPE of merchant or purchase ('retailers', 'markets', 'airlines') are a category even when capitalized as a heading.",
+     "doc_key": "credit_card_type",
+     "quote_pin": {
+      "policy_field": "exclusion_policy_merchant",
+      "kind_field": "exclusion_pin_kind",
+      "row_field": "merchant_name",
+      "reject_note": "the policy text you quoted names '{pin}', but this row's merchant is '{merchant}' — the mapping was rejected and this row's rate was NOT applied.",
+      "retry_prompt": "Re-check the flagged item(s): copy the merchant name exactly and COMPLETELY as the policy sentence names it into exclusion_policy_merchant, or if the exclusion is by TYPE of merchant/purchase, set exclusion_pin_kind='category'. Reply with the corrected JSON for the flagged item(s) only.",
+      "category_note": "category-based exclusion ('{pin}') was applied to merchant '{merchant}' — merchant membership in that category is the specialist's judgment and was NOT verified against a named-merchant list.",
+      "unverified_note": "could not be verified from the reward-rate policy documents; those rows remain UNVERIFIED. Do NOT supply rates or promo values yourself — tell the customer which transactions could not be checked.",
+      "policy_group_rows": {
+       "WeWork": [
+        "WeWork"
+       ],
+       "Regus": [],
+       "Industrious": [],
+       "Gusto": [],
+       "ADP": [],
+       "Paychex": [],
+       "Rippling": [],
+       "Slack": [
+        "Slack Technologies"
+       ],
+       "Zoom": [
+        "Zoom Video"
+       ],
+       "HubSpot": [],
+       "Salesforce": [
+        "Salesforce"
+       ],
+       "Concur": [],
+       "SAP Concur": [],
+       "Expensify": [],
+       "Navan": [],
+       "Apple": [
+        "Apple Store"
+       ],
+       "Microsoft": [
+        "Microsoft 365"
+       ],
+       "Dell": [
+        "Dell",
+        "Dell Technologies"
+       ],
+       "Xbox Game Pass": [],
+       "PlayStation Plus": [],
+       "Nintendo Switch Online": [],
+       "Coursera": [
+        "Coursera"
+       ],
+       "Udemy": [],
+       "LinkedIn Learning": [],
+       "Skillshare": [],
+       "Pluralsight": [],
+       "Target": [
+        "Target",
+        "Target - Eco Collection"
+       ],
+       "Walmart": [],
+       "Amazon": [
+        "Amazon"
+       ],
+       "ThredUp": [
+        "ThredUp"
+       ],
+       "Coworking Space Merchants": [
+        "WeWork"
+       ],
+       "Payroll Processor Merchants": [],
+       "SaaS Subscriptions": [
+        "Slack Technologies",
+        "Zoom Video",
+        "Salesforce"
+       ],
+       "SaaS Subscriptions (after first 12 months on the card)": [
+        "Slack Technologies",
+        "Zoom Video",
+        "Salesforce"
+       ],
+       "Corporate Expense Platform Merchants": [],
+       "Corporate Expense Platform Merchants (Travel Exclusion)": [],
+       "Hardware/Electronics Merchants": [
+        "Apple Store",
+        "Microsoft 365",
+        "Dell",
+        "Dell Technologies"
+       ],
+       "Hardware/Electronics Merchants (Software Exclusion)": [
+        "Apple Store",
+        "Microsoft 365",
+        "Dell",
+        "Dell Technologies"
+       ],
+       "Gaming Subscription Merchants": [],
+       "Gaming Subscription Merchants (Software Exclusion)": [],
+       "Online Learning Platform Merchants": [
+        "Coursera"
+       ],
+       "Online Learning Platform Merchants (Software Exclusion)": [
+        "Coursera"
+       ],
+       "General Retailers": [
+        "Target",
+        "Target - Eco Collection",
+        "Amazon"
+       ],
+       "General Retailers (even for eco-friendly product purchases)": [
+        "Target",
+        "Target - Eco Collection",
+        "Amazon"
+       ],
+       "Thrift and Resale Markets": [
+        "ThredUp"
+       ],
+       "What is excluded from the higher sustainability points rate on EcoCard": [
+        "Target",
+        "Target - Eco Collection",
+        "Amazon",
+        "ThredUp"
+       ]
+      },
+      "lookup_retry_prompt": "The name you copied is not one of the merchant/group names this policy actually lists. Copy the WHOLE name exactly as the policy bullet or heading writes it, or set exclusion_pin_kind='category' if the exclusion is stated only as a description with no list of members. Reply with the corrected JSON for the flagged item(s) only.",
+      "lookup_note": "'{pin}' is not a name this policy lists, so the exclusion could not be resolved and this row's rate was NOT applied — the row is UNVERIFIED.",
+      "member_note": "the policy group '{pin}' does not list '{merchant}' among its members, so the exclusion was not applied to this row.",
+      "unverified_requery_note": "The unverified row(s) are: {ids}. Tell the customer which ones could not be checked, and call this tool again with ONLY those row(s) so their rate can be looked up on its own — a single-row call often resolves what a batch could not. Do not supply the rate yourself."
+     }
+    },
+    "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The CORRECT total reward per policy is shown next to each id, so you can state it to the customer and carry it into that dispute: {details}. SCOPE OF THIS RESULT - detection only: this compared the transaction rows you passed in against the reward-rate policy. It read no dispute record, so it does not know whether any dispute exists for these transactions, nor how one was decided. Do NOT change any transaction's rewards on the strength of this result. Under the bank's internal procedure the rewards correction is a separate, later step: a transaction's rewards are corrected only for a dispute that has been resolved and approved, and the transaction_ids for that correction are read from the resolved disputes themselves, never from a discrepancy list. The step this result calls for is the dispute, one per id above.",
+    "return_template_empty": "No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this result. This says nothing about rows that could not be checked — see the [coverage] line above for those.",
+    "grounded_params": {
+     "account_open": {
+      "producer_contains": [
+       "credit_card_accounts"
+      ]
+     },
+     "transaction_id": {
+      "producer_contains": [
+       "credit_card_transaction_history"
+      ]
+     }
+    }
+   },
+   {
+    "name": "verify_identity",
+    "description": "USE THIS to check whether a customer's identity is verified before accessing their account, per Rho-Bank policy: at least 2 of {date_of_birth, address, phone_number, email} they PROVIDED must match their account record (full name or user ID alone is NOT enough). Call get_user_information_by_name/by_email/by_id FIRST — this tool reads that record itself, so you do not pass it. You can only look up a customer by NAME, EMAIL, or USER ID — there is NO lookup by phone or DOB, so if the customer only gave a phone/DOB, ASK them for their name, email, or user ID first. It tells you VERIFIED or NOT_VERIFIED.",
+    "params": {
+     "provided": "JSON object of ALL identity values the customer has given you at ANY point in this conversation — accumulate across turns and NEVER drop one they gave earlier. Keys where available: date_of_birth, address, phone_number, email. Pass each value the way it appears in the account record you fetched. Example: if they gave their phone number three turns ago and their date of birth just now, pass BOTH."
+    },
+    "examples": [
+     "verify_identity(provided={\"date_of_birth\":\"11/03/1990\",\"phone_number\":\"312-555-0481\"})  -> VERIFIED (2 values match)"
+    ],
+    "op": {
+     "op": "match_verdict_grounded",
+     "a": "provided",
+     "evidence_from": [
+      "get_user_information_by_name",
+      "get_user_information_by_email",
+      "get_user_information_by_id"
+     ],
+     "fields": [
+      "date_of_birth",
+      "address",
+      "phone_number",
+      "email"
+     ],
+     "threshold": 2,
+     "met_template": "VERIFIED — {count} identity values match the account record ({matched}); you may now call log_verification. Its time_verified argument must be the CURRENT time: FIRST call get_current_time, wait for its result, then copy that exact timestamp into time_verified — do not ask the customer for the time and do not make one up.",
+     "unmet_template": "NOT_VERIFIED — only {count} of the required {threshold} values the customer gave match the account record (matched: {matched}). Ask the customer for ONE more of: {missing} — then call verify_identity again passing ALL values they have given so far in this conversation.",
+     "no_record_template": "NOT_VERIFIED — the account record has not been fetched yet, so nothing can be matched. Ask the customer for their name, email, or user ID (phone/DOB cannot be used to look up), call get_user_information_by_name/by_email/by_id, then call this tool again.",
+     "no_record_template_v2": "NOT_VERIFIED — the account record has not been fetched yet, so nothing can be matched. Look the customer up with get_user_information_by_name/by_email/by_id, then call this tool again. Use a DIFFERENT identifier each time — repeating the same lookup arguments cannot change the result. If every identifier the customer can give returns no records, STOP calling these tools: tell the customer you cannot locate their account and ask them for another identifier; if they have none, say the account cannot be verified and follow the policy for that situation. Log the verification only AFTER it passes — right now the next step is the lookup."
+    },
+    "return_template": "{result}",
+    "missing_hint": "NOT_VERIFIED — provide 'provided' (the identity values the customer gave you)."
+   },
+   {
+    "name": "check_rebate_qualification",
+    "description": "ALWAYS provide user_id/credit_card_account_id (so the tool can verify against the records itself). USE THIS to determine whether a customer qualifies for a spend-threshold annual fee rebate (e.g. the Platinum Rewards Card annual fee rebate). Do NOT eyeball the monthly totals yourself. First read the customer's transactions and their card account opening date, and look up the required monthly spending threshold from the knowledge base, then call this tool. It buckets every transaction into the anniversary-based monthly windows of the cardmember year (by posting date, from the opening date), sums each window, and returns QUALIFIES only if EVERY window meets the threshold (a single month below disqualifies; no proration). Call get_current_time first and pass today's date as as_of_date - the tool evaluates the last complete cardmember year as of that date.",
+    "params": {
+     "transactions": "A JSON array of the card's transactions you read from the records. Each element MUST have ONLY these raw fields, copied as-is: date (string, the POSTING date, MM/DD/YYYY), amount (number, the purchase/spend amount, no $). Copy every transaction in the cardmember year; do not pre-filter or pre-sum. If you provide user_id and credit_card_account_id, you may OMIT this — the tool will read the transactions itself.",
+     "account_opening_date": "The date the credit card account was opened (MM/DD/YYYY), copied from the account record. Monthly windows are anchored to this date.",
+     "monthly_threshold": "The required per-month spending threshold for the rebate, as a plain number (no $), copied from the applicable rebate policy document in the knowledge base.",
+     "user_id": "The customer user id (needed only if you omit transactions - the tool will read the card transactions itself).",
+     "credit_card_account_id": "The credit card account id whose transactions should be checked (needed only if you omit transactions).",
+     "as_of_date": "Today's date (MM/DD/YYYY), copied from get_current_time. The tool evaluates the LAST COMPLETE cardmember year as of this date."
+    },
+    "op": {
+     "op": "if_then",
+     "cond": {
+      "op": "compare",
+      "cmp": ">=",
+      "a": {
+       "op": "group_reduce",
+       "over": {
+        "op": "bucket_month_window",
+        "over": "transactions",
+        "anchor": "account_opening_date",
+        "date_field": "date",
+        "out_field": "__win",
+        "year_select": "last_complete",
+        "as_of": "as_of_date"
+       },
+       "group_by": "__win",
+       "value_field": "amount",
+       "default_reducer": "sum",
+       "across": "min",
+       "require_complete_groups": true
+      },
+      "b": "monthly_threshold"
+     },
+     "then": {
+      "op": "const",
+      "value": "QUALIFIES"
+     },
+     "else": {
+      "op": "const",
+      "value": "DOES NOT QUALIFY"
+     }
+    },
+    "ground": {
+     "scalar_fields": [
+      {
+       "param": "account_opening_date",
+       "corpus": [
+        "ledger"
+       ],
+       "kind": "date",
+       "on_fail": "drop"
+      },
+      {
+       "param": "monthly_threshold",
+       "corpus": [
+        "kb",
+        "ledger"
+       ],
+       "kind": "number",
+       "on_fail": "drop"
+      },
+      {
+       "param": "as_of_date",
+       "corpus": [
+        "ledger"
+       ],
+       "kind": "date",
+       "on_fail": "drop"
+      }
+     ]
+    },
+    "isolate": {
+     "mode": "fetch_formalize",
+     "ref_params": [
+      "user_id",
+      "credit_card_account_id"
+     ],
+     "getter_tools": [
+      "get_credit_card_transactions_by_user"
+     ],
+     "operand_keys": [
+      "transactions"
+     ],
+     "max_rounds": 4,
+     "instructions": "You are a data-extraction sub-task. Using the getter tool, read the credit card transactions for the user/account given in REFERENCE. Then output ONLY a JSON object with the card transactions: for the account in REFERENCE, every transaction as {\"date\": \"MM/DD/YYYY\" (the POSTING date), \"amount\": <number, purchase/spend amount, no $>}. Copy raw values exactly as returned by the tool; do not filter, sum, or round.",
+     "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [{\"date\": \"MM/DD/YYYY\", \"amount\": <number>}, ...]}",
+     "operand_schema": {
+      "type": "object",
+      "properties": {
+       "derivation": {
+        "type": "string",
+        "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+       },
+       "transactions": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "date": {
+           "type": "string"
+          },
+          "amount": {
+           "type": "number"
+          }
+         },
+         "required": [
+          "date",
+          "amount"
+         ],
+         "additionalProperties": false
+        }
+       }
+      },
+      "required": [
+       "derivation",
+       "transactions"
+      ],
+      "additionalProperties": false
+     },
+     "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
+    },
+    "return_template": "Rebate qualification, computed deterministically over every anniversary monthly window of the cardmember year (by posting date): {result}. The customer qualifies only if EVERY month met the threshold; a single month below disqualifies (no proration)."
+   },
+   {
+    "name": "get_correct_savings_apy",
+    "description": "ALWAYS provide savings_account_type/customer_products (so the tool can verify against the records itself). USE THIS to compute the correct APY on a savings account under Rho-Bank stacking rules. Do NOT add the boosts up yourself. First read the savings account's base APY and identify EVERY applicable boost from the knowledge base — checking-account APY boosts (from the checking+savings pairing table), credit card APY bonuses, relationship bonuses, and account tier bonuses — then call this tool. It applies the stacking policy: only the HIGHEST checking boost counts, only the HIGHEST card bonus counts, while relationship and tier bonuses all add on top. If you provide savings_account_type and customer_products, you may OMIT components - the tool will search the knowledge base itself.",
+    "params": {
+     "components": "A JSON array of the APY components you read from the knowledge base for THIS savings account. Each element: {kind: one of 'base'|'checking'|'card'|'relationship'|'tier', value: <number, percentage points, no %>, source: <verbatim quote from the KB doc stating this value>}. Include the base APY as {kind:'base', value:<base>} and EVERY applicable boost (list all checking boosts and all card bonuses you find; the tool keeps only the highest of each per policy). Do not pre-select or pre-sum.",
+     "savings_account_type": "The savings account's type/name (e.g. from the account record). Needed only if you omit components - the tool will look up the components itself.",
+     "customer_products": "Short summary of the customer's boost-relevant products copied from their records (checking account type, credit card type, tenure/tier). Needed only if you omit components.",
+     "current_balance": "The savings account's current balance (number, from the account record). The base APY may be tiered by balance, so the tool's extraction step needs it to pick the right tier. Needed only if you omit components."
+    },
+    "op": {
+     "op": "group_reduce",
+     "over": "components",
+     "group_by": "kind",
+     "value_field": "value",
+     "reducers": {
+      "base": "sum",
+      "checking": "max1",
+      "card": "max1",
+      "relationship": "sum",
+      "tier": "sum"
+     },
+     "unknown_policy": "flag",
+     "required_groups": [
+      "base"
+     ]
+    },
+    "ground": {
+     "array_fields": [
+      {
+       "param": "components",
+       "value_field": "value",
+       "source_field": "source",
+       "label_field": "kind",
+       "corpus": [
+        "kb"
+       ],
+       "require_value_in_source": true
+      }
+     ],
+     "scalar_fields": [
+      {
+       "param": "current_balance",
+       "corpus": [
+        "ledger"
+       ],
+       "kind": "number",
+       "on_fail": "drop"
+      }
+     ]
+    },
+    "isolate": {
+     "mode": "fetch_formalize",
+     "ref_params": [
+      "savings_account_type",
+      "customer_products",
+      "current_balance"
+     ],
+     "getter_tools": [
+      "KB_search_bm25"
+     ],
+     "operand_keys": [
+      "components"
+     ],
+     "max_rounds": 5,
+     "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE.",
+     "answer_format": "Reply with exactly one JSON object and nothing else: {\"components\": [{\"kind\": \"base|checking|card|relationship|tier\", \"value\": <number>, \"source\": \"<verbatim quote>\"}]}",
+     "docs": {
+      "instructions": "You are a KB-extraction sub-task. Using ONLY the DOCUMENTS section below (you have no search tool), find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE.",
+      "axes": [
+       "annual_percentage_yield",
+       "apy",
+       "apy_above_threshold",
+       "apy_below_threshold",
+       "apy_bonus",
+       "apy_on_balance",
+       "apy_rate",
+       "apy_tiers",
+       "balance_threshold",
+       "balance_threshold_for_higher_apy_tier",
+       "credit_card_apy_bonuses",
+       "interest_calculation_method",
+       "interest_compounding_frequency",
+       "interest_payment_frequency",
+       "interest_rate",
+       "linked_checking_apy_bonus",
+       "relationship_apy_bonus",
+       "relationship_bonus",
+       "tier_1_apy",
+       "tier_2_apy"
+      ],
+      "always": [
+       "doc_bank_accounts_bank_accounts_(general)_012",
+       "doc_bank_accounts_bank_accounts_(general)_045",
+       "doc_bank_accounts_bank_accounts_(general)_046"
+      ],
+      "by_class": {
+       "beige": [
+        {
+         "doc": "doc_business_checking_accounts_beige_007",
+         "ranges": [
+          [
+           0,
+           666,
+           "## Rate and compounding - Your enterpris"
+          ]
+         ],
+         "basis": "content",
+         "chars": 666
+        }
+       ],
+       "blue_account": [
+        {
+         "doc": "doc_checking_accounts_blue_account_002",
+         "ranges": [
+          [
+           0,
+           486,
+           "## Balance and earnings - Annual Percent"
+          ]
+         ],
+         "basis": "content",
+         "chars": 486
+        },
+        {
+         "doc": "doc_checking_accounts_blue_account_010",
+         "ranges": [
+          [
+           31,
+           90,
+           "### What does a paper statement cost? Pa"
+          ],
+          [
+           122,
+           85,
+           "### What APY do I earn on my balance? Yo"
+          ],
+          [
+           208,
+           156,
+           "### Can I set low-balance alerts? Yes. Y"
+          ],
+          [
+           365,
+           111,
+           "### How long do external bank transfers"
+          ],
+          [
+           477,
+           154,
+           "### What happens if a deposited check is"
+          ],
+          [
+           632,
+           115,
+           "### Is there a fee to receive a domestic"
+          ],
+          [
+           748,
+           200,
+           "### Does the Blue Account have a referra"
+          ],
+          [
+           949,
+           285,
+           "### What are the requirements for the re"
+          ],
+          [
+           1235,
+           123,
+           "### Is there a limit to how many referra"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1319
+        }
+       ],
+       "bluest_account": [
+        {
+         "doc": "doc_checking_accounts_bluest_account_001",
+         "ranges": [
+          [
+           0,
+           984,
+           "## Key figures | Item | Value | |---|--"
+          ]
+         ],
+         "basis": "content",
+         "chars": 984
+        },
+        {
+         "doc": "doc_checking_accounts_bluest_account_008",
+         "ranges": [
+          [
+           0,
+           464,
+           "## How the APY compares - You earn 2.25%"
+          ]
+         ],
+         "basis": "content",
+         "chars": 464
+        }
+       ],
+       "bronze_account": [
+        {
+         "doc": "doc_savings_accounts_bronze_account_001",
+         "ranges": [
+          [
+           0,
+           711,
+           "## Key rates and fees | Item | Value |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 711
+        },
+        {
+         "doc": "doc_savings_accounts_bronze_account_002",
+         "ranges": [
+          [
+           0,
+           296,
+           "## At-a-glance - APY: 2.0% - Monthly mai"
+          ]
+         ],
+         "basis": "content",
+         "chars": 296
+        },
+        {
+         "doc": "doc_savings_accounts_bronze_account_003",
+         "ranges": [
+          [
+           0,
+           419,
+           "## Balance and opening requirements - Mi"
+          ]
+         ],
+         "basis": "content",
+         "chars": 419
+        },
+        {
+         "doc": "doc_savings_accounts_bronze_account_006",
+         "ranges": [
+          [
+           540,
+           192,
+           "## How to confirm your current APY - Che"
+          ]
+         ],
+         "basis": "content",
+         "chars": 192
+        },
+        {
+         "doc": "doc_savings_accounts_bronze_account_007",
+         "ranges": [
+          [
+           0,
+           1150,
+           "## How your interest accrues - Interest"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1150
+        }
+       ],
+       "bronze_saver_account": [
+        {
+         "doc": "doc_business_savings_accounts_bronze_saver_account_001",
+         "ranges": [
+          [
+           0,
+           3211,
+           "## Account Snapshot - APY: 2.0% - Month"
+          ]
+         ],
+         "basis": "content",
+         "chars": 3211
+        },
+        {
+         "doc": "doc_business_savings_accounts_bronze_saver_account_002",
+         "ranges": [
+          [
+           0,
+           437,
+           "## Specifications | Item | Details | | -"
+          ]
+         ],
+         "basis": "content",
+         "chars": 437
+        },
+        {
+         "doc": "doc_business_savings_accounts_bronze_saver_account_004",
+         "ranges": [
+          [
+           231,
+           83,
+           "## Your APY - Your savings earn an APY o"
+          ],
+          [
+           315,
+           207,
+           "## Practical tips - Keep funds in the ac"
+          ]
+         ],
+         "basis": "content",
+         "chars": 290
+        }
+       ],
+       "business_credit_cards_business_bronze_rewards_card": [
+        {
+         "doc": "doc_business_credit_cards_business_bronze_rewards_card_007",
+         "ranges": [
+          [
+           0,
+           960,
+           "## Interest on Carried Balances - If you"
+          ]
+         ],
+         "basis": "content",
+         "chars": 960
+        }
+       ],
+       "business_credit_cards_silver_zoom_card": [
+        {
+         "doc": "doc_business_credit_cards_silver_zoom_card_008",
+         "ranges": [
+          [
+           0,
+           772,
+           "## Credit profile requirements - Persona"
+          ]
+         ],
+         "basis": "content",
+         "chars": 772
+        },
+        {
+         "doc": "doc_business_credit_cards_silver_zoom_card_010",
+         "ranges": [
+          [
+           0,
+           765,
+           "## What the promotion offers - An introd"
+          ]
+         ],
+         "basis": "content",
+         "chars": 765
+        }
+       ],
+       "cobalt_blue": [
+        {
+         "doc": "doc_business_checking_accounts_cobalt_blue_001",
+         "ranges": [
+          [
+           452,
+           232,
+           "## Know your core costs and how to avoid"
+          ],
+          [
+           685,
+           141,
+           "## Start earning interest - Your balance"
+          ],
+          [
+           827,
+           195,
+           "## Manage your monthly activity - You ge"
+          ],
+          [
+           1023,
+           223,
+           "## Grow your network with referrals Once"
+          ]
+         ],
+         "basis": "content",
+         "chars": 791
+        },
+        {
+         "doc": "doc_business_checking_accounts_cobalt_blue_008",
+         "ranges": [
+          [
+           0,
+           694,
+           "## Your rate and compounding - Your acco"
+          ]
+         ],
+         "basis": "content",
+         "chars": 694
+        }
+       ],
+       "credit_cards_diamond_elite_card": [
+        {
+         "doc": "doc_credit_cards_diamond_elite_card_006",
+         "ranges": [
+          [
+           0,
+           1109,
+           "## Annual fee - Your standard annual fee"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1109
+        }
+       ],
+       "credit_cards_ecocard": [
+        {
+         "doc": "doc_credit_cards_ecocard_010",
+         "ranges": [
+          [
+           0,
+           847,
+           "## Promo Period - Accounts opened during"
+          ]
+         ],
+         "basis": "content",
+         "chars": 847
+        }
+       ],
+       "dark_green_account": [
+        {
+         "doc": "doc_checking_accounts_dark_green_account_001",
+         "ranges": [
+          [
+           71,
+           82,
+           "### Eligibility - Minimum primary holder"
+          ],
+          [
+           154,
+           182,
+           "### Fees and rates - Monthly maintenance"
+          ],
+          [
+           337,
+           185,
+           "### Rewards and perks - Student loan pay"
+          ],
+          [
+           523,
+           54,
+           "### Limits - Mobile check deposit daily"
+          ]
+         ],
+         "basis": "content",
+         "chars": 503
+        }
+       ],
+       "diamond_elite_account": [
+        {
+         "doc": "doc_savings_accounts_diamond_elite_account_001",
+         "ranges": [
+          [
+           692,
+           410,
+           "## Quick reference | Category | Detail |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 410
+        },
+        {
+         "doc": "doc_savings_accounts_diamond_elite_account_009",
+         "ranges": [
+          [
+           31,
+           53,
+           "### What APY will I earn? - Your account"
+          ],
+          [
+           85,
+           90,
+           "### Is there a minimum balance requireme"
+          ],
+          [
+           176,
+           80,
+           "### Is there a monthly maintenance fee?"
+          ],
+          [
+           257,
+           53,
+           "### Do I get a dedicated private banker?"
+          ],
+          [
+           311,
+           90,
+           "### Are investment advisory services inc"
+          ],
+          [
+           402,
+           97,
+           "### Will I receive invitations to exclus"
+          ],
+          [
+           500,
+           77,
+           "### Are wire transfer fees waived? - All"
+          ],
+          [
+           578,
+           106,
+           "### Do I receive a discount on estate pl"
+          ]
+         ],
+         "basis": "content",
+         "chars": 646
+        },
+        {
+         "doc": "doc_savings_accounts_diamond_elite_account_010",
+         "ranges": [
+          [
+           0,
+           344,
+           "## How interest is calculated - Interest"
+          ]
+         ],
+         "basis": "content",
+         "chars": 344
+        }
+       ],
+       "diamond_vault": [
+        {
+         "doc": "doc_business_savings_accounts_diamond_vault_001",
+         "ranges": [
+          [
+           0,
+           1040,
+           "## Key rates and requirements | Item |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1040
+        },
+        {
+         "doc": "doc_business_savings_accounts_diamond_vault_008",
+         "ranges": [
+          [
+           0,
+           1923,
+           "## Available APY Bonuses by Card Tier T"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1923
+        }
+       ],
+       "emerald_saver": [
+        {
+         "doc": "doc_business_savings_accounts_emerald_saver_001",
+         "ranges": [
+          [
+           0,
+           1218,
+           "## Key rates and requirements | Item |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1218
+        },
+        {
+         "doc": "doc_business_savings_accounts_emerald_saver_004",
+         "ranges": [
+          [
+           0,
+           1104,
+           "## How the APY bonus works - When you ma"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1104
+        },
+        {
+         "doc": "doc_business_savings_accounts_emerald_saver_008",
+         "ranges": [
+          [
+           0,
+           2738,
+           "## Available APY Bonuses by Eligible Bus"
+          ]
+         ],
+         "basis": "content",
+         "chars": 2738
+        }
+       ],
+       "evergreen_account": [
+        {
+         "doc": "doc_checking_accounts_evergreen_account_001",
+         "ranges": [
+          [
+           1072,
+           519,
+           "## Quick reference | Feature | Amount |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 519
+        },
+        {
+         "doc": "doc_checking_accounts_evergreen_account_002",
+         "ranges": [
+          [
+           0,
+           802,
+           "## Fees and waivers - Monthly maintenanc"
+          ]
+         ],
+         "basis": "content",
+         "chars": 802
+        }
+       ],
+       "gold_account": [
+        {
+         "doc": "doc_savings_accounts_gold_account_001",
+         "ranges": [
+          [
+           0,
+           1091,
+           "## Eligibility and balance requirements"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1091
+        },
+        {
+         "doc": "doc_savings_accounts_gold_account_002",
+         "ranges": [
+          [
+           0,
+           294,
+           "## Snapshot - APY: 5.5% - Minimum balanc"
+          ]
+         ],
+         "basis": "content",
+         "chars": 294
+        },
+        {
+         "doc": "doc_savings_accounts_gold_account_003",
+         "ranges": [
+          [
+           0,
+           588,
+           "## Account requirements - Opening deposi"
+          ]
+         ],
+         "basis": "content",
+         "chars": 588
+        },
+        {
+         "doc": "doc_savings_accounts_gold_account_004",
+         "ranges": [
+          [
+           0,
+           540,
+           "## How your yield works - Your Gold Acco"
+          ]
+         ],
+         "basis": "content",
+         "chars": 540
+        },
+        {
+         "doc": "doc_savings_accounts_gold_account_009",
+         "ranges": [
+          [
+           0,
+           674,
+           "## Qualification checkpoints - Ensure yo"
+          ]
+         ],
+         "basis": "content",
+         "chars": 674
+        },
+        {
+         "doc": "doc_savings_accounts_gold_account_010",
+         "ranges": [
+          [
+           0,
+           508,
+           "## How interest is calculated - Your APY"
+          ]
+         ],
+         "basis": "content",
+         "chars": 508
+        },
+        {
+         "doc": "doc_savings_accounts_gold_account_013",
+         "ranges": [
+          [
+           739,
+           240,
+           "### Quick reference | Benefit | Gold Re"
+          ],
+          [
+           980,
+           456,
+           "## Reduced minimum balance - If you hol"
+          ]
+         ],
+         "basis": "content",
+         "chars": 696
+        },
+        {
+         "doc": "doc_savings_accounts_gold_account_014",
+         "ranges": [
+          [
+           0,
+           964,
+           "## Credit card APY bonuses for Gold Acco"
+          ]
+         ],
+         "basis": "content",
+         "chars": 964
+        }
+       ],
+       "gold_plus_account": [
+        {
+         "doc": "doc_savings_accounts_gold_plus_account_001",
+         "ranges": [
+          [
+           0,
+           750,
+           "## Key specifications | Item | Value |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 750
+        },
+        {
+         "doc": "doc_savings_accounts_gold_plus_account_002",
+         "ranges": [
+          [
+           0,
+           603,
+           "## What is different from Gold - APY: 6"
+          ]
+         ],
+         "basis": "content",
+         "chars": 603
+        },
+        {
+         "doc": "doc_savings_accounts_gold_plus_account_005",
+         "ranges": [
+          [
+           0,
+           640,
+           "### What APY do I earn on my balance? Y"
+          ]
+         ],
+         "basis": "content",
+         "chars": 640
+        },
+        {
+         "doc": "doc_savings_accounts_gold_plus_account_006",
+         "ranges": [
+          [
+           0,
+           372,
+           "## Interest calculation method - Your A"
+          ]
+         ],
+         "basis": "content",
+         "chars": 372
+        }
+       ],
+       "gold_plus_saver": [
+        {
+         "doc": "doc_business_savings_accounts_gold_plus_saver_001",
+         "ranges": [
+          [
+           0,
+           4652,
+           "## What you earn on Gold Plus Saver - B"
+          ]
+         ],
+         "basis": "content",
+         "chars": 4652
+        },
+        {
+         "doc": "doc_business_savings_accounts_gold_plus_saver_002",
+         "ranges": [
+          [
+           0,
+           1205,
+           "## Availability and status - Automatic i"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1205
+        }
+       ],
+       "gold_saver_account": [
+        {
+         "doc": "doc_business_savings_accounts_gold_saver_account_009",
+         "ranges": [
+          [
+           0,
+           1625,
+           "## APY bonus amounts by eligible busines"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1625
+        }
+       ],
+       "gold_years_account": [
+        {
+         "doc": "doc_checking_accounts_gold_years_account_002",
+         "ranges": [
+          [
+           0,
+           911,
+           "## Eligibility - You must be at least 62"
+          ]
+         ],
+         "basis": "content",
+         "chars": 911
+        }
+       ],
+       "green_account_(checking)": [
+        {
+         "doc": "doc_checking_accounts_green_account_(checking)_001",
+         "ranges": [
+          [
+           319,
+           418,
+           "## Fees and limits | Item | Amount | |--"
+          ],
+          [
+           738,
+           327,
+           "## Referral program Refer friends and fa"
+          ],
+          [
+           1066,
+           614,
+           "## Important details - To avoid the mont"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1359
+        },
+        {
+         "doc": "doc_checking_accounts_green_account_(checking)_002",
+         "ranges": [
+          [
+           0,
+           879,
+           "## Ongoing maintenance and balance requi"
+          ]
+         ],
+         "basis": "content",
+         "chars": 879
+        },
+        {
+         "doc": "doc_checking_accounts_green_account_(checking)_010",
+         "ranges": [
+          [
+           31,
+           99,
+           "### Do I pay for paper statements? - Yes"
+          ],
+          [
+           131,
+           74,
+           "### Does this account earn interest? - Y"
+          ],
+          [
+           206,
+           115,
+           "### What is the fee for using a non-netw"
+          ],
+          [
+           322,
+           117,
+           "### How long do transfers to another ban"
+          ],
+          [
+           440,
+           103,
+           "### What happens if a check I deposit is"
+          ],
+          [
+           544,
+           91,
+           "### Is there a fee to receive a domestic"
+          ]
+         ],
+         "basis": "content",
+         "chars": 599
+        }
+       ],
+       "green_account_(savings)": [
+        {
+         "doc": "doc_savings_accounts_green_account_(savings)_001",
+         "ranges": [
+          [
+           0,
+           665,
+           "## Key specifications | Item | Value |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 665
+        },
+        {
+         "doc": "doc_savings_accounts_green_account_(savings)_003",
+         "ranges": [
+          [
+           38,
+           234,
+           "### How the bonus works - Your Green Acc"
+          ],
+          [
+           273,
+           157,
+           "### Extra rewards at eco-certified merch"
+          ],
+          [
+           760,
+           234,
+           "### Maintaining eligibility - Keep your"
+          ]
+         ],
+         "basis": "content",
+         "chars": 625
+        },
+        {
+         "doc": "doc_savings_accounts_green_account_(savings)_005",
+         "ranges": [
+          [
+           31,
+           59,
+           "### What APY does the Green Account (sav"
+          ],
+          [
+           91,
+           93,
+           "### Do I need to maintain a minimum bala"
+          ],
+          [
+           185,
+           85,
+           "### Is there a monthly maintenance fee i"
+          ],
+          [
+           385,
+           102,
+           "### Does Rho-Bank match donations to par"
+          ]
+         ],
+         "basis": "content",
+         "chars": 339
+        },
+        {
+         "doc": "doc_savings_accounts_green_account_(savings)_006",
+         "ranges": [
+          [
+           0,
+           532,
+           "## Interest calculation - Interest accru"
+          ]
+         ],
+         "basis": "content",
+         "chars": 532
+        },
+        {
+         "doc": "doc_savings_accounts_green_account_(savings)_009",
+         "ranges": [
+          [
+           0,
+           1668,
+           "## EcoCard holder benefits overview Gre"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1668
+        }
+       ],
+       "green_fee-free_account": [
+        {
+         "doc": "doc_checking_accounts_green_fee-free_account_003",
+         "ranges": [
+          [
+           236,
+           317,
+           "## Notes - Rho Bank does not charge for"
+          ]
+         ],
+         "basis": "content",
+         "chars": 317
+        },
+        {
+         "doc": "doc_checking_accounts_green_fee-free_account_004",
+         "ranges": [
+          [
+           0,
+           1022,
+           "## Core Specifications | Category | Deta"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1022
+        },
+        {
+         "doc": "doc_checking_accounts_green_fee-free_account_006",
+         "ranges": [
+          [
+           31,
+           135,
+           "### How can I avoid the monthly maintena"
+          ],
+          [
+           167,
+           88,
+           "### What do paper statements cost? Paper"
+          ],
+          [
+           256,
+           68,
+           "### Does this account earn interest? No."
+          ],
+          [
+           325,
+           224,
+           "### What happens if a check I deposited"
+          ],
+          [
+           550,
+           138,
+           "### Is there a fee to receive a domestic"
+          ]
+         ],
+         "basis": "content",
+         "chars": 653
+        }
+       ],
+       "hunter_green": [
+        {
+         "doc": "doc_business_checking_accounts_hunter_green_001",
+         "ranges": [
+          [
+           0,
+           1746,
+           "## Quick start checklist - Confirm your"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1746
+        },
+        {
+         "doc": "doc_business_checking_accounts_hunter_green_006",
+         "ranges": [
+          [
+           0,
+           603,
+           "## Your APY - Your account earns 1.0% AP"
+          ]
+         ],
+         "basis": "content",
+         "chars": 603
+        }
+       ],
+       "light_blue_account": [
+        {
+         "doc": "doc_checking_accounts_light_blue_account_002",
+         "ranges": [
+          [
+           0,
+           313,
+           "## Quick facts - APY on your balance: 0%"
+          ]
+         ],
+         "basis": "content",
+         "chars": 313
+        },
+        {
+         "doc": "doc_checking_accounts_light_blue_account_003",
+         "ranges": [
+          [
+           0,
+           544,
+           "## Account specifications - Annual Perce"
+          ]
+         ],
+         "basis": "content",
+         "chars": 544
+        },
+        {
+         "doc": "doc_checking_accounts_light_blue_account_004",
+         "ranges": [
+          [
+           0,
+           1147,
+           "## Fees and features | Item | Amount | |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1147
+        }
+       ],
+       "light_green_account": [
+        {
+         "doc": "doc_checking_accounts_light_green_account_001",
+         "ranges": [
+          [
+           0,
+           1017,
+           "## Key details | Item | Detail | |---|-"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1017
+        },
+        {
+         "doc": "doc_checking_accounts_light_green_account_006",
+         "ranges": [
+          [
+           0,
+           494,
+           "## Use interest to reinforce saving habi"
+          ]
+         ],
+         "basis": "content",
+         "chars": 494
+        }
+       ],
+       "lime_green": [
+        {
+         "doc": "doc_business_checking_accounts_lime_green_001",
+         "ranges": [
+          [
+           0,
+           1362,
+           "## Key account values | Item | Value |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1362
+        },
+        {
+         "doc": "doc_business_checking_accounts_lime_green_005",
+         "ranges": [
+          [
+           0,
+           624,
+           "## Your APY - Your account earns an Annu"
+          ]
+         ],
+         "basis": "content",
+         "chars": 624
+        }
+       ],
+       "navy_blue": [
+        {
+         "doc": "doc_business_checking_accounts_navy_blue_001",
+         "ranges": [
+          [
+           0,
+           1483,
+           "## Key Account Costs and Limits - Month"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1483
+        },
+        {
+         "doc": "doc_business_checking_accounts_navy_blue_004",
+         "ranges": [
+          [
+           0,
+           682,
+           "## Your interest rate - APY on your bala"
+          ]
+         ],
+         "basis": "content",
+         "chars": 682
+        }
+       ],
+       "platinum_account": [
+        {
+         "doc": "doc_savings_accounts_platinum_account_001",
+         "ranges": [
+          [
+           0,
+           1209,
+           "## Balance requirements - Maintain at le"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1209
+        },
+        {
+         "doc": "doc_savings_accounts_platinum_account_002",
+         "ranges": [
+          [
+           0,
+           331,
+           "## Key figures - APY: 6.5% - Minimum bal"
+          ]
+         ],
+         "basis": "content",
+         "chars": 331
+        },
+        {
+         "doc": "doc_savings_accounts_platinum_account_003",
+         "ranges": [
+          [
+           0,
+           606,
+           "## Required balances - Opening deposit m"
+          ]
+         ],
+         "basis": "content",
+         "chars": 606
+        },
+        {
+         "doc": "doc_savings_accounts_platinum_account_007",
+         "ranges": [
+          [
+           0,
+           682,
+           "## How your interest is calculated - APY"
+          ]
+         ],
+         "basis": "content",
+         "chars": 682
+        }
+       ],
+       "platinum_plus_account": [
+        {
+         "doc": "doc_savings_accounts_platinum_plus_account_005",
+         "ranges": [
+          [
+           0,
+           467,
+           "## Frequently asked questions - What APY"
+          ]
+         ],
+         "basis": "content",
+         "chars": 467
+        },
+        {
+         "doc": "doc_savings_accounts_platinum_plus_account_006",
+         "ranges": [
+          [
+           0,
+           506,
+           "## How interest is calculated - Your acc"
+          ]
+         ],
+         "basis": "content",
+         "chars": 506
+        },
+        {
+         "doc": "doc_savings_accounts_platinum_plus_account_009",
+         "ranges": [
+          [
+           0,
+           825,
+           "## Credit card APY bonuses for Platinum"
+          ]
+         ],
+         "basis": "content",
+         "chars": 825
+        }
+       ],
+       "platinum_reserve_account": [
+        {
+         "doc": "doc_business_savings_accounts_platinum_reserve_account_001",
+         "ranges": [
+          [
+           0,
+           895,
+           "## What you earn - Annual Percentage Yie"
+          ]
+         ],
+         "basis": "content",
+         "chars": 895
+        },
+        {
+         "doc": "doc_business_savings_accounts_platinum_reserve_account_002",
+         "ranges": [
+          [
+           0,
+           1176,
+           "## How daily compounding works - Interes"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1176
+        },
+        {
+         "doc": "doc_business_savings_accounts_platinum_reserve_account_010",
+         "ranges": [
+          [
+           0,
+           2583,
+           "## Eligible Business Credit Cards and AP"
+          ]
+         ],
+         "basis": "content",
+         "chars": 2583
+        }
+       ],
+       "silver_account": [
+        {
+         "doc": "doc_savings_accounts_silver_account_001",
+         "ranges": [
+          [
+           0,
+           900,
+           "## Key specifications | Specification |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 900
+        },
+        {
+         "doc": "doc_savings_accounts_silver_account_002",
+         "ranges": [
+          [
+           0,
+           823,
+           "## What linking does - When you link you"
+          ]
+         ],
+         "basis": "content",
+         "chars": 823
+        },
+        {
+         "doc": "doc_savings_accounts_silver_account_003",
+         "ranges": [
+          [
+           190,
+           297,
+           "## How your rate is determined - Each da"
+          ]
+         ],
+         "basis": "content",
+         "chars": 297
+        },
+        {
+         "doc": "doc_savings_accounts_silver_account_005",
+         "ranges": [
+          [
+           31,
+           140,
+           "### What APY does the Silver Account pay"
+          ],
+          [
+           172,
+           260,
+           "### What minimum balance should I keep,"
+          ],
+          [
+           433,
+           193,
+           "### Is there a cost if I make too many w"
+          ],
+          [
+           627,
+           159,
+           "### Do I get a bonus for having multiple"
+          ],
+          [
+           787,
+           87,
+           "### Do you rebate ATM fees? - Yes. You c"
+          ]
+         ],
+         "basis": "content",
+         "chars": 839
+        },
+        {
+         "doc": "doc_savings_accounts_silver_account_006",
+         "ranges": [
+          [
+           0,
+           839,
+           "## How interest is calculated - Your app"
+          ]
+         ],
+         "basis": "content",
+         "chars": 839
+        },
+        {
+         "doc": "doc_savings_accounts_silver_account_009",
+         "ranges": [
+          [
+           595,
+           338,
+           "## What you receive as a Platinum Reward"
+          ],
+          [
+           934,
+           677,
+           "## Activation and eligibility - The enh"
+          ],
+          [
+           2474,
+           274,
+           "## Relationship bonus APY - When your S"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1289
+        }
+       ],
+       "silver_plus_account": [
+        {
+         "doc": "doc_savings_accounts_silver_plus_account_001",
+         "ranges": [
+          [
+           0,
+           757,
+           "## Account parameters | Item | Detail |"
+          ]
+         ],
+         "basis": "content",
+         "chars": 757
+        },
+        {
+         "doc": "doc_savings_accounts_silver_plus_account_002",
+         "ranges": [
+          [
+           34,
+           194,
+           "### Tiered APY - Silver Plus offers tier"
+          ],
+          [
+           229,
+           88,
+           "### Withdrawal flexibility - Increased a"
+          ],
+          [
+           318,
+           67,
+           "### ATM fee support - Receive ATM fee re"
+          ],
+          [
+           386,
+           307,
+           "### Statement delivery - Paper statement"
+          ]
+         ],
+         "basis": "content",
+         "chars": 656
+        },
+        {
+         "doc": "doc_savings_accounts_silver_plus_account_004",
+         "ranges": [
+          [
+           0,
+           793,
+           "## Included perks | Feature | Availabil"
+          ]
+         ],
+         "basis": "content",
+         "chars": 793
+        },
+        {
+         "doc": "doc_savings_accounts_silver_plus_account_005",
+         "ranges": [
+          [
+           31,
+           92,
+           "### What APY can I earn? - The account o"
+          ],
+          [
+           124,
+           101,
+           "### Is there a minimum balance requireme"
+          ],
+          [
+           366,
+           111,
+           "### Does this account include savings go"
+          ]
+         ],
+         "basis": "content",
+         "chars": 304
+        },
+        {
+         "doc": "doc_savings_accounts_silver_plus_account_006",
+         "ranges": [
+          [
+           164,
+           97,
+           "### APY tiers - Your APY depends on your"
+          ],
+          [
+           262,
+           173,
+           "### Direct deposit bonus - If you set up"
+          ]
+         ],
+         "basis": "content",
+         "chars": 270
+        }
+       ],
+       "silver_plus_saver": [
+        {
+         "doc": "doc_business_savings_accounts_silver_plus_saver_001",
+         "ranges": [
+          [
+           0,
+           2432,
+           "## Eligibility and Minimum Balance - You"
+          ]
+         ],
+         "basis": "content",
+         "chars": 2432
+        },
+        {
+         "doc": "doc_business_savings_accounts_silver_plus_saver_003",
+         "ranges": [
+          [
+           0,
+           1112,
+           "## How the relationship bonus works - Wh"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1112
+        },
+        {
+         "doc": "doc_business_savings_accounts_silver_plus_saver_006",
+         "ranges": [
+          [
+           0,
+           730,
+           "## Same-day ACH availability - Same-day"
+          ]
+         ],
+         "basis": "content",
+         "chars": 730
+        }
+       ],
+       "silver_saver_account": [
+        {
+         "doc": "doc_business_savings_accounts_silver_saver_account_001",
+         "ranges": [
+          [
+           0,
+           1880,
+           "## How the higher APY tiers work You ea"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1880
+        },
+        {
+         "doc": "doc_business_savings_accounts_silver_saver_account_002",
+         "ranges": [
+          [
+           0,
+           970,
+           "## How the balance threshold affects you"
+          ]
+         ],
+         "basis": "content",
+         "chars": 970
+        }
+       ],
+       "sky_blue": [
+        {
+         "doc": "doc_business_checking_accounts_sky_blue_007",
+         "ranges": [
+          [
+           0,
+           657,
+           "## Mobile Check Deposits - Your daily mo"
+          ]
+         ],
+         "basis": "content",
+         "chars": 657
+        },
+        {
+         "doc": "doc_business_checking_accounts_sky_blue_008",
+         "ranges": [
+          [
+           0,
+           589,
+           "## What Changes - The monthly maintenanc"
+          ]
+         ],
+         "basis": "content",
+         "chars": 589
+        }
+       ],
+       "true_blue": [
+        {
+         "doc": "doc_business_checking_accounts_true_blue_001",
+         "ranges": [
+          [
+           0,
+           655,
+           "## What you pay - Monthly maintenance fe"
+          ]
+         ],
+         "basis": "content",
+         "chars": 655
+        },
+        {
+         "doc": "doc_business_checking_accounts_true_blue_008",
+         "ranges": [
+          [
+           0,
+           578,
+           "## Your APY - The account earns an Annua"
+          ]
+         ],
+         "basis": "content",
+         "chars": 578
+        }
+       ],
+       "world_blue": [
+        {
+         "doc": "doc_business_checking_accounts_world_blue_007",
+         "ranges": [
+          [
+           0,
+           1265,
+           "## Rate and compounding - Your USD balan"
+          ]
+         ],
+         "basis": "content",
+         "chars": 1265
+        },
+        {
+         "doc": "doc_business_checking_accounts_world_blue_008",
+         "ranges": [
+          [
+           0,
+           2214,
+           "## Check what was charged - Confirm the"
+          ]
+         ],
+         "basis": "content",
+         "chars": 2214
+        }
+       ]
+      }
+     },
+     "operand_schema": {
+      "type": "object",
+      "properties": {
+       "derivation": {
+        "type": "string",
+        "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+       },
+       "components": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "kind": {
+           "type": "string",
+           "enum": [
+            "base",
+            "checking",
+            "card",
+            "relationship",
+            "tier"
+           ]
+          },
+          "value": {
+           "type": "number"
+          },
+          "source": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "kind",
+          "value",
+          "source"
+         ],
+         "additionalProperties": false
+        }
+       }
+      },
+      "required": [
+       "derivation",
+       "components"
+      ],
+      "additionalProperties": false
+     },
+     "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다.",
+     "ref_from_outputs": {
+      "customer_products": {
+       "producer_contains": [
+        "accounts"
+       ]
+      }
+     }
+    },
+    "requires_reads": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "return_template": "Correct savings APY computed from the components supplied in this call: {result}%. The stacking policy is base + highest checking boost + highest card bonus + all relationship/tier bonuses. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy."
+   },
+   {
+    "name": "get_interest_correction",
+    "description": "ALWAYS provide account_id (so the tool can verify against the records itself). USE THIS to compute the dollar interest correction owed when a savings account was paid the wrong APY. Do NOT do this arithmetic yourself. Provide the correct APY (from get_correct_savings_apy), the APY the system actually applied, the account principal/balance, and the period over which the wrong APY was applied. It returns the interest difference to credit. The correction amount = principal x (expected_apy - actual_apy)/100 / 12, i.e. ONE monthly interest credit difference (this account family credits interest MONTHLY at APY/12). If multiple months were wrong, call once per month.",
+    "params": {
+     "expected_apy": "The correct APY (percentage points, no %) — from get_correct_savings_apy.",
+     "actual_apy": "The APY the system ACTUALLY applied (percentage points, no %). Derive it from the latest MONTHLY INTEREST CREDIT in the transactions: monthly credit amount x 12 / principal x 100. The APY stated on the account record may be the intended rate, NOT the rate actually applied - use the stated value only if no interest credit transaction is available.",
+     "principal": "The savings account balance the APY applies to (number, no $), copied from the account record.",
+     "period_start": "Start date (MM/DD/YYYY) of the affected MONTHLY interest credit period (for the record; the correction is computed as one monthly credit: principal x (expected-actual)% / 12).",
+     "period_end": "End date (MM/DD/YYYY) of the affected monthly period (the month whose interest credit used the wrong APY).",
+     "account_id": "The savings account id in question (e.g. from the account record). Needed only if you omit principal/actual_apy - the tool will read them from the records itself."
+    },
+    "op": {
+     "op": "multiply",
+     "a": {
+      "op": "multiply",
+      "a": "principal",
+      "b": {
+       "op": "multiply",
+       "a": {
+        "op": "diff",
+        "a": "expected_apy",
+        "b": "actual_apy"
+       },
+       "b": 0.01
+      }
+     },
+     "b": {
+      "op": "const",
+      "value": 0.08333333333333333
+     }
+    },
+    "ground": {
+     "scalar_fields": [
+      {
+       "param": "principal",
+       "corpus": [
+        "ledger"
+       ],
+       "kind": "number",
+       "on_fail": "drop"
+      },
+      {
+       "param": "actual_apy",
+       "corpus": [
+        "ledger_tools"
+       ],
+       "kind": "number",
+       "on_fail": "drop",
+       "derived_from": {
+        "op": {
+         "op": "multiply",
+         "a": {
+          "op": "multiply",
+          "a": "principal",
+          "b": {
+           "op": "multiply",
+           "a": "actual_apy",
+           "b": 0.01
+          }
+         },
+         "b": {
+          "op": "const",
+          "value": 0.08333333333333333
+         }
+        },
+        "round_to": 2,
+        "corpus": [
+         "ledger_tools"
+        ]
+       },
+       "fail_feedback": "this APY is a DERIVED figure, so it will not appear in the records as written - what has to appear is the monthly interest credit it implies, and for this principal that figure is not in any tool result you have read yet. Read the account's transactions and derive the APY from the MONTHLY INTEREST CREDIT there (monthly credit x 12 / principal x 100), then pass that value."
+      },
+      {
+       "param": "period_start",
+       "corpus": [
+        "ledger"
+       ],
+       "kind": "date",
+       "on_fail": "drop"
+      },
+      {
+       "param": "period_end",
+       "corpus": [
+        "ledger"
+       ],
+       "kind": "date",
+       "on_fail": "drop"
+      },
+      {
+       "param": "expected_apy",
+       "corpus": [
+        "tool:get_correct_savings_apy"
+       ],
+       "kind": "number",
+       "on_fail": "drop",
+       "fail_feedback": "is not the value that get_correct_savings_apy returned in this conversation. Use that result verbatim as expected_apy. If you believe it is wrong, call get_correct_savings_apy again with corrected components and use the value it returns — do not compute the stacked APY yourself."
+      }
+     ]
+    },
+    "isolate": {
+     "mode": "fetch_formalize",
+     "ref_params": [
+      "account_id"
+     ],
+     "getter_tools": [
+      "call_discoverable_agent_tool",
+      "KB_search_bm25"
+     ],
+     "operand_keys": [
+      "principal",
+      "actual_apy"
+     ],
+     "max_rounds": 3,
+     "instructions": "You are a records-extraction sub-task. For the savings account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_all_user_accounts_by_user_id_3847' style getters ALREADY UNLOCKED in this session, or the transactions getter, to read the account record and its transactions. (2) principal = the account's current_holdings (number, exactly as in the record). (3) actual_apy = the APY actually applied: derive it from the latest MONTHLY INTEREST CREDIT as monthly credit x 12 / principal x 100. The APY stated on the account record may be the intended rate, not the applied one - use it only if no interest credit transaction exists. Copy raw values exactly; show your derivation.",
+     "answer_format": "Reply with exactly one JSON object and nothing else: {\"principal\": <number>, \"actual_apy\": <number>}",
+     "_robust_note": "2026-07-22 §2bv(rall12 097 실측): 서브가 5라운드 KB_search(APY규칙 큰문서)+call_discoverable(8계좌) 누적→52854>48640 초과→실패→폴백 오추측. 압축(절단)이 값 훼손(actual_apy 드롭). 사용자 제안=서브 분리: max_rounds 5→3(작업 분할·누적 상한)+head+tail 절단(엔진 T2_SG_SUB_TOOLCAP 4000·값보존). 3×2×4000+prompt≈26k<48.6k. 완전 2단계 서브(서브-of-서브)는 미구현·이 조합으로 초과·훼손 완화.",
+     "operand_schema": {
+      "type": "object",
+      "properties": {
+       "derivation": {
+        "type": "string",
+        "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+       },
+       "principal": {
+        "type": "number"
+       },
+       "actual_apy": {
+        "type": "number"
+       }
+      },
+      "required": [
+       "derivation",
+       "principal",
+       "actual_apy"
+      ],
+      "additionalProperties": false
+     },
+     "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다.",
+     "ref_from_outputs": {
+      "account_records": {
+       "producer_contains": [
+        "accounts"
+       ]
+      },
+      "transactions_raw": {
+       "producer_contains": [
+        "transactions"
+       ]
+      }
+     }
+    },
+    "return_template": "Interest correction (ONE monthly credit difference; this account credits interest MONTHLY at APY/12): principal={principal}, applied(actual) APY={actual_apy}%, correct(expected) APY={expected_apy}%. Correction amount = principal x (expected-actual)/100 / 12 = {result}. Use this as the credit amount and the amount_difference, and use these APY values in the discrepancy report.",
+    "result_round": 2,
+    "result_range": {
+     "min_exclusive": 0
+    },
+    "result_range_feedback": "Error: [RESULT-SIGN] this correction computes to {result}, which is not greater than {min_exclusive}, so it is not a credit amount. You passed correct(expected) APY={expected_apy}% and applied(actual) APY={actual_apy}% on principal={principal}. The credit tool's own argument contract is \"amount (number): The positive dollar amount to credit (must be greater than 0)\", so this number cannot be passed to it - and flipping its sign would credit the customer for interest they were never short-paid. What to do: if you are not certain the correct APY is right, re-read the account record with get_all_user_accounts_by_user_id and recompute the correct APY with get_correct_savings_apy, then call this tool again with the corrected values. If the applied APY really is the higher of the two, then no interest correction is owed for this period - tell the customer that instead of applying any credit."
+   },
+   {
+    "name": "check_card_closure_eligibility",
+    "description": "USE THIS before closing a credit card account to determine whether the account is eligible for closure. The closure protocol disqualifies closing an account that still has an outstanding balance — the balance must be paid in full FIRST. Read the credit card account record, then call this tool with the account id and the outstanding balance copied from the record (plus the verbatim line from the record showing that balance). It returns the deterministic eligibility verdict.",
+    "params": {
+     "credit_card_account_id": "The credit card account id being closed, copied from the account record.",
+     "outstanding_balance": "The account's current outstanding balance (number, no $), copied EXACTLY from the account record. If you just paid the balance, re-read the account record first and copy the NEW balance.",
+     "balance_source": "The verbatim line/snippet from the account record (tool output) showing this balance. Copy it exactly — it is checked against the records."
+    },
+    "op": {
+     "op": "if_then",
+     "cond": {
+      "op": "compare",
+      "cmp": "<=",
+      "a": "outstanding_balance",
+      "b": 0
+     },
+     "then": {
+      "op": "const",
+      "value": "CLOSURE_OK — no outstanding balance; the balance requirement of the closure protocol is satisfied."
+     },
+     "else": {
+      "op": "const",
+      "value": "CLOSURE_BLOCKED_OUTSTANDING_BALANCE — this account still has an outstanding balance. Per the closure protocol the balance must be paid in full before the account can be closed. YOU (the agent) can execute the payment: search the knowledge base for how to pay a credit card balance from the customer's checking account — there is a DISCOVERABLE agent tool for this (unlock it via unlock_discoverable_agent_tool with its full name including the numeric suffix, then call it via call_discoverable_agent_tool, with the customer's consent). Do NOT tell the customer to pay through the app themselves. After paying, re-read the account record and call this tool again with the new balance."
+     }
+    },
+    "ground": {
+     "scalar_fields": [
+      {
+       "param": "outstanding_balance",
+       "source_param": "balance_source",
+       "corpus": [
+        "ledger"
+       ],
+       "kind": "number",
+       "on_fail": "drop",
+       "quote_hint": true
+      }
+     ]
+    },
+    "return_template": "Closure eligibility for credit card account {credit_card_account_id} (outstanding balance {outstanding_balance}): {result}",
+    "missing_hint": "COULD NOT VERIFY — the balance you provided could not be verified against the account records. Re-read the credit card account record and copy the outstanding balance and its verbatim source line exactly."
+   },
+   {
+    "name": "check_cli_eligibility",
+    "description": "USE THIS before deciding (approve or deny) a credit limit increase request. It applies the tier CLI eligibility policy deterministically: minimum account age, cooldown after the most recent APPROVED request, maximum utilization, and consecutive on-time payment months. First read the credit card account record, the CLI request history, and the payment history; then call this tool with values copied EXACTLY from those tool outputs. It returns the policy verdict; you then execute the decision with the approve/deny tool.",
+    "params": {
+     "credit_card_account_id": "The credit card account id, from the account record.",
+     "card_type": "The card_type string copied exactly from the credit card account record.",
+     "date_of_account_open": "The date_of_account_open from the account record, exactly as shown.",
+     "as_of_date": "Today's date from get_current_time.",
+     "current_balance": "The current balance as a plain number (no $ or commas), from the account record.",
+     "credit_limit": "The credit limit as a plain number (no $ or commas), from the account record.",
+     "consecutive_on_time_payments": "The 'Consecutive on-time payments' number from the payment history tool output.",
+     "last_approved_cli_submitted_date": "Look at the CLI request history tool output. Among the requests whose status is 'approved', copy the most recent submitted_date (as shown, e.g. 2025-09-15). The request the customer just submitted in THIS conversation has status 'pending' (not 'approved'), so it is automatically excluded - do not confuse it with a prior approval. Pass 'none' ONLY if NO request in the history has status 'approved'."
+    },
+    "op": {
+     "op": "if_then",
+     "cond": {
+      "op": "compare",
+      "cmp": "<",
+      "a": {
+       "op": "days_between",
+       "a": "as_of_date",
+       "b": "date_of_account_open"
+      },
+      "b": {
+       "op": "case",
+       "key": "card_type",
+       "cases": {
+        "Bronze Rewards Card": 120,
+        "EcoCard": 120,
+        "Business Bronze Rewards Card": 120,
+        "Silver Rewards Card": 90,
+        "Business Silver Rewards Card": 90,
+        "Green Rewards Card": 90,
+        "Silver Zoom Card": 90,
+        "Gold Rewards Card": 60,
+        "Business Gold Rewards Card": 60,
+        "Platinum Rewards Card": 60,
+        "Business Platinum Rewards Card": 60,
+        "Diamond Elite Card": 60
+       },
+       "default": null
+      }
+     },
+     "then": {
+      "op": "const",
+      "value": "NOT_ELIGIBLE_ACCOUNT_AGE - the account has not been open long enough for a CLI at this card tier ('CLI Eligibility Requirements by Card Tier'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the requirement to the customer."
+     },
+     "else": {
+      "op": "if_then",
+      "cond": {
+       "op": "str_eq",
+       "a": "last_approved_cli_submitted_date",
+       "b": "none"
+      },
+      "then": {
+       "op": "if_then",
+       "cond": {
+        "op": "compare",
+        "cmp": ">=",
+        "a": "current_balance",
+        "b": {
+         "op": "multiply",
+         "a": "credit_limit",
+         "b": {
+          "op": "case",
+          "key": "card_type",
+          "cases": {
+           "Bronze Rewards Card": 0.7,
+           "EcoCard": 0.7,
+           "Business Bronze Rewards Card": 0.7,
+           "Silver Rewards Card": 0.8,
+           "Business Silver Rewards Card": 0.8,
+           "Green Rewards Card": 0.8,
+           "Silver Zoom Card": 0.8,
+           "Gold Rewards Card": 0.9,
+           "Business Gold Rewards Card": 0.9,
+           "Platinum Rewards Card": 0.9,
+           "Business Platinum Rewards Card": 0.9,
+           "Diamond Elite Card": 0.9
+          },
+          "default": null
+         }
+        }
+       },
+       "then": {
+        "op": "const",
+        "value": "NOT_ELIGIBLE_UTILIZATION - the current balance exceeds the tier's maximum utilization of the credit limit at request time ('CLI Eligibility Requirements by Card Tier'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the utilization requirement."
+       },
+       "else": {
+        "op": "if_then",
+        "cond": {
+         "op": "compare",
+         "cmp": "<",
+         "a": "consecutive_on_time_payments",
+         "b": {
+          "op": "case",
+          "key": "card_type",
+          "cases": {
+           "Bronze Rewards Card": 6,
+           "EcoCard": 6,
+           "Business Bronze Rewards Card": 6,
+           "Silver Rewards Card": 3,
+           "Business Silver Rewards Card": 3,
+           "Green Rewards Card": 3,
+           "Silver Zoom Card": 3,
+           "Gold Rewards Card": 3,
+           "Business Gold Rewards Card": 3,
+           "Platinum Rewards Card": 3,
+           "Business Platinum Rewards Card": 3,
+           "Diamond Elite Card": 3
+          },
+          "default": null
+         }
+        },
+        "then": {
+         "op": "const",
+         "value": "NOT_ELIGIBLE_PAYMENT_HISTORY - the consecutive on-time payment months are below this tier's requirement ('CLI Payment History and Approval Criteria'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the payment-history requirement."
+        },
+        "else": {
+         "op": "const",
+         "value": "ELIGIBLE - all tier requirements (account age, cooldown, utilization, payment history) are satisfied. Decide with a TOOL CALL: approve_credit_limit_increase, choosing the new limit within the tier's maximum increase cap from the CLI policy documents - or deny only if a different documented requirement fails."
+        }
+       }
+      },
+      "else": {
+       "op": "if_then",
+       "cond": {
+        "op": "compare",
+        "cmp": "<",
+        "a": {
+         "op": "days_between",
+         "a": "as_of_date",
+         "b": "last_approved_cli_submitted_date"
+        },
+        "b": {
+         "op": "case",
+         "key": "card_type",
+         "cases": {
+          "Bronze Rewards Card": 120,
+          "EcoCard": 120,
+          "Business Bronze Rewards Card": 120,
+          "Silver Rewards Card": 90,
+          "Business Silver Rewards Card": 90,
+          "Green Rewards Card": 90,
+          "Silver Zoom Card": 90,
+          "Gold Rewards Card": 60,
+          "Business Gold Rewards Card": 60,
+          "Platinum Rewards Card": 60,
+          "Business Platinum Rewards Card": 60,
+          "Diamond Elite Card": 60
+         },
+         "default": null
+        }
+       },
+       "then": {
+        "op": "const",
+        "value": "NOT_ELIGIBLE_COOLDOWN - the tier cooldown since the most recent APPROVED credit limit increase request has not elapsed ('CLI Eligibility Requirements by Card Tier': the cooldown counts from the last approved request's submission date; denied requests do not trigger it). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and tell the customer when they can reapply."
+       },
+       "else": {
+        "op": "if_then",
+        "cond": {
+         "op": "compare",
+         "cmp": ">=",
+         "a": "current_balance",
+         "b": {
+          "op": "multiply",
+          "a": "credit_limit",
+          "b": {
+           "op": "case",
+           "key": "card_type",
+           "cases": {
+            "Bronze Rewards Card": 0.7,
+            "EcoCard": 0.7,
+            "Business Bronze Rewards Card": 0.7,
+            "Silver Rewards Card": 0.8,
+            "Business Silver Rewards Card": 0.8,
+            "Green Rewards Card": 0.8,
+            "Silver Zoom Card": 0.8,
+            "Gold Rewards Card": 0.9,
+            "Business Gold Rewards Card": 0.9,
+            "Platinum Rewards Card": 0.9,
+            "Business Platinum Rewards Card": 0.9,
+            "Diamond Elite Card": 0.9
+           },
+           "default": null
+          }
+         }
+        },
+        "then": {
+         "op": "const",
+         "value": "NOT_ELIGIBLE_UTILIZATION - the current balance exceeds the tier's maximum utilization of the credit limit at request time ('CLI Eligibility Requirements by Card Tier'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the utilization requirement."
+        },
+        "else": {
+         "op": "if_then",
+         "cond": {
+          "op": "compare",
+          "cmp": "<",
+          "a": "consecutive_on_time_payments",
+          "b": {
+           "op": "case",
+           "key": "card_type",
+           "cases": {
+            "Bronze Rewards Card": 6,
+            "EcoCard": 6,
+            "Business Bronze Rewards Card": 6,
+            "Silver Rewards Card": 3,
+            "Business Silver Rewards Card": 3,
+            "Green Rewards Card": 3,
+            "Silver Zoom Card": 3,
+            "Gold Rewards Card": 3,
+            "Business Gold Rewards Card": 3,
+            "Platinum Rewards Card": 3,
+            "Business Platinum Rewards Card": 3,
+            "Diamond Elite Card": 3
+           },
+           "default": null
+          }
+         },
+         "then": {
+          "op": "const",
+          "value": "NOT_ELIGIBLE_PAYMENT_HISTORY - the consecutive on-time payment months are below this tier's requirement ('CLI Payment History and Approval Criteria'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the payment-history requirement."
+         },
+         "else": {
+          "op": "const",
+          "value": "ELIGIBLE - all tier requirements (account age, cooldown, utilization, payment history) are satisfied. Decide with a TOOL CALL: approve_credit_limit_increase, choosing the new limit within the tier's maximum increase cap from the CLI policy documents - or deny only if a different documented requirement fails."
+         }
+        }
+       }
+      }
+     }
+    },
+    "requires_reads": [
+     "get_credit_card_accounts_by_user",
+     "get_credit_limit_increase_history",
+     "get_payment_history"
+    ],
+    "return_template": "CLI eligibility for {credit_card_account_id} ({card_type}): {result}",
+    "missing_hint": "COULD NOT VERIFY - one or more inputs are missing or unparseable, so no verdict is given. Re-read the account record, the CLI request history and the payment history, then call again with exact values (balances/limits as plain numbers, dates exactly as shown, 'none' for the last-approved date only if no approved prior request exists)."
+   },
+   {
+    "name": "check_card_application_fit",
+    "description": "MANDATORY before recommending or applying for ANY credit card: formalize the customer's stated constraints (max annual fee, max foreign-transaction fee %, max minimum-payment %, min cashback %, their credit score, business vs personal) and call this tool. It deterministically filters Rho-Bank's documented card catalog and returns three buckets: 'eligible' (the documented value satisfies your constraint, with source docs), 'excluded' (it violates it, with the reason), and 'unverified' (that fact is NOT documented for that card). A card in 'unverified' is NOT known to meet the constraint you asked about — never tell the customer that it does, and only consider it after reading its cited source docs. Choose ONLY among the eligible cards; verify each remaining candidate's source docs for conditional clauses (e.g. subscriber discounts) and the customer's soft preferences before the final pick. The card_type you then pass to apply_for_credit_card MUST be one of the eligible cards you named to the customer.",
+    "params": {
+     "max_annual_fee": "number, optional",
+     "max_fx_fee": "number, optional (percent)",
+     "max_min_payment_pct": "number, optional (percent)",
+     "min_cashback": "number, optional (percent) — ONLY a number the customer explicitly stated as a minimum. A superlative request ('the highest cash back') is NOT a threshold: leave this out, then compare the cashback facts across the eligible cards yourself (mind cashback_scope — a category-limited rate is not comparable to an all-purchases rate).",
+     "credit_score": "number, optional",
+     "business": "boolean, optional (default false)",
+     "invited": "boolean, optional (Diamond Elite invitation)",
+     "min_credit_limit": "number, optional — the minimum credit limit the customer needs to be possible",
+     "needs_purchase_protection": "boolean, optional — true if the customer requires purchase protection",
+     "premium_subscriber": "boolean, optional — true if the customer has the bank's premium subscription (some fees are waived for subscribers); omit if unknown",
+     "spend_category": "optional string — ONLY if the customer stated a clear spending emphasis, the ONE documented category keyword it maps to. Documented keywords: travel, software, operations, media_advertising, green (=sustainable/eco). Normalize synonyms to these exact keywords (flights/hotels/airfare -> travel; SaaS/cloud -> software; eco/sustainable -> green). Omit entirely if the customer stated no category emphasis — do NOT guess one. When provided, each eligible card is annotated with its documented rate for that category so you can compare them honestly (a category-limited bonus is not comparable to an all-purchases rate).",
+     "spend_amount": "optional number — ONLY if the customer stated how much they will spend (a dollar amount they gave verbatim); the amount that spending applies to. Omit entirely if they stated no amount — do NOT estimate one. When both this and spend_category are given, each candidate is annotated with the return its own documented rates produce for that spending, with the arithmetic shown.",
+     "spend_category_quote": "optional string — REQUIRED whenever you set spend_category: a sentence copied word for word from a document YOU retrieved that shows this spending qualifies for that category. If you have not retrieved such a document, omit spend_category (the base rate is used) or search for the category's defining document first."
+    },
+    "optional": [
+     "max_annual_fee",
+     "max_fx_fee",
+     "max_min_payment_pct",
+     "min_cashback",
+     "credit_score",
+     "business",
+     "invited",
+     "min_credit_limit",
+     "needs_purchase_protection",
+     "premium_subscriber",
+     "spend_category",
+     "spend_amount",
+     "spend_category_quote"
+    ],
+    "op": {
+     "op": "catalog_filter",
+     "table": [
+      {
+       "card": "Platinum Rewards Card",
+       "annual_fee": 200.0,
+       "fx_fee": 0.0,
+       "cashback": 10.0,
+       "min_payment_pct": 2.5,
+       "source": "doc platinum_rewards_card_*",
+       "min_score": 750,
+       "limit_max": 150000,
+       "purchase_protection": true,
+       "virtual_card": true,
+       "cashback_scope": "all",
+       "base_cashback": 10.0
+      },
+      {
+       "card": "Gold Rewards Card",
+       "annual_fee": 0.0,
+       "fx_fee": 0.0,
+       "cashback": 2.5,
+       "min_payment_pct": 2.0,
+       "source": "doc gold_rewards_card_*",
+       "min_score": 720,
+       "limit_max": 112500,
+       "purchase_protection": true,
+       "virtual_card": true,
+       "cashback_scope": "all",
+       "base_cashback": 2.5
+      },
+      {
+       "card": "Silver Rewards Card",
+       "annual_fee": 0.0,
+       "fx_fee": 2.75,
+       "min_payment_pct": 1.5,
+       "min_score": 680,
+       "source": "doc silver_rewards_card_*",
+       "fx_fee_with_premium": 0.0,
+       "cashback": 4.0,
+       "limit_max": 100000,
+       "purchase_protection": true,
+       "virtual_card": false,
+       "cashback_scope": "top_categories(travel/software)",
+       "base_cashback": 1.0,
+       "category_rates": {
+        "software": 4.0,
+        "travel": 4.0
+       }
+      },
+      {
+       "card": "Bronze Rewards Card",
+       "annual_fee": 0.0,
+       "fx_fee": 2.75,
+       "cashback": 1.0,
+       "min_payment_pct": 1.0,
+       "min_score": 640,
+       "source": "doc bronze_rewards_card_*",
+       "virtual_card": false,
+       "cashback_scope": "all",
+       "base_cashback": 1.0
+      },
+      {
+       "card": "EcoCard",
+       "annual_fee": 50.0,
+       "fx_fee": 1.0,
+       "min_payment_pct": 1.0,
+       "source": "doc ecocard_*",
+       "min_score": 0,
+       "limit_max": 50000,
+       "virtual_card": true
+      },
+      {
+       "card": "Crypto-Cash Back",
+       "annual_fee": 75.0,
+       "fx_fee": 0.0,
+       "min_payment_pct": 1.5,
+       "source": "doc crypto-cash_back_*",
+       "min_score": 660,
+       "cashback": 2.0,
+       "purchase_protection": false,
+       "virtual_card": true,
+       "cashback_scope": "all",
+       "base_cashback": 2.0
+      },
+      {
+       "card": "Diamond Elite Card",
+       "annual_fee": 495.0,
+       "fx_fee": 0.0,
+       "cashback": 5.0,
+       "min_payment_pct": 3.0,
+       "invite_only": true,
+       "source": "doc diamond_elite_card_*",
+       "min_score": 780,
+       "purchase_protection": true,
+       "virtual_card": true,
+       "cashback_scope": "all",
+       "base_cashback": 5.0
+      },
+      {
+       "card": "Business Bronze Rewards Card",
+       "business": true,
+       "annual_fee": 0.0,
+       "fx_fee": 2.75,
+       "cashback": 1.0,
+       "source": "doc business_bronze_rewards_card_*",
+       "cashback_scope": "all",
+       "base_cashback": 1.0
+      },
+      {
+       "card": "Business Silver Rewards Card",
+       "business": true,
+       "annual_fee": 122.5,
+       "fx_fee": 1.5,
+       "cashback": 10.0,
+       "source": "doc business_silver_rewards_card_*",
+       "min_score": 700,
+       "limit_max": 112500,
+       "cashback_scope": "top_categories(travel/software)",
+       "base_cashback": 1.0,
+       "category_rates": {
+        "software": 10.0,
+        "travel": 10.0
+       }
+      },
+      {
+       "card": "Business Gold Rewards Card",
+       "business": true,
+       "annual_fee": 200.0,
+       "fx_fee": 0.0,
+       "source": "doc business_gold_rewards_card_*",
+       "min_score": 735,
+       "category_rates": {
+        "operations": 2.5
+       },
+       "base_cashback": 1.0
+      },
+      {
+       "card": "Business Platinum Rewards Card",
+       "business": true,
+       "annual_fee": 450.0,
+       "fx_fee": 0.0,
+       "source": "doc business_platinum_rewards_card_*",
+       "min_score": 765,
+       "purchase_protection": true,
+       "category_rates": {
+        "media_advertising": 4.0,
+        "software": 4.0,
+        "travel": 4.0
+       },
+       "base_cashback": 1.5
+      },
+      {
+       "card": "Green Rewards Card",
+       "business": true,
+       "annual_fee": 100.0,
+       "fx_fee": 1.0,
+       "cashback": 3.0,
+       "source": "doc green_rewards_card_*",
+       "limit_max": 75000,
+       "cashback_scope": "top_categories",
+       "base_cashback": 1.0,
+       "category_rates": {
+        "green": 3.0,
+        "sustainable": 3.0
+       }
+      },
+      {
+       "card": "Silver Zoom Card",
+       "business": true,
+       "fx_fee": 2.5,
+       "source": "doc silver_zoom_card_*",
+       "min_score": 680
+      }
+     ],
+     "conditional_fields": {
+      "fx_fee": {
+       "alt": "fx_fee_with_premium",
+       "when": "premium_subscriber"
+      }
+     },
+     "value_formula": {
+      "amount_param": "spend_amount",
+      "category_param": "spend_category",
+      "rate_from": {
+       "category_field": "category_rates",
+       "default_field": "base_cashback"
+      },
+      "minus_fields": [
+       "annual_fee"
+      ],
+      "label": "documented_return_for_stated_spend"
+     },
+     "constraints": [
+      {
+       "param": "max_annual_fee",
+       "field": "annual_fee",
+       "sense": "le"
+      },
+      {
+       "param": "max_fx_fee",
+       "field": "fx_fee",
+       "sense": "le"
+      },
+      {
+       "param": "max_min_payment_pct",
+       "field": "min_payment_pct",
+       "sense": "le"
+      },
+      {
+       "param": "min_cashback",
+       "field": "cashback",
+       "sense": "ge"
+      },
+      {
+       "param": "min_credit_limit",
+       "field": "limit_max",
+       "sense": "ge"
+      },
+      {
+       "param": "needs_virtual_card",
+       "field": "virtual_card",
+       "sense": "flag"
+      },
+      {
+       "param": "needs_purchase_protection",
+       "field": "purchase_protection",
+       "sense": "flag"
+      },
+      {
+       "param": "credit_score",
+       "field": "min_score",
+       "sense": "le"
+      },
+      {
+       "param": "invited",
+       "field": "invite_only",
+       "sense": "unless"
+      }
+     ],
+     "segment": {
+      "param": "business",
+      "field": "business"
+     },
+     "label_field": "card"
+    },
+    "ground": {
+     "intent_fields": [
+      {
+       "param": "max_annual_fee",
+       "corpus": [
+        "user"
+       ],
+       "cue_any": [
+        "annual fee",
+        "yearly fee",
+        "no fee",
+        "fee-free",
+        "without a fee",
+        "membership fee",
+        "card fee"
+       ],
+       "on_fail": "drop"
+      },
+      {
+       "param": "max_fx_fee",
+       "corpus": [
+        "user"
+       ],
+       "cue_any": [
+        "foreign transaction",
+        "foreign fee",
+        "fx fee",
+        "overseas",
+        "abroad",
+        "international purchase",
+        "travel abroad"
+       ],
+       "on_fail": "drop"
+      },
+      {
+       "param": "max_min_payment_pct",
+       "corpus": [
+        "user"
+       ],
+       "cue_any": [
+        "minimum payment",
+        "min payment",
+        "monthly payment",
+        "pay the full statement",
+        "statement balance"
+       ],
+       "on_fail": "drop"
+      },
+      {
+       "param": "min_cashback",
+       "corpus": [
+        "user"
+       ],
+       "cue_any": [
+        "cash back",
+        "cashback",
+        "rewards rate",
+        "points per",
+        "earn rate"
+       ],
+       "on_fail": "drop"
+      },
+      {
+       "param": "credit_score",
+       "corpus": [
+        "user"
+       ],
+       "cue_any": [
+        "credit score",
+        "fico",
+        "my score"
+       ],
+       "on_fail": "drop"
+      },
+      {
+       "param": "min_credit_limit",
+       "corpus": [
+        "user"
+       ],
+       "cue_any": [
+        "credit limit",
+        "limit of",
+        "spending limit",
+        "line of credit",
+        "high limit",
+        "limit at least"
+       ],
+       "on_fail": "drop"
+      }
+     ]
+    }
+   },
+   {
+    "name": "get_atm_fee_discrepancies",
+    "description": "ALWAYS use this whenever a customer questions or disputes ATM fees on their checking account(s) and you need to find which specific fee lines were charged incorrectly. First retrieve the account's transactions, then call this ONCE PER ACCOUNT, passing the account's id and its level (class) and ONE element per ATM withdrawal - including the withdrawals that carry no fee line, because a fee that is MISSING is one of the errors it finds. It derives the correct fee under the documented fee schedule for that account level, applies that level's documented free-withdrawal allowance and ATM fee rebate programme, and does the arithmetic for you. Do the fee math with this tool - do not eyeball it yourself.",
+    "params": {
+     "account_id": "string (required) - the checking account ID being audited (e.g. from the accounts listing); used to look up its transaction records.",
+     "account_class": "The account's level exactly as shown in the account record (e.g. 'Blue Account', 'Light Green Account').",
+     "transactions": "A JSON array with ONE element per atm_withdrawal record of THIS account, in any order - this tool sorts them by date itself. Include EVERY atm_withdrawal, also the ones with no fee line - a fee that is MISSING is one of the errors, and this account level's free-withdrawal allowance is counted over the withdrawals you pass. Each element MUST have ONLY these fields, copied from the records: date (string - this withdrawal's date exactly as the record shows it, e.g. '11/14/2025'), transaction_id (string - the id of the atm_fee line paired with this withdrawal; if this withdrawal has NO fee line, the withdrawal's own id), fee_amount (number - that fee line's amount as a POSITIVE number, no $; 0 if this withdrawal has no fee line), withdrawal_amount (number, POSITIVE - the cash dispensed by this atm_withdrawal), network (string, exactly one of 'rho' | 'non_rho' | 'foreign', read from that withdrawal's description: a RHO-BANK machine is 'rho'; a machine outside the U.S. or dispensing foreign currency is 'foreign'; any other bank's machine is 'non_rho'), rebate_amount (number - the amount of the fee_rebate line paired with this withdrawal, as a POSITIVE number; 0 if the history shows no rebate for it). Do NOT compute anything - just copy the raw values; this tool computes the expected fee and finds discrepancies itself. IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include that withdrawal twice, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one, with rebate_amount 0 on it."
+    },
+    "op": {
+     "op": "select_discrepant",
+     "over": "transactions",
+     "id_field": "transaction_id",
+     "actual_field": "fee_amount",
+     "tolerance": 0.01,
+     "order_field": "date",
+     "steps": {
+      "ord": {
+       "op": "ordinal",
+       "partition": "r.network"
+      },
+      "pct1": {
+       "op": "multiply",
+       "a": "r.withdrawal_amount",
+       "b": 0.01
+      },
+      "pct2": {
+       "op": "multiply",
+       "a": "r.withdrawal_amount",
+       "b": 0.02
+      },
+      "pct25": {
+       "op": "multiply",
+       "a": "r.withdrawal_amount",
+       "b": 0.025
+      },
+      "pct3": {
+       "op": "multiply",
+       "a": "r.withdrawal_amount",
+       "b": 0.03
+      },
+      "oon": {
+       "op": "case",
+       "key": "account_class",
+       "cases": {
+        "Blue Account": {
+         "op": "min",
+         "of": [
+          "steps.pct1",
+          3.0
+         ]
+        },
+        "Bluest Account": 2.0,
+        "Green Account": 3.0,
+        "Purple Account": 2.5,
+        "Dark Green Account": {
+         "op": "max",
+         "of": [
+          "steps.pct1",
+          1.5
+         ]
+        },
+        "Evergreen Account": {
+         "op": "min",
+         "of": [
+          "steps.pct1",
+          2.5
+         ]
+        },
+        "Light Green Account": {
+         "op": "lookup_table",
+         "key": "steps.ord",
+         "table": [
+          {
+           "cmp": "<=",
+           "thr": 4,
+           "result": 0
+          },
+          {
+           "cmp": ">",
+           "thr": 4,
+           "result": 1.5
+          }
+         ]
+        },
+        "Light Blue Account": {
+         "op": "lookup_table",
+         "key": "steps.ord",
+         "table": [
+          {
+           "cmp": "<=",
+           "thr": 2,
+           "result": 0
+          },
+          {
+           "cmp": ">",
+           "thr": 2,
+           "result": 2.5
+          }
+         ]
+        }
+       },
+       "default": null
+      },
+      "forx": {
+       "op": "case",
+       "key": "account_class",
+       "cases": {
+        "Blue Account": {
+         "op": "max",
+         "of": [
+          "steps.pct3",
+          5.0
+         ]
+        },
+        "Bluest Account": 0,
+        "Green Account": {
+         "op": "max",
+         "of": [
+          "steps.pct3",
+          5.0
+         ]
+        },
+        "Light Green Account": {
+         "op": "lookup_table",
+         "key": "r.withdrawal_amount",
+         "table": [
+          {
+           "cmp": "<=",
+           "thr": 100,
+           "result": 2.0
+          },
+          {
+           "cmp": "<=",
+           "thr": 300,
+           "result": 3.5
+          },
+          {
+           "cmp": ">",
+           "thr": 300,
+           "result": 5.0
+          }
+         ]
+        },
+        "Purple Account": 0,
+        "Dark Green Account": {
+         "op": "min",
+         "of": [
+          "steps.pct25",
+          6.0
+         ]
+        },
+        "Evergreen Account": {
+         "op": "max",
+         "of": [
+          "steps.pct2",
+          3.0
+         ]
+        },
+        "Light Blue Account": {
+         "op": "lookup_table",
+         "key": "steps.ord",
+         "table": [
+          {
+           "cmp": "<=",
+           "thr": 2,
+           "result": 0
+          },
+          {
+           "cmp": ">",
+           "thr": 2,
+           "result": 4.0
+          }
+         ]
+        }
+       },
+       "default": null
+      },
+      "expected": {
+       "op": "case",
+       "key": "r.network",
+       "cases": {
+        "rho": 0,
+        "non_rho": {
+         "op": "ref",
+         "path": "steps.oon"
+        },
+        "foreign": {
+         "op": "ref",
+         "path": "steps.forx"
+        }
+       },
+       "default": null
+      }
+     },
+     "expected_ref": "steps.expected",
+     "dup_field": "duplicate_of",
+     "rebate": {
+      "field": "rebate_amount",
+      "cap": {
+       "op": "case",
+       "key": "account_class",
+       "cases": {
+        "Bluest Account": 50.0,
+        "Purple Account": 30.0
+       },
+       "default": null
+      }
+     }
+    },
+    "isolate": {
+     "mode": "fetch_formalize",
+     "ref_params": [
+      "account_id",
+      "account_class"
+     ],
+     "getter_tools": [
+      "call_discoverable_agent_tool"
+     ],
+     "operand_keys": [
+      "transactions"
+     ],
+     "max_rounds": 3,
+     "instructions": "You are a records-extraction sub-task. For the checking account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_bank_account_transactions_9173' and that account_id to read the account's transaction records. (2) Build the transactions array with ONE element per atm_withdrawal record of THIS account. Order does not matter - the tool sorts by date itself, so just copy them as the records list them. Include EVERY atm_withdrawal, also the ones with no fee line. Each element MUST have ONLY these fields, copied from the records: date (string - this withdrawal's date exactly as the record shows it, e.g. '11/14/2025'), transaction_id (string - the id of the atm_fee line paired with this withdrawal: the adjacent atm_fee record with the same account and date; if this withdrawal has NO fee line, the withdrawal's own id), fee_amount (number - that fee line's amount as a POSITIVE number, no $; 0 if this withdrawal has no fee line), withdrawal_amount (number, POSITIVE - the cash dispensed by this atm_withdrawal), network (string, exactly one of 'rho' | 'non_rho' | 'foreign'), rebate_amount (number - the amount of the fee_rebate record with the same account and date, as a POSITIVE number; 0 if there is none). IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include that withdrawal twice, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one, with rebate_amount 0 on it. Do NOT compute fees - just copy raw values.",
+     "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [ {\"date\": \"...\", \"transaction_id\": \"...\", \"fee_amount\": <number>, \"withdrawal_amount\": <number>, \"network\": \"...\", \"rebate_amount\": <number>} ]}",
+     "row_fields": [
+      "date",
+      "transaction_id",
+      "fee_amount",
+      "withdrawal_amount",
+      "network",
+      "rebate_amount"
+     ],
+     "operand_schema": {
+      "type": "object",
+      "properties": {
+       "derivation": {
+        "type": "string",
+        "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+       },
+       "transactions": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "date": {
+           "type": "string"
+          },
+          "transaction_id": {
+           "type": "string"
+          },
+          "fee_amount": {
+           "type": "number"
+          },
+          "withdrawal_amount": {
+           "type": "number"
+          },
+          "network": {
+           "type": "string"
+          },
+          "rebate_amount": {
+           "type": "number"
+          },
+          "duplicate_of": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "date",
+          "transaction_id",
+          "fee_amount",
+          "withdrawal_amount",
+          "network",
+          "rebate_amount"
+         ],
+         "additionalProperties": false
+        }
+       }
+      },
+      "required": [
+       "derivation",
+       "transactions"
+      ],
+      "additionalProperties": false
+     },
+     "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다.",
+     "row_kind": "atm_withdrawal"
+    },
+    "requires_reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "return_template": "ATM withdrawals whose net charge does NOT match the documented fee schedule for this account level: {details}. SCOPE OF THIS CHECK - each withdrawal you passed in was compared against the documented schedule for this level, which covers a fee charged when none was due, a fee of the wrong amount, a fee that is MISSING where one was due (it shows as a negative difference), the level's documented free-withdrawal allowance, and - for levels whose documents promise ATM fee rebates - a documented rebate the history does not show (for those levels both amounts shown are net of the fee_rebate lines you passed, so a missing rebate shows as a positive difference). It covers ONLY the withdrawals you passed in: if you left an atm_withdrawal of this account out, its error is not in this list and the free-allowance count may be off - pass them all and call again. If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice). The signed total of the differences listed above, computed by this tool, is {delta_total} (a negative difference lowers it). That signed total is the net correction for THIS account - use it as the credit amount; do not re-add the figures by hand.",
+    "grounded_params": {
+     "transaction_id": {
+      "producer_contains": [
+       "record id:"
+      ]
+     }
+    }
+   },
+   {
+    "name": "get_checking_atm_fee_totals",
+    "description": "MANDATORY before recommending which personal checking account class to open (or keep) when the customer's stated criterion involves ATM fees: formalize the customer's stated usage pattern and call this ONCE. It computes, from the documented per-class fee schedules, each class's out-of-network ATM fee total and foreign ATM fee total for that usage (documented monthly free allowances deducted). It does NOT rank or pick a class - compare the returned totals yourself against what the customer asked to minimize, check the candidate class's other documented terms (eligibility, minimum deposits, monthly fees) in its source docs, and confirm the choice with the customer. Do the fee math with this tool - do not eyeball it yourself.",
+    "params": {
+     "months": "number - how many months the customer's usage pattern covers (their stated trip/usage duration).",
+     "withdrawals_per_month": "number - the customer's stated ATM withdrawals per month.",
+     "withdrawal_amount": "number - the customer's stated typical amount per withdrawal in USD (no $)."
+    },
+    "op": {
+     "op": "catalog_compute",
+     "label_field": "account_class",
+     "table": [
+      {
+       "account_class": "Blue Account",
+       "oon_fee": {
+        "op": "min",
+        "of": [
+         {
+          "op": "multiply",
+          "a": "withdrawal_amount",
+          "b": 0.01
+         },
+         3.0
+        ]
+       },
+       "oon_free_per_month": 0,
+       "forx_fee": {
+        "op": "max",
+        "of": [
+         {
+          "op": "multiply",
+          "a": "withdrawal_amount",
+          "b": 0.03
+         },
+         5.0
+        ]
+       },
+       "forx_free_per_month": 0,
+       "source": "doc blue_account_001/_012"
+      },
+      {
+       "account_class": "Bluest Account",
+       "oon_fee": 2.0,
+       "oon_free_per_month": 0,
+       "forx_fee": 0.0,
+       "forx_free_per_month": 0,
+       "source": "doc bluest_account_010/_003"
+      },
+      {
+       "account_class": "Green Account (checking)",
+       "oon_fee": 3.0,
+       "oon_free_per_month": 0,
+       "forx_fee": {
+        "op": "max",
+        "of": [
+         {
+          "op": "multiply",
+          "a": "withdrawal_amount",
+          "b": 0.03
+         },
+         5.0
+        ]
+       },
+       "forx_free_per_month": 0,
+       "source": "doc green_account_(checking)_010/_012"
+      },
+      {
+       "account_class": "Green Fee-Free Account",
+       "oon_fee": 0.0,
+       "oon_free_per_month": 0,
+       "forx_fee": 0.0,
+       "forx_free_per_month": 0,
+       "source": "doc green_fee-free_account_005/_002/_003"
+      },
+      {
+       "account_class": "Gold Years Account",
+       "oon_fee": 0.0,
+       "oon_free_per_month": 0,
+       "forx_fee": 3.5,
+       "forx_free_per_month": 0,
+       "source": "doc gold_years_account_001/_002"
+      },
+      {
+       "account_class": "Light Green Account",
+       "oon_fee": 1.5,
+       "oon_free_per_month": 4,
+       "forx_fee": {
+        "op": "lookup_table",
+        "key": "withdrawal_amount",
+        "table": [
+         {
+          "cmp": "<=",
+          "thr": 100,
+          "result": 2.0
+         },
+         {
+          "cmp": "<=",
+          "thr": 300,
+          "result": 3.5
+         },
+         {
+          "cmp": ">",
+          "thr": 300,
+          "result": 5.0
+         }
+        ]
+       },
+       "forx_free_per_month": 0,
+       "source": "doc light_green_account_001/_013"
+      },
+      {
+       "account_class": "Light Blue Account",
+       "oon_fee": 2.5,
+       "oon_free_per_month": 2,
+       "forx_fee": 4.0,
+       "forx_free_per_month": 2,
+       "source": "doc light_blue_account_004/_006"
+      },
+      {
+       "account_class": "Purple Account",
+       "oon_fee": 2.5,
+       "oon_free_per_month": 0,
+       "forx_fee": 0.0,
+       "forx_free_per_month": 0,
+       "source": "doc purple_account_012/_001"
+      },
+      {
+       "account_class": "Dark Green Account",
+       "oon_fee": {
+        "op": "max",
+        "of": [
+         {
+          "op": "multiply",
+          "a": "withdrawal_amount",
+          "b": 0.01
+         },
+         1.5
+        ]
+       },
+       "oon_free_per_month": 0,
+       "forx_fee": {
+        "op": "min",
+        "of": [
+         {
+          "op": "multiply",
+          "a": "withdrawal_amount",
+          "b": 0.025
+         },
+         6.0
+        ]
+       },
+       "forx_free_per_month": 0,
+       "source": "doc dark_green_account_001/_002"
+      },
+      {
+       "account_class": "Evergreen Account",
+       "oon_fee": {
+        "op": "min",
+        "of": [
+         {
+          "op": "multiply",
+          "a": "withdrawal_amount",
+          "b": 0.01
+         },
+         2.5
+        ]
+       },
+       "oon_free_per_month": 0,
+       "forx_fee": {
+        "op": "max",
+        "of": [
+         {
+          "op": "multiply",
+          "a": "withdrawal_amount",
+          "b": 0.02
+         },
+         3.0
+        ]
+       },
+       "forx_free_per_month": 0,
+       "source": "doc evergreen_account_008/_001"
+      }
+     ],
+     "steps": {
+      "oon_unit": {
+       "op": "ref_op",
+       "path": "r.oon_fee"
+      },
+      "oon_paid_raw": {
+       "op": "diff",
+       "a": "withdrawals_per_month",
+       "b": "r.oon_free_per_month"
+      },
+      "oon_paid": {
+       "op": "clamp",
+       "value": "steps.oon_paid_raw",
+       "min": 0
+      },
+      "oon_cnt": {
+       "op": "multiply",
+       "a": "steps.oon_paid",
+       "b": "months"
+      },
+      "oon_total": {
+       "op": "multiply",
+       "a": "steps.oon_unit",
+       "b": "steps.oon_cnt"
+      },
+      "forx_unit": {
+       "op": "ref_op",
+       "path": "r.forx_fee"
+      },
+      "forx_paid_raw": {
+       "op": "diff",
+       "a": "withdrawals_per_month",
+       "b": "r.forx_free_per_month"
+      },
+      "forx_paid": {
+       "op": "clamp",
+       "value": "steps.forx_paid_raw",
+       "min": 0
+      },
+      "forx_cnt": {
+       "op": "multiply",
+       "a": "steps.forx_paid",
+       "b": "months"
+      },
+      "forx_total": {
+       "op": "multiply",
+       "a": "steps.forx_unit",
+       "b": "steps.forx_cnt"
+      }
+     },
+     "value_cols": {
+      "out_of_network_total_usd": "steps.oon_total",
+      "foreign_atm_total_usd": "steps.forx_total"
+     },
+     "row_template": "- {account_class}: out-of-network ATM total ${out_of_network_total_usd:.2f} | foreign ATM total ${foreign_atm_total_usd:.2f} ({source})",
+     "not_computable_note": "(not computable from the documented schedule: {names})"
+    },
+    "return_template": "Documented ATM fee totals per personal checking account class for the stated usage (monthly free allowances deducted; out-of-network and foreign totals are SEPARATE columns - how the two fee types combine for one withdrawal abroad is not documented, so weigh both columns for foreign out-of-network usage):\n{result}\nThese totals already cover every personal checking class's documented Rho-Bank ATM fees for the stated usage - they are computed, not estimates. Third-party ATM operator surcharges and operator-fee rebate programs are OUTSIDE these totals. This tool does not pick a class: compare the totals yourself, verify the remaining candidate's eligibility and non-ATM terms in its cited source docs, and confirm with the customer. If no rows appear, a numeric parameter was missing or unreadable - call again with months, withdrawals_per_month and withdrawal_amount as plain numbers."
+   }
+  ],
+  "derived": [
+   {
+    "out": "today",
+    "inputs": [
+     "corpus"
+    ],
+    "op": "formalize",
+    "shape": "scalar",
+    "prompt": "From the conversation excerpts below, what is TODAY's date according to the system or the records shown? Reply with the date only, formatted MM/DD/YYYY. If the excerpts do not state it, reply NONE.\n\n{text}",
+    "params": {
+     "date_formats": [
+      "%m/%d/%Y",
+      "%Y-%m-%d"
+     ]
+    }
+   },
+   {
+    "out": "rows:referrals",
+    "inputs": [
+     "tool:get_referrals_by_user"
+    ],
+    "op": "formalize",
+    "shape": "rows",
+    "prompt": "Below is the raw output of a records lookup. Transcribe it into JSON: a list of objects, one per record, each with exactly these keys: {keys}. Copy the values verbatim from the output; do not summarise, count, infer, or leave any record out. Reply with the JSON array only.\n\n{text}",
+    "params": {
+     "row_keys": [
+      "date",
+      "referred_account_type"
+     ],
+     "align_field": "referred_account_type"
+    }
+   },
+   {
+    "out": "rows:accounts",
+    "inputs": [
+     "tool:get_all_user_accounts_by_user_id"
+    ],
+    "op": "formalize",
+    "shape": "rows",
+    "prompt": "Below is the raw output of an accounts lookup. Transcribe it into JSON: a list of objects, one per account, each with exactly these keys: {keys}. Copy the values verbatim; do not summarise, compute, or leave any account out. Reply with the JSON array only.\n\n{text}",
+    "params": {
+     "row_keys": [
+      "level",
+      "date_opened"
+     ]
+    }
+   },
+   {
+    "out": "type_usage",
+    "inputs": [
+     "rows:referrals"
+    ],
+    "op": "tally",
+    "params": {
+     "group_field": "referred_account_type"
+    }
+   },
+   {
+    "out": "window_left",
+    "inputs": [
+     "rows:referrals",
+     "today"
+    ],
+    "op": "window_remaining",
+    "params": {
+     "date_field": "date",
+     "date_formats": [
+      "%m/%d/%Y",
+      "%Y-%m-%d"
+     ],
+     "window_days": 9,
+     "window_max": 2
+    },
+    "text": "Referrals dated within the last {days} days: {used}. The rolling-window allowance is {max}, so {remaining} may be submitted right now."
+   },
+   {
+    "out": "tenure_days",
+    "inputs": [
+     "rows:accounts",
+     "today"
+    ],
+    "op": "days_since_earliest",
+    "params": {
+     "age_field": "date_opened",
+     "date_formats": [
+      "%m/%d/%Y",
+      "%Y-%m-%d"
+     ]
+    },
+    "text": "The earliest of these accounts was opened {since}, which is {days} days ago. Any rule that depends on how long this customer has banked here is measured from that date."
+   },
+   {
+    "out": "doc_limits",
+    "inputs": [
+     "a3"
+    ],
+    "op": "a3_map",
+    "params": {
+     "axis": "annual_referral_limit"
+    }
+   },
+   {
+    "out": "doc_minimums",
+    "inputs": [
+     "a3"
+    ],
+    "op": "a3_map",
+    "params": {
+     "axis": "referrer_tenure_days"
+    }
+   },
+   {
+    "out": "doc_bonuses",
+    "inputs": [
+     "a3"
+    ],
+    "op": "a3_map",
+    "params": {
+     "axis": "referrer_bonus_usd"
+    }
+   },
+   {
+    "out": "doc_referred_bonuses",
+    "inputs": [
+     "a3"
+    ],
+    "op": "a3_map",
+    "params": {
+     "axis": "referred_bonus_usd"
+    }
+   },
+   {
+    "out": "doc_deposits",
+    "inputs": [
+     "a3"
+    ],
+    "op": "a3_map",
+    "params": {
+     "axis": "qualifying_deposit_usd"
+    }
+   },
+   {
+    "out": "doc_company_age",
+    "inputs": [
+     "a3"
+    ],
+    "op": "a3_map",
+    "params": {
+     "axis": "company_max_age_years"
+    }
+   },
+   {
+    "out": "annual_left",
+    "inputs": [
+     "type_usage",
+     "doc_limits"
+    ],
+    "op": "subtract_by_group",
+    "text": "Arithmetic on the counts above against the allowances you retrieved: no room left this year for {exhausted}. Still has room: {remaining_groups}. This is subtraction only, not a recommendation - and it covers only the types whose allowance appeared in a document you retrieved."
+   },
+   {
+    "out": "tenure_ok",
+    "inputs": [
+     "tenure_days",
+     "doc_minimums"
+    ],
+    "op": "compare_ge"
+   },
+   {
+    "out": "focus",
+    "inputs": [
+     "corpus"
+    ],
+    "op": "formalize",
+    "shape": "term",
+    "prompt": "Below are excerpts from this conversation, followed by a list of subjects. Which ONE subject is the action under discussion actually about? Reply with a JSON object only: {{\"subject\": \"<copied verbatim from the list, or null>\", \"quote\": \"<the sentence from the excerpts that shows it, copied exactly>\"}}. Copy the subject exactly as it appears in the list - do not shorten it, expand it, or pick one that merely looks similar. If the conversation is about something that is not in the list, or you cannot tell which one it is, reply {{\"subject\": null}}.\n\n{text}"
+   },
+   {
+    "out": "focus_min_days",
+    "inputs": [
+     "doc_minimums",
+     "focus"
+    ],
+    "op": "pick"
+   },
+   {
+    "out": "focus_annual_limit",
+    "inputs": [
+     "doc_limits",
+     "focus"
+    ],
+    "op": "pick"
+   }
+  ],
+  "a3_rows": [
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Beige",
+    "value": 120
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Beige",
+    "value": 15
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Beige",
+    "value": 15
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Cobalt Blue",
+    "value": 10
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Cobalt Blue",
+    "value": 60
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Hunter Green",
+    "value": 60
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Hunter Green",
+    "value": 10
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Lime Green",
+    "value": 90
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Lime Green",
+    "value": 12
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Navy Blue",
+    "value": 60
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Navy Blue",
+    "value": 10
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Sky Blue",
+    "value": 8
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Sky Blue",
+    "value": 45
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "True Blue",
+    "value": 90
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "True Blue",
+    "value": 15
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "World Blue",
+    "value": 90
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "World Blue",
+    "value": 12
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Business Bronze Rewards Card",
+    "value": 7
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Business Gold Rewards Card",
+    "value": 8
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Business Platinum Rewards Card",
+    "value": 11
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Business Silver Rewards Card",
+    "value": 10
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Green Rewards Card",
+    "value": 7
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Silver Zoom Card",
+    "value": 10
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Blue",
+    "value": 30
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Blue",
+    "value": 5
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Bluest",
+    "value": 60
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Bluest",
+    "value": 8
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Dark Green",
+    "value": 45
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Dark Green",
+    "value": 6
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Evergreen",
+    "value": 6
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Evergreen",
+    "value": 45
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Gold Years",
+    "value": 30
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Gold Years",
+    "value": 6
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Green",
+    "value": 30
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Green",
+    "value": 5
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Green Fee-Free",
+    "value": 30
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Green Fee-Free",
+    "value": 4
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Light Blue",
+    "value": 30
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Light Blue",
+    "value": 5
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Light Green",
+    "value": 3
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Light Green",
+    "value": 14
+   },
+   {
+    "axis": "referrer_tenure_days",
+    "subject": "Purple",
+    "value": 45
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Purple",
+    "value": 6
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "EcoCard",
+    "value": 7
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Platinum Rewards Card",
+    "value": 7
+   },
+   {
+    "axis": "annual_referral_limit",
+    "subject": "Silver Rewards Card",
+    "value": 7
+   },
+   {
+    "axis": "holder_min_age_years",
+    "subject": "Personal Checking Accounts",
+    "value": 18
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Personal Savings Accounts",
+    "value": 30
+   },
+   {
+    "axis": "holder_min_age_years",
+    "subject": "Debit Card",
+    "value": 18
+   },
+   {
+    "axis": "rolling_window_referrals",
+    "subject": "Checking",
+    "value": 2
+   },
+   {
+    "axis": "rolling_window_days",
+    "subject": "checking account",
+    "value": 9
+   },
+   {
+    "axis": "holder_min_age_years",
+    "subject": "checking account",
+    "value": 18
+   },
+   {
+    "axis": "referred_no_prior_accounts_months",
+    "subject": "Checking",
+    "value": 12
+   },
+   {
+    "axis": "referred_no_prior_accounts_months",
+    "subject": "Checking",
+    "value": 12
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Beige",
+    "value": 500
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Beige",
+    "value": 350
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Beige",
+    "value": 100000
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Beige",
+    "value": 120
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Cobalt Blue",
+    "value": 150
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Cobalt Blue",
+    "value": 100
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Cobalt Blue",
+    "value": 7500
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Cobalt Blue",
+    "value": 90
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Hunter Green",
+    "value": 175
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Hunter Green",
+    "value": 125
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Hunter Green",
+    "value": 10000
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Lime Green",
+    "value": 200
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Lime Green",
+    "value": 150
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Lime Green",
+    "value": 15000
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Lime Green",
+    "value": 90
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Navy Blue",
+    "value": 100
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Navy Blue",
+    "value": 75
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Navy Blue",
+    "value": 5000
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Navy Blue",
+    "value": 90
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Sky Blue",
+    "value": 150
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Sky Blue",
+    "value": 250
+   },
+   {
+    "axis": "company_max_age_years",
+    "subject": "Sky Blue",
+    "value": 4
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Sky Blue",
+    "value": 10000
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Sky Blue",
+    "value": 90
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "True Blue",
+    "value": 350
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "True Blue",
+    "value": 250
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "True Blue",
+    "value": 50000
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "True Blue",
+    "value": 120
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "World Blue",
+    "value": 25000
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "World Blue",
+    "value": 300
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "World Blue",
+    "value": 200
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Business Bronze Rewards Card",
+    "value": 75
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "Business Bronze Rewards Card",
+    "value": 1750
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Business Gold Rewards Card",
+    "value": 200
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "Business Gold Rewards Card",
+    "value": 7500
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Business Platinum Rewards Card",
+    "value": 300
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "Business Platinum Rewards Card",
+    "value": 15000
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Business Silver Rewards Card",
+    "value": 100
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "Business Silver Rewards Card",
+    "value": 3000
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "Green Rewards Card",
+    "value": 2250
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Silver Zoom Card",
+    "value": 150
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "Silver Zoom Card",
+    "value": 7500
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Blue",
+    "value": 35
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Blue",
+    "value": 30
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Blue",
+    "value": 500
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Blue",
+    "value": 60
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Bluest",
+    "value": 75
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Bluest",
+    "value": 50
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Bluest",
+    "value": 2000
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Dark Green",
+    "value": 40
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Dark Green",
+    "value": 30
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Dark Green",
+    "value": 1000
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Dark Green",
+    "value": 60
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Evergreen",
+    "value": 35
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Evergreen",
+    "value": 25
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Evergreen",
+    "value": 750
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Evergreen",
+    "value": 60
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Gold Years",
+    "value": 50
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Gold Years",
+    "value": 75
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Gold Years",
+    "value": 90
+   },
+   {
+    "axis": "holder_min_age_years",
+    "subject": "Gold Years",
+    "value": 62
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Gold Years",
+    "value": 1000
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Green",
+    "value": 20
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Green",
+    "value": 30
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Green",
+    "value": 500
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Green",
+    "value": 60
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Green Fee-Free",
+    "value": 20
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Green Fee-Free",
+    "value": 35
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Green Fee-Free",
+    "value": 300
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Green Fee-Free",
+    "value": 60
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Light Blue",
+    "value": 30
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Light Blue",
+    "value": 20
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Light Blue",
+    "value": 60
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Light Blue",
+    "value": 500
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Light Green",
+    "value": 15
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Light Green",
+    "value": 25
+   },
+   {
+    "axis": "holder_min_age_years",
+    "subject": "Light Green",
+    "value": 13
+   },
+   {
+    "axis": "holder_max_age_years",
+    "subject": "Light Green",
+    "value": 24
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Light Green",
+    "value": 100
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Light Green",
+    "value": 90
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Purple",
+    "value": 45
+   },
+   {
+    "axis": "referred_bonus_usd",
+    "subject": "Purple",
+    "value": 35
+   },
+   {
+    "axis": "qualifying_deposit_usd",
+    "subject": "Purple",
+    "value": 1000
+   },
+   {
+    "axis": "deposit_window_days",
+    "subject": "Purple",
+    "value": 60
+   },
+   {
+    "axis": "rolling_window_referrals",
+    "subject": "Credit Card",
+    "value": 2
+   },
+   {
+    "axis": "rolling_window_days",
+    "subject": "Credit Card",
+    "value": 7
+   },
+   {
+    "axis": "rolling_window_referrals",
+    "subject": "Credit Card",
+    "value": 2
+   },
+   {
+    "axis": "rolling_window_referrals",
+    "subject": "Rho-Bank",
+    "value": 2
+   },
+   {
+    "axis": "rolling_window_days",
+    "subject": "Rho-Bank credit card",
+    "value": 7
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "EcoCard",
+    "value": 500
+   },
+   {
+    "axis": "referrer_bonus_usd",
+    "subject": "Platinum Rewards Card",
+    "value": 100
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "Platinum Rewards Card",
+    "value": 1500
+   },
+   {
+    "axis": "qualifying_spend_usd",
+    "subject": "Silver Rewards Card",
+    "value": 750
+   },
+   {
+    "axis": "status_meaning",
+    "subject": "COMPLETE",
+    "value": "COMPLETE — the referred person has successfully opened a new account and met the criteria to get the referral bonus"
+   },
+   {
+    "axis": "status_meaning",
+    "subject": "IN_PROGRESS",
+    "value": "IN_PROGRESS — the referred person has successfully opened a new account and is in progress to meet the criteria for the referral bonus"
+   },
+   {
+    "axis": "status_meaning",
+    "subject": "NO_PROGRESS",
+    "value": "NO_PROGRESS — the referred person has not applied yet, no progress has been made"
+   },
+   {
+    "axis": "status_meaning",
+    "subject": "APPLIED",
+    "value": "APPLIED — the referred person has sent in the application and is waiting for a decision"
+   },
+   {
+    "axis": "status_meaning",
+    "subject": "REJECTED",
+    "value": "REJECTED — the user has too many referral processes going on"
+   },
+   {
+    "axis": "status_meaning",
+    "subject": "ERROR",
+    "value": "ERROR — an error has occurred throughout the process"
+   }
+  ],
   "computations": [
+   {
+    "kind": "select",
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_debit_card_transaction_dispute"
+    },
+    "param": "transaction_id",
+    "key_field": "transaction_id",
+    "require": [
+     "date",
+     "amount"
+    ],
+    "criteria_fields": [
+     "date",
+     "merchant",
+     "transaction_type"
+    ],
+    "match": [
+     {
+      "field": "date",
+      "eq": "criteria.date"
+     },
+     {
+      "field": "description",
+      "contains": "criteria.merchant"
+     },
+     {
+      "field": "type",
+      "eq": "criteria.transaction_type"
+     }
+    ],
+    "on_ambiguous": "none"
+   },
+   {
+    "kind": "select",
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_credit_card_transaction_dispute"
+    },
+    "param": "transaction_id",
+    "key_field": "transaction_id",
+    "require": [
+     "transaction_date",
+     "transaction_amount"
+    ],
+    "criteria_fields": [
+     "date",
+     "merchant",
+     "amount"
+    ],
+    "match": [
+     {
+      "field": "transaction_date",
+      "eq": "criteria.date"
+     },
+     {
+      "field": "merchant_name",
+      "contains": "criteria.merchant"
+     },
+     {
+      "field": "transaction_amount",
+      "contains": "criteria.amount"
+     }
+    ],
+    "on_ambiguous": "none"
+   },
    {
     "kind": "ratio_cap",
     "applies_to": "call_discoverable_agent_tool",
@@ -1038,6 +5530,20 @@
     "discoverable_tool_name",
     "arguments"
    ]
+  },
+  "identifying": {
+   "args": [
+    "transaction_id",
+    "account_id",
+    "card_id",
+    "user_id",
+    "order_id",
+    "card_last_4_digits",
+    "dispute_id",
+    "report_id"
+   ],
+   "min_len": 5,
+   "feedback": "Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be read from the records or given by the customer, never invented. Look it up (or ask), then retry with the actual value."
   }
  },
  "LB4": {
@@ -1175,6 +5681,106 @@
      "close_credit_card_account"
     ],
     "feedback": "[COVERAGE] The request is not complete - these records were asked about and no successful action covers them yet: {missing}. Complete them with real tool calls before ending."
+   },
+   {
+    "kind": "claims",
+    "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"{kinds}\", \"what\": \"<5-10 words>\", \"tool\": \"<the exact name of the tool call in this conversation that performed it, or omit if no tool performed it>\"}], \"pending\": [{\"kind\": \"{kinds}\", \"what\": \"<5-10 words>\", \"tool\": \"<the exact tool name you would need to call for it, or omit if none>\"}]} — empty lists if none. Choose the MOST SPECIFIC kind that fits {kind_guidance}; use the generic \"write\" ONLY when no specific kind applies.",
+    "kinds": "search|verify|record_update|dispute_file|give|transfer|write",
+    "kind_guidance": "(record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report)",
+    "event_map": {
+     "search": [
+      "KB_",
+      "shell",
+      "list_discoverable"
+     ],
+     "verify": [
+      "verify_identity",
+      "log_verification"
+     ],
+     "write": "__effective_write__",
+     "give": [
+      "give_"
+     ],
+     "transfer": [
+      "transfer_",
+      "request_human",
+      "initial_transfer_to_human",
+      "emergency_credit_bureau_incident_transfer"
+     ],
+     "record_update": [
+      "__effective_write__",
+      "activate_",
+      "apply_",
+      "approve_",
+      "change_",
+      "clear_",
+      "close_",
+      "deny_",
+      "deposit_",
+      "freeze_",
+      "log_credit_card_closure_reason",
+      "open_",
+      "order_",
+      "pay_",
+      "request_temporary_debit_card_limit_increase",
+      "reset_",
+      "set_",
+      "submit_",
+      "transfer_funds_",
+      "unfreeze_",
+      "update_"
+     ],
+     "dispute_file": [
+      "file_",
+      "submit_"
+     ]
+    },
+    "write_tools": [
+     "activate_debit_card",
+     "apply_checking_account_credit",
+     "apply_credit_card_account_flag",
+     "apply_for_credit_card",
+     "apply_savings_account_credit",
+     "apply_statement_credit",
+     "approve_credit_limit_increase",
+     "change_debit_card_pin",
+     "change_user_email",
+     "clear_debit_card_fraud_alert",
+     "close_bank_account",
+     "close_credit_card_account",
+     "close_debit_card",
+     "deny_credit_limit_increase",
+     "deposit_check",
+     "example_agent_tool",
+     "file_credit_card_transaction_dispute",
+     "file_debit_card_transaction_dispute",
+     "freeze_debit_card",
+     "log_credit_card_closure_reason",
+     "open_bank_account",
+     "order_debit_card",
+     "order_replacement_credit_card",
+     "pay_credit_card_from_checking",
+     "request_human_agent_transfer",
+     "request_temporary_debit_card_limit_increase",
+     "reset_debit_card_pin",
+     "set_debit_card_recurring_block",
+     "submit_cash_back_dispute",
+     "submit_credit_limit_increase_request",
+     "submit_interest_discrepancy_report",
+     "submit_referral",
+     "submit_transaction",
+     "transfer_funds_between_bank_accounts",
+     "unfreeze_debit_card",
+     "update_transaction_rewards"
+    ],
+    "transfer_tools": [
+     "transfer_to_human_agents",
+     "initial_transfer_to_human_agent_0218",
+     "initial_transfer_to_human_agent_1822",
+     "emergency_credit_bureau_incident_transfer_1114"
+    ],
+    "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet. A statement to the customer is NOT a substitute for the tool call: if the action is still required, make the call in THIS reply; if you cannot make it (for example it is the customer who must run that tool), say plainly that it has NOT been done and tell them exactly what remains.",
+    "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why). Do not end your involvement by describing the work as done or under way — either call the tool now, or state explicitly that it has NOT been performed."
    }
   ]
  },
@@ -1206,6 +5812,26 @@
    "emergency_credit_bureau_incident_transfer_1114"
   ],
   "max_chars": 90000,
-  "names_feedback": "Documents you already retrieved name these tools, and none has been called: {names}. If one of them is the step you need, unlock and call it by exactly that name."
+  "names_feedback": "Documents you already retrieved name these tools, and none has been called: {names}. If one of them is the step you need, unlock and call it by exactly that name.",
+  "have_value": [
+   {
+    "write": "file_credit_card_transaction_dispute_4829",
+    "arg": "card_last_4_digits",
+    "producer_marker": "Executed: get_card_last_4_digits",
+    "value_after": "Last 4 digits of card:",
+    "reask_signals": [
+     "last 4",
+     "last four",
+     "last-4",
+     "four digits",
+     "4 digits",
+     "correct last 4"
+    ],
+    "feedback": "[HAVE-VALUE] The customer has already retrieved and confirmed the last 4 digits of the card: {value}. You already have this value - do NOT ask for it again and do NOT re-run any lookup for it. File the dispute NOW: unlock file_credit_card_transaction_dispute and call it via call_discoverable_agent_tool with the transaction_id of the charge being disputed and card_last_4_digits='{value}'. Then move on to the next disputed charge.",
+    "acquire_tool": "get_card_last_4_digits",
+    "give_tool": "give_discoverable_user_tool",
+    "acquire_feedback": "[VALUE-ACQUIRE] The customer cannot read the last 4 digits off the card and they are NOT stored in the account records - they must be retrieved by the CUSTOMER running get_card_last_4_digits. Stop re-asking the customer for them. Use give_discoverable_user_tool to give get_card_last_4_digits to the customer NOW, then have them run it with their credit_card_account_id and read the value from its output. Then file the dispute with that value."
+   }
+  ]
  }
 }

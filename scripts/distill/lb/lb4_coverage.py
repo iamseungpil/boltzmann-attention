@@ -13,6 +13,9 @@ what counts as requested and as done is declared in A2["LB4"]["sets"], one of fo
                 ids a settling tool returned minus ids submitted
   once          {applies_to, when{arg, prefix}, keys, feedback}
                 a state change whose key already succeeded is not run again
+  claims        {question, kinds, event_map, write_tools, transfer_tools, feedback, feedback_pending}
+                at a resign or transfer turn one sub-call lists what the reply claims was done and what
+                was promised; claimed-done minus the execution ledger, promised minus done
 """
 
 from lb_coordinator import Finding, DENY, SURFACE, GRADES, fam, fill, records_in, as_dict
@@ -135,7 +138,38 @@ def _key(turn, call, keys):
     return tuple(str(merged.get(k)) for k in keys)
 
 
-KINDS = {"ledger": ledger, "follow_up": follow_up, "settled_rows": settled_rows, "once": once}
+def claims(spec, turn):
+    ask = turn.extras.get("ask")
+    transferring = any(fam(turn.name_of(c)) in {fam(x) for x in spec.get("transfer_tools") or []} for c in turn.calls)
+    if ask is None or not (turn.resigning() or transferring):
+        return []
+    raw = ask(fill(spec.get("question"), kinds=spec.get("kinds", ""), kind_guidance=spec.get("kind_guidance", ""))
+              + "\n\n=== YOUR REPLY ===\n" + turn.am_text[:4000], "lb4_claims")
+    obj = next((r for r in records_in(raw) if "claims" in r or "pending" in r), None)
+    if not obj:
+        return []
+    done, emap = turn.executed_fams(), spec.get("event_map") or {}
+
+    def backed(c):
+        tool = fam(str((c or {}).get("tool") or ""))
+        if tool and tool in done:
+            return True
+        pats = emap.get(str((c or {}).get("kind") or "").lower())
+        pats = pats if isinstance(pats, list) else ([pats] if pats else [])
+        if "__effective_write__" in pats and done & {fam(x) for x in spec.get("write_tools") or []}:
+            return True
+        return any(d.startswith(p) for p in pats if p != "__effective_write__" for d in done)
+
+    out = []
+    for key, tpl, target in (("claims", spec.get("feedback"), "claims"), ("pending", spec.get("feedback_pending"), "pending")):
+        bad = [c for c in obj.get(key) or [] if isinstance(c, dict) and not backed(c)]
+        if bad and tpl:
+            out.append(Finding(LB, SURFACE, target, grade=LEDGER, source="claims-" + key,
+                               order=fill(tpl, claims="; ".join("%s: %s" % (c.get("kind"), c.get("what")) for c in bad))))
+    return out
+
+
+KINDS = {"ledger": ledger, "follow_up": follow_up, "settled_rows": settled_rows, "once": once, "claims": claims}
 
 
 def evaluate(turn):
@@ -183,4 +217,11 @@ if __name__ == "__main__":
             M(calls=[cn]), M("tool", "ok", mid="c9")]
     assert ledger(A2["LB4"]["sets"][3], Turn(A2, msgs, M(content="done")))[0].order == "not done: o2"
     assert not ledger(A2["LB4"]["sets"][3], Turn(A2, [M("user", "cancel my order")] + msgs[1:], M(content="done")))
+    spec = {"kind": "claims", "question": "audit {kinds}", "kinds": "search|write", "event_map": {"search": ["KB_"]},
+            "feedback": "unbacked: {claims}", "feedback_pending": "pending: {claims}"}
+    reply = ('{"claims": [{"kind": "search", "what": "searched KB"}, {"kind": "write", "what": "filed it", "tool": "file_x"}],'
+             ' "pending": [{"kind": "write", "what": "will call y", "tool": "call_y"}]}')
+    t = Turn(A2, [], M(content="Done."), executed={"KB_search": 1}, extras={"ask": lambda p, n: reply})
+    got = claims(spec, t)
+    assert [g.order for g in got] == ["unbacked: write: filed it", "pending: write: will call y"], [g.order for g in got]
     print("lb4_coverage self-test OK")

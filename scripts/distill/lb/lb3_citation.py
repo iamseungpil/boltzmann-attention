@@ -12,6 +12,9 @@ The engine never produces a value; it only asks "where is this from?". Declared 
       a name handed to the unlock / give / call wrappers must be in the registry (agent or user);
       a name the environment already rejected as unknown is not sent again
   schema    {tool: [argument names]}   arguments outside a declared signature are refused
+  identifying {args, min_len, feedback}
+      any argument named in `args`, or whose value looks like an identifier (digits, length >= min_len),
+      must occur in a record or a customer message - the deterministic form of provenance regeneration
 """
 
 from lb_coordinator import Finding, DENY, GRADES, fam, fill, records_in, as_dict
@@ -107,8 +110,25 @@ def schema_findings(turn, call):
                     % (call.name, ", ".join(allowed), ", ".join(extra)))]
 
 
+def identifying_findings(turn, call):
+    spec = (turn.a2.get("LB3") or {}).get("identifying") or {}
+    if not spec.get("feedback"):
+        return []
+    names, min_len = set(spec.get("args") or []), int(spec.get("min_len") or 5)
+    known = set(turn.registry.get("agent", ())) | set(turn.registry.get("user", ()))
+    for k, v in turn.args_of(call).items():
+        s = str(v).strip()
+        idlike = len(s) >= min_len and any(ch.isdigit() for ch in s) and " " not in s
+        if (k in names or idlike) and s and s.lower() not in turn.tool_text and s.lower() not in turn.user_text \
+                and s not in known:
+            return [Finding(LB, DENY, fam(turn.name_of(call)), call, fill(spec["feedback"], arg=k, val=s, value=s),
+                            grade=LEDGER, source="identifying:" + k)]
+    return []
+
+
 def evaluate(turn):
-    return [f for c in turn.calls for f in grounding_findings(turn, c) + name_findings(turn, c) + schema_findings(turn, c)]
+    return [f for c in turn.calls for f in grounding_findings(turn, c) + name_findings(turn, c)
+            + schema_findings(turn, c) + identifying_findings(turn, c)]
 
 
 if __name__ == "__main__":
@@ -149,4 +169,8 @@ if __name__ == "__main__":
     assert name_findings(t2, C("give", {"name": "real_2"}))[0].order == "suffix real_2"
     assert not name_findings(t2, C("give", {"name": "real_1"}))
     assert "extra" in schema_findings(t2, C("give", {"name": "real_1", "arguments": "{}", "extra": 1}))[0].order
+    A2["LB3"]["identifying"] = {"args": ["user_id"], "min_len": 5, "feedback": "no source for {arg}={val}"}
+    t3 = Turn(A2, msgs, M())
+    assert identifying_findings(t3, C("w", {"txn": "t9x8y7"}))[0].order == "no source for txn=t9x8y7"
+    assert not identifying_findings(t3, C("w", {"txn": "t1"})) and not identifying_findings(t3, C("w", {"user_id": "5320"}))
     print("lb3_citation self-test OK")

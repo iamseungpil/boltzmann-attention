@@ -54,8 +54,8 @@ class M(object):
 
 
 # 049: closing a card straight away, entered by the customer's own words -> one LB1 order, computed
-am = M(calls=[C("close_credit_card_account_7834", {"account_id": "x"})])
-t = Turn(A2, [M("user", "I want to close my credit card")], am)
+am = M(calls=[C("close_credit_card_account_7834", {"account_id": "acct_9001"})])
+t = Turn(A2, [M("user", "I want to close my credit card"), M("tool", '{"account_id": "acct_9001", "status": "open"}')], am)
 d = resolve(evaluate(t), t)
 body = d.denies.get(id(am.tool_calls[0]), "")
 check("049: closure blocked by the procedure with the policy checklist", "[PROCEDURE]" in body and "disputes" in body, body[:80])
@@ -68,6 +68,27 @@ t = Turn(A2, tool_only, M(calls=[call]), executed={"log_verification": 1})
 check("048: signal in tool output does not redirect", not any(f.source.startswith("procedure:prescription") for f in evaluate(t)["LB1"]))
 t = Turn(A2, [M("user", "this charge is fraudulent, I want to dispute it")], M(calls=[call]), executed={"log_verification": 1})
 check("048: signal in customer text does redirect", any(f.source.startswith("procedure:prescription") for f in evaluate(t)["LB1"]))
+
+# sub-call levers: the real declarations drive the deterministic cores offline
+import json
+import lb2_decision
+tools = {t["name"]: t for t in A2["LB2"]["tools"]}
+row = {"transaction_amount": 100, "credit_card_type": "Gold Rewards Card", "category": "Dining", "base_rate": 2.5,
+       "account_open": "01/01/2020", "promo_start": "01/01/2024", "promo_end": "12/31/2024", "transaction_date": "02/01/2025",
+       "promo_window_months": 3, "promo_mult": 2}          # operands the row-mode isolate fills in live runs
+tx = [dict(row, transaction_id="t1", rewards_earned=250), dict(row, transaction_id="t2", rewards_earned=100)]
+text, err = lb2_decision.run_tool(tools["get_reward_discrepancies"], {"transactions": json.dumps(tx)}, {"kb": [], "ledger": []}, {})
+check("verifier get_reward_discrepancies flags the wrong row only", not err and "t2" in text and "t1" not in text.split("):")[-1], text[:120])
+fit = tools["check_card_application_fit"]
+text, err = lb2_decision.run_tool(fit, {"max_annual_fee": "0", "business": ""}, {"kb": [], "ledger": []}, {})
+check("verifier check_card_application_fit filters by a stated constraint", not err and '"excluded"' in text and "Platinum Rewards Card" in text, text[:100])
+vi = tools["verify_identity"]
+ev = {"__user_text": "my email is a@x.com and my dob is 01/15/1985", "__tool_outputs": {"get_user_information_by_email": "email: a@x.com dob: 01/15/1985"}}
+text, err = lb2_decision.run_tool(vi, {"provided": json.dumps({"email": "a@x.com", "date_of_birth": "01/15/1985"}), "record": "{}"}, {"kb": [], "ledger": []}, ev)
+check("verifier verify_identity (grounded variant) verifies two matching values", not err and "VERIFIED" in text and "NOT_VERIFIED" not in text, text[:100])
+check("derived DAG declared with prompts and texts", any(n.get("text") for n in A2["LB2"]["derived"]) and all(n.get("prompt") for n in A2["LB2"]["derived"] if n["op"] == "formalize"))
+check("claims audit and have_value declared", any(s["kind"] == "claims" for s in A2["LB4"]["sets"]) and A2["LB7"]["have_value"])
+check("identifying args declared", "transaction_id" in A2["LB3"]["identifying"]["args"])
 
 # only seven lever flags in this code base
 flags = set()
