@@ -191,3 +191,9 @@ task_010 (base 0/4 · 우리 0/1 · 개입 0): 값 계산은 전부 맞았고, �
 - **Q3.8 (`night2p1_t3prime` 09-01, 1/1)**: 에이전트는 msg 27 에서 우리 실패 런과 같은 답을 했다 — *"Unfortunately, no … cannot be reinstated"*. 통과는 msg 28~30 에서 **user-sim 이 스스로** *"I went ahead and submitted a new Platinum Rewards Card referral on my end"* 라고 제출했기 때문이다. 에이전트의 안내가 아니라 손님 시뮬레이터의 분산.
 - **Q2.5 (`n97` 08-04, 1/2)**: 에이전트가 msg 24 에서 *"you can resubmit the referral now that the 7-day window has passed"* 라고 바르게 안내했고 손님이 제출했다. 같은 런의 다른 sim 은 실패.
 ⇒ 010 의 gold 는 손님의 재제출이고, 에이전트가 해야 할 말은 "창이 지났으니 지금 다시 제출하라" 한 문장이다. Q3.8 은 이 조항을 "복구 불가"로 읽는다(F3). Q3.8 의 유일한 통과는 에이전트 덕이 아니다.
+
+## 17. 049 run3 (`45c2e6ea`, 1/4) · 070 · 072 — 20:40
+
+**049**: sim2·sim3 은 "$5?" 뒤 크레딧 대신 크립토 카드를 **닫았다**(gold 에 두 번째 폐쇄 없음). 절차 선언이 `close` 를 `prior_attempts` 만 요구하는 독립 노드로 두어 체크리스트에 `[ ] close` 가 계속 남았다. 정책 Step 6 *"If the customer declines the retention offer … proceed with closure"* 대로 `retention_offer`+`close` 를 `log_reason` 뒤의 **결과 노드 하나(tool_any)** 로 합쳤다(데이터, `banking_knowledge.specific.json`). sim1 은 쓰기·이관 reason 이 gold·base 통과 sim 과 같은데 실패 — 미상.
+**070**: 추천 판단(F3). gold `Sky Blue`(창업 4년 이내). sim0 은 Sky Blue 를 골랐다가 손님 압박에 Lime Green 으로 바꿈. 우리 개입은 거짓 `value-acquire` 1회(수정됨). 규칙 자리 아님.
+**072**: 우리 ATM 검증기의 등급표 오류(Bluest = $2 정액 vs 문서 "전액 환급") → $12/$14. 검증기 제거(`_table_audited`). 재실행은 8141 fx 레인.

@@ -4876,26 +4876,18 @@
      "_quote": "Ask the customer why they want to close their account. Then log it using log_credit_card_closure_reason_4521."
     },
     {
-     "id": "retention_offer",
+     "id": "outcome",
      "tool_any": [
-      "apply_statement_credit_8472",
       "apply_credit_card_account_flag_6147",
-      "apply_for_credit_card"
+      "apply_for_credit_card",
+      "apply_statement_credit_8472",
+      "close_credit_card_account_7834"
      ],
      "requires": [
       "log_reason"
      ],
-     "_quote": "Step 5: Make a Retention Offer — If the customer still wants to close after addressing their concerns, make one retention offer based on their card tier: Entry-tier 500 bonus points or a $5 statement credit; Mid-tier 2,000 or $20; Premium and above 5,000 or $50.",
-     "_note": "어느 제안인지는 손님의 사유에 대한 해석이라 모델 몫이다([[52]]). 엔진은 이 단계가 **있었는지**만 본다 — 세 도구 중 어느 것이든 하나면 충족."
-    },
-    {
-     "id": "close",
-     "tool": "close_credit_card_account_7834",
-     "requires": [
-      "prior_attempts"
-     ],
-     "_note_requires": "★정책 Step 2 축자: 'If records are found within the past year, inform the customer you will proceed with their closure request and move to Step 6.' — 즉 Step 3(사유 기록)~Step 5가 **조건부로 건너뛰어진다**. 그 조건은 도구 **출력 내용**에 달려 있어 우리 엔진엔 닫히지 않는다([[22]]). 그래서 무조건인 Step 2만 선행으로 걸고, 조건부인 log_reason·retention_offer는 체크리스트로 **표면화만** 한다. 구판은 log_reason을 필수로 걸어 gold 2태스크를 막았다(x91).",
-     "_quote": "Use the close_credit_card_account_7834 tool to process the closure."
+     "_quote": "Step 6: Accept the Decision - If the customer declines the retention offer (or was ineligible due to prior attempts), thank them for being a Rho-Bank customer and proceed with closure.",
+     "_note": "2026-09-08: closure is the alternative outcome to an accepted retention offer, not a step of its own. Declared as a separate always-ready node it kept '[ ] close' on the checklist after the $5 credit, and task_049 closed the retained card in 2 of 4 sims (base 3/4)."
     }
    ],
    "tables": {

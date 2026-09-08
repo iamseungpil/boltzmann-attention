@@ -212,21 +212,15 @@
       ]
      },
      {
-      "id": "retention_offer",
+      "id": "outcome",
       "tool_any": [
-       "apply_statement_credit_8472",
        "apply_credit_card_account_flag_6147",
-       "apply_for_credit_card"
+       "apply_for_credit_card",
+       "apply_statement_credit_8472",
+       "close_credit_card_account_7834"
       ],
       "requires": [
        "log_reason"
-      ]
-     },
-     {
-      "id": "close",
-      "tool": "close_credit_card_account_7834",
-      "requires": [
-       "prior_attempts"
       ]
      }
     ],
