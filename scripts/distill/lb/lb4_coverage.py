@@ -79,7 +79,8 @@ def follow_up(spec, turn):
         return []
     missing = [x for x in spec.get("requires") or [] if fam(x) not in done]
     tpl = spec.get("feedback") if missing else spec.get("decision_feedback")
-    return [Finding(LB, SURFACE, sorted(decision)[0], order=fill(tpl, missing=", ".join(missing)), grade=POLICY,
+    target = (sorted(decision) or missing or sorted(fam(x) for x in spec.get("after") or []) or [""])[0]
+    return [Finding(LB, SURFACE, target, order=fill(tpl, missing=", ".join(missing)), grade=POLICY,
                     source="follow-up")] if tpl else []
 
 
@@ -203,6 +204,8 @@ if __name__ == "__main__":
                "finalize_writes": [], "feedback": "not done: {missing}"}]}}
     assert follow_up(A2["LB4"]["sets"][0], Turn(A2, [], M(content="bye"), executed={"submit_x_1": 1}))[0].order == "missing read_y"
     assert follow_up(A2["LB4"]["sets"][0], Turn(A2, [], M(content="bye"), executed={"submit_x": 1, "read_y": 1}))[0].order == "decide"
+    bare = dict(A2["LB4"]["sets"][0], decision_tools=[])          # a chain that names no decision tool
+    assert follow_up(bare, Turn(A2, [], M(content="bye"), executed={"submit_x": 1}))[0].target == "read_y"
     prev = C("call", {"tool": "credit_1", "account_id": "A"}, "c1")
     msgs = [M(calls=[prev]), M("tool", "ok", mid="c1")]
     again = C("call", {"tool": "credit_1", "account_id": "A"}, "c2")

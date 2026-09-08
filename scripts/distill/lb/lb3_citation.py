@@ -101,8 +101,10 @@ def name_findings(turn, call):
 
 
 def schema_findings(turn, call):
+    """The wrapper's own arguments, not the payload it carries - a dispatcher's inner arguments
+    belong to the tool being dispatched and are not extra keys on the wrapper."""
     allowed = ((turn.a2.get("LB3") or {}).get("schema") or {}).get(str(getattr(call, "name", "") or ""))
-    extra = sorted(k for k in (turn.args_of(call) if allowed else {}) if k not in allowed)
+    extra = sorted(k for k in (as_dict(call.arguments) if allowed else {}) if k not in allowed)
     if not extra:
         return []
     return [Finding(LB, DENY, str(call.name), call, grade=POLICY, source="schema",
@@ -169,6 +171,8 @@ if __name__ == "__main__":
     assert name_findings(t2, C("give", {"name": "real_2"}))[0].order == "suffix real_2"
     assert not name_findings(t2, C("give", {"name": "real_1"}))
     assert "extra" in schema_findings(t2, C("give", {"name": "real_1", "arguments": "{}", "extra": 1}))[0].order
+    # the payload a dispatcher carries is the inner tool's, not extra keys on the wrapper
+    assert not schema_findings(t2, C("give", {"name": "real_1", "arguments": '{"inner_arg": 1}'}))
     A2["LB3"]["identifying"] = {"args": ["user_id"], "min_len": 5, "feedback": "no source for {arg}={val}"}
     t3 = Turn(A2, msgs, M())
     assert identifying_findings(t3, C("w", {"txn": "t9x8y7"}))[0].order == "no source for txn=t9x8y7"
