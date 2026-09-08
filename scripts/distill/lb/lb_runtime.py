@@ -21,7 +21,7 @@ import sys
 import lb_a2
 import lb2_decision
 import lb6_load
-from lb_coordinator import Turn, evaluate, say, fam, as_dict
+from lb_coordinator import Turn, evaluate, say, fam, as_dict, sidecar, sim_id
 
 ROUNDS = 3            # regenerations per turn
 REGEN_BUDGET = 12     # regenerations per simulation; after that the model's message stands as generated
@@ -58,6 +58,7 @@ def turn_hook(self, message, state):
     state.messages.extend(message.tool_messages if isinstance(message, MultiToolMessage) else [message])
     self._system_messages = state.system_messages
     a2 = getattr(self, "_lb_a2", {}) or {}
+    trace(self, state.messages[-len(message.tool_messages) if isinstance(message, MultiToolMessage) else -1:])
     view = lb6_load.reduce(a2, state.messages)
     am = generate(self, view)
     for _ in range(ROUNDS):
@@ -73,7 +74,19 @@ def turn_hook(self, message, state):
                                  content=d.denies.get(id(c), GENERIC)) for c in turn.calls]
         fb += [UserMessage(role="user", content=text) for text in d.advice]
         am = generate(self, view + fb, force=d.force_call, pin=d.pins[0] if d.pins else None)
+    trace(self, [am], turn_len=len(state.messages))
     return am
+
+
+def trace(agent, msgs, turn_len=None):
+    """One sidecar row per message as it happens - the live trajectory. tau2 writes its file only at
+    the end, so without this a slow simulation cannot be read while it runs."""
+    for m in msgs:
+        calls = [(getattr(c, "name", ""), str(getattr(c, "arguments", ""))[:160]) for c in (getattr(m, "tool_calls", None) or [])]
+        head = str(getattr(m, "content", "") or "")[:600]
+        sidecar("lb-msg", ("%s %s" % (calls, head)) if calls else head, None, sim=sim_id(agent),
+                role=str(getattr(m, "role", "")), n=turn_len if turn_len is not None else -1,
+                error=bool(getattr(m, "error", False)))
 
 
 def generate(self, messages, force=False, pin=None, tools=None, call_name="lb_turn"):
