@@ -433,9 +433,9 @@ def render_result(decl, ctx, result):
     if st and not st.get("judged"):
         # an empty result over zero judged rows is not "no discrepancy" - probe 017 read it as clean
         # and skipped the disputes the task is about
-        return ("Error: [COVERAGE] none of the %d rows could be judged - the policy rate for them was not established, "
-                "so this result says nothing. Retrieve the reward-rate policy document for the card first, then call "
-                "again." % st.get("total", 0))
+        return ("Error: [COVERAGE] none of the %d rows could be judged: the values the comparison needs were not "
+                "established for any of them, so this result says nothing. Retrieve the document(s) that state "
+                "those values, then call again." % st.get("total", 0))
     details = "; ".join("%s: recorded %s, expected %s (delta %s)" % (d["id"], d["actual"], d["expected"], d["delta"])
                         for d in ctx.get("_details") or [])
     slots = {k: v for k, v in ctx.items() if isinstance(v, (str, int, float))}
@@ -443,9 +443,9 @@ def render_result(decl, ctx, result):
         # a clean sweep of the rows that could be judged is not a clean sweep. On probe 017 the two
         # rows nobody could judge were the two the customer was disputing, and "no discrepancy" as
         # the opening sentence was read as the answer.
-        return ("Error: [COVERAGE] %d of %d rows could not be judged (no policy rate was established for "
-                "them), and none of the %d that were judged is discrepant. This is not a verdict: retrieve "
-                "the policy that covers the remaining rows, then call again."
+        return ("Error: [COVERAGE] %d of %d rows could not be judged (the values the comparison needs were not "
+                "established for them), and none of the %d that were judged is discrepant. This is not a verdict: "
+                "retrieve the document(s) covering the remaining rows, then call again."
                 % (st["skipped"], st["total"], st.get("judged", 0)))
     if isinstance(result, list) and not result and decl.get("return_template_empty"):
         text = decl["return_template_empty"]
