@@ -16,7 +16,7 @@ surfaces - the whole set, verbatim from the corpus, no ranking. Declared in A2["
                   when no producer ran and the customer keeps being asked, the acquiring tool is named
 """
 
-from lb_coordinator import Finding, SURFACE, GRADES, fam, fill
+from lb_coordinator import Finding, DENY, SURFACE, GRADES, fam, fill
 
 LB = "LB7"
 RETRIEVED = GRADES["retrieved_prose"]
@@ -54,7 +54,9 @@ def deliver(turn):
                             facts=["[MATERIAL] The document(s) defining '%s' are unread and the context has no room "
                                    "to deliver them: %s." % (name, ", ".join(unread))])]
         blob = "\n\n".join("### %s\n%s" % (d, turn.corpus[d]) for d in unread)[:limit]
-        return [Finding(LB, SURFACE, fam(name), facts=[fill(HEAD, tool=name) + "\n\n" + blob], grade=RETRIEVED,
+        # the material has to reach the model before the call runs, so the call is refused once and
+        # the material is the refusal; a surfaced note on a call turn is only logged, never read
+        return [Finding(LB, DENY, fam(name), c, fill(HEAD, tool=name) + "\n\n" + blob, grade=RETRIEVED,
                         source="deliver")]
     return []
 
@@ -120,7 +122,7 @@ if __name__ == "__main__":
     corpus = {"doc_a": "How to use transfer_x: search first", "doc_b": "unrelated"}
     A2 = {"LB7": {"deliver_for": ["transfer_x"], "names_feedback": "named: {names}"}}
     t = Turn(A2, [M("tool", "grep hit only")], M(calls=[C("transfer_x_1")]), corpus=corpus)
-    assert "### doc_a" in deliver(t)[0].facts[0] and "doc_b" not in deliver(t)[0].facts[0]
+    assert deliver(t)[0].primitive == DENY and "### doc_a" in deliver(t)[0].order and "doc_b" not in deliver(t)[0].order
     assert not deliver(Turn(A2, [M("tool", "### doc_a\n...")], M(calls=[C("transfer_x_1")]), corpus=corpus))
     full = Turn(dict(A2, model_context=20000), [M("tool", "z" * 60000)], M(calls=[C("transfer_x_1")]), corpus=corpus)
     assert deliver(full)[0].facts[0].startswith("[MATERIAL] The document(s) defining") and "doc_a" in deliver(full)[0].facts[0]

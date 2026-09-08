@@ -18,7 +18,7 @@ what counts as requested and as done is declared in A2["LB4"]["sets"], one of fo
                 was promised; claimed-done minus the execution ledger, promised minus done
 """
 
-from lb_coordinator import Finding, DENY, SURFACE, GRADES, fam, fill, records_in, as_dict
+from lb_coordinator import Finding, DENY, SURFACE, GRADES, fam, fill, records_in, as_dict, sidecar
 
 LB = "LB4"
 LEDGER, POLICY = GRADES["execution_ledger"], GRADES["policy_verbatim"]
@@ -150,6 +150,7 @@ def claims(spec, turn):
     if not obj:
         return []
     done, emap = turn.executed_fams(), spec.get("event_map") or {}
+    sidecar("lb-ask", raw, turn, source="claims", done=" ".join(sorted(done)))   # what the audit saw, for forensics
 
     def backed(c):
         tool = fam(str((c or {}).get("tool") or ""))
