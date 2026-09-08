@@ -97,6 +97,7 @@ text, err = lb2_decision.run_tool(vi, {"provided": json.dumps({"email": "a@x.com
 check("verifier verify_identity (grounded variant) verifies two matching values", not err and "VERIFIED" in text and "NOT_VERIFIED" not in text, text[:100])
 check("derived DAG declared with prompts and texts", any(n.get("text") for n in A2["LB2"]["derived"]) and all(n.get("prompt") for n in A2["LB2"]["derived"] if n["op"] == "formalize"))
 check("claims audit and have_value declared", any(s["kind"] == "claims" for s in A2["LB4"]["sets"]) and A2["LB7"]["have_value"])
+check("no dead declaration keys", not any(set(p.get("feedback") or {}) - {"unmet"} for p in A2["LB1"]["procedures"]))
 check("identifying args declared", "transaction_id" in A2["LB3"]["identifying"]["args"])
 
 # only seven lever flags in this code base

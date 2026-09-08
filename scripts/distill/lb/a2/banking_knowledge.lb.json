@@ -274,14 +274,7 @@
      }
     },
     "feedback": {
-     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
-     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
-     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
-     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. ",
-     "_note_absent": "D1′(2026-08-05·ABSENCE_DRIVEN_PROCEDURE_DESIGN §2). 출처 = 이 절차의 `_quote_order` 재진술 + 관측 사실(어떤 단계가 실행됐나·그 단계의 도구·그 이름이 unlock됐나). 새 사실 0 ⇒ gold 경유가 구조적으로 불가([[23]]). unlock 문구의 근거 = 048 실측(지목된 도구를 8회 호출·매번 'has not been unlocked' 에러·모델에게 없던 정보는 단계 이름이 아니라 잠금 상태였다).",
-     "cap_exceeded": "[PROCEDURE] The requested amount is above the single-request cap for this card tier ({cap}%). Tell the customer the cap and ask whether to proceed with that amount - do not submit a request above it.",
-     "arg_from_table": "[PROCEDURE] '{arg}' of '{tool}' is fixed by the card tier: {value}.",
-     "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}. Determine this card's tier and use that value - do not use an arbitrary period."
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source})."
     },
     "prohibits": {}
    },
@@ -303,9 +296,7 @@
       "quote": "Do not collect sensitive card details; the tool uses the identifiers provided by the user."
      }
     },
-    "feedback": {
-     "prohibited": "[PROCEDURE] The policy forbids '{tool}' in this procedure - verbatim: \"{quote}\" Submit the dispute with only the customer's user_id and transaction_id."
-    }
+    "feedback": {}
    },
    {
     "id": "credit_card_closure_retention",
@@ -397,13 +388,7 @@
      }
     },
     "feedback": {
-     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
-     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
-     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
-     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. ",
-     "_note_absent": "D1′(2026-08-05·ABSENCE_DRIVEN_PROCEDURE_DESIGN §2). 출처 = 이 절차의 `_quote_order` 재진술 + 관측 사실(어떤 단계가 실행됐나·그 단계의 도구·그 이름이 unlock됐나). 새 사실 0 ⇒ gold 경유가 구조적으로 불가([[23]]). unlock 문구의 근거 = 048 실측(지목된 도구를 8회 호출·매번 'has not been unlocked' 에러·모델에게 없던 정보는 단계 이름이 아니라 잠금 상태였다).",
-     "prohibited": "[PROCEDURE] The policy forbids '{tool}' in this procedure - verbatim: \"{quote}\"",
-     "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}."
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source})."
     },
     "prohibits": {}
    },
@@ -442,10 +427,7 @@
      }
     ],
     "feedback": {
-     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
-     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
-     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
-     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. "
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source})."
     },
     "prohibits": {}
    },
@@ -480,10 +462,7 @@
      }
     ],
     "feedback": {
-     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
-     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
-     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
-     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. "
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source})."
     },
     "prohibits": {}
    },
@@ -514,10 +493,7 @@
      }
     ],
     "feedback": {
-     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
-     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
-     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
-     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it: the name above is complete, and each search returns a large amount of text that will crowd out the conversation. "
+     "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source})."
     },
     "prohibits": {}
    },
@@ -564,10 +540,7 @@
      }
     ],
     "feedback": {
-     "unmet": "[PROCEDURE] Before '{tool}' the policy requires: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}'.",
-     "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
-     "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
-     "unlock_hint": "The tool for that step is {next_tool} and it has not been unlocked in this conversation - call the unlock tool with exactly that name. "
+     "unmet": "[PROCEDURE] Before '{tool}' the policy requires: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}'."
     },
     "prohibits": {}
    },
@@ -5706,46 +5679,5 @@
     "acquire_feedback": "[VALUE-ACQUIRE] The customer cannot read the last 4 digits off the card and they are NOT stored in the account records - they must be retrieved by the CUSTOMER running get_card_last_4_digits. Stop re-asking the customer for them. Use give_discoverable_user_tool to give get_card_last_4_digits to the customer NOW, then have them run it with their credit_card_account_id and read the value from its output. Then file the dispute with that value."
    }
   ]
- },
- "_dropped": {
-  "write_evidence_specs": [
-   [
-    "RESOLVED"
-   ],
-   [
-    "Consecutive on-time payments"
-   ],
-   [
-    "get_credit_limit_increase_history"
-   ],
-   [
-    "get_pending_replacement_orders"
-   ],
-   [
-    "ELIGIBLE - all tier requirements"
-   ],
-   [
-    "get_closure_reason_history"
-   ],
-   [
-    "log_credit_card_closure_reason"
-   ],
-   [
-    "get_pending_replacement_orders"
-   ],
-   [
-    "CLOSURE_OK"
-   ],
-   null,
-   [
-    "Interest correction"
-   ],
-   [
-    "Interest correction"
-   ],
-   null,
-   null
-  ],
-  "why": "a demanded verdict string prescribes a check the environment does not require (base passes 049 without CLOSURE_OK); step order lives in LB1 procedures"
  }
 }

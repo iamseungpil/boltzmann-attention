@@ -239,7 +239,7 @@ if __name__ == "__main__":
                                   "nodes": [{"id": "a", "tool": "read_a"}, {"id": "b", "tool": "write_b", "requires": ["a"]},
                                             {"id": "c", "tool_prefix": "credit_", "requires": ["b"]}],
                                   "prohibits": {"forbidden_x": {"quote": "Do not"}},
-                                  "feedback": {"unmet": "[P] before '{tool}': {missing}", "absent": "[P] NEXT: {next}",
+                                  "feedback": {"unmet": "[P] before '{tool}': {missing}",
                                                "prohibited": "[P] '{tool}' forbidden: {quote}"}}]}}
     # gate walks to the executable root: log_verification needs verify_identity first
     r = requirements_for(A2, "submit_referral", set())

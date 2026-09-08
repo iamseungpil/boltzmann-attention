@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """LB7 - material delivery (the premise of every other engine).
 
-Dropped 2026-09-08: `named_uncalled` (retrieved documents name a tool nobody called). It is the old
-`T2_HANDOFF_PREDICATE` / `named-but-not-given`, whose single-variable A/B reads 2/12 <-> 2/12 with
-latency 1.90x and 13 context-window terminations against zero, and whose one positive cell (028) the
-old ledger disowns: the flip came from environment argument errors disappearing, not from this
-predicate. Verdict on record: discard.
-
 One rule: give the model the candidate set it has not seen. Not a seventh mechanism: when the
 candidates never reach the model, every mechanism fails for a reason unrelated to itself
 (x829: without material 0/8, with 47 document titles 8/8). This engine orders nothing; it

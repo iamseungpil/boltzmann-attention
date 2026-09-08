@@ -128,9 +128,6 @@ def migrate(domain):
         "LB7": {"deliver_for": (src.get("require_doc_before") or {}).get("tools") or [], "max_chars": 90000,
                 "have_value": _have_value(src)},
     }
-    out["_dropped"] = {"write_evidence_specs": [s.get("require_tokens") for s in src.get("write_evidence_specs") or []],
-                       "why": "a demanded verdict string prescribes a check the environment does not require "
-                              "(base passes 049 without CLOSURE_OK); step order lives in LB1 procedures"}
     path = os.path.join(A2_DIR, "%s.lb.json" % domain)
     io.open(path, "w", encoding="utf-8").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
     return path
@@ -225,8 +222,12 @@ def _list(v):
     return list(v) if isinstance(v, list) else ([v] if v else [])
 
 
+PROC_FEEDBACK = ("unmet",)          # the only feedback the walker still uses
+
+
 def _procedure(p):
     q = {k: v for k, v in p.items() if not k.startswith("_note")}
+    q["feedback"] = {k: v for k, v in (p.get("feedback") or {}).items() if k in PROC_FEEDBACK}
     q["prohibits"] = {n: {"quote": s.get("_quote")} for n, s in (p.get("prohibits") or {}).items() if isinstance(s, dict)}
     q["nodes"] = [{k: v for k, v in n.items() if k in ("id", "tool", "tool_any", "tool_prefix", "requires", "min_count")}
                   for n in p.get("nodes") or []]
