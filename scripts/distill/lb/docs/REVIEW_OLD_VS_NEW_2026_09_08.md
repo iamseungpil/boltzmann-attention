@@ -185,3 +185,9 @@ task_010 (base 0/4 · 우리 0/1 · 개입 0): 값 계산은 전부 맞았고, �
 
 029 를 2/2 로 푼 08-03 팔의 `go_stack.sh`(`8086c8ab`)는 `T2_WRITE_EVIDENCE=1` 이 켜져 있었고 07-31 커밋 *"Stop the dispute-evidence gate from accepting a dispute the bank won"* 직후였다 ⇒ 오늘 복원한 LB3 `state` 와 같은 기전. Q3.8 에서는 미검증 — 이번 런의 027·029 가 검증.
 원인 분류(§13 digest): A. 참조·추천 판단 F3 17개(지갑 분실·사기 가족 10 + 계좌 재구성 7) · B. 기만+다행 계산 3개(026 027 029, 우리 사거리) · C. 긴 다중 목표 사슬 3개(039 046 053) · D. 오독·벤치마크 오류 2개(010 102).
+
+## 16. 010 의 통과 2건 — 궤적
+
+- **Q3.8 (`night2p1_t3prime` 09-01, 1/1)**: 에이전트는 msg 27 에서 우리 실패 런과 같은 답을 했다 — *"Unfortunately, no … cannot be reinstated"*. 통과는 msg 28~30 에서 **user-sim 이 스스로** *"I went ahead and submitted a new Platinum Rewards Card referral on my end"* 라고 제출했기 때문이다. 에이전트의 안내가 아니라 손님 시뮬레이터의 분산.
+- **Q2.5 (`n97` 08-04, 1/2)**: 에이전트가 msg 24 에서 *"you can resubmit the referral now that the 7-day window has passed"* 라고 바르게 안내했고 손님이 제출했다. 같은 런의 다른 sim 은 실패.
+⇒ 010 의 gold 는 손님의 재제출이고, 에이전트가 해야 할 말은 "창이 지났으니 지금 다시 제출하라" 한 문장이다. Q3.8 은 이 조항을 "복구 불가"로 읽는다(F3). Q3.8 의 유일한 통과는 에이전트 덕이 아니다.
