@@ -1,0 +1,359 @@
+flag	read_sites	enclosing_functions	what_it_gates	L_group	t2_levers_entry	roster_verdict	go_stack.sh	run_ours_task.sh	arms/viewmax2.env	set_in_live_chain
+T2_A2_VARIANT	t2_scaffold_get.py:1946	_variant	raw = name if name is not None else os.environ.get("T2_A2_VARIANT")		DECLARATIVE		ledger,ratefix			yes
+T2_ABSTAIN_FIELDS	t2_scaffold_get.py:3233	apply	if os.environ.get("T2_ABSTAIN_FIELDS") == "1" else {})	L8	CELLS	UNMEASURED	1			yes
+T2_ACTIONREQ_GROUNDED	t2_gate_patch.py:10639	apply_unified_regen	_pa_on = os.environ.get("T2_ACTIONREQ_GROUNDED") == "1"				0	1		yes
+T2_ACTION_CANDSET	t2_resolve.py:922	action_candidates	if os.environ.get("T2_ACTION_CANDSET", "1") != "1":				1			yes
+T2_ACTION_DENY_CAP	t2_gate_patch.py:10489	apply_unified_regen	_adc = os.environ.get("T2_ACTION_DENY_CAP")							no
+T2_ACTION_INDEX	t2_gate_patch.py:11591	apply_unified_regen	if (not _m3 and os.environ.get("T2_ACTION_INDEX") == "1"	L12		UNMEASURED				no
+T2_ACTION_PROGRESS_REFUND	t2_gate_patch.py:14558	apply_unified_regen	if os.environ.get("T2_ACTION_PROGRESS_REFUND") == "1":		PARAMS		1			yes
+T2_ACTION_SUB	t2_gate_patch.py:13457	apply_unified_regen	if (os.environ.get("T2_ACTION_SUB") == "1" and rw_fb	L12		NEAR_VALID(0 VALID)		1		yes
+T2_ACT_DEMAND	t2_gate_patch.py:11395	apply_unified_regen	if os.environ.get("T2_ACT_DEMAND") == "1":			NEAR_VALID(0 VALID)				no
+T2_AGENT_MAX_TOKENS	t2_gate_patch.py:4463;t2_run_gated.py:357;t2_run_gated.py:358;t2_run_gated.py:621	_ctx_fits;main	_gen = int(os.environ.get("T2_AGENT_MAX_TOKENS") or 8192)		HARNESS		8192	${T2_AGENT_MAX_TOKENS:-(미설정		yes
+T2_ARBITRATE	t2_gate_patch.py:10789	apply_unified_regen	if os.environ.get("T2_ARBITRATE") == "1":	L13	META	UNMEASURED	1			yes
+T2_ARG_AXIS	t2_gate_patch.py:12273	apply_unified_regen	if (en_fb is None and os.environ.get("T2_ARG_AXIS") == "1"			HARMFUL				no
+T2_ARG_DOC_SUB	t2_scaffold_get.py:2891	apply	if (os.environ.get("T2_ARG_DOC_SUB") == "1"				1			yes
+T2_ARG_EMPTY	t2_gate_patch.py:9018	apply_unified_regen	ae_on = (a2 is not None and os.environ.get("T2_ARG_EMPTY") == "1")	L1		UNMEASURED		1		yes
+T2_ARG_LABEL	t2_gate_patch.py:1251	apply	label_on = os.environ.get("T2_ARG_LABEL") == "1"				1			yes
+T2_ARG_POLICY_AT_WRITE	t2_gate_patch.py:12736	apply_unified_regen	if os.environ.get("T2_ARG_POLICY_AT_WRITE") == "1":				${T2_ARG_POLICY_AT_WRITE:-0}			yes
+T2_ARG_POLICY_CAP	t2_gate_patch.py:751	_policy_rows_for	cap = int(os.environ.get("T2_ARG_POLICY_CAP", "4000"))				4000			yes
+T2_ARG_PRODUCERS	t2_prekb_patch.py:600	apply	if os.environ.get("T2_ARG_PRODUCERS") == "1" and a2 is not None:	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_ARG_SCHEMA	t2_gate_patch.py:7316;t2_gate_patch.py:15891	apply_provenance_regen;apply_unified_regen	if os.environ.get("T2_ARG_SCHEMA") == "1" and getattr(am, "tool_calls", None):		CELLS		1			yes
+T2_ASK_UNKNOWN_BOOL	t2_unknown_bool.py:41;t2_unknown_bool.py:195;t2_unknown_bool.py:247;t2_unknown_bool.py:249	enabled;selftest	return os.environ.get("T2_ASK_UNKNOWN_BOOL") == "1"			DARK				no
+T2_AUTOFETCH	t2_gate_patch.py:1312	apply	extra = _autofetch_text(self, orig, gate, producer) if os.environ.get("T2_AUTOFETCH") == "1" else ""			HARMFUL				no
+T2_AXIS_NOTE_CAP	t2_gate_patch.py:1616;t2_surface_bus.py:35	_axis_surface;class SurfaceBus	_cap_n = int(os.environ.get("T2_AXIS_NOTE_CAP", "2") or 2)							no
+T2_BRANCH_REGROUND	t2_eplan_patch.py:1204;t2_gate_patch.py:9374	apply;apply_unified_regen	if os.environ.get("T2_BRANCH_REGROUND") == "1":	L11	CELLS	UNMEASURED	1			yes
+T2_CALC	t2_gate_patch.py:1245;t2_gate_patch.py:8178	_install_regen_exec;apply	calc_specs = (a2.get("calc_specs") or []) if os.environ.get("T2_CALC") == "1" else []	L11		UNMEASURED				no
+T2_CALLABLE_HINT	t2_callable_hint.py:31;t2_callable_hint.py:143;t2_callable_hint.py:165;t2_callable_hint.py:169	enabled;selftest	return os.environ.get("T2_CALLABLE_HINT") == "1"		CELLS	DARK	1			yes
+T2_CALL_FORM	t2_gate_patch.py:10975	apply_unified_regen	if os.environ.get("T2_CALL_FORM") == "1":	L14		UNMEASURED		1		yes
+T2_CALL_FORM_FIX	t2_gate_patch.py:10267	apply_unified_regen	if (os.environ.get("T2_CALL_FORM_FIX") == "1"				0			yes
+T2_CARD_DOCS	t2_gate_patch.py:5753	_limit_reduce_text	if _dg and os.environ.get("T2_CARD_DOCS") == "1":				1			yes
+T2_CATEGORY_CITE	t2_scaffold_get.py:2892;t2_scaffold_get.py:2994	apply	and os.environ.get("T2_CATEGORY_CITE") != "1"):				(empty)			yes
+T2_CHOICE_GROUND	t2_gate_patch.py:15615	apply_unified_regen	if (os.environ.get("T2_CHOICE_GROUND") == "1" and getattr(am, "tool_calls", None)		CELLS	DARK	1			yes
+T2_CLAIMPROV_CAP	t2_gate_patch.py:15310	apply_unified_regen	_cpv_cap = int(os.environ.get("T2_CLAIMPROV_CAP", "1") or 1)		PARAMS		3			yes
+T2_CLAIM_BLOCK	t2_claim_block.py:37;t2_claim_block.py:86;t2_claim_block.py:111;t2_claim_block.py:113	enabled;selftest	return os.environ.get("T2_CLAIM_BLOCK") == "1"			DARK				no
+T2_CLAIM_PROV	t2_gate_patch.py:15323	apply_unified_regen	if (os.environ.get("T2_CLAIM_PROV") == "1" and (_resign or _cpv_transfer)		CELLS	HARMFUL	1			yes
+T2_CLAIM_VERIFY	t2_gate_patch.py:5309	_claim_verify_false	if os.environ.get("T2_CLAIM_VERIFY") != "1":			DARK	0			yes
+T2_CONSISTENCY	t2_gate_patch.py:9457	apply_unified_regen	if (os.environ.get("T2_CONSISTENCY") == "1" and a2 is not None			DARK				no
+T2_CONS_NOOP	t2_gate_patch.py:9479	apply_unified_regen	if os.environ.get("T2_CONS_NOOP", "1") != "0" \			DARK				no
+T2_COV	t2_gate_patch.py:9119	apply_unified_regen	if (os.environ.get("T2_COV") == "1" and ep_led is not None			DARK				no
+T2_COVERAGE_FOLLOWUP	t2_gate_patch.py:14745	apply_unified_regen	if (os.environ.get("T2_COVERAGE_FOLLOWUP") == "1" and _resign	L4	CELLS	UNMEASURED	1			yes
+T2_COV_MIDDRIVE	t2_gate_patch.py:9149	apply_unified_regen	if (os.environ.get("T2_COV_MIDDRIVE") == "1" and ep_led is not None):		CELLS	DARK	1			yes
+T2_COV_MIDDRIVE_K	t2_gate_patch.py:9164	apply_unified_regen	_K = int(os.environ.get("T2_COV_MIDDRIVE_K", "4"))		PARAMS		4			yes
+T2_CP2_APPEND_MAX	t2_gate_patch.py:6556;t2_gate_patch.py:6562	_cp2_assign	_cap = int(os.environ.get("T2_CP2_APPEND_MAX", "90000"))				90000			yes
+T2_CP2_KEEP_SURE	t2_gate_patch.py:6594	_cp2_assign	_keep_sure = os.environ.get("T2_CP2_KEEP_SURE") == "1"				0			yes
+T2_CP2_QUEUE	t2_gate_patch.py:6563	_cp2_assign	_queue = os.environ.get("T2_CP2_QUEUE") == "1"				0			yes
+T2_DD_CAP	t2_gate_patch.py:9436	apply_unified_regen	and getattr(self, "_t2_dd_deny", 0) < int(os.environ.get("T2_DD_CAP", "8"))):							no
+T2_DECIDE_ANY	t2_gate_patch.py:11527	apply_unified_regen	if os.environ.get("T2_DECIDE_ANY") == "1":	L7		UNMEASURED				no
+T2_DECIDE_BEFORE_WRITE	t2_gate_patch.py:12545	apply_unified_regen	if (os.environ.get("T2_DECIDE_BEFORE_WRITE") == "1" and not do_gate	L9		UNMEASURED				no
+T2_DECISION_CARRY	t2_gate_patch.py:11450;t2_gate_patch.py:11621	apply_unified_regen	and os.environ.get("T2_DECISION_CARRY") == "1"	L9		UNMEASURED				no
+T2_DECISION_ISOLATE	t2_gate_patch.py:5973	_limit_reduce_text	if _decided and _name_lists and os.environ.get("T2_DECISION_ISOLATE") == "1":			NEAR_VALID(0 VALID)				no
+T2_DECLFIRST	t2_declfirst.py:164;t2_declfirst.py:274;t2_gate_patch.py:7232;t2_gate_patch.py:8877;t2_gate_patch.py:13478	<module>;apply_provenance_regen;apply_unified_regen;run	if os.environ.get("T2_DECLFIRST") != "1":	L9		NOT_A_LEVER				no
+T2_DECLFIRST_ENFORCE	t2_declfirst.py:192	run	enforce = os.environ.get("T2_DECLFIRST_ENFORCE") == "1"			NOT_A_LEVER				no
+T2_DECLFIRST_GUIDE	t2_gate_patch.py:7231;t2_gate_patch.py:8867	apply_provenance_regen;apply_unified_regen	_guide_on = os.environ.get("T2_DECLFIRST_GUIDE", "1") == "1"	L9		UNMEASURED				no
+T2_DECLFIRST_GUIDE_FIX	t2_gate_patch.py:8876	apply_unified_regen	if os.environ.get("T2_DECLFIRST_GUIDE_FIX") == "1" else None)			NOT_A_LEVER				no
+T2_DEFERRED_VIEW_KEEP	t2_gate_patch.py:9078	apply_unified_regen	_q0.append([_txt0, int(os.environ.get("T2_DEFERRED_VIEW_KEEP", "2"))])							no
+T2_DELIVER_PRECOMMIT	t2_gate_patch.py:8942	apply_unified_regen	if (os.environ.get("T2_DELIVER_PRECOMMIT") == "1"	L9		NEAR_VALID(0 VALID)				no
+T2_DENY_HOWTO	t2_gate_patch.py:13167	apply_unified_regen	if os.environ.get("T2_DENY_HOWTO") == "1":				0			yes
+T2_DENY_HOWTO_CAP	t2_gate_patch.py:4661	_decl_howto	cap = int(cap if cap is not None else os.environ.get("T2_DENY_HOWTO_CAP", "900"))				900			yes
+T2_DENY_HOWTO_PARAMS	t2_gate_patch.py:4711	_decl_howto	if params and os.environ.get("T2_DENY_HOWTO_PARAMS") == "1":				0			yes
+T2_DIAG_UNAMBIGUOUS	t2_ledger.py:1130	diagnose_choice	if os.environ.get("T2_DIAG_UNAMBIGUOUS") == "1":				0			yes
+T2_DISAMB	t2_run_gated.py:224	main	disamb_on = os.environ.get("T2_DISAMB", "0") == "1"			HARMFUL				no
+T2_DISAMB_MODE	t2_run_gated.py:227	main	disamb_mode = os.environ.get("T2_DISAMB_MODE", "dialog") # P-B: dialog|subcall			NOT_A_LEVER				no
+T2_DISAMB_ORDER	t2_gate_patch.py:7153;t2_gate_patch.py:8598	apply_provenance_regen;apply_unified_regen	if os.environ.get("T2_DISAMB_ORDER") == "1": # ★order operand도 disamb 대상(filter-then-ask·env opt-in)	L10		UNMEASURED				no
+T2_DISCOVERY_DISPATCH	t2_gate_patch.py:9433	apply_unified_regen	if (os.environ.get("T2_DISCOVERY_DISPATCH") == "1" and ep_spec is not None	L2		UNMEASURED				no
+T2_DISCOVERY_NAMES	t2_gate_patch.py:11492	apply_unified_regen	if os.environ.get("T2_DISCOVERY_NAMES") == "1":	L2	CELLS	UNMEASURED	1			yes
+T2_DISCOVERY_REQUIRED	t2_gate_patch.py:15522	apply_unified_regen	if (os.environ.get("T2_DISCOVERY_REQUIRED") == "1" and (a2 or {}).get("analysis_producers")	L2	NOT_LAUNCHED	NEAR_VALID(0 VALID)				no
+T2_DISCOVERY_STEP2	t2_resolve.py:525	resolve_action_operator	if os.environ.get("T2_DISCOVERY_STEP2") == "1":	L2		UNMEASURED				no
+T2_DISPATCH_LEDGER	t2_eplan_patch.py:1095;t2_eplan_patch.py:1123;t2_scaffold_get.py:3126	apply	and os.environ.get("T2_DISPATCH_LEDGER") != "1"): # P8도 이 훅을 쓴다	L4	CELLS	UNMEASURED	1			yes
+T2_DISPATCH_ROLE	t2_gate_patch.py:11773	apply_unified_regen	if (pr_fb is None and os.environ.get("T2_DISPATCH_ROLE") == "1" and _drs	L7	CELLS	UNMEASURED	1			yes
+T2_DISPATCH_ROLE_CAP	t2_gate_patch.py:11777	apply_unified_regen	< int(os.environ.get("T2_DISPATCH_ROLE_CAP", "6"))):							no
+T2_DISPATCH_ROLE_ENVSET	t2_gate_patch.py:11814;t2_gate_patch.py:11835	apply_unified_regen	and os.environ.get("T2_DISPATCH_ROLE_ENVSET") == "1"	L7	CELLS	UNMEASURED	1			yes
+T2_DISTINCT_ARGS	t2_gate_patch.py:13620	apply_unified_regen	if os.environ.get("T2_DISTINCT_ARGS") in ("log", "deny") and getattr(am, "tool_calls", None):						log	yes
+T2_DOCS_AT_WRITE	t2_gate_patch.py:4860;t2_gate_patch.py:11467;t2_gate_patch.py:12571	_search_material;apply_unified_regen	or os.environ.get("T2_DOCS_AT_WRITE") == "1"):	L5		UNMEASURED(L5 미판정)				no
+T2_DUP_REPRESENT	t2_scaffold_get.py:2719	apply	represent_on=(os.environ.get("T2_DUP_REPRESENT") == "1"),	L11	CELLS	UNMEASURED	1			yes
+T2_DUP_WRITE	t2_gate_patch.py:12507	apply_unified_regen	if os.environ.get("T2_DUP_WRITE") == "1":				1	1		yes
+T2_DYN_MT	t2_gate_patch.py:8747	apply_unified_regen	if os.environ.get("T2_DYN_MT") == "1":		HARNESS		1			yes
+T2_DYN_MT_MARGIN	t2_gate_patch.py:8749	apply_unified_regen	margin=int(os.environ.get("T2_DYN_MT_MARGIN", "64")),		HARNESS		64			yes
+T2_ELIG_LINE	t2_gate_patch.py:4898	_search_material	if os.environ.get("T2_ELIG_LINE") == "1":	L5		UNMEASURED(L5 미판정)				no
+T2_ENVELOPE_CAP	t2_gate_patch.py:14599	apply_unified_regen	< int(os.environ.get("T2_ENVELOPE_CAP", "2") or 2)):		PARAMS		2			yes
+T2_ENVELOPE_GUARD	t2_gate_patch.py:14595;t2_gate_patch.py:14634	apply_unified_regen	if (os.environ.get("T2_ENVELOPE_GUARD") == "1"		CELLS		1			yes
+T2_ENVELOPE_TAG	t2_gate_patch.py:14577	apply_unified_regen	_envtag = os.environ.get("T2_ENVELOPE_TAG", "<tool_call>")							no
+T2_ENVELOPE_TRUNC	t2_gate_patch.py:14582	apply_unified_regen	_lim = int(os.environ.get("T2_ENVELOPE_TRUNC", "1200") or 1200)							no
+T2_EPLAN	t2_eplan_patch.py:1090;t2_gate_patch.py:8971;t2_run_gated.py:277	apply;apply_unified_regen;main	if os.environ.get("T2_EPLAN") != "1":	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_EPLAN_DENY_CAP	t2_gate_patch.py:9330	apply_unified_regen	_ep_cap = int(os.environ.get("T2_EPLAN_DENY_CAP", "4"))							no
+T2_EPLAN_DRIVE_K	t2_eplan_patch.py:1182	apply	_K = int(os.environ.get("T2_EPLAN_DRIVE_K", "4"))		PARAMS		4			yes
+T2_EPLAN_ENUM_SUBTRACT	t2_eplan_patch.py:947	l1_feedback	if os.environ.get("T2_EPLAN_ENUM_SUBTRACT") == "1" and _called:				0			yes
+T2_EPLAN_EXAMINED_SAFE	t2_eplan_patch.py:1010	discovery_precondition	if os.environ.get("T2_EPLAN_EXAMINED_SAFE") == "1" and attempt_entity is not None \	L5		UNMEASURED(L5 미판정)				no
+T2_EPLAN_READS_ONLY	t2_eplan_patch.py:974	l2_feedback	if os.environ.get("T2_EPLAN_READS_ONLY") == "1":	L5		UNMEASURED(L5 미판정)				no
+T2_EPLAN_REPLAN	t2_eplan_patch.py:1212	apply	if reminder is None and os.environ.get("T2_EPLAN_REPLAN") == "1":	L5		UNMEASURED(L5 미판정)				no
+T2_EPLAN_WALK	t2_eplan_patch.py:1093;t2_eplan_patch.py:1094;t2_eplan_patch.py:1175;t2_run_gated.py:281	apply;main	% ("ON" if os.environ.get("T2_EPLAN_WALK") == "1" else "off"))	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_EPLAN_WALK_HOLD	t2_eplan_patch.py:1253	apply	if os.environ.get("T2_EPLAN_WALK_HOLD") != "1":		ARM_ONLY					no
+T2_FAB_STRIP	t2_gate_patch.py:13635	apply_unified_regen	if os.environ.get("T2_FAB_STRIP") == "1" and getattr(am, "tool_calls", None):	L2	CELLS	UNMEASURED	1			yes
+T2_FAILDUMP	t2_run_gated.py:366;t2_run_gated.py:456	main	("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS")) or os.environ.get("T2_FAILDUMP"):					$LOG/faildump_${TAG}.jsonl		yes
+T2_FAILED_DIR	t2_run_gated.py:49	_install_failed_persist	_dir = os.environ.get("T2_FAILED_DIR", "failed_sims")							no
+T2_FAILED_PERSIST	t2_run_gated.py:307	main	if os.environ.get("T2_FAILED_PERSIST") == "1":		HARNESS		1			yes
+T2_FB_SIDECAR	t2_fbsidecar.py:58;t2_fbsidecar.py:147;t2_fbsidecar.py:154;t2_fbsidecar.py:220;t2_fbsidecar.py:225	<module>;record	path = os.environ.get("T2_FB_SIDECAR")					$LOG/fb_${TAG}.jsonl		yes
+T2_FB_SIDECAR_TEXT	t2_fbsidecar.py:87;t2_fbsidecar.py:168;t2_fbsidecar.py:224	<module>;record	if os.environ.get("T2_FB_SIDECAR_TEXT") == "1":					1		yes
+T2_FB_SIDECAR_TEXT_MAX	t2_fbsidecar.py:92	record	_cap = int(os.environ.get("T2_FB_SIDECAR_TEXT_MAX", "4000"))				4000			yes
+T2_FB_VIEW_K	t2_prekb_patch.py:384	_view_fb	lst.append([txt, int(os.environ.get("T2_FB_VIEW_K", "2"))])							no
+T2_FEXEC	t2_gate_patch.py:7093	_t5c_disamb_subcall	if os.environ.get("T2_FEXEC") == "1":			DARK				no
+T2_FIT_DIFF	t2_gate_patch.py:1550	_axis_surface	if os.environ.get("T2_FIT_DIFF") == "1" and notes_cfg.get("diff"):			DARK				no
+T2_FN_ISOLATE	t2_scaffold_get.py:2509	apply	if os.environ.get("T2_FN_ISOLATE") == "1":							no
+T2_FOLLOWUP_FORCE	t2_gate_patch.py:14759;t2_gate_patch.py:15001;t2_gate_patch.py:15115	apply_unified_regen	if os.environ.get("T2_FOLLOWUP_FORCE") == "1" else None))	L6	CELLS	UNMEASURED(L6 미판정)	1			yes
+T2_FOLLOWUP_PROGRESS_REFUND	t2_gate_patch.py:14540	apply_unified_regen	if os.environ.get("T2_FOLLOWUP_PROGRESS_REFUND") == "1":		PARAMS		1			yes
+T2_FOLLOWUP_READLOOP	t2_gate_patch.py:14008	apply_unified_regen	if (os.environ.get("T2_FOLLOWUP_READLOOP") == "1" and not _resign	L6	CELLS	UNMEASURED(L6 미판정)	1			yes
+T2_FOLLOWUP_REQUIRED	t2_gate_patch.py:14976	apply_unified_regen	if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign):	L6	CELLS	UNMEASURED(L6 미판정)	1			yes
+T2_FOLLOWUP_RESIGN_TH	t2_gate_patch.py:14989;t2_gate_patch.py:15063	apply_unified_regen	_th = int(os.environ.get("T2_FOLLOWUP_RESIGN_TH", "2") or 2)							no
+T2_FORCE_ACTION	t2_gate_patch.py:11680	apply_unified_regen	if os.environ.get("T2_FORCE_ACTION") == "1" and not (am.tool_calls or []):	L7	CELLS	UNMEASURED	1			yes
+T2_FORCE_MIN_TOKENS	t2_gate_patch.py:98	<module>	_FORCE_MIN_TOKENS = int(os.environ.get("T2_FORCE_MIN_TOKENS", "1024"))							no
+T2_FREE_TEXT_ARG	t2_gate_patch.py:13543	apply_unified_regen	if (os.environ.get("T2_FREE_TEXT_ARG") == "1" and getattr(am, "tool_calls", None)				1			yes
+T2_GATE_KINDS	t2_gate_patch.py:1222;t2_gate_patch.py:8331;t2_gate_patch.py:8610	apply;apply_gate_regen;apply_unified_regen	_kinds = os.environ.get("T2_GATE_KINDS")							no
+T2_GATE_REGEN	t2_run_gated.py:229;t2_run_gated.py:231	main	_unified = os.environ.get("T2_GATE_REGEN") == "1" and (		HARNESS		1			yes
+T2_GATE_REGEN_K	t2_run_gated.py:233;t2_run_gated.py:234	main	t2_gate_patch.apply_gate_regen(max_regen=int(os.environ.get("T2_GATE_REGEN_K", "1")))		HARNESS		1			yes
+T2_GEN_TRACE	t2_run_gated.py:366	main	("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS")) or os.environ.get("T2_FAILDUMP"):					1		yes
+T2_GIVE_EXEC_NUDGE	t2_gate_patch.py:14790	apply_unified_regen	if (os.environ.get("T2_GIVE_EXEC_NUDGE") == "1" and _resign	L7	CELLS	UNMEASURED	1			yes
+T2_GIVE_QUOTE	t2_gate_patch.py:15805	apply_unified_regen	if (os.environ.get("T2_GIVE_QUOTE") == "1" and getattr(am, "tool_calls", None)	L3	CELLS	UNMEASURED	1			yes
+T2_GIVE_RELEVANCE_NUDGE	t2_gate_patch.py:14641	apply_unified_regen	if (os.environ.get("T2_GIVE_RELEVANCE_NUDGE") == "1"	L7	CELLS	UNMEASURED	1			yes
+T2_GIVE_REQUIRED	t2_gate_patch.py:10238	apply_unified_regen	and os.environ.get("T2_GIVE_REQUIRED") == "1"				0			yes
+T2_GIVE_REQUIRED_CAP	t2_gate_patch.py:10240;t2_gate_patch.py:10269	apply_unified_regen	< int(os.environ.get("T2_GIVE_REQUIRED_CAP", "2"))):				2			yes
+T2_GROUND	t2_run_gated.py:226	main	ground2_on = os.environ.get("T2_GROUND", "0") == "1" # P-A (양 분기)		CELLS	HARMFUL	1			yes
+T2_GROUNDING_SPEC	t2_resolve_patch.py:355	apply	spec_path = spec_path or os.environ.get("T2_GROUNDING_SPEC")							no
+T2_GROUND_DROP_NAVKEYS	t2_resolve_patch.py:312	_resolve	if catalog and os.environ.get("T2_GROUND_DROP_NAVKEYS") == "1":			DARK				no
+T2_GROUND_HDR	t2_scaffold_get.py:3307	apply	_hdr_tail = ("" if os.environ.get("T2_GROUND_HDR") == "1"	L1		UNMEASURED	1			yes
+T2_GROUND_LOG	t2_resolve_patch.py:275	_log_event	path = os.environ.get("T2_GROUND_LOG")							no
+T2_GROUP_DUP	t2_gate_patch.py:13593	apply_unified_regen	if os.environ.get("T2_GROUP_DUP") in ("log", "deny") and getattr(am, "tool_calls", None):						log	yes
+T2_GUIDED	t2_guided_patch.py:209;t2_run_gated.py:214	_make_wrapper;main	if (os.environ.get("T2_GUIDED") == "1"	L7	CELLS	UNMEASURED	1			yes
+T2_GUIDED_VERBOSE	t2_guided_patch.py:35	_mark	if os.environ.get("T2_GUIDED_VERBOSE"):					1		yes
+T2_HANDOFF_ARG_GROUND	t2_handoff_ground.py:35;t2_handoff_ground.py:110;t2_handoff_ground.py:144;t2_handoff_ground.py:146	enabled;selftest	return os.environ.get("T2_HANDOFF_ARG_GROUND") == "1"			DARK				no
+T2_HANDOFF_CAP	t2_gate_patch.py:15712	apply_unified_regen	and getattr(self, "_t2_hop_n", 0) < int(os.environ.get("T2_HANDOFF_CAP") or 2)):							no
+T2_HANDOFF_PREDICATE	t2_gate_patch.py:15711	apply_unified_regen	if (os.environ.get("T2_HANDOFF_PREDICATE") == "1" and a2 is not None			NEAR_VALID(0 VALID)				no
+T2_HAVE_VALUE	t2_gate_patch.py:9026	apply_unified_regen	if (a2 is not None and os.environ.get("T2_HAVE_VALUE") == "1") else []		CELLS	DARK	1			yes
+T2_HAVE_VALUE_CAP	t2_gate_patch.py:10203	apply_unified_regen	< int(os.environ.get("T2_HAVE_VALUE_CAP", "3"))):							no
+T2_HAVE_VALUE_FORCE	t2_gate_patch.py:13021	apply_unified_regen	if os.environ.get("T2_HAVE_VALUE_FORCE", "1") == "1":	L1	CELLS	UNMEASURED	1			yes
+T2_JUDGE_DISABLE	t2_run_gated.py:449	main	for _drop in (os.environ.get("T2_JUDGE_DISABLE") or "").split(","):							no
+T2_JUDGE_MAX_TOKENS	t2_run_gated.py:398	main	_t2_judge_mt = int(os.environ.get("T2_JUDGE_MAX_TOKENS", "4096") or 4096)							no
+T2_KB_DOCS_DIR	t2_gate_patch.py:4521;t2_gate_patch.py:10045;t2_match_count.py:50;t2_match_count.py:104	_require_doc_deliver;apply_unified_regen;corpus_dir;note	docs_dir = os.environ.get("T2_KB_DOCS_DIR")		HARNESS		$GO_TAU2/data/tau2/domains/banking_knowledge/documents			yes
+T2_KB_NOHIT_K	t2_gate_patch.py:15767	apply_unified_regen	_th2 = int(os.environ.get("T2_KB_NOHIT_K", "2") or 2)		PARAMS		2			yes
+T2_KB_NOHIT_SURFACE	t2_gate_patch.py:15746	apply_unified_regen	if (os.environ.get("T2_KB_NOHIT_SURFACE") == "1"	L8	CELLS	UNMEASURED	1			yes
+T2_KEEP_DENY_BODY	t2_gate_patch.py:4614;t2_gate_patch.py:13129;t2_gate_patch.py:13150	_sibling_wait;apply_unified_regen	if os.environ.get("T2_KEEP_DENY_BODY") != "1" or not name:	L13		NEAR_VALID(0 VALID)	1	1		yes
+T2_L4	t2_gate_patch.py:13905	apply_unified_regen	if os.environ.get("T2_L4") == "1" and a2 is not None and getattr(am, "tool_calls", None):			HARMFUL				no
+T2_L4_MODE	t2_gate_patch.py:13936	apply_unified_regen	if os.environ.get("T2_L4_MODE", "keep") != "substitute":			NOT_A_LEVER				no
+T2_LEDGER	t2_gate_patch.py:8188;t2_gate_patch.py:8192	_install_regen_exec	% (os.environ.get("T2_LEDGER"), "None" if a2 is None else "dict",	L4	CELLS	UNMEASURED	1			yes
+T2_LEDGER_VIEW_KEEP	t2_gate_patch.py:8269	_install_regen_exec	int(os.environ.get("T2_LEDGER_VIEW_KEEP", "3"))])							no
+T2_LLM_RETRIES	t2_run_gated.py:969;t2_run_gated.py:1085	main	_llm_rt = os.environ.get("T2_LLM_RETRIES")		HARNESS		1			yes
+T2_LLM_TIMEOUT	t2_run_gated.py:968;t2_run_gated.py:1084	main	_llm_to = os.environ.get("T2_LLM_TIMEOUT")		HARNESS		2400			yes
+T2_MAIN_ANSWERS_ONLY	t2_gate_patch.py:5657	_limit_reduce_text	_answers_only = os.environ.get("T2_MAIN_ANSWERS_ONLY") == "1"			DARK				no
+T2_MATCH_COUNT	t2_gate_patch.py:1562	_axis_surface	if (os.environ.get("T2_MATCH_COUNT") == "1"		CELLS	HARMFUL	1			yes
+T2_MATERIAL_BYPASS	t2_gate_patch.py:10431	apply_unified_regen	and os.environ.get("T2_MATERIAL_BYPASS") == "1"			DARK				no
+T2_MATERIAL_RESERVE	t2_gate_patch.py:11564;t2_gate_patch.py:11575	apply_unified_regen	and (os.environ.get("T2_MATERIAL_RESERVE") != "1"			NEAR_VALID(0 VALID)				no
+T2_MAXPROMPT	t2_agent_maxprompt_patch.py:19;t2_run_gated.py:206	apply;main	path = path or os.environ.get("T2_MAXPROMPT")		HARNESS					no
+T2_MAXPROMPT_POS	t2_agent_maxprompt_patch.py:24	apply	_POS = set((os.environ.get("T2_MAXPROMPT_POS") or "begin,middle,end").split(","))							no
+T2_MAX_MODEL_LEN	t2_gate_patch.py:4050;t2_gate_patch.py:4462;t2_run_gated.py:1011;t2_run_gated.py:1018	_ctx_fits;main;view_thresholds	else (os.environ.get("T2_MAX_MODEL_LEN") or 0) or 0)							no
+T2_MT_FLOOR	t2_gate_patch.py:8750	apply_unified_regen	floor=int(os.environ.get("T2_MT_FLOOR", "256")))		HARNESS		256			yes
+T2_NLNUM_PROV	t2_gate_patch.py:13980	apply_unified_regen	if (os.environ.get("T2_NLNUM_PROV") == "1" and (a2 or {}).get("calc_tool")			DARK				no
+T2_NOREC_BRANCH	t2_compute.py:780;t2_compute.py:783	_apply_op	if os.environ.get("T2_NOREC_BRANCH") == "1" and spec.get("no_record_template_v2"):	L8		UNMEASURED	1			yes
+T2_NOTICE_REPEAT	t2_gate_patch.py:15263	apply_unified_regen	if (os.environ.get("T2_NOTICE_REPEAT", "1") == "1"	L6	CELLS,DEFAULT_ON	UNMEASURED(L6 미판정)				no
+T2_NOW_SELFCALL	t2_gate_patch.py:5024	_search_material	if (not _nowtx and _ntool and os.environ.get("T2_NOW_SELFCALL") == "1"):	L9		UNMEASURED				no
+T2_NO_DIGEST_REEXEC	t2_gate_patch.py:7968;t2_gate_patch.py:8007;t2_gate_patch.py:8073	_install_regen_exec	and os.environ.get("T2_NO_DIGEST_REEXEC") != "1":	L11		UNMEASURED				no
+T2_NO_FORCE_TOOLCHOICE	t2_run_gated.py:366;t2_run_gated.py:371	main	("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS")) or os.environ.get("T2_FAILDUMP"):					1		yes
+T2_OFF_CELLS	t2_levers.py:498	enabled	off = {c.strip() for c in (os.environ.get("T2_OFF_CELLS") or "").split(",") if c.strip()}							no
+T2_OPERATOR_PINPOINT	t2_resolve.py:320	resolve_operator	if os.environ.get("T2_OPERATOR_PINPOINT") != "1":			HARMFUL				no
+T2_P2_CAP	t2_run_gated.py:466	main	_t2_p2_cap = int(os.environ.get("T2_P2_CAP", "3") or 3)							no
+T2_P2_EMPTY	t2_run_gated.py:796	main	_empty2 = (os.environ.get("T2_P2_EMPTY", "1") == "1" and _t2_msg_empty(_r))				1			yes
+T2_P2_NOFORCE	t2_run_gated.py:829	main	if os.environ.get("T2_P2_NOFORCE") != "1":							no
+T2_P2_REGEN	t2_run_gated.py:366;t2_run_gated.py:465	main	("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS")) or os.environ.get("T2_FAILDUMP"):					1		yes
+T2_P2_STOP	t2_run_gated.py:805	main	if os.environ.get("T2_P2_STOP") == "1":							no
+T2_PAIRCHECK	t2_gate_patch.py:8897	apply_unified_regen	if os.environ.get("T2_PAIRCHECK") == "1" and not getattr(self, "_t2_paircheck_hit", False):		HARNESS		1			yes
+T2_PAIRFIX	t2_gate_patch.py:7889;t2_gate_patch.py:8887	_install_overflow_guard;apply_unified_regen	if os.environ.get("T2_PAIRFIX") == "1" and message_history:		HARNESS		1			yes
+T2_PARAM_CAP	t2_gate_patch.py:10333	apply_unified_regen	if (os.environ.get("T2_PARAM_CAP") == "1" and _pcs	L1	META	UNMEASURED	1			yes
+T2_PARAM_CAP_CAP	t2_gate_patch.py:10337	apply_unified_regen	< int(os.environ.get("T2_PARAM_CAP_CAP", "4"))):							no
+T2_PHASE_OWNER	t2_gate_patch.py:11242	apply_unified_regen	and os.environ.get("T2_PHASE_OWNER") == "1")	L9	CELLS	UNMEASURED	1			yes
+T2_PIN_READ	t2_pin_read.py:55;t2_pin_read.py:346;t2_pin_read.py:404;t2_pin_read.py:406	enabled;selftest	return os.environ.get("T2_PIN_READ") == "1"	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_PIN_READ_STEPS	t2_gate_patch.py:9257;t2_gate_patch.py:9760;t2_gate_patch.py:13441	apply_unified_regen	if os.environ.get("T2_PIN_READ_STEPS") == "1" and a2 is not None:	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_PRECLOSE_CAP	t2_gate_patch.py:9377	apply_unified_regen	< int(os.environ.get("T2_PRECLOSE_CAP", "2"))):		META		2			yes
+T2_PREKB	t2_prekb_patch.py:441;t2_run_gated.py:298	apply;main	if os.environ.get("T2_PREKB") != "1" or not tool_calls:	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_PRESCRIPTION	t2_gate_patch.py:11745	apply_unified_regen	if (os.environ.get("T2_PRESCRIPTION") == "1" and _prs	L10	CELLS	UNMEASURED	1			yes
+T2_PRESCRIPTION_CAP	t2_gate_patch.py:11750	apply_unified_regen	< int(os.environ.get("T2_PRESCRIPTION_CAP", "3"))):							no
+T2_PRESENT_NESTED	t2_gate_patch.py:1242;t2_gate_patch.py:8177	_install_regen_exec;apply	nested_specs = (a2.get("present_specs") or []) if os.environ.get("T2_PRESENT_NESTED") == "1" else []	L11		NEAR_VALID(0 VALID)				no
+T2_PRESENT_READS	t2_gate_patch.py:1238;t2_gate_patch.py:8175	_install_regen_exec;apply	present_on = os.environ.get("T2_PRESENT_READS") == "1"			HARMFUL				no
+T2_PRINCIPLE_DEFAULT	t2_gate_patch.py:13970	apply_unified_regen	if os.environ.get("T2_PRINCIPLE_DEFAULT") == "1" and gate is not None:			DARK				no
+T2_PROBE_CALLS	t2_run_gated.py:381	main	_t2_probe_calls = {c.strip() for c in (os.environ.get("T2_PROBE_CALLS") or							no
+T2_PROBE_KEEP_THINK	t2_run_gated.py:711;t2_run_gated.py:722	main	if os.environ.get("T2_PROBE_KEEP_THINK") == "1" else _t2_probe_mt)							no
+T2_PROBE_KEEP_THINK_MAX	t2_run_gated.py:710	main	_mt_cap = (int(os.environ.get("T2_PROBE_KEEP_THINK_MAX", "2048") or 2048)							no
+T2_PROBE_MAX_TOKENS	t2_run_gated.py:387	main	_t2_probe_mt = int(os.environ.get("T2_PROBE_MAX_TOKENS", "256") or 0)							no
+T2_PROBE_NOTHINK	t2_run_gated.py:678	main	_keep = os.environ.get("T2_PROBE_NOTHINK") != "1" # 기본 = 사고 유지							no
+T2_PROBE_TERSE	t2_run_gated.py:366;t2_run_gated.py:379	main	("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS")) or os.environ.get("T2_FAILDUMP"):					1		yes
+T2_PROBE_THINK_BUDGET	t2_run_gated.py:647	main	_tb = _think_budget(os.environ.get("T2_PROBE_THINK_BUDGET"),							no
+T2_PROCEDURE	t2_gate_patch.py:9632;t2_gate_patch.py:14196	apply_unified_regen	if (a2 is not None and os.environ.get("T2_PROCEDURE") == "1") else None)	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_PROCEDURE_CAP	t2_gate_patch.py:9638;t2_gate_patch.py:14206	apply_unified_regen	>= int(os.environ.get("T2_PROCEDURE_CAP", "6")))		PARAMS		6			yes
+T2_PROCEDURE_LEFT	t2_gate_patch.py:15150	apply_unified_regen	if (os.environ.get("T2_PROCEDURE_LEFT") == "1" and _resign				0			yes
+T2_PROCEED_DOCBODY	t2_gate_patch.py:4859	_search_material	if (os.environ.get("T2_PROCEED_DOCBODY") == "1"	L5		UNMEASURED(L5 미판정)				no
+T2_PROC_ABSENT	t2_gate_patch.py:9720	apply_unified_regen	and os.environ.get("T2_PROC_ABSENT") == "1"):	L8	CELLS	UNMEASURED	1			yes
+T2_PROC_ABSENT_K	t2_gate_patch.py:9726	apply_unified_regen	_K = int(os.environ.get("T2_PROC_ABSENT_K", "3"))		PARAMS		3			yes
+T2_PROC_PIN_REARM	t2_gate_patch.py:13420	apply_unified_regen	_rearm = int(os.environ.get("T2_PROC_PIN_REARM", "0"))		CELLS		1			yes
+T2_PROC_REGEN	t2_gate_patch.py:14197	apply_unified_regen	if _procsR and os.environ.get("T2_PROC_REGEN", "1") == "1":				1			yes
+T2_PROD_BIND	t2_scaffold_get.py:2816	apply	if os.environ.get("T2_PROD_BIND") == "1" else {})	L1	CELLS	UNMEASURED	1			yes
+T2_PROMPT_DUMP	t2_gate_patch.py:7181;t2_gate_patch.py:8694	apply_provenance_regen;apply_unified_regen	if os.environ.get("T2_PROMPT_DUMP") == "1":				0			yes
+T2_PROMPT_DUMP_MAX	t2_gate_patch.py:7193;t2_gate_patch.py:8697	apply_provenance_regen;apply_unified_regen	_cap = int(os.environ.get("T2_PROMPT_DUMP_MAX", "60000"))							no
+T2_PROMPT_DUMP_TASKS	t2_gate_patch.py:7186	apply_provenance_regen	_want = os.environ.get("T2_PROMPT_DUMP_TASKS", "")							no
+T2_PROVENANCE	t2_gate_patch.py:1247	apply	prov_on = os.environ.get("T2_PROVENANCE") == "1"			DARK				no
+T2_PROV_ADDR_FULL	t2_gate_patch.py:12815	apply_unified_regen	_addr_full = (os.environ.get("T2_PROV_ADDR_FULL") == "1"			DARK				no
+T2_PROV_BADWORDS	t2_run_gated.py:222	main	badwords_on = os.environ.get("T2_PROV_BADWORDS", "0") == "1"			DARK				no
+T2_PROV_GROUND	t2_run_gated.py:223	main	ground_on = os.environ.get("T2_PROV_GROUND", "0") == "1"			DARK				no
+T2_PROV_MODE	t2_run_gated.py:228	main	prov_mode = os.environ.get("T2_PROV_MODE", "full") # P-C: full|rescue	L3	HARNESS	NEAR_VALID(0 VALID)	full			yes
+T2_PROV_ORIGIN	t2_gate_patch.py:9316	apply_unified_regen	if fab is None and os.environ.get("T2_PROV_ORIGIN") == "1":			DARK				no
+T2_PROV_OURS	t2_gate_patch.py:14280;t2_resolve.py:169	apply_unified_regen;resolve_operator	if os.environ.get("T2_PROV_OURS") == "1" else set())	L3		UNMEASURED	1			yes
+T2_PROV_REGEN	t2_run_gated.py:221	main	regen_on = os.environ.get("T2_PROV_REGEN") == "1"		CELLS	HARMFUL	1			yes
+T2_PROV_REGEN_K	t2_run_gated.py:250;t2_run_gated.py:258;t2_run_gated.py:265	main	max_prov_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")),		HARNESS		4			yes
+T2_QUOTE_HINT	t2_quote_hint.py:42;t2_quote_hint.py:106;t2_quote_hint.py:122;t2_quote_hint.py:126	enabled;selftest	_on = os.environ.get("T2_QUOTE_HINT") == "1"		CELLS	DARK	1			yes
+T2_QUOTE_PIN	t2_scaffold_get.py:1659	_sub_inject	qp = iso.get("quote_pin") if os.environ.get("T2_QUOTE_PIN") == "1" else None	L1	CELLS	UNMEASURED	1			yes
+T2_READALL	t2_gate_patch.py:9491	apply_unified_regen	if (os.environ.get("T2_READALL") == "1" and ep_led is not None			DARK				no
+T2_READALL_CAP	t2_gate_patch.py:9494	apply_unified_regen	and getattr(self, "_t2_readall_deny", 0) < int(os.environ.get("T2_READALL_CAP", "2"))):							no
+T2_READ_DEDUP	t2_gate_patch.py:7941	_install_regen_exec	dedup_on = (os.environ.get("T2_READ_DEDUP") == "1"	L11	CELLS	UNMEASURED	1			yes
+T2_READ_DEDUP_LOOP_K	t2_gate_patch.py:7956	_install_regen_exec	loop_k = int(os.environ.get("T2_READ_DEDUP_LOOP_K", "3"))							no
+T2_READ_DEDUP_MIN	t2_gate_patch.py:8151	_install_regen_exec	min_len = int(os.environ.get("T2_READ_DEDUP_MIN", "2000"))							no
+T2_READ_NEARDUP	t2_gate_patch.py:8091	_install_regen_exec	if (os.environ.get("T2_READ_NEARDUP") == "1"			DARK				no
+T2_READ_NEARDUP_J	t2_gate_patch.py:8104	_install_regen_exec	if _j >= float(os.environ.get("T2_READ_NEARDUP_J", "0.8")):							no
+T2_READ_PER_ENTITY	t2_dominance.py:286	requirements_for	per_entity = os.environ.get("T2_READ_PER_ENTITY") == "1"				0			yes
+T2_REARM_USER_ONLY	t2_gate_patch.py:4816	_rearm_subjects	_uonly = os.environ.get("T2_REARM_USER_ONLY") == "1"				1			yes
+T2_REF_ISO	t2_gate_patch.py:9600	apply_unified_regen	if (os.environ.get("T2_REF_ISO") == "1" and a2 is not None			HARMFUL				no
+T2_REF_ISO_CAP	t2_gate_patch.py:9602	apply_unified_regen	and getattr(self, "_t2_refiso", 0) < int(os.environ.get("T2_REF_ISO_CAP", "8"))):							no
+T2_REF_VERIFY	t2_gate_patch.py:9022	apply_unified_regen	if (a2 is not None and os.environ.get("T2_REF_VERIFY") == "1") else []	L1	CELLS	UNMEASURED	1			yes
+T2_REGEN_BUDGET	t2_gate_patch.py:6030	_regen_budget_ok	_b = os.environ.get("T2_REGEN_BUDGET")		HARNESS		12			yes
+T2_REGEN_KEEP_MUTATING	t2_gate_patch.py:14499	apply_unified_regen	if os.environ.get("T2_REGEN_KEEP_MUTATING") == "1":				1			yes
+T2_REGEN_WRITE_GATES	t2_gate_patch.py:14373	apply_unified_regen	if os.environ.get("T2_REGEN_WRITE_GATES") == "1":				1			yes
+T2_REPEAT_CAP	t2_gate_patch.py:8011;t2_gate_patch.py:8037	_install_regen_exec	_capk = int(os.environ.get("T2_REPEAT_CAP", "0") or 0)		RETIRED		8			yes
+T2_REPEAT_GOV	t2_gate_patch.py:8004	_install_regen_exec	if os.environ.get("T2_REPEAT_GOV") == "1":			DARK				no
+T2_REQUIRE_DOC	t2_gate_patch.py:10042	apply_unified_regen	and os.environ.get("T2_REQUIRE_DOC") == "1"	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_REQUIRE_DOC_DELIVER	t2_gate_patch.py:4510;t2_gate_patch.py:10029	_require_doc_deliver;apply_unified_regen	if os.environ.get("T2_REQUIRE_DOC_DELIVER") != "1":				1			yes
+T2_REQUIRE_DOC_DELIVER_CAP	t2_gate_patch.py:4518	_require_doc_deliver	cap = int(os.environ.get("T2_REQUIRE_DOC_DELIVER_CAP", "3"))				3			yes
+T2_REQUIRE_DOC_DELIVER_MAX	t2_gate_patch.py:4519	_require_doc_deliver	maxc = int(os.environ.get("T2_REQUIRE_DOC_DELIVER_MAX", "90000"))				90000			yes
+T2_RESOLVE	t2_gate_patch.py:9552	apply_unified_regen	if (os.environ.get("T2_RESOLVE") == "1" and a2 is not None		CELLS	HARMFUL	1			yes
+T2_RESOLVE_CAP	t2_gate_patch.py:6059	_resolve_cap_ok	_c = os.environ.get("T2_RESOLVE_CAP")							no
+T2_RETRY_CONTROLLER	t2_gate_patch.py:1259	apply	retry_on = os.environ.get("T2_RETRY_CONTROLLER") == "1"			NEAR_VALID(0 VALID)				no
+T2_RETRY_K	t2_gate_patch.py:1260	apply	retry_k = int(os.environ.get("T2_RETRY_K", "3")) # rule②: 연속 실패 K회 가드							no
+T2_RETURN_EMPTY	t2_scaffold_get.py:3146	apply	if (os.environ.get("T2_RETURN_EMPTY") == "1" and not _dets	L8		UNMEASURED	1			yes
+T2_ROUTE_TRACE	t2_gate_patch.py:13185	apply_unified_regen	if os.environ.get("T2_ROUTE_TRACE", "1") == "1":							no
+T2_RULES_PROMPT	t2_agent_rules_patch.py:18	apply	rules_path = rules_path or os.environ.get("T2_RULES_PROMPT")							no
+T2_RULE_AT_WRITE	t2_gate_patch.py:12697	apply_unified_regen	if (os.environ.get("T2_RULE_AT_WRITE") == "1"				${T2_RULE_AT_WRITE:-0}	1		yes
+T2_SALVAGE	t2_salvage.py:90;t2_salvage.py:147	<module>;salvage_message	if os.environ.get("T2_SALVAGE") != "1":			DARK				no
+T2_SALVAGE_ALL	t2_run_gated.py:574	main	if _made and os.environ.get("T2_SALVAGE_ALL") != "1":							no
+T2_SCAFFOLD_GET	t2_run_gated.py:286;t2_scaffold_get.py:2437	apply;main	if os.environ.get("T2_SCAFFOLD_GET") == "1":	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_SCALAR_ARRAY	t2_gate_patch.py:1546	_axis_surface	if os.environ.get("T2_SCALAR_ARRAY") == "1":			DARK				no
+T2_SCHEMA_ENUM	t2_gate_patch.py:12071	apply_unified_regen	if os.environ.get("T2_SCHEMA_ENUM") == "1":				0			yes
+T2_SCOPE_ALL	t2_resolve.py:288	resolve_operator	if os.environ.get("T2_SCOPE_ALL") != "1":				0			yes
+T2_SCOPE_AT_DISPATCH_ONLY	t2_resolve.py:281	resolve_operator	if (os.environ.get("T2_SCOPE_AT_DISPATCH_ONLY", "1") == "1"				1			yes
+T2_SCOPE_DENY_CAP	t2_resolve.py:307	resolve_operator	_cap = int(os.environ.get("T2_SCOPE_DENY_CAP", "1") or 0)							no
+T2_SEARCH_AGENT	t2_gate_patch.py:8943;t2_gate_patch.py:10432;t2_gate_patch.py:11449;t2_gate_patch.py:11562	apply_unified_regen	and os.environ.get("T2_SEARCH_AGENT") == "1"	L12		UNMEASURED		1		yes
+T2_SEARCH_CLOSURE	t2_gate_patch.py:842	_closure_note	if os.environ.get("T2_SEARCH_CLOSURE") != "1" or a2 is None:							no
+T2_SEARCH_CLOSURE_CAP	t2_gate_patch.py:880	_closure_note	cap = int(os.environ.get("T2_SEARCH_CLOSURE_CAP", "1200"))							no
+T2_SEARCH_EXHAUST_MID	t2_gate_patch.py:14899	apply_unified_regen	_srchex_mid = os.environ.get("T2_SEARCH_EXHAUST_MID") == "1"					1		yes
+T2_SEARCH_EXHAUST_NUDGE	t2_gate_patch.py:14900	apply_unified_regen	if (os.environ.get("T2_SEARCH_EXHAUST_NUDGE") == "1" and (_resign or _srchex_mid)	L8	CELLS	UNMEASURED	1			yes
+T2_SEARCH_EXHAUST_TH	t2_gate_patch.py:14927	apply_unified_regen	if _stubs >= int(os.environ.get("T2_SEARCH_EXHAUST_TH", "2") or 2):		PARAMS		2			yes
+T2_SEARCH_ON_PROCEED	t2_gate_patch.py:11448	apply_unified_regen	and os.environ.get("T2_SEARCH_ON_PROCEED") == "1"	L9		UNMEASURED				no
+T2_SEARCH_REARM	t2_gate_patch.py:4950	_search_material	if _gs and os.environ.get("T2_SEARCH_REARM") == "1":				1			yes
+T2_SELF_DECLARATION	t2_gate_patch.py:15540	apply_unified_regen	elif (os.environ.get("T2_SELF_DECLARATION") == "1" and (a2 or {}).get("assertion_operands")	L2	CELLS,NOT_LAUNCHED	UNMEASURED	1			yes
+T2_SG_BYREF	t2_scaffold_get.py:1971;t2_scaffold_get.py:2650	_augment_byref_params;apply	if os.environ.get("T2_SG_BYREF") != "1":		CELLS	HARMFUL	1			yes
+T2_SG_CLOSE_SELF	t2_scaffold_get.py:1198	_sub_fetch_formalize	_self2 = os.environ.get("T2_SG_CLOSE_SELF") == "1"				0	1		yes
+T2_SG_DEDUP	t2_scaffold_get.py:2695	apply	if (os.environ.get("T2_SG_DEDUP") == "1"	L4	CELLS	UNMEASURED	1			yes
+T2_SG_DOCS	t2_scaffold_get.py:1094	_sub_fetch_formalize	if os.environ.get("T2_SG_DOCS") == "1" and isinstance(iso.get("docs"), dict):				1	1		yes
+T2_SG_EXCLUDE	t2_scaffold_get.py:2460;t2_scaffold_get.py:2504;t2_scaffold_get.py:3421	apply	_excl = {x.strip() for x in (os.environ.get("T2_SG_EXCLUDE") or "").split(",") if x.strip()}							no
+T2_SG_GROUND	t2_scaffold_get.py:1522;t2_scaffold_get.py:2802	_sub_fetch_formalize;apply	if os.environ.get("T2_SG_GROUND") == "1":		CELLS	HARMFUL	1			yes
+T2_SG_ISOFB	t2_scaffold_get.py:1337	_sub_fetch_formalize	if (got and os.environ.get("T2_SG_ISOFB") == "1" and rnd < _maxr - 1	L10	CELLS	UNMEASURED	1			yes
+T2_SG_ISOLATE	t2_scaffold_get.py:2738	apply	_iso = _isolate_spec(d) if os.environ.get("T2_SG_ISOLATE") == "1" else None	L10	CELLS	UNMEASURED	1			yes
+T2_SG_ISOLATE_TRACE	t2_scaffold_get.py:1860	_isolate_trace	path = os.environ.get("T2_SG_ISOLATE_TRACE")							no
+T2_SG_ISO_FILL_ONLY	t2_scaffold_get.py:2756;t2_scaffold_get.py:2779	apply	and os.environ.get("T2_SG_ISO_FILL_ONLY", "1") == "1"				1			yes
+T2_SG_PROMPT_V2	t2_scaffold_get.py:1109;t2_scaffold_get.py:1171	_sub_fetch_formalize	elif os.environ.get("T2_SG_PROMPT_V2") == "1":				0	1		yes
+T2_SG_RECORD_ORDER	t2_scaffold_get.py:1189	_sub_fetch_formalize	if os.environ.get("T2_SG_RECORD_ORDER") == "1":				${T2_SG_RECORD_ORDER:-0}			yes
+T2_SG_REQREADS	t2_scaffold_get.py:2567	apply	if _rr and os.environ.get("T2_SG_REQREADS") == "1":	L5	CELLS	UNMEASURED(L5 미판정)	1	1		yes
+T2_SG_REQREADS_CANON	t2_scaffold_get.py:2555	apply	if os.environ.get("T2_SG_REQREADS_CANON") == "1":				0	1		yes
+T2_SG_RESULT_RANGE	t2_scaffold_get.py:3087	apply	if (_rrg and os.environ.get("T2_SG_RESULT_RANGE", "1") != "0"				1			yes
+T2_SG_ROW_COUNT	t2_scaffold_get.py:3171	apply	if os.environ.get("T2_SG_ROW_COUNT") == "1":				0	1		yes
+T2_SG_SCHEMA	t2_scaffold_get.py:1229	_sub_fetch_formalize	if (_tl is None and os.environ.get("T2_SG_SCHEMA") == "1"				1			yes
+T2_SG_SUB_TOOLCAP	t2_scaffold_get.py:1264	_sub_fetch_formalize	_stc = int(os.environ.get("T2_SG_SUB_TOOLCAP", "4000"))							no
+T2_SG_TRACE	t2_scaffold_get.py:2739	apply	if os.environ.get("T2_SG_TRACE") == "1":		CELLS		1			yes
+T2_SG_TRUTH	t2_scaffold_get.py:3349;t2_scaffold_get.py:3366;t2_scaffold_get.py:3417	apply	elif (os.environ.get("T2_SG_TRUTH") == "1"	L1	CELLS	UNMEASURED	1			yes
+T2_SG_WINDOW_ABSTAIN	t2_compute.py:265	_apply_op	and os.environ.get("T2_SG_WINDOW_ABSTAIN") == "1"	L8	CELLS	UNMEASURED	1			yes
+T2_SIBLING_PAREN	t2_gate_patch.py:13575;t2_gate_patch.py:13585	apply_unified_regen	if os.environ.get("T2_SIBLING_PAREN") in ("log", "deny", "strip") and getattr(am, "tool_calls", None):				strip		strip	yes
+T2_SOURCE	t2_gate_patch.py:10813	apply_unified_regen	if os.environ.get("T2_SOURCE") == "1":	L3	CELLS	UNMEASURED	1			yes
+T2_SOURCE_QUALIFY	t2_source.py:304;t2_source.py:435;t2_source.py:439	<module>;unsourced_claims	if os.environ.get("T2_SOURCE_QUALIFY") != "1":			HARMFUL				no
+T2_SPEAK_PROHIBIT	t2_speak.py:65	prohibits_target	if os.environ.get("T2_SPEAK_PROHIBIT") != "1":	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_SPEC_ARG_FACTS	t2_gate_patch.py:12189	apply_unified_regen	if os.environ.get("T2_SPEC_ARG_FACTS") == "1" and en_fb is None:				0			yes
+T2_SPEC_AT_WRITE	t2_gate_patch.py:12668	apply_unified_regen	if (os.environ.get("T2_SPEC_AT_WRITE") == "1" and _spec				${T2_SPEC_AT_WRITE:-0}	1		yes
+T2_SPEC_AT_WRITE_MIN	t2_gate_patch.py:12669	apply_unified_regen	and _sd >= int(os.environ.get("T2_SPEC_AT_WRITE_MIN", "8"))):				8			yes
+T2_STACK_OBSERVE	t2_stack.py:704	observe	if os.environ.get("T2_STACK_OBSERVE", "1") != "1":							no
+T2_STACK_WINDOW	t2_stack.py:742	admit	if os.environ.get("T2_STACK_WINDOW", "1") != "1":	L13		UNMEASURED				no
+T2_STALE_STRIP	t2_gate_patch.py:13698	apply_unified_regen	if os.environ.get("T2_STALE_STRIP") == "1" and getattr(am, "tool_calls", None):	L11	CELLS	UNMEASURED	1			yes
+T2_STOP_FIRST_TOOLCALL	t2_run_gated.py:366;t2_run_gated.py:477	main	("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS")) or os.environ.get("T2_FAILDUMP"):				0			yes
+T2_SUBCALL_CACHE	t2_subcall.py:102	sub_generate	if os.environ.get("T2_SUBCALL_CACHE", "1") == "1":							no
+T2_SUB_REQUIREMENT	t2_gate_patch.py:5122	_search_material	if (os.environ.get("T2_SUB_REQUIREMENT") == "1"	L6		UNMEASURED(L6 미판정)				no
+T2_SUPPRESS_AUTH	t2_authority.py:85;t2_authority.py:117;t2_authority.py:119;t2_authority.py:132	<module>;may_suppress	if os.environ.get("T2_SUPPRESS_AUTH") != "1":		META	DARK	1			yes
+T2_SURFACE_BUS	t2_gate_patch.py:1585	_axis_surface	if add and os.environ.get("T2_SURFACE_BUS") == "1":	L13	META	UNMEASURED	1			yes
+T2_TC_SALVAGE	t2_run_gated.py:366;t2_run_gated.py:454	main	("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS")) or os.environ.get("T2_FAILDUMP"):				1	1		yes
+T2_TC_SALVAGE_GUIDED	t2_run_gated.py:455	main	_t2_salvage_gj = os.environ.get("T2_TC_SALVAGE_GUIDED") == "1"							no
+T2_TERMINAL_TURN	t2_gate_patch.py:1629	_axis_surface	if tail is not None and os.environ.get("T2_TERMINAL_TURN") == "1" and utext:	L9		UNMEASURED				no
+T2_TERM_GRANT	t2_eplan_patch.py:1094;t2_eplan_patch.py:1150	apply	if (os.environ.get("T2_EPLAN_WALK") != "1" and os.environ.get("T2_TERM_GRANT") != "1"	L6	CELLS	UNMEASURED(L6 미판정)	1			yes
+T2_TERM_GRANT_USERDEMAND	t2_eplan_patch.py:867	_terminal_grant_check	if os.environ.get("T2_TERM_GRANT_USERDEMAND") == "1":	L6	CELLS	UNMEASURED(L6 미판정)	1			yes
+T2_THINK_BUDGET	t2_run_gated.py:622;t2_run_gated.py:630	main	_tbm = _think_budget(os.environ.get("T2_THINK_BUDGET"), _capm, "본 응답")							no
+T2_TOOLERR	t2_gate_patch.py:9181	apply_unified_regen	if os.environ.get("T2_TOOLERR") == "1" and a2 is not None:			DARK				no
+T2_TOOLGATE	t2_scaffold_get.py:3379	apply	elif (os.environ.get("T2_TOOLGATE") == "1"	L5	CELLS	UNMEASURED(L5 미판정)	1			yes
+T2_TOOLLIST	t2_gate_patch.py:11711	apply_unified_regen	if (os.environ.get("T2_TOOLLIST") == "1"	L2	CELLS	UNMEASURED	1			yes
+T2_TOOLLIST_CAP	t2_gate_patch.py:11716;t2_gate_patch.py:13000	apply_unified_regen	< int(os.environ.get("T2_TOOLLIST_CAP", "6"))):							no
+T2_TOOL_CHANNEL	t2_gate_patch.py:1625;t2_gate_patch.py:15578	_axis_surface;apply_unified_regen	if tail is not None and os.environ.get("T2_TOOL_CHANNEL") == "1" and said:	L7	CELLS	UNMEASURED	1			yes
+T2_TOOL_OBS	t2_run_gated.py:366;t2_run_gated.py:462	main	("T2_GEN_TRACE", "T2_NO_FORCE_TOOLCHOICE", "T2_PROBE_TERSE", "T2_TC_SALVAGE", "T2_STOP_FIRST_TOOLCALL", "T2_P2_REGEN", "T2_TOOL_OBS")) or os.environ.get("T2_FAILDUMP"):					1		yes
+T2_TOOL_OBS_MAX	t2_run_gated.py:463	main	_t2_toolobs_cap = int(os.environ.get("T2_TOOL_OBS_MAX", "600") or 600)							no
+T2_TOOL_SIGNATURE	t2_gate_patch.py:11869;t2_gate_patch.py:15940;t2_signature.py:42;t2_signature.py:63;t2_signature.py:73	<module>;apply_unified_regen;signature_violation	_sig_on = os.environ.get("T2_TOOL_SIGNATURE") == "1"		CELLS	HARMFUL	1			yes
+T2_TOOL_SIGNATURE_CAP	t2_gate_patch.py:11882	apply_unified_regen	>= int(os.environ.get("T2_TOOL_SIGNATURE_CAP", "6")))							no
+T2_TOOL_SIGNATURE_OBSERVE	t2_gate_patch.py:11870	apply_unified_regen	if _sig_on or os.environ.get("T2_TOOL_SIGNATURE_OBSERVE") == "1":							no
+T2_TOOL_SURFACE	t2_guided_patch.py:108	surface	v = (os.environ.get("T2_TOOL_SURFACE") or "").strip().lower()				qwen3_xml	${T2_TOOL_SURFACE:-(미선언		yes
+T2_TRACE	t2_lever_beat.py:125	_trace	path = os.environ.get("T2_TRACE")					$LOG/trace_${TAG}.jsonl		yes
+T2_TRACE_LINECAP	t2_lever_beat.py:133	_trace	cap = int(os.environ.get("T2_TRACE_LINECAP", "2000") or 2000)							no
+T2_TRANSCRIBE	t2_gate_patch.py:9806	apply_unified_regen	and os.environ.get("T2_TRANSCRIBE") == "1"	L11	CELLS	UNMEASURED	1			yes
+T2_TRANSCRIBE_CAP	t2_gate_patch.py:9808	apply_unified_regen	< int(os.environ.get("T2_TRANSCRIBE_CAP", "4"))):		PARAMS		4			yes
+T2_TRANSFER_LEAVES_STEPS	t2_gate_patch.py:9945	apply_unified_regen	and os.environ.get("T2_TRANSFER_LEAVES_STEPS") == "1"	L4	CELLS	UNMEASURED	1			yes
+T2_TRANSFER_PREREQ	t2_transfer_prereq.py:26;t2_transfer_prereq.py:70;t2_transfer_prereq.py:87;t2_transfer_prereq.py:89	enabled;selftest	return os.environ.get("T2_TRANSFER_PREREQ") == "1"			DARK				no
+T2_TRANSFER_TIER	t2_gate_patch.py:15847	apply_unified_regen	if (os.environ.get("T2_TRANSFER_TIER") == "1" and getattr(am, "tool_calls", None)	L6	CELLS	UNMEASURED(L6 미판정)	1			yes
+T2_TRUNC_GUARD	t2_gate_patch.py:14615;t2_gate_patch.py:14634	apply_unified_regen	if (os.environ.get("T2_TRUNC_GUARD") == "1"		HARNESS		1			yes
+T2_UNAVAIL_PROMISE	t2_gate_patch.py:15391	apply_unified_regen	if os.environ.get("T2_UNAVAIL_PROMISE") == "1" and _cpv.get("feedback_unavailable"):	L3	CELLS	UNMEASURED	1			yes
+T2_UNCALLED_UNLOCK	t2_gate_patch.py:14818	apply_unified_regen	if (os.environ.get("T2_UNCALLED_UNLOCK") == "1" and _resign	L2	CELLS	UNMEASURED	1			yes
+T2_UNINSTRUCTABLE	t2_gate_patch.py:15649	apply_unified_regen	if (os.environ.get("T2_UNINSTRUCTABLE") == "1" and not getattr(am, "tool_calls", None)	L7	CELLS	UNMEASURED	1			yes
+T2_UNKNOWN_NAME_BL	t2_gate_patch.py:11988	apply_unified_regen	if (un_fb is None and os.environ.get("T2_UNKNOWN_NAME_BL") == "1"	L2	CELLS	UNMEASURED	1			yes
+T2_UNKNOWN_NAME_BL_CAP	t2_gate_patch.py:11993	apply_unified_regen	< int(os.environ.get("T2_UNKNOWN_NAME_BL_CAP", "6"))):							no
+T2_UNKNOWN_REPEAT_GUARD	t2_gate_patch.py:14689;t2_gate_patch.py:14712	apply_unified_regen	if (os.environ.get("T2_UNKNOWN_REPEAT_GUARD") == "1"	L2	CELLS	UNMEASURED	1			yes
+T2_UNKNOWN_UNVERIFIED	t2_compute.py:394	_apply_op	if (os.environ.get("T2_UNKNOWN_UNVERIFIED") == "1"			DARK				no
+T2_UNLOCK_NAME	t2_gate_patch.py:11910;t2_gate_patch.py:14255	apply_unified_regen	if (os.environ.get("T2_UNLOCK_NAME") == "1" and _unspec	L2	CELLS	UNMEASURED	1			yes
+T2_UNLOCK_NAME_CAP	t2_gate_patch.py:11915	apply_unified_regen	< int(os.environ.get("T2_UNLOCK_NAME_CAP", "6"))):							no
+T2_UNLOCK_PROV	t2_gate_patch.py:14271	apply_unified_regen	elif (_uv and os.environ.get("T2_UNLOCK_PROV") == "1"):	L2	CELLS	UNMEASURED	1			yes
+T2_UNLOCK_QUIET	t2_gate_patch.py:14060	apply_unified_regen	if os.environ.get("T2_UNLOCK_QUIET") == "1":	L2		NEAR_VALID(0 VALID)				no
+T2_UNUSED_GRANT	t2_gate_patch.py:8911	apply_unified_regen	if os.environ.get("T2_UNUSED_GRANT", "1") == "1":							no
+T2_UNVERIFIED_FOLLOWUP	t2_gate_patch.py:14769	apply_unified_regen	if (os.environ.get("T2_UNVERIFIED_FOLLOWUP") == "1" and _resign	L6	CELLS	UNMEASURED(L6 미판정)	1			yes
+T2_USER_TOOL_NOTE	t2_gate_patch.py:15677	apply_unified_regen	if (os.environ.get("T2_USER_TOOL_NOTE") == "1" and getattr(am, "tool_calls", None)	L7	CELLS	UNMEASURED	1			yes
+T2_VALUE_ACQUIRE	t2_gate_patch.py:9029	apply_unified_regen	if (a2 is not None and os.environ.get("T2_VALUE_ACQUIRE") == "1") else []		CELLS	HARMFUL	1			yes
+T2_VALUE_ACQUIRE_CAP	t2_gate_patch.py:10300	apply_unified_regen	< int(os.environ.get("T2_VALUE_ACQUIRE_CAP", "3"))):							no
+T2_VALUE_FORMULA	t2_compute.py:500	_apply_op	_vmode = str(os.environ.get("T2_VALUE_FORMULA") or "").strip().lower()				full			yes
+T2_VERDICT_CARRY	t2_gate_patch.py:5123;t2_gate_patch.py:5189	_search_material	or os.environ.get("T2_VERDICT_CARRY") == "1") and _po.get("requirement_prompt"):	L6		UNMEASURED(L6 미판정)	0			yes
+T2_VERDICT_GATE	t2_gate_patch.py:12381	apply_unified_regen	if (os.environ.get("T2_VERDICT_GATE") == "1"	L6		UNMEASURED(L6 미판정)	0			yes
+T2_VERDICT_GATE_CAP	t2_gate_patch.py:12384	apply_unified_regen	< int(os.environ.get("T2_VERDICT_GATE_CAP", "1"))):				1			yes
+T2_VERDICT_SURFACE	t2_gate_patch.py:14851	apply_unified_regen	if (os.environ.get("T2_VERDICT_SURFACE") == "1" and _resign	L6	CELLS	UNMEASURED(L6 미판정)	1			yes
+T2_VERIFY_DENY_CAP	t2_gate_patch.py:11689	apply_unified_regen	< int(os.environ.get("T2_VERIFY_DENY_CAP", "1"))):		META		2			yes
+T2_VIEW_ANNOTATE	t2_gate_patch.py:9056	apply_unified_regen	if os.environ.get("T2_VIEW_ANNOTATE") == "1" and a2 is not None:		HARNESS		1			yes
+T2_VIEW_COMPACT	t2_gate_patch.py:9036	apply_unified_regen	if os.environ.get("T2_VIEW_COMPACT") == "1":		HARNESS		1			yes
+T2_VIEW_COMPACT_KEEP	t2_gate_patch.py:9039	apply_unified_regen	keep_recent=int(os.environ.get("T2_VIEW_COMPACT_KEEP", "6")),							no
+T2_VIEW_COMPACT_MINLEN	t2_gate_patch.py:9040	apply_unified_regen	min_len=int(os.environ.get("T2_VIEW_COMPACT_MINLEN", "800")),							no
+T2_VIEW_COMPACT_MINTOTAL	t2_gate_patch.py:4055	view_thresholds	env_mt = os.environ.get("T2_VIEW_COMPACT_MINTOTAL") if mintotal is None else mintotal		HARNESS		60000		344064	yes
+T2_VIEW_MSG_CAP	t2_gate_patch.py:4056	view_thresholds	env_mc = os.environ.get("T2_VIEW_MSG_CAP") if msgcap is None else msgcap		HARNESS		8000		0	yes
+T2_VIEW_SCALE	t2_gate_patch.py:4048	view_thresholds	scale = (os.environ.get("T2_VIEW_SCALE", "off") if scale is None else scale)						auto	yes
+T2_WEV_CAP	t2_gate_patch.py:9023	apply_unified_regen	_wev_cap = int(os.environ.get("T2_WEV_CAP", "8"))							no
+T2_WEV_ROUNDS	t2_gate_patch.py:10085	apply_unified_regen	and wev_rounds < int(os.environ.get("T2_WEV_ROUNDS", "1"))		PARAMS		2			yes
+T2_WINDOW	t2_gate_patch.py:10577	apply_unified_regen	if os.environ.get("T2_WINDOW") != "1":	L13	META	UNMEASURED	1			yes
+T2_WITHDRAWN_ROW	t2_gate_patch.py:9908	apply_unified_regen	and os.environ.get("T2_WITHDRAWN_ROW") == "1"		CELLS	DARK	1			yes
+T2_WRITE_ARG_ENUM	t2_gate_patch.py:12237	apply_unified_regen	if os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens:	L1		UNMEASURED				no
+T2_WRITE_ARG_ENUM_CAP	t2_gate_patch.py:12243	apply_unified_regen	< int(os.environ.get("T2_WRITE_ARG_ENUM_CAP", "3")))							no
+T2_WRITE_ARG_FAB	t2_gate_patch.py:12128	apply_unified_regen	if os.environ.get("T2_WRITE_ARG_FAB") == "1" and en_fb is None:				${T2_WRITE_ARG_FAB:-0}			yes
+T2_WRITE_ARG_GROUND	t2_gate_patch.py:9014	apply_unified_regen	if (a2 is not None and os.environ.get("T2_WRITE_ARG_GROUND") == "1") else []	L1	CELLS	UNMEASURED	1			yes
+T2_WRITE_ARG_TYPE	t2_gate_patch.py:12316	apply_unified_regen	if _bad and os.environ.get("T2_WRITE_ARG_TYPE") == "1":				${T2_WRITE_ARG_TYPE:-0}	1		yes
+T2_WRITE_CAP	t2_gate_patch.py:1278	apply	wcap_on = os.environ.get("T2_WRITE_CAP") == "1"			DARK				no
+T2_WRITE_CAP_K	t2_gate_patch.py:1279	apply	wcap_k = int(os.environ.get("T2_WRITE_CAP_K", "2"))							no
+T2_WRITE_EVIDENCE	t2_gate_patch.py:1284;t2_gate_patch.py:9011	apply;apply_unified_regen	if os.environ.get("T2_WRITE_EVIDENCE") == "1" else []		CELLS	HARMFUL	1			yes
+T2_WRITE_PROV	t2_gate_patch.py:15205	apply_unified_regen	if (os.environ.get("T2_WRITE_PROV") == "1" and _resign	L3	CELLS	UNMEASURED	1			yes
+T2_WRITE_SUB	t2_gate_patch.py:9208;t2_gate_patch.py:9221;t2_resolve.py:502	apply_unified_regen;resolve_action_operator	if os.environ.get("T2_WRITE_SUB") in ("2", "3") and a2 is not None:	L12		UNMEASURED				no
