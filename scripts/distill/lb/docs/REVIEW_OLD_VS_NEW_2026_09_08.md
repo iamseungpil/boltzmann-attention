@@ -146,3 +146,13 @@ task_010 (base 0/4 · 우리 0/1 · 개입 0): 값 계산은 전부 맞았고, �
 | LB5 `doc-unread` · `search-exhausted` | 1 · 0 | 없음 | 유지 — 비용 0 |
 
 `absent` = 구 `T2_PROC_ABSENT`(L8 부재종결·"K턴 무호출이면 체크리스트 표면화"·원장 *사전 기대치 null*). `uncalled-unlock` = 구 L2 `T2_UNCALLED_UNLOCK`(잠금 해제 후 미호출 이름 나열·`UNLOCK_QUIET` 측정 8/8→1/8 이 반증).
+
+## 12. 첫 클라우드 짝 A/B 가 잡은 손실 — LB7 `deliver` 폐기 (2026-09-08 16:30)
+
+| 태스크 | base | LB (`e723eed4`, nt=4) | 발화 |
+|---|---|---|---|
+| 001 | 4/4 | 4/4 | 0 |
+| 004 | 4/4 | **2/4** | deliver deny 10 · claims 4 |
+
+004 의 gold 는 `transfer_to_human_agents` 하나다. `deliver` 가 그 호출을 sim 마다 2~3회 거부하며 "정의 문서"를 실었는데, `docs_naming` 은 본문에 도구 이름이 있는 문서를 전부 집어 *Understanding Regulation E* 같은 무관한 문서를 넘겼다. 실패한 두 sim 은 끝내 이관하지 않았고, claims 감사는 그 뒤 "이관했다"는 거짓 진술을 정확히 잡았다(우리 deny 가 만든 거짓).
+원장 근거: `DELIVER_PRECOMMIT` 024 2/4→3/4 (+1, 잡음 바닥 아래). x829(0/8→8/8)는 결정 **전** 격리 문맥에 재료를 준 측정이지 호출 거부가 아니다. ⇒ `deliver` 종류 삭제, `have_value` 만 남김. 004 는 큐 앞에 되돌려 재실행.

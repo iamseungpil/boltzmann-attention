@@ -6016,13 +6016,6 @@
   "annotations": []
  },
  "LB7": {
-  "deliver_for": [
-   "transfer_to_human_agents",
-   "initial_transfer_to_human_agent_0218",
-   "initial_transfer_to_human_agent_1822",
-   "emergency_credit_bureau_incident_transfer_1114"
-  ],
-  "max_chars": 90000,
   "have_value": [
    {
     "write": "file_credit_card_transaction_dispute_4829",

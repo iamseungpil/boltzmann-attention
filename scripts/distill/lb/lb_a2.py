@@ -70,7 +70,7 @@ def migrate(domain):
                 procedures.append(_edge_procedure("%s:%s" % (g.get("id"), t), t, sat, g.get("predicate"), order))
     out = {
         "domain": domain,
-        "model_context": 131072,   # the served model's context; LB6 folds and LB7 delivers against it
+        "model_context": 131072,   # the served model's context; LB6 folds the view against it
         "dispatch": {"agent_call": d.get("agent_call"), "user_call": d.get("user_call"),
                      "unlock_tool": d.get("unlock_tool"), "give_tool": d.get("give_tool"),
                      "name_args": d.get("name_args") or {}, "payload_key": ep.get("dispatch_args_key") or "arguments"},
@@ -135,8 +135,7 @@ def migrate(domain):
                 },
         "LB6": {"annotations": [{"field": a.get("field"), "note": a.get("note")}
                                 for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")]},
-        "LB7": {"deliver_for": (src.get("require_doc_before") or {}).get("tools") or [], "max_chars": 90000,
-                "have_value": _have_value(src)},
+        "LB7": {"have_value": _have_value(src)},
     }
     path = os.path.join(A2_DIR, "%s.lb.json" % domain)
     io.open(path, "w", encoding="utf-8").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
