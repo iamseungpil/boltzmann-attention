@@ -72,6 +72,8 @@ def main():
     ap.add_argument("patterns", nargs="+")
     ap.add_argument("--queue", default=None)
     ap.add_argument("--denominator", type=int, default=96)
+    ap.add_argument("--prior", nargs="*", default=None,
+                    help="an earlier run on the same model, used as a per-task difficulty estimate")
     a = ap.parse_args()
     scores = collect(a.patterns)
     if not scores:
@@ -103,6 +105,33 @@ def main():
                  int(done_pass + rest * r), done_sims + rest))
     print("\nthe finished set is ordered, not sampled: the lane walks task ids in order, so this is a")
     print("range from the ranges already done, not a confidence interval.")
+
+    if a.prior:
+        prior = collect(a.prior)
+        both = sorted(set(prior) & set(scores))
+        if not both:
+            print("\nprior run shares no task with this one")
+            return
+        pn = sum(prior[t][1] for t in both)
+        pp = sum(prior[t][0] for t in both)
+        cn = sum(scores[t][1] for t in both)
+        cp = sum(scores[t][0] for t in both)
+        prate, crate = pp / float(pn), cp / float(cn)
+        agree = sum(1 for t in both if (prior[t][0] > 0) == (scores[t][0] > 0))
+        print("\nprior as a difficulty estimate: %d tasks shared" % len(both))
+        print("   prior  %5.1f%% (%d of %d)   this run %5.1f%% (%d of %d)   ratio %.2f"
+              % (100 * prate, pp, pn, 100 * crate, cp, cn, (crate / prate) if prate else 0))
+        print("   the two agree on whether a task passes at all in %d of %d tasks" % (agree, len(both)))
+        cal = (crate / prate) if prate else 1.0
+        seen = [t for t in left if t in prior]
+        blind = [t for t in left if t not in prior]
+        expect = sum(min(1.0, cal * prior[t][0] / float(prior[t][1])) for t in seen) * 4
+        for label, fill_rate in (("prior only", 0.0), ("prior + this run's rate for the rest", overall)):
+            total = done_pass + expect + len(blind) * 4 * fill_rate
+            print("   %-38s %5.1f%%  (%d of %d simulations)"
+                  % (label, 100 * total / float(done_sims + rest), int(total), done_sims + rest))
+        print("   %d queued tasks are in the prior, %d are not: %s"
+              % (len(seen), len(blind), " ".join(blind) or "-"))
 
 
 if __name__ == "__main__":
