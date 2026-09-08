@@ -68,6 +68,7 @@ def migrate(domain):
                        "applies_to": g.get("applies_to") or [], "exempt": (g.get("applies_when") or {}).get("not_in") or []}
                       for g in src.get("gates") or [] if g.get("satisfiers")],
             "procedures": procedures,
+            "write_tools": ep.get("write_tools") or [],
             "feedback": {"single": arb.get("dominated_push_feedback"), "merged": arb.get("merged_requirement_feedback")},
         },
         "LB2": {"tools": [_tool(t) for t in src.get("scaffold_get_tools") or []],

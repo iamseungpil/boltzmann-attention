@@ -5,6 +5,9 @@ One rule: a call may run only after every prerequisite the policy names for it h
 running procedure's prohibitions hold. Both come from A2["LB1"]:
 
   prerequisites  [{dep, reads}]            dep needs each of reads first (transitive)
+  write_tools    [name]                    the calls that change state; only these can be denied for
+                                           being out of order, because reading in a different order
+                                           changes nothing and blocking a read only costs turns
   gates          [{id, predicate, satisfiers, applies_to, exempt}]   an action needs a satisfier
   procedures     [{id, enforce, enter_when{tool_any, signals}, nodes[{id, tool|tool_any|tool_prefix,
                    requires, min_count}], prohibits{name: {quote}}, feedback{unmet, absent, prohibited}}]
@@ -133,6 +136,20 @@ def mandatory(proc):
     return bool(proc.get("enforce")) and bool(proc.get("_quote_order"))
 
 
+def changes_state(a2, name):
+    """Is this call one the declaration lists as changing state?
+
+    The closure protocol says to check disputes, then replacement cards, then age, then balance.
+    On task_048 the model reads those three in exactly that order in every base simulation - and our
+    walker still denied two of them ten times, because it was asked before the first read had been
+    seen. Denying a read to enforce reading order buys nothing: the read has no effect to undo, and
+    the model spends its turns re-asking. The order that matters is the order of the actions, so the
+    deny is kept for those and the walker surfaces its checklist for everything else.
+    """
+    writes = {fam(w) for w in (a2.get("LB1") or {}).get("write_tools") or []}
+    return not writes or fam(name) in writes
+
+
 def state_slots(proc, executed, unlocked):
     rows, done = [], 0
     for n in proc.get("nodes") or []:
@@ -171,7 +188,7 @@ def procedure_findings(turn, call):
         slots["unlock_hint"] = fill(slots["unlock_hint"], **slots)
         text = fill(fb.get("unmet", ""), tool=name, missing=", ".join(missing),
                     source=", ".join(p.get("_source") or [])[:120], **slots)
-        if mandatory(p):
+        if mandatory(p) and changes_state(turn.a2, name):
             pin = _pin(turn, p, missing)
             return [Finding(LB, DENY, fam(name), call, text, grade=POLICY, source="procedure:" + p["id"], pin=pin)]
         return [Finding(LB, SURFACE, fam(name), facts=[text], grade=POLICY, source="procedure:" + p["id"])]
@@ -245,9 +262,15 @@ if __name__ == "__main__":
     r = requirements_for(A2, "submit_referral", set())
     assert r[0]["satisfiers"] == ["verify_identity"], r
     assert "verify_identity" in merged_text(A2, r, "submit_referral")
+    A2["LB1"]["write_tools"] = ["write_b", "credit_apply"]
     t = Turn(A2, [M("user", "Please do the thing")], M(calls=[C("write_b")]))
     f = evaluate(t)
     assert f[0].primitive == DENY and f[0].order == "[P] before 'write_b': a"
+    # a read out of order is said, not blocked
+    A2["LB1"]["procedures"][0]["nodes"].append({"id": "r", "tool": "read_z", "requires": ["a"]})
+    t = Turn(A2, [M("user", "Please do the thing")], M(calls=[C("read_z")]))
+    assert evaluate(t)[0].primitive == SURFACE
+    A2["LB1"]["procedures"][0]["nodes"].pop()
     t = Turn(A2, [M("user", "please do the thing")], M(calls=[C("call", {"tool": "credit_apply_1"})]),
              executed={"read_a": 1})
     assert evaluate(t)[0].order == "[P] before 'credit_apply_1': b"       # tool_prefix node, dispatcher unwrapped
