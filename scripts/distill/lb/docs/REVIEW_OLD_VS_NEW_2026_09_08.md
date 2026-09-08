@@ -172,3 +172,16 @@ task_010 (base 0/4 · 우리 0/1 · 개입 0): 값 계산은 전부 맞았고, �
 
 실패 sim0 은 `open_bank_account(account_class="Silver Plus Saver")`, gold·통과 sim 은 `"Silver Plus Saver Account"`. 환경은 잘린 이름도 받아 다른 계좌 id 를 만들었다(DB 불일치). 우리 발화는 이 자리에 없었다(deny 0).
 선언 `CHOICE-GROUND`(account_class 는 문서에 있어야) 는 substring 이라 잘린 이름을 통과시킨다. 정확 일치로 조이면 gold 를 막는다: gold 의 범주 이름 23개 중 6개가 문서 제목과 다르다 — `Navy Blue`(제목 Navy Blue Account) · `World Blue Account`(제목 World Blue) · `Green Account` · `Evergreen Account` · `Purple Account`. "더 긴 제목의 접두면 잘린 것" 규칙도 `Navy Blue`·`Green Account` 를 오판한다. 범주 이름 인자를 쓰는 gold 행위는 37 태스크. ⇒ 규칙 추가 없음, 결손 기록. (079·078 지갑 분실 가족은 F3 집합 선택 + 순서를 명령하는 문서 부재 — §13 참조.)
+
+## 15. HARD 25 의 이력 (전 기록 2,197 파일 · 1,982 sim, 중복 제거)
+
+| 태스크 | 통과 런 | 모델 |
+|---|---|---|
+| 029 | `ax33n_gpu1`·`b4_gpu1` (08-03) 각 2/2 · `n97` 1/2 | Qwen2.5-32B |
+| 027 | 같은 세 런 각 1/2 | Qwen2.5-32B |
+| 010 | `n97` 1/2 · `night2p1_t3prime` (09-01) 1/1 | Q2.5 · Q3.8 |
+| 026 · 060 · 065 · 067 · 068 | 각 1~2회 (nt=1 런) | 026 Q2.5, 나머지 Q3.8 |
+| 039 046 053 061 066 069 077 082~088 091 092 102 (16) | **0회** | — |
+
+029 를 2/2 로 푼 08-03 팔의 `go_stack.sh`(`8086c8ab`)는 `T2_WRITE_EVIDENCE=1` 이 켜져 있었고 07-31 커밋 *"Stop the dispute-evidence gate from accepting a dispute the bank won"* 직후였다 ⇒ 오늘 복원한 LB3 `state` 와 같은 기전. Q3.8 에서는 미검증 — 이번 런의 027·029 가 검증.
+원인 분류(§13 digest): A. 참조·추천 판단 F3 17개(지갑 분실·사기 가족 10 + 계좌 재구성 7) · B. 기만+다행 계산 3개(026 027 029, 우리 사거리) · C. 긴 다중 목표 사슬 3개(039 046 053) · D. 오독·벤치마크 오류 2개(010 102).
