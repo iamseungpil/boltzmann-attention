@@ -1,0 +1,7 @@
+# TASK_086 (bank_x806_base_nt4) — 포인터
+
+정본 보고서: `reports/facet_rft_2026/tasks_20260830/TASK_086.md`
+
+- 지시서 경로 `tasks_20260821b/TASK_086.md` 는 훅 `C:/workspace/.claude/hooks/scaffold_guard.py:200`(정본 명명 = `/tasks_+\d{8}/TASK_<id>.md` — `20260821b` 의 `b` 불일치 · 로컬 재현 `run_task_report=False`)에 막혀 실물 런 날짜(2026-08-30) 디렉터리에 두었다(`x855_TASK_084_pointer.md`·`x853_TASK_082_pointer.md` 선례).
+- 지시서의 결과 파일 `bank_x806_base_nt4_B_20260821b.results.json.gz` 는 로컬에 없고, **x806 계열 task_086 은 로컬 어디에도 없다**(전 x806 gz `zcat|grep '"task_086"'` 0 · x818cloud laneA/laneB 큐에 086 이 오른 적 없음). x806 = `--gate 0` **base 팔(레버 0)** 이므로 같은 팔·같은 sha `fc0055d`·같은 모델·같은 user-sim 인 `bank_x644_q38base_bank78_20260830` task_086 t0(66 msg·user_stop) 을 실물로 추적, ours 팔 3 sim(lev6c·re8141p11·t7393_laneC)을 대조.
+- 한 줄 판정: 1/1 reward 0 · DB 축 · read 9/9·unlock 7/7 완주(N97 08-04 의 «계좌 ID 날조」 소멸) · 실패 = dispute 인자 7칸(liability 500↔50 ×3 · TechWorld category/type/pin 3칸 · order card_design CLASSIC↔PREMIUM) + deposit dispute 미제출 1 · 결정 지점 msg51/msg53 · primary=**model**(msg35 에서 스스로 읊은 «2 business days → $50» 을 msg64 *"reported within 60 days … $500"* 로 바꿔 읽음 · doc_028 «card design 을 물어라」 생략 · «MIAMI FL」 소재 표기를 두고 CNP 자체 추론) · secondary=**user_sim**(대본의 *"skimmed my card"* 단서가 x644 user 발화 0회 — ours 3 sim 은 전부 발화 · msg52 *"Option B — let's not file"* 은 대본에 없는 철회) · env 1칸(SupplyPro liability gold 50 은 KB 규칙으로 도달 불가) · our_layer 비인과(base 팔 · `x818_lanes/t2_base_worker.sh:31` · 로그 사후검증 `T2_LEVER 0 · T2_GATE 0`). x737 §1f-7 «086 = model」 과 같은 방향이되 user_sim 귀속 2건이 신규.
