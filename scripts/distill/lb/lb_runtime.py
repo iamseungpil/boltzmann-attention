@@ -64,7 +64,9 @@ def turn_hook(self, message, state):
     for _ in range(ROUNDS):
         turn = build_turn(self, a2, state.messages, am)
         d = say(turn, evaluate(turn), owner=self)
-        if not d.denies and not (d.advice and not turn.calls):
+        # advice reaches the model only through a regeneration: on a text turn, and on a hand-off
+        # call (the transfer is deferred once with the open promise named; the model may re-issue it)
+        if not d.denies and not (d.advice and (not turn.calls or handing_off(turn))):
             break
         if self.__dict__.get("_lb_regen", 0) >= REGEN_BUDGET:
             print("[lb] regen budget spent - message stands", file=sys.stderr, flush=True)
@@ -76,6 +78,11 @@ def turn_hook(self, message, state):
         am = generate(self, view + fb, force=d.force_call, pin=d.pins[0] if d.pins else None)
     trace(self, [am], turn_len=len(state.messages))
     return am
+
+
+def handing_off(turn):
+    transfer = {fam(x) for x in (turn.a2.get("LB5") or {}).get("transfer_tools") or []}
+    return any(fam(turn.name_of(c)) in transfer for c in turn.calls)
 
 
 def trace(agent, msgs, turn_len=None):

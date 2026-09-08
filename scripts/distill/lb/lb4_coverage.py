@@ -156,8 +156,10 @@ def claims(spec, turn):
 
     def backed(c):
         tool = fam(str((c or {}).get("tool") or ""))
-        if tool and tool in done:
-            return True
+        if tool:
+            # a claim that names its tool is judged by that tool alone. Falling through to the kind
+            # map let "any write ran" back a promised statement credit that never ran (049, 4 of 4).
+            return tool in done
         pats = emap.get(str((c or {}).get("kind") or "").lower())
         pats = pats if isinstance(pats, list) else ([pats] if pats else [])
         if "__effective_write__" in pats and done & {fam(x) for x in spec.get("write_tools") or []}:
@@ -239,4 +241,10 @@ if __name__ == "__main__":
              extras={"ask": lambda p, n: reply})
     got = claims(spec, t)
     assert [g.order for g in got] == ["unbacked: write: filed it", "pending: write: will call y"], [g.order for g in got]
+    # a promise that names its tool is not backed by some other write having run (049: the offered
+    # statement credit was never applied, the closure write was)
+    spec["event_map"]["write"] = "__effective_write__"; spec["write_tools"] = ["close_z"]
+    t = Turn(A2, [], M(content="Done.", calls=[C("transfer_x", cid="tx")]), executed={"KB_search": 1, "close_z": 1},
+             extras={"ask": lambda p, n: reply})
+    assert "pending: write: will call y" in [g.order for g in claims(spec, t)]
     print("lb4_coverage self-test OK")
