@@ -23,7 +23,7 @@ while true; do
   T=$(pop); [ -z "$T" ] && { echo "[lb] queue empty"; break; }
   TAG="${PREFIX}_$T"; T0=$(date +%s)
   echo "[lb $(date '+%m-%d %H:%M')] -> $T (left $(wc -l < "$QUEUE"))"
-  rm -rf "$GO/data/simulations/$TAG"
+  rm -rf "$GO/data/simulations/$TAG"; rm -f "$LOG/fb_${TAG}.jsonl"     # a rerun starts its own sidecar
   LB_SIDECAR="$LOG/fb_${TAG}.jsonl" $PY -u "$LB/lb_run.py" --domain banking_knowledge --retrieval_config alltools \
     --agent_model "$M" --agent_base "http://localhost:$PORT/v1" \
     --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 --user_reasoning_effort low \
