@@ -3897,6 +3897,310 @@
     }
    },
    {
+    "name": "get_atm_fee_discrepancies",
+    "description": "ALWAYS use this whenever a customer questions or disputes ATM fees on their checking account(s) and you need to find which specific fee lines were charged incorrectly. First retrieve the account's transactions, then call this ONCE PER ACCOUNT, passing the account's id and its level (class) and ONE element per ATM withdrawal - including the withdrawals that carry no fee line, because a fee that is MISSING is one of the errors it finds. It derives the correct fee under the documented fee schedule for that account level, applies that level's documented free-withdrawal allowance and ATM fee rebate programme, and does the arithmetic for you. Do the fee math with this tool - do not eyeball it yourself.",
+    "params": {
+     "account_id": "string (required) - the checking account ID being audited (e.g. from the accounts listing); used to look up its transaction records.",
+     "account_class": "The account's level exactly as shown in the account record (e.g. 'Blue Account', 'Light Green Account').",
+     "transactions": "A JSON array with ONE element per atm_withdrawal record of THIS account, in any order - this tool sorts them by date itself. Include EVERY atm_withdrawal, also the ones with no fee line - a fee that is MISSING is one of the errors, and this account level's free-withdrawal allowance is counted over the withdrawals you pass. Each element MUST have ONLY these fields, copied from the records: date (string - this withdrawal's date exactly as the record shows it, e.g. '11/14/2025'), transaction_id (string - the id of the atm_fee line paired with this withdrawal; if this withdrawal has NO fee line, the withdrawal's own id), fee_amount (number - that fee line's amount as a POSITIVE number, no $; 0 if this withdrawal has no fee line), withdrawal_amount (number, POSITIVE - the cash dispensed by this atm_withdrawal), network (string, exactly one of 'rho' | 'non_rho' | 'foreign', read from that withdrawal's description: a RHO-BANK machine is 'rho'; a machine outside the U.S. or dispensing foreign currency is 'foreign'; any other bank's machine is 'non_rho'), rebate_amount (number - the amount of the fee_rebate line paired with this withdrawal, as a POSITIVE number; 0 if the history shows no rebate for it). Do NOT compute anything - just copy the raw values; this tool computes the expected fee and finds discrepancies itself. IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include that withdrawal twice, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one, with rebate_amount 0 on it."
+    },
+    "op": {
+     "op": "select_discrepant",
+     "over": "transactions",
+     "id_field": "transaction_id",
+     "actual_field": "fee_amount",
+     "tolerance": 0.01,
+     "order_field": "date",
+     "steps": {
+      "ord": {
+       "op": "ordinal",
+       "partition": "r.network"
+      },
+      "pct1": {
+       "op": "multiply",
+       "a": "r.withdrawal_amount",
+       "b": 0.01
+      },
+      "pct2": {
+       "op": "multiply",
+       "a": "r.withdrawal_amount",
+       "b": 0.02
+      },
+      "pct25": {
+       "op": "multiply",
+       "a": "r.withdrawal_amount",
+       "b": 0.025
+      },
+      "pct3": {
+       "op": "multiply",
+       "a": "r.withdrawal_amount",
+       "b": 0.03
+      },
+      "oon": {
+       "op": "case",
+       "key": "account_class",
+       "cases": {
+        "Blue Account": {
+         "op": "min",
+         "of": [
+          "steps.pct1",
+          3.0
+         ]
+        },
+        "Bluest Account": 2.0,
+        "Green Account": 3.0,
+        "Purple Account": 2.5,
+        "Dark Green Account": {
+         "op": "max",
+         "of": [
+          "steps.pct1",
+          1.5
+         ]
+        },
+        "Evergreen Account": {
+         "op": "min",
+         "of": [
+          "steps.pct1",
+          2.5
+         ]
+        },
+        "Light Green Account": {
+         "op": "lookup_table",
+         "key": "steps.ord",
+         "table": [
+          {
+           "cmp": "<=",
+           "thr": 4,
+           "result": 0
+          },
+          {
+           "cmp": ">",
+           "thr": 4,
+           "result": 1.5
+          }
+         ]
+        },
+        "Light Blue Account": {
+         "op": "lookup_table",
+         "key": "steps.ord",
+         "table": [
+          {
+           "cmp": "<=",
+           "thr": 2,
+           "result": 0
+          },
+          {
+           "cmp": ">",
+           "thr": 2,
+           "result": 2.5
+          }
+         ]
+        },
+        "Gold Years Account": 0.0,
+        "Green Fee-Free Account": 0.0
+       },
+       "default": null
+      },
+      "forx": {
+       "op": "case",
+       "key": "account_class",
+       "cases": {
+        "Blue Account": {
+         "op": "max",
+         "of": [
+          "steps.pct3",
+          5.0
+         ]
+        },
+        "Bluest Account": 0,
+        "Green Account": {
+         "op": "max",
+         "of": [
+          "steps.pct3",
+          5.0
+         ]
+        },
+        "Light Green Account": {
+         "op": "lookup_table",
+         "key": "r.withdrawal_amount",
+         "table": [
+          {
+           "cmp": "<=",
+           "thr": 100,
+           "result": 2.0
+          },
+          {
+           "cmp": "<=",
+           "thr": 300,
+           "result": 3.5
+          },
+          {
+           "cmp": ">",
+           "thr": 300,
+           "result": 5.0
+          }
+         ]
+        },
+        "Purple Account": 0,
+        "Dark Green Account": {
+         "op": "min",
+         "of": [
+          "steps.pct25",
+          6.0
+         ]
+        },
+        "Evergreen Account": {
+         "op": "max",
+         "of": [
+          "steps.pct2",
+          3.0
+         ]
+        },
+        "Light Blue Account": {
+         "op": "lookup_table",
+         "key": "steps.ord",
+         "table": [
+          {
+           "cmp": "<=",
+           "thr": 2,
+           "result": 0
+          },
+          {
+           "cmp": ">",
+           "thr": 2,
+           "result": 4.0
+          }
+         ]
+        },
+        "Gold Years Account": 3.5,
+        "Green Fee-Free Account": 0.0
+       },
+       "default": null
+      },
+      "expected": {
+       "op": "case",
+       "key": "r.network",
+       "cases": {
+        "rho": 0,
+        "non_rho": {
+         "op": "ref",
+         "path": "steps.oon"
+        },
+        "foreign": {
+         "op": "ref",
+         "path": "steps.forx"
+        }
+       },
+       "default": null
+      }
+     },
+     "expected_ref": "steps.expected",
+     "dup_field": "duplicate_of",
+     "rebate": {
+      "field": "rebate_amount",
+      "cap": {
+       "op": "case",
+       "key": "account_class",
+       "cases": {
+        "Bluest Account": 50.0,
+        "Purple Account": 30.0
+       },
+       "default": null
+      }
+     }
+    },
+    "isolate": {
+     "mode": "fetch_formalize",
+     "ref_params": [
+      "account_id",
+      "account_class"
+     ],
+     "getter_tools": [
+      "call_discoverable_agent_tool"
+     ],
+     "operand_keys": [
+      "transactions"
+     ],
+     "max_rounds": 3,
+     "instructions": "You are a records-extraction sub-task. For the checking account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_bank_account_transactions_9173' and that account_id to read the account's transaction records. (2) Build the transactions array with ONE element per atm_withdrawal record of THIS account. Order does not matter - the tool sorts by date itself, so just copy them as the records list them. Include EVERY atm_withdrawal, also the ones with no fee line. Each element MUST have ONLY these fields, copied from the records: date (string - this withdrawal's date exactly as the record shows it, e.g. '11/14/2025'), transaction_id (string - the id of the atm_fee line paired with this withdrawal: the adjacent atm_fee record with the same account and date; if this withdrawal has NO fee line, the withdrawal's own id), fee_amount (number - that fee line's amount as a POSITIVE number, no $; 0 if this withdrawal has no fee line), withdrawal_amount (number, POSITIVE - the cash dispensed by this atm_withdrawal), network (string, exactly one of 'rho' | 'non_rho' | 'foreign'), rebate_amount (number - the amount of the fee_rebate record with the same account and date, as a POSITIVE number; 0 if there is none). IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include that withdrawal twice, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one, with rebate_amount 0 on it. Do NOT compute fees - just copy raw values.",
+     "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [ {\"date\": \"...\", \"transaction_id\": \"...\", \"fee_amount\": <number>, \"withdrawal_amount\": <number>, \"network\": \"...\", \"rebate_amount\": <number>} ]}",
+     "row_fields": [
+      "date",
+      "transaction_id",
+      "fee_amount",
+      "withdrawal_amount",
+      "network",
+      "rebate_amount"
+     ],
+     "operand_schema": {
+      "type": "object",
+      "properties": {
+       "derivation": {
+        "type": "string",
+        "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+       },
+       "transactions": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "date": {
+           "type": "string"
+          },
+          "transaction_id": {
+           "type": "string"
+          },
+          "fee_amount": {
+           "type": "number"
+          },
+          "withdrawal_amount": {
+           "type": "number"
+          },
+          "network": {
+           "type": "string"
+          },
+          "rebate_amount": {
+           "type": "number"
+          },
+          "duplicate_of": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "date",
+          "transaction_id",
+          "fee_amount",
+          "withdrawal_amount",
+          "network",
+          "rebate_amount"
+         ],
+         "additionalProperties": false
+        }
+       }
+      },
+      "required": [
+       "derivation",
+       "transactions"
+      ],
+      "additionalProperties": false
+     },
+     "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다.",
+     "row_kind": "atm_withdrawal"
+    },
+    "requires_reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "return_template": "ATM withdrawals whose net charge does NOT match the documented fee schedule for this account level: {details}. SCOPE OF THIS CHECK - each withdrawal you passed in was compared against the documented schedule for this level, which covers a fee charged when none was due, a fee of the wrong amount, a fee that is MISSING where one was due (it shows as a negative difference), the level's documented free-withdrawal allowance, and - for levels whose documents promise ATM fee rebates - a documented rebate the history does not show (for those levels both amounts shown are net of the fee_rebate lines you passed, so a missing rebate shows as a positive difference). It covers ONLY the withdrawals you passed in: if you left an atm_withdrawal of this account out, its error is not in this list and the free-allowance count may be off - pass them all and call again. If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice). The signed total of the differences listed above, computed by this tool, is {delta_total} (a negative difference lowers it). That signed total is the net correction for THIS account - use it as the credit amount; do not re-add the figures by hand.",
+    "grounded_params": {
+     "transaction_id": {
+      "producer_contains": [
+       "record id:"
+      ]
+     }
+    }
+   },
+   {
     "name": "get_checking_atm_fee_totals",
     "description": "MANDATORY before recommending which personal checking account class to open (or keep) when the customer's stated criterion involves ATM fees: formalize the customer's stated usage pattern and call this ONCE. It computes, from the documented per-class fee schedules, each class's out-of-network ATM fee total and foreign ATM fee total for that usage (documented monthly free allowances deducted). It does NOT rank or pick a class - compare the returned totals yourself against what the customer asked to minimize, check the candidate class's other documented terms (eligibility, minimum deposits, monthly fees) in its source docs, and confirm the choice with the customer. Do the fee math with this tool - do not eyeball it yourself.",
     "params": {

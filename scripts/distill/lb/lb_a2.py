@@ -79,7 +79,7 @@ def migrate(domain):
             "procedures": procedures,
             "write_tools": ep.get("write_tools") or [],
         },
-        "LB2": {"tools": [x for x in (_tool(t) for t in src.get("scaffold_get_tools") or []) if _table_audited(x)],
+        "LB2": {"tools": [_tool(t) for t in src.get("scaffold_get_tools") or []],
                 "derived": [_derived(n, metrics) for n in src.get("derived") or []],
                 "a3_rows": [{"axis": r.get("axis"), "subject": r.get("subject"), "value": r.get("value")}
                             for r in (src.get("policy_ontology") or {}).get("rows") or []],
@@ -234,17 +234,6 @@ def _edge_procedure(pid, dep, reads, quote, order):
     return {"id": pid, "enforce": True, "_quote_order": quote or "", "_source": [],
             "nodes": [{"id": r, "tool_prefix": r} for r in reads] + [{"id": dep, "tool_prefix": dep, "requires": list(reads)}],
             "prohibits": {}, "feedback": {"unmet": order}}
-
-
-def _table_audited(tool):
-    """A verifier whose arithmetic rests on an authored per-level table ships only once that table has
-    been checked against the documents. The ATM fee table computed a $0.50 net fee for a Bluest
-    Account withdrawal whose document promises the fee rebated in full; the model trusted the tool
-    fourteen times over four simulations of task_072 and credited $12 where $14 was owed (base 3/4,
-    ours 0/4). Not audited yet: that tool. An authored table is data, but a wrong tool is worse than
-    no tool."""
-    steps = json.dumps((tool.get("op") or {}).get("steps") or {})
-    return '"cases"' not in steps or tool.get("_table_audited") is True
 
 
 def _specific(emap):
