@@ -6,7 +6,9 @@ candidates never reach the model, every mechanism fails for a reason unrelated t
 (x829: without material 0/8, with 47 document titles 8/8). This engine orders nothing; it
 surfaces - the whole set, verbatim from the corpus, no ranking. Declared in A2["LB7"]:
 
-  deliver_for   tools whose defining documents are delivered in full when unread
+  deliver_for   tools whose defining documents are delivered in full when unread, as far as the
+                context has room (model_context minus the reply reserve minus what the view holds);
+                when there is no room the documents are named, not delivered
   max_chars     delivery cap
   names_feedback  documents already retrieved name a tool nobody has called
   have_value    [{write, arg, producer_marker, value_after, reask_signals, feedback, acquire_tool, give_tool,
@@ -27,6 +29,15 @@ def docs_naming(tool, corpus):
     return sorted(d for d, body in corpus.items() if f and f in str(body))
 
 
+CHARS_PER_TOKEN, RESERVE_TOKENS, MIN_ROOM = 3.5, 9216, 4000
+
+
+def room(turn, spec):
+    cap = int(spec.get("model_context") or turn.a2.get("model_context") or 131072)
+    held = sum(len(str(getattr(m, "content", "") or "")) for m in turn.messages)
+    return int((cap - RESERVE_TOKENS) * CHARS_PER_TOKEN) - held
+
+
 def deliver(turn):
     spec = turn.a2.get("LB7") or {}
     tools = {fam(x) for x in spec.get("deliver_for") or []}
@@ -37,7 +48,12 @@ def deliver(turn):
         unread = [d for d in docs_naming(name, turn.corpus) if d.lower() not in turn.tool_text]
         if not unread:
             continue
-        blob = "\n\n".join("### %s\n%s" % (d, turn.corpus[d]) for d in unread)[:int(spec.get("max_chars") or 90000)]
+        limit = min(int(spec.get("max_chars") or 90000), room(turn, spec))
+        if limit < MIN_ROOM:
+            return [Finding(LB, SURFACE, fam(name), grade=RETRIEVED, source="deliver",
+                            facts=["[MATERIAL] The document(s) defining '%s' are unread and the context has no room "
+                                   "to deliver them: %s." % (name, ", ".join(unread))])]
+        blob = "\n\n".join("### %s\n%s" % (d, turn.corpus[d]) for d in unread)[:limit]
         return [Finding(LB, SURFACE, fam(name), facts=[fill(HEAD, tool=name) + "\n\n" + blob], grade=RETRIEVED,
                         source="deliver")]
     return []
@@ -103,6 +119,8 @@ if __name__ == "__main__":
     t = Turn(A2, [M("tool", "grep hit only")], M(calls=[C("transfer_x_1")]), corpus=corpus)
     assert "### doc_a" in deliver(t)[0].facts[0] and "doc_b" not in deliver(t)[0].facts[0]
     assert not deliver(Turn(A2, [M("tool", "### doc_a\n...")], M(calls=[C("transfer_x_1")]), corpus=corpus))
+    full = Turn(dict(A2, model_context=20000), [M("tool", "z" * 60000)], M(calls=[C("transfer_x_1")]), corpus=corpus)
+    assert deliver(full)[0].facts[0].startswith("[MATERIAL] The document(s) defining") and "doc_a" in deliver(full)[0].facts[0]
     t2 = Turn(A2, [M("tool", "the doc names other_2")], M(content="done"), registry={"agent": {"other_2"}})
     assert named_uncalled(t2)[0].facts[0] == "named: other_2"
     A2["LB7"]["have_value"] = [{"write": "file_x", "arg": "last4", "producer_marker": "Executed: get_last4",

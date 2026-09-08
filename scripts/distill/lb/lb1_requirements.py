@@ -10,7 +10,7 @@ running procedure's prohibitions hold. Both come from A2["LB1"]:
                                            changes nothing and blocking a read only costs turns
   gates          [{id, predicate, satisfiers, applies_to, exempt}]   an action needs a satisfier
   procedures     [{id, enforce, enter_when{tool_any, signals}, nodes[{id, tool|tool_any|tool_prefix,
-                   requires, min_count}], prohibits{name: {quote}}, feedback{unmet, absent, prohibited}}]
+                   requires, min_count}], prohibits{name: {quote}}, feedback{unmet, prohibited}}]
 
 A procedure is active once one of its own tools ran or the customer's wording matched its signals
 (customer text only - defect 048). It blocks only when enforce is true and it quotes the policy
@@ -205,24 +205,6 @@ def _pin(turn, proc, missing):
     return None
 
 
-def absent_findings(turn):
-    """A procedure was entered and this turn takes no step: surface where it stands."""
-    out = []
-    for p in active((turn.a2.get("LB1") or {}).get("procedures") or [], turn.executed, turn.user_text):
-        fb, slots = p.get("feedback") or {}, state_slots(p, turn.executed, turn.unlocked)
-        if not (slots["next"] or slots["ready_tools"]):
-            continue
-        slots["unlock_hint"] = fill(slots["unlock_hint"], **slots)
-        tpl = fb.get("absent") if slots["next"] else fb.get("absent_many")
-        if tpl:
-            f = Finding(LB, SURFACE, slots["next_tool"] or p["id"], order=fill(tpl, **slots), grade=POLICY,
-                        source="absent:" + p["id"])
-            if slots["next_tool"] and mandatory(p):
-                f.primitive, f.pin = PIN, _pin(turn, p, [ready(p, turn.executed)[0]["id"]])
-            out.append(f)
-    return out
-
-
 def evaluate(turn):
     out = []
     for c in turn.calls:
@@ -231,9 +213,10 @@ def evaluate(turn):
         if reqs:
             out.append(Finding(LB, DENY, fam(name), c, grade=POLICY, source="requirement", reqs=reqs))
         out += procedure_findings(turn, c)
-    if not turn.calls:
-        out += absent_findings(turn)
     return out
+    # A text turn inside a procedure is not judged here. The model asking the customer a question is a
+    # text turn too (043: identity details at message 5), and a walker that pinned the next step there
+    # fired 180 times over 216 base simulations. Leaving the procedure open at hand-off is LB5's case.
 
 
 if __name__ == "__main__":
@@ -277,9 +260,8 @@ if __name__ == "__main__":
     # 048: the signal only in tool output does not open the procedure
     t = Turn(A2, [M("tool", "policy: please do the thing")], M(calls=[C("write_b")]))
     assert not evaluate(t)
-    t = Turn(A2, [M("user", "please do the thing")], M(content="ok"), executed={"read_a": 1})
-    a = absent_findings(t)
-    assert a[0].primitive == PIN and a[0].pin == ("call", "tool", "write_b"), a[0].pin
+    t = Turn(A2, [M("user", "please do the thing")], M(content="which card?"), executed={"read_a": 1})
+    assert not evaluate(t)                                            # a question mid-procedure is not a finding
     t = Turn(A2, [], M(calls=[C("forbidden_x")]), executed={"trigger": 1})
     assert evaluate(t)[0].source == "prohibit:p"
     print("lb1_requirements self-test OK")

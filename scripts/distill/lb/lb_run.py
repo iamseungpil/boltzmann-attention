@@ -32,7 +32,7 @@ def main():
     ap.add_argument("--max_retries", type=int, default=None)
     ap.add_argument("--retry_delay", type=float, default=None)
     ap.add_argument("--seed", type=int, default=None)
-    ap.add_argument("--max_tokens", type=int, default=int(os.environ.get("T2_AGENT_MAX_TOKENS", "8192")))
+    ap.add_argument("--max_tokens", type=int, default=None, help="unset = same as the base arm (none)")
     ap.add_argument("--save_to", required=True)
     a = ap.parse_args()
     if any(t in a.user_llm.lower() for t in ("anthropic", "claude", "opus", "sonnet", "haiku")):
@@ -58,7 +58,8 @@ def main():
     nle.DEFAULT_LLM_NL_ASSERTIONS = a.user_llm
     nle.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {"temperature": 0.0, "response_format": {"type": "json_object"}}
     cfg = dict(domain=a.domain, agent="llm_agent", llm_agent="openai/" + a.agent_model,
-               llm_args_agent={"api_base": a.agent_base, "api_key": "dummy", "temperature": 0.0, "max_tokens": a.max_tokens},
+               llm_args_agent=dict({"api_base": a.agent_base, "api_key": "dummy", "temperature": 0.0},
+                                   **({"max_tokens": a.max_tokens} if a.max_tokens else {})),
                llm_user=a.user_llm, llm_args_user=user_args, num_trials=a.num_trials,
                task_ids=a.task_ids.split(",") if a.task_ids else None, max_concurrency=a.max_concurrency,
                max_steps=a.max_steps, save_to=a.save_to)

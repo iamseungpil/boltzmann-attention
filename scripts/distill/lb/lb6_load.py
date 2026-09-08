@@ -16,7 +16,9 @@ import copy
 import hashlib
 
 LB = "LB6"
-DEFAULTS = {"keep_recent": 6, "min_len": 800, "min_total": 60000, "head": 400, "annotations": []}
+DEFAULTS = {"keep_recent": 6, "min_len": 800, "head": 400, "annotations": []}
+CHARS_PER_TOKEN = 3.5
+FOLD_AT = 0.75        # start folding when the view holds this share of the model context
 
 
 def _text(m):
@@ -67,7 +69,9 @@ def annotate(messages, notes):
 
 
 def reduce(a2, messages):
-    p = dict(DEFAULTS)
+    """Thresholds come from the model context, not from a constant: a constant tuned for a 44k model
+    folded at 11% of a 131k one and the model re-read what was folded (old tree, section T-6a)."""
+    p = dict(DEFAULTS, min_total=int(int(a2.get("model_context") or 131072) * FOLD_AT * CHARS_PER_TOKEN))
     p.update(a2.get("LB6") or {})
     return annotate(compact(dedup(messages), p), p["annotations"])
 
@@ -87,6 +91,8 @@ if __name__ == "__main__":
     assert v[1].content.startswith("[identical") and msgs[1].content == big
     v = compact(msgs, dict(DEFAULTS, keep_recent=1, min_total=100, head=10))
     assert v[0].content.startswith("xxxxxxxxxx\n[...") and v[2].content == "y" * 1000
+    assert reduce({"model_context": 2000}, msgs)[0].content == big                       # 3000 < 5250: untouched
+    assert "[... 600 chars folded" in reduce({"model_context": 100}, [M("tool", big)] * 8)[0].content
     v = annotate([M("tool", "credit_limit: 100")], [{"field": "credit_limit", "note": "cap applies"}])
     assert v[0].content.endswith("[view note] cap applies")
     print("lb6_load self-test OK")

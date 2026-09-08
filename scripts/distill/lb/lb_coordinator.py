@@ -34,6 +34,9 @@ _MODULES = {"LB1": "lb1_requirements", "LB2": "lb2_decision", "LB3": "lb3_citati
             "LB4": "lb4_coverage", "LB5": "lb5_resignation", "LB6": "lb6_load", "LB7": "lb7_material"}
 FAILSAFE_DENY = "Error: [POLICY GATE] this call was denied; reason unavailable - do not retry the same call"
 ADVICE_BUDGET = 2          # how often one rule may advise in one simulation
+DENY_BUDGET = 6            # how often one rule may deny in one simulation; after that the call passes.
+                           # A rule that keeps losing to the same model has lost; the simulation must stay
+                           # alive (the old tree had twenty-five per-lever caps saying this, one each).
 
 
 def enabled(lb):
@@ -315,6 +318,13 @@ def say(turn, findings, owner=None):
         for k, text in d.denies.items():
             if not admit(owner, "deny", text):
                 d.trace.append(("repeat", "deny kept", d.won[("call", k)].source))
+        denied = owner.__dict__.setdefault("_lb_deny_fired", collections.Counter())
+        for k in list(d.denies):
+            rule = d.won[("call", k)].source.split(":")[0] or d.won[("call", k)].lb
+            denied[rule] += 1
+            if denied[rule] > DENY_BUDGET:
+                d.trace.append(("budget", "deny released, rule exhausted in this simulation", rule))
+                sidecar("lb-release", d.denies.pop(k), turn, sim=sim_id(owner), source=rule)
         # budget by rule, not by sentence: a rule that phrases itself differently every turn
         # (the claims audit names the claims it found) never hits a per-sentence budget, and one
         # fired thirteen times in a single simulation before this.
@@ -373,6 +383,11 @@ if __name__ == "__main__":
         say(Turn({}, [], M(content="bye")), [Finding("LB4", SURFACE, "t", order="claim %d missing" % i,
                                              grade=1, source="claims")], owner=owner)
     assert owner._lb_advice_fired["claims"] == 4 and ADVICE_BUDGET == 2
+    for i in range(DENY_BUDGET + 2):            # one rule denying forever is released after its budget
+        c = C("w_%d" % i)
+        dd = say(Turn({}, [], M(calls=[c])), [Finding("LB1", DENY, "w", c, "no %d" % i, grade=1, source="procedure:p")],
+                 owner=owner)
+    assert not dd.denies and owner._lb_deny_fired["procedure"] == DENY_BUDGET + 2
     assert fill("a {x} b {y_z} c {Keep}", x=1) == "a 1 b  c {Keep}"
     assert records_in('{"rows": [{"id": "r1"}, {"id": "r2"}]}', "id") == [{"id": "r1"}, {"id": "r2"}]
     assert records_in('text\n{"id": "r3"}', "id") == [{"id": "r3"}]

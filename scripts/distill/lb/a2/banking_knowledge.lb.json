@@ -1,5 +1,6 @@
 {
  "domain": "banking_knowledge",
+ "model_context": 131072,
  "dispatch": {
   "agent_call": "call_discoverable_agent_tool",
   "user_call": "call_discoverable_user_tool",
@@ -5375,96 +5376,6 @@
     "applies_to": "call_discoverable_agent_tool",
     "when": {
      "arg": "agent_tool_name",
-     "prefix": "update_transaction_rewards"
-    },
-    "arg": "transaction_id",
-    "sources": [
-     "records"
-    ],
-    "tokens": [
-     "RESOLVED"
-    ],
-    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction. Read the dispute status from an actual tool result. Only a dispute resolved in the customer's favor qualifies for a rewards correction: RESOLVED_BANK_FAVOR means the transaction was found valid and no credit is issued, so it must NOT be updated. If the status is RESOLVED_PARTIAL, do not update on your own — tell the customer what the partial resolution says and ask how they want to proceed. Otherwise explain that the correction will be applied once the dispute is actually resolved."
-   },
-   {
-    "applies_to": "call_discoverable_agent_tool",
-    "when": {
-     "arg": "agent_tool_name",
-     "prefix": "approve_credit_limit_increase"
-    },
-    "arg": "credit_card_account_id",
-    "sources": [
-     "records"
-    ],
-    "tokens": [
-     "Consecutive on-time payments"
-    ],
-    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix."
-   },
-   {
-    "applies_to": "call_discoverable_agent_tool",
-    "when": {
-     "arg": "agent_tool_name",
-     "prefix": "approve_credit_limit_increase"
-    },
-    "arg": "credit_card_account_id",
-    "sources": [
-     "records"
-    ],
-    "tokens": [
-     "ELIGIBLE - all tier requirements"
-    ],
-    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows account {id} is ELIGIBLE (the check_cli_eligibility tool returning the 'ELIGIBLE - all tier requirements ... satisfied' verdict). Do NOT decide approve or deny from your own arithmetic about account age, cooldown, utilization or payment months - the cooldown days especially are easy to miscount. Call check_cli_eligibility with the values copied exactly from the account record, the CLI request history and the payment history, then execute the verdict it returns: approve ONLY if it says ELIGIBLE; if it returns a NOT_ELIGIBLE_* verdict, unlock and call deny_credit_limit_increase with the reason it gives."
-   },
-   {
-    "applies_to": "call_discoverable_agent_tool",
-    "when": {
-     "arg": "agent_tool_name",
-     "prefix": "close_credit_card_account"
-    },
-    "arg": "credit_card_account_id",
-    "sources": [
-     "records"
-    ],
-    "tokens": [
-     "CLOSURE_OK"
-    ],
-    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that account {id} is ELIGIBLE for closure (CLOSURE_OK). The closure protocol disqualifies closing an account with an outstanding balance. First read the credit card account record for {id}, then call check_card_closure_eligibility with the account id, the outstanding balance copied from the record, and the verbatim balance line. If it reports an outstanding balance, the customer must pay the balance in full first; after paying, re-read the record and re-check, then re-attempt the closure. If the customer wants a replacement card or asked to KEEP the account open, do NOT close the account - use the replacement-card procedure instead."
-   },
-   {
-    "applies_to": "call_discoverable_agent_tool",
-    "when": {
-     "arg": "agent_tool_name",
-     "prefix": "apply_savings_account_credit"
-    },
-    "arg": "amount",
-    "sources": [
-     "records"
-    ],
-    "tokens": [
-     "Interest correction"
-    ],
-    "feedback": "Error: [WRITE-EVIDENCE] the credit amount ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute the correction yourself - the tool call is required. First read the account record AND its transactions, then call get_interest_correction with the values from those records, and use the amount EXACTLY as that tool returns it."
-   },
-   {
-    "applies_to": "call_discoverable_agent_tool",
-    "when": {
-     "arg": "agent_tool_name",
-     "prefix": "submit_interest_discrepancy_report"
-    },
-    "arg": "amount_difference",
-    "sources": [
-     "records"
-    ],
-    "tokens": [
-     "Interest correction"
-    ],
-    "feedback": "Error: [WRITE-EVIDENCE] the amount_difference ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute it yourself - call get_interest_correction (after reading the account record and transactions) and copy the amount exactly from its output."
-   },
-   {
-    "applies_to": "call_discoverable_agent_tool",
-    "when": {
-     "arg": "agent_tool_name",
      "prefix": "file_credit_card_transaction_dispute"
     },
     "arg": "transaction_id",
@@ -5496,16 +5407,16 @@
   },
   "identifying": {
    "args": [
-    "transaction_id",
     "account_id",
     "card_id",
-    "user_id",
-    "order_id",
     "card_last_4_digits",
     "dispute_id",
-    "report_id"
+    "order_id",
+    "report_id",
+    "time",
+    "transaction_id",
+    "user_id"
    ],
-   "min_len": 5,
    "feedback": "Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be read from the records or given by the customer, never invented. Look it up (or ask), then retry with the actual value."
   }
  },
@@ -5761,7 +5672,7 @@
    "KB_search"
   ],
   "search_feedback": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
-  "unlock_feedback": "The tool(s) for that step are {tools} and they have not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly those names first. Do not search the knowledge base for them: the names above are complete.",
+  "unlock_feedback": "[OPEN-STEP] You unlocked {names} and never called it. A tool unlocked to take a step is a step still open: call it, or tell the customer why it is not needed, before closing.",
   "steps_feedback": "Error: [PROCEDURE-INCOMPLETE] you are about to hand this conversation off, but the procedure you entered still has steps nobody has done: {steps}. A transfer does not perform them."
  },
  "LB6": {
@@ -5797,13 +5708,22 @@
    }
   ]
  },
- "_folded": {
-  "write_evidence_specs_naming_a_step": [
+ "_dropped": {
+  "write_evidence_specs": [
+   [
+    "RESOLVED"
+   ],
+   [
+    "Consecutive on-time payments"
+   ],
    [
     "get_credit_limit_increase_history"
    ],
    [
     "get_pending_replacement_orders"
+   ],
+   [
+    "ELIGIBLE - all tier requirements"
    ],
    [
     "get_closure_reason_history"
@@ -5813,7 +5733,20 @@
    ],
    [
     "get_pending_replacement_orders"
-   ]
-  ]
+   ],
+   [
+    "CLOSURE_OK"
+   ],
+   null,
+   [
+    "Interest correction"
+   ],
+   [
+    "Interest correction"
+   ],
+   null,
+   null
+  ],
+  "why": "a demanded verdict string prescribes a check the environment does not require (base passes 049 without CLOSURE_OK); step order lives in LB1 procedures"
  }
 }

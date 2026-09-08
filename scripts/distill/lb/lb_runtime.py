@@ -23,7 +23,8 @@ import lb2_decision
 import lb6_load
 from lb_coordinator import Turn, evaluate, say, fam, as_dict
 
-ROUNDS = 3
+ROUNDS = 3            # regenerations per turn
+REGEN_BUDGET = 12     # regenerations per simulation; after that the model's message stands as generated
 GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
 
 
@@ -64,6 +65,10 @@ def turn_hook(self, message, state):
         d = say(turn, evaluate(turn), owner=self)
         if not d.denies and not (d.advice and not turn.calls):
             break
+        if self.__dict__.get("_lb_regen", 0) >= REGEN_BUDGET:
+            print("[lb] regen budget spent - message stands", file=sys.stderr, flush=True)
+            break
+        self._lb_regen = self.__dict__.get("_lb_regen", 0) + 1
         fb = [am] + [ToolMessage(id=c.id, role="tool", requestor="assistant", error=True,
                                  content=d.denies.get(id(c), GENERIC)) for c in turn.calls]
         fb += [UserMessage(role="user", content=text) for text in d.advice]
