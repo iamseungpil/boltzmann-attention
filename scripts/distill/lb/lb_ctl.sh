@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Start, stop and watch the LB lanes without pattern matching on process names.
 #
-#   lb_ctl.sh start <port> <conc>   start a lane; its pid goes in a pid file
+#   lb_ctl.sh start <port> <conc> [k]   start worker k of a lane (two conc-2 workers per A100 keep 4 sims in flight)
 #   lb_ctl.sh stop  <port>          put the in-flight task back on the queue and kill the whole
 #                                   process group, so no orphan keeps running the old code
 #   lb_ctl.sh restart-all           stop every lane, take the current branch, start them again
@@ -21,15 +21,23 @@ mkdir -p "$RUN" "$LOGS"
 pidfile() { echo "$RUN/lane_$1.pid"; }
 
 start() {
-  local port=$1 conc=${2:-1} pf; pf=$(pidfile "$port")
-  if [ -f "$pf" ] && kill -0 "$(cat "$pf")" 2>/dev/null; then echo "lane $port already running (pid $(cat "$pf"))"; return 0; fi
+  # start <port> <conc> [k]: worker k of this engine (a task has only 4 sims, so one conc-4 worker
+  # spends most of its time on a straggler; two conc-2 workers keep 4 sims in flight - handoff §6)
+  local port=$1 conc=${2:-1} k=${3:-} name pf; name="$port${k:+_$k}"; pf=$(pidfile "$name")
+  if [ -f "$pf" ] && kill -0 "$(cat "$pf")" 2>/dev/null; then echo "lane $name already running (pid $(cat "$pf"))"; return 0; fi
   sed -i 's/\r$//' "$LB/lane_lb.sh"
-  setsid bash "$LB/lane_lb.sh" "$port" "$conc" 4 </dev/null > "$LOGS/lane_lb_$port.log" 2>&1 &
+  setsid bash "$LB/lane_lb.sh" "$port" "$conc" 4 </dev/null > "$LOGS/lane_lb_$name.log" 2>&1 &
   echo $! > "$pf"
-  sleep 8; echo "lane $port started (pid $(cat "$pf")):"; tail -2 "$LOGS/lane_lb_$port.log"
+  sleep 8; echo "lane $name started (pid $(cat "$pf")):"; tail -2 "$LOGS/lane_lb_$name.log"
 }
 
 stop() {
+  # stop <port>: every worker of that engine (lane_<port>.pid and lane_<port>_<k>.pid)
+  local port=$1 pf
+  for pf in "$RUN/lane_$port.pid" "$RUN"/lane_"$port"_*.pid; do [ -f "$pf" ] && stop_one "$(basename "$pf" .pid | sed 's/lane_//')"; done
+}
+
+stop_one() {
   local port=$1 pf pid kids task; pf=$(pidfile "$port")
   [ -f "$pf" ] || { echo "lane $port: no pid file"; return 0; }
   pid=$(cat "$pf")
@@ -49,7 +57,7 @@ stop() {
 }
 
 case "${1:-status}" in
-  start)   start "$2" "${3:-1}" ;;
+  start)   start "$2" "${3:-1}" "${4:-}" ;;
   probe)   # probe <port> <task...>: nt=1, tag probe_<task>, its own queue; never touches q_lb.txt
     port=$2; shift 2; pf=$(pidfile "$port")
     [ -f "$pf" ] && kill -0 "$(cat "$pf")" 2>/dev/null && { echo "lane $port already running"; exit 1; }
@@ -65,7 +73,7 @@ case "${1:-status}" in
     git -C "$R" fetch -q origin lb && git -C "$R" reset -q --hard origin/lb
     echo "sha $(git -C "$R" log --oneline -1)"
     (cd "$LB" && PYTHONIOENCODING=utf-8 $PY tests/test_lb.py 2>&1 | grep -E '^FAIL|RESULT')
-    start 9143 4; start 8141 1 ;;
+    start 9141 2 1; start 9141 2 2; start 9143 2 1; start 9143 2 2; start 8141 1 ;;
   status)
     echo "queue $(wc -l < "$Q"): $(head -3 "$Q" | tr '\n' ' ')"
     for pf in "$RUN"/lane_*.pid; do
