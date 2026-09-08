@@ -144,6 +144,9 @@ def migrate(domain):
 
 ORDER = ("Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your "
          "instruction. This has to hold first: {missing}. Do that now with the real tool calls.")
+# A procedure reaches the model on two paths and only the first one blocks the call. The refusal
+# sentence above belongs to that path alone; on the other it reports a refusal that never happened.
+ORDER_SURFACE = "[ORDER] '{tool}' normally comes after {missing}."
 UNGROUNDED = ("Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or "
               "customer message in this conversation - record values must be read from the records or given by the "
               "customer, never invented. Look it up (or ask), then retry with the actual value.")
@@ -233,7 +236,7 @@ def _edge_procedure(pid, dep, reads, quote, order):
     """A policy prerequisite as a procedure: always active, the dependent step requires the reads."""
     return {"id": pid, "enforce": True, "_quote_order": quote or "", "_source": [],
             "nodes": [{"id": r, "tool_prefix": r} for r in reads] + [{"id": dep, "tool_prefix": dep, "requires": list(reads)}],
-            "prohibits": {}, "feedback": {"unmet": order}}
+            "prohibits": {}, "feedback": {"unmet": order, "unmet_surface": ORDER_SURFACE}}
 
 
 def _specific(emap):
@@ -270,7 +273,7 @@ def _list(v):
     return list(v) if isinstance(v, list) else ([v] if v else [])
 
 
-PROC_FEEDBACK = ("unmet",)          # the only feedback the walker still uses
+PROC_FEEDBACK = ("unmet", "unmet_surface")   # the blocking sentence and the one that blocks nothing
 
 
 def _procedure(p):

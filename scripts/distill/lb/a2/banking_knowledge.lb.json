@@ -455,7 +455,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -478,7 +479,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -501,7 +503,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -524,7 +527,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -552,7 +556,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -585,7 +590,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -613,7 +619,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -641,7 +648,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -669,7 +677,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -692,7 +701,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -720,7 +730,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -743,7 +754,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -771,7 +783,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -794,7 +807,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -817,7 +831,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -840,7 +855,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -863,7 +879,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -886,7 +903,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -909,7 +927,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    },
    {
@@ -932,7 +951,8 @@
     ],
     "prohibits": {},
     "feedback": {
-     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls."
+     "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
     }
    }
   ],

@@ -97,7 +97,11 @@ text, err = lb2_decision.run_tool(vi, {"provided": json.dumps({"email": "a@x.com
 check("verifier verify_identity (grounded variant) verifies two matching values", not err and "VERIFIED" in text and "NOT_VERIFIED" not in text, text[:100])
 check("derived DAG declared with prompts and texts", any(n.get("text") for n in A2["LB2"]["derived"]) and all(n.get("prompt") for n in A2["LB2"]["derived"] if n["op"] == "formalize"))
 check("claims audit and have_value declared", any(s["kind"] == "claims" for s in A2["LB4"]["sets"]) and A2["LB7"]["have_value"])
-check("no dead declaration keys", not any(set(p.get("feedback") or {}) - {"unmet"} for p in A2["LB1"]["procedures"]))
+import lb_a2
+FB = set(lb_a2.PROC_FEEDBACK)          # the keys migration keeps; each one must also be read
+check("no dead declaration keys",
+      not any(set(p.get("feedback") or {}) - FB for p in A2["LB1"]["procedures"])
+      and all(k in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read() for k in FB))
 check("identifying args declared", "transaction_id" in A2["LB3"]["identifying"]["args"])
 
 # only seven lever flags in this code base

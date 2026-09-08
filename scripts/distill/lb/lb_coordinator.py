@@ -291,9 +291,15 @@ def admit(owner, tag, text):
 
 
 def sim_id(owner):
-    """A short id per simulation. Without it the sidecar lines of four concurrent simulations
-    interleave and no firing can be attributed to the conversation it happened in."""
-    return owner.__dict__.setdefault("_lb_sim", "%06x" % (id(owner) & 0xFFFFFF)) if owner is not None else "-"
+    """The simulation's own id, so a firing can be joined to the simulation that recorded it.
+    id(owner) changes whenever the agent object is rebuilt (a retry), which split one simulation's
+    rows across several ids - 11 of the 43 tasks completed on 09-08 carried more ids than they had
+    simulations, and none of the ids joined to results.json. The orchestrator owns the id that ends
+    up there (tau2 orchestrator.py:124 -> :807); lb_runtime hands it to the agent as _lb_orch."""
+    if owner is None:
+        return "-"
+    sid = getattr(getattr(owner, "_lb_orch", None), "simulation_id", None)
+    return sid or owner.__dict__.setdefault("_lb_sim", "%06x" % (id(owner) & 0xFFFFFF))
 
 
 def sidecar(kind, text, turn=None, **meta):

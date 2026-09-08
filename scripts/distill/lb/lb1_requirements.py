@@ -129,7 +129,11 @@ def procedure_findings(turn, call):
         if mandatory(p) and changes_state(turn.a2, name):
             pin = _pin(turn, p, missing)
             return [Finding(LB, DENY, fam(name), call, text, grade=POLICY, source="procedure:" + p["id"], pin=pin)]
-        return [Finding(LB, SURFACE, fam(name), facts=[text], grade=POLICY, source="procedure:" + p["id"])]
+        # Nothing was blocked here - the call proceeds. Saying "cannot be carried out" reports a
+        # refusal that did not happen (016: the read tool get_referrals_by_user was told exactly that).
+        surface = fill(fb.get("unmet_surface") or fb.get("unmet", ""), tool=name, missing=", ".join(missing),
+                       source=", ".join(p.get("_source") or [])[:120], **slots)
+        return [Finding(LB, SURFACE, fam(name), facts=[surface], grade=POLICY, source="procedure:" + p["id"])]
     return []
 
 
