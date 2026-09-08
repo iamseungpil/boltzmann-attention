@@ -21,7 +21,7 @@ import sys
 import lb_a2
 import lb2_decision
 import lb6_load
-from lb_coordinator import Turn, evaluate, say, fam, as_dict, sidecar, sim_id
+from lb_coordinator import Turn, evaluate, say, fam, as_dict, sidecar, sim_id, enabled
 
 ROUNDS = 3            # regenerations per turn
 REGEN_BUDGET = 12     # regenerations per simulation; after that the model's message stands as generated
@@ -42,7 +42,9 @@ def install(domain):
         agent = getattr(self, "agent", None)
         if agent is not None:
             agent._lb_a2, agent._lb_orch = a2, self
-            inject_tools(agent, a2)
+            if enabled("LB2"):
+                names = inject_tools(agent, a2)
+                sidecar("lb-tools", "INJECTED %s" % ", ".join(names), None, sim=sim_id(agent), n=len(names))
 
     def exec_hook(self, tool_calls):
         return execute(self, a2, tool_calls, orig_exec)
@@ -60,7 +62,8 @@ def turn_hook(self, message, state):
     self._system_messages = state.system_messages
     a2 = getattr(self, "_lb_a2", {}) or {}
     trace(self, state.messages[-len(message.tool_messages) if isinstance(message, MultiToolMessage) else -1:])
-    view = lb6_load.reduce(a2, state.messages)
+    view = lb6_load.reduce(a2, state.messages) if enabled("LB6") else list(state.messages)
+    fold_mark(self, state.messages, view)
     am = generate(self, view)
     for _ in range(ROUNDS):
         turn = build_turn(self, a2, state.messages, am)
@@ -97,6 +100,16 @@ def trace(agent, msgs, turn_len=None):
         sidecar("lb-msg", ("%s %s" % (calls, head)) if calls else head, None, sim=sim_id(agent),
                 role=str(getattr(m, "role", "")), n=turn_len if turn_len is not None else -1,
                 error=bool(getattr(m, "error", False)))
+
+
+def fold_mark(agent, before, after):
+    """The compactor kept no record of whether it ran. 028 hit the context window and the threshold
+    had to be recomputed by hand to find out that folding had engaged - and still was not enough."""
+    b = sum(len(str(getattr(m, "content", "") or "")) for m in before)
+    a = sum(len(str(getattr(m, "content", "") or "")) for m in after)
+    if a != b:
+        sidecar("lb-fold", "%d -> %d chars over %d messages" % (b, a, len(before)), None,
+                sim=sim_id(agent), before=b, after=a, msgs=len(before))
 
 
 def generate(self, messages, force=False, pin=None, tools=None, call_name="lb_turn"):
@@ -211,7 +224,7 @@ def corpus():
 # ---- execution hook: verifier tools and derived facts ---------------------------------------------
 def inject_tools(agent, a2):
     from tau2.environment.tool import Tool
-    have = {getattr(t, "name", None) for t in (agent.tools or [])}
+    have, added = {getattr(t, "name", None) for t in (agent.tools or [])}, []
     for d in (a2.get("LB2") or {}).get("tools") or []:
         if d["name"] in have:
             continue
@@ -223,6 +236,8 @@ def inject_tools(agent, a2):
         fn.__doc__ = "\n".join([str(d.get("description") or d["name"]).strip(), ""]
                                + [":param %s: %s" % (p, " ".join(str(t).split())) for p, t in params.items()])
         agent.tools.append(Tool(fn, examples=list(d.get("examples") or [])))
+        added.append(d["name"])
+    return added
 
 
 def execute(orch, a2, tool_calls, orig_exec):
