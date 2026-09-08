@@ -72,10 +72,15 @@ def main():
     ap.add_argument("patterns", nargs="+")
     ap.add_argument("--queue", default=None)
     ap.add_argument("--denominator", type=int, default=96)
+    ap.add_argument("--known-fail", nargs="*", dest="known_fail", default=None,
+                    help="tasks the record already shows failing; counted as zero, never from a prior")
+    ap.add_argument("--exclude", nargs="*", default=None, help="tasks outside the denominator")
     ap.add_argument("--prior", nargs="*", default=None,
                     help="an earlier run on the same model, used as a per-task difficulty estimate")
     a = ap.parse_args()
     scores = collect(a.patterns)
+    for t in (a.exclude or ()):
+        scores.pop(t, None)
     if not scores:
         print("nothing found")
         return
@@ -90,7 +95,8 @@ def main():
 
     left = []
     if a.queue and os.path.exists(a.queue):
-        left = [l.strip() for l in io.open(a.queue, encoding="utf-8") if l.strip()]
+        left = [l.strip() for l in io.open(a.queue, encoding="utf-8") if l.strip()
+                if l.strip() not in set(a.exclude or ())]
     print("\nqueued %d: %s" % (len(left), " ".join(left[:8]) + (" ..." if len(left) > 8 else "")))
     known = [r for b, r in rates.items() if bands[b]]
     lo, hi = (min(known), max(known)) if known else (overall, overall)
@@ -108,6 +114,8 @@ def main():
 
     if a.prior:
         prior = collect(a.prior)
+        for t in (a.exclude or ()):
+            prior.pop(t, None)
         both = sorted(set(prior) & set(scores))
         if not both:
             print("\nprior run shares no task with this one")
@@ -123,9 +131,12 @@ def main():
               % (100 * prate, pp, pn, 100 * crate, cp, cn, (crate / prate) if prate else 0))
         print("   the two agree on whether a task passes at all in %d of %d tasks" % (agree, len(both)))
         cal = (crate / prate) if prate else 1.0
-        seen = [t for t in left if t in prior]
-        blind = [t for t in left if t not in prior]
+        known_fail = set(a.known_fail or ())
+        seen = [t for t in left if t in prior and t not in known_fail]
+        blind = [t for t in left if t not in prior and t not in known_fail]
         expect = sum(min(1.0, cal * prior[t][0] / float(prior[t][1])) for t in seen) * 4
+        if known_fail & set(left):
+            print("\n   taken as failing on the record: %s" % " ".join(sorted(known_fail & set(left))))
         for label, fill_rate in (("prior only", 0.0), ("prior + this run's rate for the rest", overall)):
             total = done_pass + expect + len(blind) * 4 * fill_rate
             print("   %-38s %5.1f%%  (%d of %d simulations)"
