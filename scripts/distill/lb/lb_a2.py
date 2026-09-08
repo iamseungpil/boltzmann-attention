@@ -91,7 +91,8 @@ def migrate(domain):
                  for a in s.get("grounded_args") or []]
                 + [dict(applies_to=s.get("applies_to"), when=_when(s), arg=s.get("id_key"), sources=["records"],
                         tokens=s.get("require_tokens"), feedback=s.get("feedback"))
-                   for s in src.get("write_evidence_specs") or [] if s.get("require_tokens")]
+                   for s in src.get("write_evidence_specs") or []
+                   if s.get("require_tokens") and not _names_a_step(s["require_tokens"], procedures)]
                 + [dict(applies_to=s.get("applies_to"), when=_when(s), arg=s.get("id_key"), field=s.get("record_field"),
                         sources=["customer"], feedback=s.get("feedback")) for s in src.get("ref_verify") or []]
                 + [dict(applies_to=s.get("tool"), arg=s.get("arg"), sources=["records"], feedback=s.get("feedback"))
@@ -128,6 +129,9 @@ def migrate(domain):
         "LB7": {"deliver_for": (src.get("require_doc_before") or {}).get("tools") or [], "max_chars": 90000,
                 "names_feedback": NAMES, "have_value": _have_value(src)},
     }
+    out["_folded"] = {"write_evidence_specs_naming_a_step":
+                      [s.get("require_tokens") for s in src.get("write_evidence_specs") or []
+                       if s.get("require_tokens") and _names_a_step(s["require_tokens"], procedures)]}
     path = os.path.join(A2_DIR, "%s.lb.json" % domain)
     io.open(path, "w", encoding="utf-8").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
     return path
@@ -211,6 +215,22 @@ def _have_value(src):
                                             "producer_marker": s.get("producer_marker"), "reask_signals": s.get("reask_signals")})
         e.update({"acquire_tool": s.get("acquire_tool"), "give_tool": s.get("give_tool"), "acquire_feedback": s.get("feedback")})
     return list(out.values())
+
+
+def _names_a_step(tokens, procedures):
+    """Does a write-evidence requirement name a tool some procedure already orders?
+
+    A token like 'RESOLVED' is a property of the record the write points at - a citation, which is
+    LB3's question. A token like 'log_credit_card_closure_reason' is a claim about the execution
+    ledger: that a step ran. Order of steps is LB1's, and LB1 holds the policy quote and the
+    conditional structure that goes with it - the closure protocol skips the logging step when the
+    history already has a record, which is exactly what the flat requirement gets wrong (it blocked
+    gold in two tasks when it was measured). Folding it into LB1 removes the second, wrong copy; it
+    does not remove the requirement.
+    """
+    steps = {t for p in procedures for n in p.get("nodes") or []
+             for t in ([n["tool"]] if n.get("tool") else list(n.get("tool_any") or []))}
+    return any(any(t and (t in str(tok) or str(tok) in t) for t in steps) for tok in tokens or [])
 
 
 def _when(s):

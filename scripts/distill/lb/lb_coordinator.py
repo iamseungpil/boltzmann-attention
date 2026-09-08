@@ -33,7 +33,7 @@ _RANK = {lb: i for i, lb in enumerate(LB_ORDER)}
 _MODULES = {"LB1": "lb1_requirements", "LB2": "lb2_decision", "LB3": "lb3_citation",
             "LB4": "lb4_coverage", "LB5": "lb5_resignation", "LB6": "lb6_load", "LB7": "lb7_material"}
 FAILSAFE_DENY = "Error: [POLICY GATE] this call was denied; reason unavailable - do not retry the same call"
-ADVICE_BUDGET = 2
+ADVICE_BUDGET = 2          # how often one rule may advise in one simulation
 
 
 def enabled(lb):
@@ -199,8 +199,8 @@ class Turn(object):
 
 class Decision(object):
     def __init__(self):
-        self.denies, self.advice, self.pins, self.force_call = {}, [], [], False
-        self.conflicts, self.trace, self.won = [], [], {}
+        self.denies, self.advice, self.advice_rules, self.pins = {}, [], [], []
+        self.force_call, self.conflicts, self.trace, self.won = False, [], [], {}
 
     def empty(self):
         return not (self.denies or self.advice or self.pins)
@@ -245,6 +245,7 @@ def resolve(findings, turn=None):
             order_taken = order_taken or bool(winner.order)
             if text:
                 d.advice.append(text)
+                d.advice_rules.append(winner.source.split(":")[0] or winner.lb)
     return d
 
 
@@ -303,18 +304,24 @@ def say(turn, findings, owner=None):
     targets = {f.target for f in d.won.values() if f.target}
     if d.advice and not window_opened(turn.am, targets, turn.name_of):
         d.trace.append(("window", "closed", len(d.advice)))
-        d.advice = []
+        d.advice, d.advice_rules = [], []
     if owner is not None:
         for k, text in d.denies.items():
             if not admit(owner, "deny", text):
                 d.trace.append(("repeat", "deny kept", d.won[("call", k)].source))
+        # budget by rule, not by sentence: a rule that phrases itself differently every turn
+        # (the claims audit names the claims it found) never hits a per-sentence budget, and one
+        # fired thirteen times in a single simulation before this.
         fired = owner.__dict__.setdefault("_lb_advice_fired", collections.Counter())
-        kept = []
-        for text in d.advice:
-            fired[text[:60]] += 1
-            if admit(owner, "advice", text) and fired[text[:60]] <= ADVICE_BUDGET:
+        kept, rules = [], []
+        for text, rule in zip(d.advice, d.advice_rules):
+            fired[rule] += 1
+            if admit(owner, "advice", text) and fired[rule] <= ADVICE_BUDGET:
                 kept.append(text)
-        d.advice = kept
+                rules.append(rule)
+            else:
+                d.trace.append(("budget", "rule has spoken enough in this simulation", rule))
+        d.advice, d.advice_rules = kept, rules
     for c in d.conflicts:
         line = "[LB_CONFLICT] target=%s winner=%s:%s(E%d) losers=%s" % (
             c["target"], c["winner"][0], c["winner"][1], c["winner"][2],
@@ -347,6 +354,16 @@ if __name__ == "__main__":
     d2 = resolve([Finding("LB7", SURFACE, "t2", order="do t2", grade=1, facts=["doc unread"]),
                   Finding("LB5", SURFACE, "t1", order="do t1", grade=1)])
     assert d2.advice == ["do t1", "doc unread"], d2.advice
+    assert d2.advice_rules == ["LB5", "LB7"], d2.advice_rules   # no source given: the engine names the rule
+
+    class Owner(object):
+        pass
+
+    owner = Owner()
+    for i in range(4):                      # one rule, four different sentences, budget two
+        say(Turn({}, [], M(content="bye")), [Finding("LB4", SURFACE, "t", order="claim %d missing" % i,
+                                             grade=1, source="claims")], owner=owner)
+    assert owner._lb_advice_fired["claims"] == 4 and ADVICE_BUDGET == 2
     assert fill("a {x} b {y_z} c {Keep}", x=1) == "a 1 b  c {Keep}"
     assert records_in('{"rows": [{"id": "r1"}, {"id": "r2"}]}', "id") == [{"id": "r1"}, {"id": "r2"}]
     assert records_in('text\n{"id": "r3"}', "id") == [{"id": "r3"}]
