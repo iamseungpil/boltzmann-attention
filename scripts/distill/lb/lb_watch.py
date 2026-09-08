@@ -10,7 +10,9 @@ pattern that has already cost a run:
 
   runaway      one rule denying the same target over and over: the deny reproduces its own cause
   gold-risk    a rule other than the procedure walker blocking a declared write tool
-  inversion    a conflict where the loser rests on stronger evidence than the winner
+  inversion    a conflict where the loser rests on much stronger evidence. A gap of one is
+               ordinary: the procedure walker quotes policy (E2) and outranks a ledger fact
+               (E1) when both name the same step, and the two merge into one sentence.
   flood        one rule advising more often than its per-simulation budget
   silent       an engine that has not fired once this far into the run
   stuck        a simulation with no new sidecar row and no new log line for a long time
@@ -77,7 +79,7 @@ def watch(logs, a2, minutes):
                 advice[(sim, r.get("source"))] += 1
             elif r.get("kind") == "lb-conflict":
                 if r.get("loser_grade") is not None and r.get("winner_grade") is not None \
-                        and r["loser_grade"] < r["winner_grade"]:
+                        and r["winner_grade"] - r["loser_grade"] >= 2:
                     alerts.append(("inversion", task, "%s beat %s on %s though the loser rests on "
                                    "stronger evidence" % (r.get("winner"), r.get("loser"), r.get("target"))))
         for (sim, source, target), n in deny.items():
@@ -85,9 +87,12 @@ def watch(logs, a2, minutes):
                 alerts.append(("runaway", task, "%s denied %s %d times in simulation %s"
                                % (source, target, n, sim)))
         for (sim, source), n in advice.items():
-            if n > FLOOD:
+            if n > FLOOD and sim != "-":
                 alerts.append(("flood", task, "%s advised %d times in simulation %s" % (source, n, sim)))
 
+        if any(sim == "-" for sim, _s in advice) and data:
+            alerts.append(("no-sim-id", task, "rows carry no simulation id, so per-simulation counts "
+                                              "are blind: this run started before that was wired"))
         text = io.open(drv, encoding="utf-8", errors="replace").read() if os.path.exists(drv) else ""
         if "Traceback" in text:
             alerts.append(("crash", task, "traceback in the driver log"))
