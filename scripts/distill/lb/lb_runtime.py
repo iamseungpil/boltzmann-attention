@@ -237,7 +237,8 @@ def execute(orch, a2, tool_calls, orig_exec):
             formalize_rows(orch, agent, iso, args, orig_exec)
         text, err = lb2_decision.run_tool(d, args, corpora_of(orch, agent), evidence_of(orch, d))
         by_id[tc.id] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=err, content=text)
-        sidecar("lb-tool", "ARGS %s\nRESULT %s" % (json_dumps(args)[:6000], text[:6000]), None, sim=sim_id(agent),
+        # result first: the sidecar keeps 4000 chars and a 47-row argument list alone exceeds that
+        sidecar("lb-tool", "RESULT %s\nARGS %s" % (text[:2500], json_dumps(args)[:1400]), None, sim=sim_id(agent),
                 source=d["name"], error=bool(err))   # the verifier's full input and output, for live forensics
         print("[lb2] tool %s -> %s" % (d["name"], "error" if err else "ok"), file=sys.stderr, flush=True)
     out = [by_id[getattr(tc, "id", None)] for tc in tool_calls if getattr(tc, "id", None) in by_id]
