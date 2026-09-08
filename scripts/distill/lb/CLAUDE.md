@@ -18,12 +18,12 @@
 6. 새 판정을 넣을 때 먼저 묻는다: 어느 LB 의 규칙 하나의 인스턴스인가? 데이터면 `lb.json`, 새 규칙이면 그 LB 의 `kind` 하나 + 자기검정.
 7. 응답·보고는 한글(축자 인용·기술 용어 원어·commit 영어). 커밋은 이 브랜치에서, push 는 지시가 있을 때만.
 
-## 지금 상태 (2026-09-08 오후)
-- 커밋 `b0e2e138`(구 가드 판정·이전) · `50bf34b0`(프로브 모드) · 배터리 23/23 · 3,529줄.
-- **배포 전 관문(순서 고정)**: ① `tests/test_lb.py` ② `lb_replay.py` 를 base 전 태스크에 — base 통과 sim 에서 deny 가 늘면 그 규칙을 읽는다 ③ 8141 `lb_ctl.sh probe 8141 <task…>`(nt=1, 태그 `probe_`) + `lb_ctl.sh tick 60 probe` ④ 그 뒤에만 라이브. 이 순서를 건너뛰어 라이브 다섯 번을 죽였다.
-- 구 가드 판정표 = `docs/REVIEW_OLD_VS_NEW_2026_09_08.md`(①일반화 ②조건동등 ③미이전). 재현이 잡아 지운 것: LB1 `absent`(핀 예산 우회 180회) · LB3 `tokens`(판정 문자열 처방) · 값 모양 추정.
-- 보류 판단: `log_verification` 앞 `verify_identity` 요구(sim당 1회 deny, 결손 미측정) — 표시만.
-- 레인: 9141·9143 = base 워커 둘(같은 큐 `q_cbase.txt`, flock) · 8141 = 프로브/LB. 클라우드에 LB 를 올리지 않는다(비용).
+## 지금 상태 (2026-09-08 15:40)
+- 커밋 `5cd5eb63` · 배터리 41/41 · 3,609줄. LB1 = 절차 DAG **하나**(정책 선행·게이트는 이전 시 항상-활성 2노드 절차로) · LB5 = 결정점 **하나**(`leaving`: 떠나는 턴에 열린 의무를 한 번에 표면화, 결정은 모델).
+- 오늘 폐기: LB1 `absent` · LB7 `named_uncalled` · LB5 `uncalled-unlock` · LB5 `steps-open` · LB3 `tokens`(검증기 판정 문자열) · `verify_identity` 선행 요구 · 제출→갱신 follow-up. 복원: LB3 `state`(환경 출력의 상태어, 027/029 기만 국면). 근거는 전부 `docs/REVIEW_OLD_VS_NEW_2026_09_08.md` §1~§11.
+- census(base 201 sim): 통과 sim 에서 deny 하는 sim 80 → 18. 실패 sim deny 는 LB3 state 33 · LB1 procedures 10.
+- **원칙(메모리 92)**: 결정기는 판단하지 않는다 — 계산·절차 루프·재료 공급만. F3(대상 오매칭·근거 없는 추론)은 기록만.
+- **전수 A/B 준비 완료**: `q_lb.txt` = 96 태스크, 리모트 `x768/launch_cloud.sh` 가 base 워커·큐가 비면 origin/lb 를 당겨 배터리 뒤 `lb_ctl.sh start 9141 4` + `start 9143 4`(nt=4). 8141 프로브 큐는 029 만 남김. 결과 짝짓기 = `lb_pairs.py`, 영속 = `out_lb/*.gz` → `sim_results/` `git add -f`.
 
 ## 문서 지도
 | 물음 | 파일 |
