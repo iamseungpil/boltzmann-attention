@@ -59,6 +59,7 @@ case "${1:-status}" in
     LB_QUEUE="$RUN/q_probe.txt" setsid bash "$LB/lane_lb.sh" "$port" 1 1 probe </dev/null > "$LOGS/lane_lb_$port.log" 2>&1 &
     echo $! > "$pf"; sleep 8; echo "probe lane $port started (pid $(cat "$pf")):"; tail -2 "$LOGS/lane_lb_$port.log" ;;
   stop)    stop "$2" ;;
+  probe-stop) Q="$RUN/q_probe.txt"; stop "$2" ;;      # same, but the in-flight task goes back on the probe queue
   restart-all)
     for pf in "$RUN"/lane_*.pid; do [ -f "$pf" ] && stop "$(basename "$pf" .pid | sed 's/lane_//')"; done
     git -C "$R" fetch -q origin lb && git -C "$R" reset -q --hard origin/lb
