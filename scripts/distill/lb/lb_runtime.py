@@ -316,6 +316,87 @@ def formalize_rows(orch, agent, iso, args, orig_exec):
     msgs, kw = [UserMessage(role="user", content=prompt)], {k: v for k, v in agent.llm_args.items() if "tool" not in k}
     if iso.get("temperature") is not None:
         kw["temperature"] = iso["temperature"]
+    if iso.get("inject_docs"):
+        got = inject_operands(agent, iso, rows, schema)
+    else:
+        got = search_operands(orch, agent, iso, msgs, kw, schema, getters, orig_exec)
+    verdict = {}
+    if got:
+        hay = " ".join(corpora_of(orch, agent)["kb"]).lower()
+        lo, hi = (iso.get("rate_range") or [None, None])[:2]
+        for r in rows:
+            ops = got.get(str(r.get(idf)))
+            if not isinstance(ops, dict):
+                verdict[str(r.get(idf))] = "absent"
+                continue
+            quote = str(ops.get(iso.get("quote_field") or "") or "").strip()
+            rate = lb2_decision.num(ops.get(iso.get("rate_field") or ""))
+            if quote and " ".join(quote.lower().split()) not in " ".join(hay.split()):
+                verdict[str(r.get(idf))] = "quote not in corpus"
+                continue                                   # unsupported: the row stays unverified
+            if rate is not None and lo is not None and not (lo <= rate <= hi):
+                verdict[str(r.get(idf))] = "rate out of range"
+                continue
+            r.update({k: v for k, v in ops.items() if k in iso["operand_schema"] and v not in ("", None)})
+            verdict[str(r.get(idf))] = "kept rate=%s" % rate
+    sidecar("lb-formalize", "VERDICT %s" % json_dumps(verdict), None, sim=sim_id(agent),
+            source=str(iso.get("over")), mode="inject" if iso.get("inject_docs") else "search")
+
+
+def titled(corpus_docs):
+    """{title: body} - a document's title is its first heading line, which is how a policy set names
+    the subject it covers ('Silver Rewards Card: How to Earn 4% ...')."""
+    out = {}
+    for body in corpus_docs.values():
+        head = next((l for l in body.splitlines() if l.startswith("#")), "")
+        out[head.lstrip("#").strip()] = body
+    return out
+
+
+def inject_operands(agent, iso, rows, schema):
+    """Deliver the subject's documents in full instead of making the sub-agent search for them.
+
+    The search mode ended probe 017 with base_rate null on exactly the two rows that held the
+    discrepancy: the sub-agent found the bonus-rate document and never the standard-rate one. The
+    documents are ours to hand over, so they are handed over - grouped by the declared key, matched
+    by title prefix so a neighbouring product's documents ("Business Silver Rewards Card") stay out.
+    """
+    docs = titled(corpus())
+    if not docs:
+        return None
+    gkeys = iso["group_by"] if isinstance(iso["group_by"], list) else [iso["group_by"]]
+    doc_key = iso.get("doc_key") or gkeys[0]
+    keep, idf = set(iso.get("row_fields") or []), iso.get("id_field")
+    groups = {}
+    for r in rows:
+        if isinstance(r, dict):
+            groups.setdefault(tuple(str(r.get(k)) for k in gkeys), []).append(r)
+    out, batch = {}, int(iso.get("max_batch") or 0)
+    for grows in groups.values():
+        gval = str(grows[0].get(doc_key))
+        mine = sorted(t for t in docs if t.startswith(gval + ":"))
+        if not mine:
+            print("[lb2] inject: no document titled '%s: ...'" % gval, file=sys.stderr, flush=True)
+            continue
+        blob = "\n\n".join("### %s\n%s" % (t, docs[t]) for t in mine)
+        chunks = [grows[i:i + batch] for i in range(0, len(grows), batch)] if batch > 0 else [grows]
+        for chunk in chunks:
+            items = [{k: v for k, v in r.items() if k in keep} for r in chunk]
+            ids = {str(r.get(idf)): iso["operand_schema"] for r in chunk}
+            prompt = lb2_decision.fill(iso.get("inject_instructions") or iso.get("instructions", ""),
+                                       group=gval, docs=blob, items=json_dumps(items), schema=json_dumps(ids))
+            raw = ask_fn(agent)(prompt, "lb2_inject")
+            got = next((x for x in lb2_decision.records_in(raw) if set(x) & set(ids)), None) or {}
+            sidecar("lb-inject", "GROUP %s docs=%d rows=%d\nREPLY %s" % (gval, len(mine), len(chunk), raw[:1500]),
+                    None, sim=sim_id(agent), source=gval, got=len(got))
+            out.update({k: v for k, v in got.items() if k in ids})
+    return out or None
+
+
+def search_operands(orch, agent, iso, msgs, kw, schema, getters, orig_exec):
+    """The sub-agent searches for what it needs, then answers. Used when no documents are declared."""
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import UserMessage
     got = None
     for rnd in range(int(iso.get("max_rounds", 4))):
         last = rnd == int(iso.get("max_rounds", 4)) - 1
@@ -339,27 +420,7 @@ def formalize_rows(orch, agent, iso, args, orig_exec):
             break
         msgs.append(resp)
         msgs.extend(orig_exec(orch, calls))
-    verdict = {}
-    if got:
-        hay = " ".join(corpora_of(orch, agent)["kb"]).lower()
-        lo, hi = (iso.get("rate_range") or [None, None])[:2]
-        for r in rows:
-            ops = got.get(str(r.get(idf)))
-            if not isinstance(ops, dict):
-                verdict[str(r.get(idf))] = "absent"
-                continue
-            quote = str(ops.get(iso.get("quote_field") or "") or "").strip()
-            rate = lb2_decision.num(ops.get(iso.get("rate_field") or ""))
-            if quote and " ".join(quote.lower().split()) not in " ".join(hay.split()):
-                verdict[str(r.get(idf))] = "quote not in corpus"
-                continue                                   # unsupported: the row stays unverified
-            if rate is not None and lo is not None and not (lo <= rate <= hi):
-                verdict[str(r.get(idf))] = "rate out of range"
-                continue
-            r.update({k: v for k, v in ops.items() if k in iso["operand_schema"] and v not in ("", None)})
-            verdict[str(r.get(idf))] = "kept rate=%s" % rate
-    sidecar("lb-formalize", "REPLY %s\nVERDICT %s" % (str(getattr(resp, "content", "") or "")[:3000], json_dumps(verdict)),
-            None, sim=sim_id(agent), source=str(iso.get("over")), rounds=rnd + 1)
+    return got
 
 
 def json_dumps(o):

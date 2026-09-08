@@ -439,6 +439,14 @@ def render_result(decl, ctx, result):
     details = "; ".join("%s: recorded %s, expected %s (delta %s)" % (d["id"], d["actual"], d["expected"], d["delta"])
                         for d in ctx.get("_details") or [])
     slots = {k: v for k, v in ctx.items() if isinstance(v, (str, int, float))}
+    if isinstance(result, list) and not result and st.get("skipped"):
+        # a clean sweep of the rows that could be judged is not a clean sweep. On probe 017 the two
+        # rows nobody could judge were the two the customer was disputing, and "no discrepancy" as
+        # the opening sentence was read as the answer.
+        return ("Error: [COVERAGE] %d of %d rows could not be judged (no policy rate was established for "
+                "them), and none of the %d that were judged is discrepant. This is not a verdict: retrieve "
+                "the policy that covers the remaining rows, then call again."
+                % (st["skipped"], st["total"], st.get("judged", 0)))
     if isinstance(result, list) and not result and decl.get("return_template_empty"):
         text = decl["return_template_empty"]
     else:
