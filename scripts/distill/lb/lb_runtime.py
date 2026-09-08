@@ -26,6 +26,7 @@ from lb_coordinator import Turn, evaluate, say, fam, as_dict, sidecar, sim_id
 ROUNDS = 3            # regenerations per turn
 REGEN_BUDGET = 12     # regenerations per simulation; after that the model's message stands as generated
 GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
+ADVICE_MARK = "[SERVICE LAYER NOTE - not written by the customer; do not reply to it, act on it] "
 
 
 def install(domain):
@@ -74,7 +75,9 @@ def turn_hook(self, message, state):
         self._lb_regen = self.__dict__.get("_lb_regen", 0) + 1
         fb = [am] + [ToolMessage(id=c.id, role="tool", requestor="assistant", error=True,
                                  content=d.denies.get(id(c), GENERIC)) for c in turn.calls]
-        fb += [UserMessage(role="user", content=text) for text in d.advice]
+        # the advice rides in the customer's slot, and on task_070 the model answered it as if the
+        # customer had written it; the marker says whose words these are
+        fb += [UserMessage(role="user", content=ADVICE_MARK + text) for text in d.advice]
         am = generate(self, view + fb, force=d.force_call, pin=d.pins[0] if d.pins else None)
     trace(self, [am], turn_len=len(state.messages))
     return am

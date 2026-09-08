@@ -19,6 +19,10 @@ def have_value(turn):
         signals = [str(x).lower() for x in sp.get("reask_signals") or []]
         if not signals or not any(x in said for x in signals) or fam(sp.get("write", "")) in turn.executed_fams():
             continue
+        # only when the retrieved material names the acquiring tool: on task_070 (a business account
+        # opening) this pointed at a card-digit tool nothing retrieved had mentioned, twice
+        if sp.get("acquire_tool") and fam(sp["acquire_tool"]).lower() not in turn.tool_text:
+            continue
         outs = [o for o in turn.tool_outputs() if str(sp.get("producer_marker", "")).lower() in o.lower()]
         if outs:
             value = _after(outs[-1], sp.get("value_after"))
@@ -65,6 +69,7 @@ if __name__ == "__main__":
                                 "give_tool": "give", "acquire_feedback": "give {acquire_tool} via {give_tool}"}]
     have = Turn(A2, [M("tool", "Executed: get_last4 ... Last 4 digits of card: 5320.")], M(content="What are the last 4 digits?"))
     assert have_value(have)[0].order == "you have last4=5320; file file_x"
-    need = Turn(A2, [M("user", "hi")], M(content="please tell me the last 4 digits"))
+    assert not have_value(Turn(A2, [M("user", "hi")], M(content="please tell me the last 4 digits")))   # nothing retrieved names the tool
+    need = Turn(A2, [M("tool", "doc: use get_last4 to read the digits")], M(content="please tell me the last 4 digits"))
     assert have_value(need)[0].order == "give get_last4 via give"
     print("lb7_material self-test OK")
