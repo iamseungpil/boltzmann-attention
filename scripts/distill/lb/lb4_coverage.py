@@ -151,7 +151,9 @@ def claims(spec, turn):
         return []
     # attempted, not executed: on probe 004 the model said it had matched the phone number, the check
     # had indeed run and answered NOT_VERIFIED, and this audit told the model no such event existed.
-    done, emap = turn.attempted_fams(), spec.get("event_map") or {}
+    # a promise the model is keeping in this very turn ("I'll transfer you" + the transfer call) is kept
+    done = turn.attempted_fams() | {fam(turn.name_of(c)) for c in turn.calls}
+    emap = spec.get("event_map") or {}
     sidecar("lb-ask", raw, turn, source="claims", done=" ".join(sorted(done)))   # what the audit saw, for forensics
 
     def backed(c):
@@ -247,4 +249,7 @@ if __name__ == "__main__":
     t = Turn(A2, [], M(content="Done.", calls=[C("transfer_x", cid="tx")]), executed={"KB_search": 1, "close_z": 1},
              extras={"ask": lambda p, n: reply})
     assert "pending: write: will call y" in [g.order for g in claims(spec, t)]
+    t = Turn(A2, [], M(content="Done.", calls=[C("transfer_x", cid="tx"), C("call_y", cid="cy")]), executed={"KB_search": 1},
+             extras={"ask": lambda p, n: reply})
+    assert not any("pending" in g.order for g in claims(spec, t))                # kept in this very turn
     print("lb4_coverage self-test OK")
