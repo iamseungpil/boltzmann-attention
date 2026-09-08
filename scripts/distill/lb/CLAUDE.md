@@ -18,11 +18,12 @@
 6. 새 판정을 넣을 때 먼저 묻는다: 어느 LB 의 규칙 하나의 인스턴스인가? 데이터면 `lb.json`, 새 규칙이면 그 LB 의 `kind` 하나 + 자기검정.
 7. 응답·보고는 한글(축자 인용·기술 용어 원어·commit 영어). 커밋은 이 브랜치에서, push 는 지시가 있을 때만.
 
-## 지금 상태
-- 커밋 `0903ef12`(엔진 7 + 조정기) · `09205d20`(서브콜 레버 이전) · 배터리 23/23 · 2,755줄 · py 12개.
-- 확정 결함 처리: 048 = 절차는 손님 발화만으로 열린다 · 049 = `intent_chains` 를 `procedures` 로 접어 코드 하나·선언 하나.
-- 부채: `account_opening`·`prescription:*` 절차의 `_quote_order` 가 AUTHORED(정책 축자 없음). 미이전 = `resolve_write/action_operator/recommendation`·`catalog_arg_docs`·`ledger_metrics` 다단 프롬프트.
-- 다음 수순(승인 필요): 리모트에 `repo_lb` 트리 → base 4/4 태스크(048·049 포함) 짝 A/B.
+## 지금 상태 (2026-09-08 오후)
+- 커밋 `b0e2e138`(구 가드 판정·이전) · `50bf34b0`(프로브 모드) · 배터리 23/23 · 3,529줄.
+- **배포 전 관문(순서 고정)**: ① `tests/test_lb.py` ② `lb_replay.py` 를 base 전 태스크에 — base 통과 sim 에서 deny 가 늘면 그 규칙을 읽는다 ③ 8141 `lb_ctl.sh probe 8141 <task…>`(nt=1, 태그 `probe_`) + `lb_ctl.sh tick 60 probe` ④ 그 뒤에만 라이브. 이 순서를 건너뛰어 라이브 다섯 번을 죽였다.
+- 구 가드 판정표 = `docs/REVIEW_OLD_VS_NEW_2026_09_08.md`(①일반화 ②조건동등 ③미이전). 재현이 잡아 지운 것: LB1 `absent`(핀 예산 우회 180회) · LB3 `tokens`(판정 문자열 처방) · 값 모양 추정.
+- 보류 판단: `log_verification` 앞 `verify_identity` 요구(sim당 1회 deny, 결손 미측정) — 표시만.
+- 레인: 9141·9143 = base 워커 둘(같은 큐 `q_cbase.txt`, flock) · 8141 = 프로브/LB. 클라우드에 LB 를 올리지 않는다(비용).
 
 ## 문서 지도
 | 물음 | 파일 |
