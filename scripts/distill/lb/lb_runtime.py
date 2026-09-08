@@ -319,13 +319,21 @@ def formalize_rows(orch, agent, iso, args, orig_exec):
     got = None
     for rnd in range(int(iso.get("max_rounds", 4))):
         last = rnd == int(iso.get("max_rounds", 4)) - 1
+        if last:
+            # searching is over; ask for the answer in so many words. Without this the sub-agent ended
+            # probe 017 with an empty message and every row went unjudged.
+            msgs.append(UserMessage(role="user", content="Stop searching now and answer. Reply with EXACTLY one "
+                                    "JSON object in the format given above and nothing else."))
         try:
             resp = la.generate(model=agent.llm, tools=None if (last or not getters) else getters, messages=msgs,
                                call_name="lb2_rows", **kw)
         except Exception as e:
             print("[lb2] row formalize failed: %r" % (e,), file=sys.stderr, flush=True)
+            sidecar("lb-formalize-round", "FAILED %r" % (e,), None, sim=sim_id(agent), rnd=rnd)
             return
         calls = list(getattr(resp, "tool_calls", None) or [])
+        sidecar("lb-formalize-round", "CALLS %s\nCONTENT %s" % ([getattr(c, "name", "") for c in calls],
+                str(getattr(resp, "content", "") or "")[:1500]), None, sim=sim_id(agent), rnd=rnd, last=last)
         if not calls:
             got = next((r for r in lb2_decision.records_in(str(getattr(resp, "content", "") or "")) if set(r) & set(schema)), None)
             break
