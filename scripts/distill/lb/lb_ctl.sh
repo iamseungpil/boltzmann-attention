@@ -55,8 +55,7 @@ case "${1:-status}" in
     [ -f "$pf" ] && kill -0 "$(cat "$pf")" 2>/dev/null && { echo "lane $port already running"; exit 1; }
     printf '%s
 ' "$@" > "$RUN/q_probe.txt"
-    sed -i 's/
-$//' "$LB/lane_lb.sh"
+    sed -i 's/$//' "$LB/lane_lb.sh"
     LB_QUEUE="$RUN/q_probe.txt" setsid bash "$LB/lane_lb.sh" "$port" 1 1 probe </dev/null > "$LOGS/lane_lb_$port.log" 2>&1 &
     echo $! > "$pf"; sleep 8; echo "probe lane $port started (pid $(cat "$pf")):"; tail -2 "$LOGS/lane_lb_$port.log" ;;
   stop)    stop "$2" ;;
