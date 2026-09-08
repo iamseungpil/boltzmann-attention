@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 """LB1 - requirement-graph gate (mechanism F1, compliance / guarantee).
 
-One rule: a call may run only after every prerequisite the policy names for it has run, and a
-running procedure's prohibitions hold. Both come from A2["LB1"]:
-
-  prerequisites  [{dep, reads}]            dep needs each of reads first (transitive)
+One rule, one walker: a state-changing call may run only after every step the policy names before it
+has run, and a running procedure's prohibitions hold. Everything is a procedure DAG in A2["LB1"]:
+  procedures     [{id, enforce, enter_when{tool_any, signals} | absent = always active,
+                   nodes[{id, tool|tool_any|tool_prefix, requires, min_count}],
+                   prohibits{name: {quote}}, feedback{unmet, prohibited}}]
   write_tools    [name]                    the calls that change state; only these can be denied for
-                                           being out of order, because reading in a different order
-                                           changes nothing and blocking a read only costs turns
-  gates          [{id, predicate, satisfiers, applies_to, exempt}]   an action needs a satisfier
-  procedures     [{id, enforce, enter_when{tool_any, signals}, nodes[{id, tool|tool_any|tool_prefix,
-                   requires, min_count}], prohibits{name: {quote}}, feedback{unmet, prohibited}}]
-
-A procedure is active once one of its own tools ran or the customer's wording matched its signals
-(customer text only - defect 048). It blocks only when enforce is true and it quotes the policy
-sentence that licenses the order; otherwise it surfaces. The engine names no tool and writes no
+                                           being out of order - reading in a different order changes
+                                           nothing, and blocking a read only costs turns
+A policy prerequisite ("verify before account access") is a two-node procedure that is always active;
+a multi-step protocol enters when one of its own tools ran or the customer's wording matched its
+signals (customer text only - defect 048). It blocks only when enforce is true and it quotes the
+policy sentence that licenses the order; otherwise it surfaces. The engine names no tool and writes no
 sentence of its own: every template is the declaration's. Task-specific cases are data here.
 """
 
@@ -22,66 +20,6 @@ from lb_coordinator import Finding, DENY, SURFACE, PIN, GRADES, fam, fill
 
 LB = "LB1"
 POLICY = GRADES["policy_verbatim"]
-
-
-# ---- prerequisite graph -------------------------------------------------------------------------
-def edges_for(a2, target):
-    """{tool: [prerequisite tools]} for one target: declared reads plus the gates covering it."""
-    spec = a2.get("LB1") or {}
-    edges = {}
-    for p in spec.get("prerequisites") or []:
-        edges.setdefault(fam(p.get("dep")), []).extend(fam(r) for r in p.get("reads") or [])
-    for g in spec.get("gates") or []:
-        if target in (g.get("applies_to") or []) and target not in (g.get("exempt") or []):
-            edges.setdefault(fam(target), []).extend(fam(s) for s in g.get("satisfiers") or [])
-    return edges
-
-
-def first_step(name, done, edges, seen=()):
-    """The step that can be taken right now on the way to `name` (the graph walked to its root)."""
-    n = fam(name)
-    if n in done or n in seen:
-        return None if n in done else n
-    for p in edges.get(n) or []:
-        step = first_step(p, done, edges, set(seen) | {n})
-        if step:
-            return step
-    return n
-
-
-def requirements_for(a2, target, done):
-    """Unmet requirements of `target`, each with the step to take now - all of them, not the first."""
-    spec, t, edges, out = a2.get("LB1") or {}, fam(target), edges_for(a2, target), []
-    for g in spec.get("gates") or []:
-        sat = [fam(s) for s in g.get("satisfiers") or []]
-        if target not in (g.get("applies_to") or []) or target in (g.get("exempt") or []):
-            continue
-        if sat and not set(sat) & done:
-            step = [x for x in (first_step(s, done, edges) for s in sat) if x][:1] or sat
-            out.append({"id": g.get("id"), "predicate": g.get("predicate") or g.get("id"), "satisfiers": step})
-    miss = [first_step(r, done, edges) or r for r in edges.get(t) or [] if r not in done]
-    miss = [m for m in dict.fromkeys(miss) if m not in {s for r in out for s in r["satisfiers"]}]
-    if miss:
-        out.append({"id": "reads:" + ",".join(miss), "satisfiers": miss,
-                    "predicate": "the prior read(s) this action requires have been done"})
-    return out
-
-
-def merged_text(a2, reqs, target):
-    """One imperative, the rest declarative (a list of four orders lost three of them on task 101)."""
-    fb = (a2.get("LB1") or {}).get("feedback") or {}
-    r = reqs[0]
-    first = "%s (do it with: %s)" % (r["predicate"], ", ".join(r["satisfiers"]))
-    if len(reqs) == 1:
-        return fill(fb.get("single") or DEFAULT_SINGLE, target=target, requirement=first)
-    rest = "; ".join(x["predicate"] for x in reqs[1:])
-    return fill(fb.get("merged") or DEFAULT_MERGED, target=target, first=first, rest=rest)
-
-
-DEFAULT_SINGLE = ("Error: [ORDER] '{target}' cannot be carried out yet. This has to hold first: "
-                  "{requirement}. Do that now with the real tool calls.")
-DEFAULT_MERGED = ("Error: [ORDER] '{target}' cannot be carried out yet.\nDo this now, with a real tool call: "
-                  "{first}\nStill outstanding after that: {rest}")
 
 
 # ---- procedures -----------------------------------------------------------------------------------
@@ -105,8 +43,8 @@ def active(procs, executed, user_text):
     ran = set(executed)
     out = []
     for p in procs:
-        ew = p.get("enter_when") or {}
-        if set(ew.get("tool_any") or []) & ran or any(s.lower() in user_text for s in ew.get("signals") or []):
+        ew = p.get("enter_when")
+        if not ew or set(ew.get("tool_any") or []) & ran or any(s.lower() in user_text for s in ew.get("signals") or []):
             out.append(p)
     return out
 
@@ -206,14 +144,7 @@ def _pin(turn, proc, missing):
 
 
 def evaluate(turn):
-    out = []
-    for c in turn.calls:
-        name = turn.name_of(c)
-        reqs = requirements_for(turn.a2, fam(name), turn.executed_fams())
-        if reqs:
-            out.append(Finding(LB, DENY, fam(name), c, grade=POLICY, source="requirement", reqs=reqs))
-        out += procedure_findings(turn, c)
-    return out
+    return [f for c in turn.calls for f in procedure_findings(turn, c)]
     # A text turn inside a procedure is not judged here. The model asking the customer a question is a
     # text turn too (043: identity details at message 5), and a walker that pinned the next step there
     # fired 180 times over 216 base simulations. Leaving the procedure open at hand-off is LB5's case.
@@ -231,29 +162,31 @@ if __name__ == "__main__":
             self.role, self.content, self.tool_calls = role, content, list(calls)
 
     A2 = {"dispatch": {"agent_call": "call", "name_args": {"call": "tool"}},
-          "LB1": {"prerequisites": [{"dep": "log_verification", "reads": ["verify_identity"]}],
-                  "gates": [{"id": "G", "predicate": "identity verified", "satisfiers": ["log_verification"],
-                             "applies_to": ["submit_referral"]}],
-                  "procedures": [{"id": "p", "enforce": True, "_quote_order": "MUST",
+          "LB1": {"procedures": [{"id": "requires:submit_referral", "enforce": True, "_quote_order": "MUST",
+                                  "nodes": [{"id": "log_verification", "tool_prefix": "log_verification"},
+                                            {"id": "submit_referral", "tool_prefix": "submit_referral",
+                                             "requires": ["log_verification"]}],
+                                  "feedback": {"unmet": "[R] '{tool}' needs: {missing}"}},
+                                 {"id": "p", "enforce": True, "_quote_order": "MUST",
                                   "enter_when": {"tool_any": ["trigger"], "signals": ["please do the thing"]},
                                   "nodes": [{"id": "a", "tool": "read_a"}, {"id": "b", "tool": "write_b", "requires": ["a"]},
                                             {"id": "c", "tool_prefix": "credit_", "requires": ["b"]}],
                                   "prohibits": {"forbidden_x": {"quote": "Do not"}},
                                   "feedback": {"unmet": "[P] before '{tool}': {missing}",
                                                "prohibited": "[P] '{tool}' forbidden: {quote}"}}]}}
-    # gate walks to the executable root: log_verification needs verify_identity first
-    r = requirements_for(A2, "submit_referral", set())
-    assert r[0]["satisfiers"] == ["verify_identity"], r
-    assert "verify_identity" in merged_text(A2, r, "submit_referral")
-    A2["LB1"]["write_tools"] = ["write_b", "credit_apply"]
+    A2["LB1"]["write_tools"] = ["write_b", "credit_apply", "submit_referral"]
+    # an always-active two-node procedure is the old prerequisite: the write waits for its read
+    t = Turn(A2, [M("user", "hi")], M(calls=[C("submit_referral_9")]))
+    assert evaluate(t)[0].primitive == DENY and evaluate(t)[0].order == "[R] 'submit_referral_9' needs: log_verification"
+    assert not evaluate(Turn(A2, [], M(calls=[C("submit_referral_9")]), executed={"log_verification": 1}))
     t = Turn(A2, [M("user", "Please do the thing")], M(calls=[C("write_b")]))
     f = evaluate(t)
     assert f[0].primitive == DENY and f[0].order == "[P] before 'write_b': a"
     # a read out of order is said, not blocked
-    A2["LB1"]["procedures"][0]["nodes"].append({"id": "r", "tool": "read_z", "requires": ["a"]})
+    A2["LB1"]["procedures"][1]["nodes"].append({"id": "r", "tool": "read_z", "requires": ["a"]})
     t = Turn(A2, [M("user", "Please do the thing")], M(calls=[C("read_z")]))
     assert evaluate(t)[0].primitive == SURFACE
-    A2["LB1"]["procedures"][0]["nodes"].pop()
+    A2["LB1"]["procedures"][1]["nodes"].pop()
     t = Turn(A2, [M("user", "please do the thing")], M(calls=[C("call", {"tool": "credit_apply_1"})]),
              executed={"read_a": 1})
     assert evaluate(t)[0].order == "[P] before 'credit_apply_1': b"       # tool_prefix node, dispatcher unwrapped

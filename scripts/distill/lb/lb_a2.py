@@ -57,6 +57,17 @@ def migrate(domain):
     audit, bind = base.get("claim_audit") or {}, src.get("claim_bindings") or {}
     for sp in src.get("prescription_redirect") or []:
         procedures.append(_prescription(sp))
+    order = arb.get("dominated_push_feedback") or ORDER
+    for x in (src.get("relations") or {}).get("declarations") or []:
+        reads = _env_reads(x.get("reads"), src)
+        if reads:
+            procedures.append(_edge_procedure("requires:" + x.get("dep"), x.get("dep"), reads, x.get("source"), order))
+    for g in src.get("gates") or []:
+        sat = sorted(g.get("satisfiers") or {})
+        exempt = set((g.get("applies_when") or {}).get("not_in") or [])
+        for t in g.get("applies_to") or []:
+            if sat and t not in exempt:
+                procedures.append(_edge_procedure("%s:%s" % (g.get("id"), t), t, sat, g.get("predicate"), order))
     out = {
         "domain": domain,
         "model_context": 131072,   # the served model's context; LB6 folds and LB7 delivers against it
@@ -65,14 +76,8 @@ def migrate(domain):
                      "name_args": d.get("name_args") or {}, "payload_key": ep.get("dispatch_args_key") or "arguments"},
         "failure_markers": src.get("failure_markers") or [],
         "LB1": {
-            "prerequisites": [p for p in ({"dep": x.get("dep"), "reads": _env_reads(x.get("reads"), src), "source": x.get("source")}
-                                          for x in (src.get("relations") or {}).get("declarations") or []) if p["reads"]],
-            "gates": [{"id": g.get("id"), "predicate": g.get("predicate"), "satisfiers": sorted(g.get("satisfiers") or {}),
-                       "applies_to": g.get("applies_to") or [], "exempt": (g.get("applies_when") or {}).get("not_in") or []}
-                      for g in src.get("gates") or [] if g.get("satisfiers")],
             "procedures": procedures,
             "write_tools": ep.get("write_tools") or [],
-            "feedback": {"single": arb.get("dominated_push_feedback"), "merged": arb.get("merged_requirement_feedback")},
         },
         "LB2": {"tools": [_tool(t) for t in src.get("scaffold_get_tools") or []],
                 "derived": [_derived(n, metrics) for n in src.get("derived") or []],
@@ -138,6 +143,8 @@ def migrate(domain):
     return path
 
 
+ORDER = ("Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your "
+         "instruction. This has to hold first: {missing}. Do that now with the real tool calls.")
 UNGROUNDED = ("Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or "
               "customer message in this conversation - record values must be read from the records or given by the "
               "customer, never invented. Look it up (or ask), then retry with the actual value.")
@@ -221,6 +228,13 @@ def _record_state(tokens, src):
     verdicts = " ".join(str(v) for t in src.get("scaffold_get_tools") or [] for k, v in t.items() if "template" in k)
     elsewhere = json.dumps({k: v for k, v in src.items() if k != "write_evidence_specs"})
     return all(tok not in verdicts and ('"%s' % tok) not in elsewhere for tok in tokens)
+
+
+def _edge_procedure(pid, dep, reads, quote, order):
+    """A policy prerequisite as a procedure: always active, the dependent step requires the reads."""
+    return {"id": pid, "enforce": True, "_quote_order": quote or "", "_source": [],
+            "nodes": [{"id": r, "tool_prefix": r} for r in reads] + [{"id": dep, "tool_prefix": dep, "requires": list(reads)}],
+            "prohibits": {}, "feedback": {"unmet": order}}
 
 
 def _env_reads(reads, src):

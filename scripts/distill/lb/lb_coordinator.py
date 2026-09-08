@@ -127,14 +127,14 @@ def fill(template, **slots):
 
 class Finding(object):
     """One verdict of one engine. Structure, not text - the exit builds the sentence."""
-    __slots__ = ("lb", "primitive", "target", "call", "order", "facts", "grade", "source", "reqs",
+    __slots__ = ("lb", "primitive", "target", "call", "order", "facts", "grade", "source",
                  "pin", "force_call")
 
     def __init__(self, lb, primitive, target=None, call=None, order=None, facts=(), grade=5,
-                 source="", reqs=(), pin=None, force_call=False):
+                 source="", pin=None, force_call=False):
         self.lb, self.primitive, self.target, self.call, self.order = lb, primitive, target, call, order
         self.facts = [f for f in facts if f]
-        self.grade, self.source, self.reqs = int(grade), source, list(reqs)
+        self.grade, self.source = int(grade), source
         self.pin, self.force_call = pin, force_call
 
     def key(self):
@@ -260,10 +260,6 @@ def resolve(findings, turn=None):
 
 
 def _merge(turn, winner, group, order_ok=True):
-    reqs = [r for f in group for r in f.reqs]
-    if reqs:
-        import lb1_requirements
-        return lb1_requirements.merged_text(turn.a2 if turn else {}, reqs, winner.target)
     facts = []
     for f in group:
         for x in f.facts:

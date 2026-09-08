@@ -22,140 +22,6 @@
   "Unknown agent tool"
  ],
  "LB1": {
-  "prerequisites": [
-   {
-    "dep": "log_verification",
-    "reads": [
-     "get_current_time"
-    ],
-    "source": "satisfier_requires"
-   },
-   {
-    "dep": "open_bank_account",
-    "reads": [
-     "get_all_user_accounts_by_user_id"
-    ],
-    "source": "require_tool_before"
-   },
-   {
-    "dep": "submit_referral",
-    "reads": [
-     "get_all_user_accounts_by_user_id"
-    ],
-    "source": "require_tool_before"
-   },
-   {
-    "dep": "pay_credit_card_from_checking",
-    "reads": [
-     "get_all_user_accounts_by_user_id"
-    ],
-    "source": "require_tool_before"
-   },
-   {
-    "dep": "get_interest_correction",
-    "reads": [
-     "get_all_user_accounts_by_user_id",
-     "get_bank_account_transactions"
-    ],
-    "source": "requires_reads"
-   },
-   {
-    "dep": "check_cli_eligibility",
-    "reads": [
-     "get_credit_card_accounts_by_user",
-     "get_credit_limit_increase_history",
-     "get_payment_history"
-    ],
-    "source": "requires_reads"
-   },
-   {
-    "dep": "apply_checking_account_credit",
-    "reads": [
-     "get_all_user_accounts_by_user_id",
-     "get_bank_account_transactions"
-    ],
-    "source": "requires_reads"
-   },
-   {
-    "dep": "apply_savings_account_credit",
-    "reads": [
-     "get_all_user_accounts_by_user_id",
-     "get_bank_account_transactions"
-    ],
-    "source": "requires_reads"
-   },
-   {
-    "dep": "submit_interest_discrepancy_report",
-    "reads": [
-     "get_all_user_accounts_by_user_id",
-     "get_bank_account_transactions"
-    ],
-    "source": "requires_reads"
-   },
-   {
-    "dep": "file_debit_card_transaction_dispute",
-    "reads": [
-     "get_bank_account_transactions"
-    ],
-    "source": "requires_reads"
-   },
-   {
-    "dep": "get_atm_fee_discrepancies",
-    "reads": [
-     "get_all_user_accounts_by_user_id",
-     "get_bank_account_transactions"
-    ],
-    "source": "requires_reads"
-   },
-   {
-    "dep": "get_correct_savings_apy",
-    "reads": [
-     "get_all_user_accounts_by_user_id"
-    ],
-    "source": "requires_reads"
-   },
-   {
-    "dep": "file_credit_card_transaction_dispute",
-    "reads": [
-     "get_credit_card_transactions_by_user",
-     "get_user_dispute_history"
-    ],
-    "source": "requires_reads"
-   }
-  ],
-  "gates": [
-   {
-    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS",
-    "predicate": "customer identity verified and logged (log_verification) in this conversation",
-    "satisfiers": [
-     "log_verification"
-    ],
-    "applies_to": [
-     "change_user_email",
-     "get_referrals_by_user",
-     "get_credit_card_transactions_by_user",
-     "get_credit_card_accounts_by_user",
-     "submit_referral",
-     "call_discoverable_agent_tool"
-    ],
-    "exempt": [
-     "initial_transfer_to_human_agent_0218",
-     "initial_transfer_to_human_agent_1822",
-     "emergency_credit_bureau_incident_transfer_1114"
-    ]
-   },
-   {
-    "id": "GB3_ELIGIBILITY_BEFORE_REFERRAL_ADVICE",
-    "predicate": "the customer's eligibility to submit referrals has been checked against their referral record",
-    "satisfiers": [
-     "get_referrals_by_user"
-    ],
-    "applies_to": [
-     "submit_referral"
-    ],
-    "exempt": []
-   }
-  ],
   "procedures": [
    {
     "id": "credit_limit_increase",
@@ -574,6 +440,506 @@
     "feedback": {
      "unmet": "Error: [PRESCRIPTION] the customer is describing a disputed or unauthorized charge. That is handled by FILING A FORMAL DISPUTE (file_credit_card_transaction_dispute), NOT by applying a statement credit. apply_statement_credit is only for goodwill adjustments, promotional credits, or fee reversals - never for disputing a charge. First file the dispute: it is a DISCOVERABLE tool, so find its full suffixed name in the knowledge base (search plain words like \"file credit card dispute\"), unlock it, and call it with the transaction and card details. Do not apply a statement credit for a disputed charge."
     }
+   },
+   {
+    "id": "requires:log_verification",
+    "enforce": true,
+    "_quote_order": "satisfier_requires",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_current_time",
+      "tool_prefix": "get_current_time"
+     },
+     {
+      "id": "log_verification",
+      "tool_prefix": "log_verification",
+      "requires": [
+       "get_current_time"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:open_bank_account",
+    "enforce": true,
+    "_quote_order": "require_tool_before",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "open_bank_account",
+      "tool_prefix": "open_bank_account",
+      "requires": [
+       "get_all_user_accounts_by_user_id"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:submit_referral",
+    "enforce": true,
+    "_quote_order": "require_tool_before",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "submit_referral",
+      "tool_prefix": "submit_referral",
+      "requires": [
+       "get_all_user_accounts_by_user_id"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:pay_credit_card_from_checking",
+    "enforce": true,
+    "_quote_order": "require_tool_before",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "pay_credit_card_from_checking",
+      "tool_prefix": "pay_credit_card_from_checking",
+      "requires": [
+       "get_all_user_accounts_by_user_id"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:get_interest_correction",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "get_bank_account_transactions",
+      "tool_prefix": "get_bank_account_transactions"
+     },
+     {
+      "id": "get_interest_correction",
+      "tool_prefix": "get_interest_correction",
+      "requires": [
+       "get_all_user_accounts_by_user_id",
+       "get_bank_account_transactions"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:check_cli_eligibility",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_credit_card_accounts_by_user",
+      "tool_prefix": "get_credit_card_accounts_by_user"
+     },
+     {
+      "id": "get_credit_limit_increase_history",
+      "tool_prefix": "get_credit_limit_increase_history"
+     },
+     {
+      "id": "get_payment_history",
+      "tool_prefix": "get_payment_history"
+     },
+     {
+      "id": "check_cli_eligibility",
+      "tool_prefix": "check_cli_eligibility",
+      "requires": [
+       "get_credit_card_accounts_by_user",
+       "get_credit_limit_increase_history",
+       "get_payment_history"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:apply_checking_account_credit",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "get_bank_account_transactions",
+      "tool_prefix": "get_bank_account_transactions"
+     },
+     {
+      "id": "apply_checking_account_credit",
+      "tool_prefix": "apply_checking_account_credit",
+      "requires": [
+       "get_all_user_accounts_by_user_id",
+       "get_bank_account_transactions"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:apply_savings_account_credit",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "get_bank_account_transactions",
+      "tool_prefix": "get_bank_account_transactions"
+     },
+     {
+      "id": "apply_savings_account_credit",
+      "tool_prefix": "apply_savings_account_credit",
+      "requires": [
+       "get_all_user_accounts_by_user_id",
+       "get_bank_account_transactions"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:submit_interest_discrepancy_report",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "get_bank_account_transactions",
+      "tool_prefix": "get_bank_account_transactions"
+     },
+     {
+      "id": "submit_interest_discrepancy_report",
+      "tool_prefix": "submit_interest_discrepancy_report",
+      "requires": [
+       "get_all_user_accounts_by_user_id",
+       "get_bank_account_transactions"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:file_debit_card_transaction_dispute",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_bank_account_transactions",
+      "tool_prefix": "get_bank_account_transactions"
+     },
+     {
+      "id": "file_debit_card_transaction_dispute",
+      "tool_prefix": "file_debit_card_transaction_dispute",
+      "requires": [
+       "get_bank_account_transactions"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:get_atm_fee_discrepancies",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "get_bank_account_transactions",
+      "tool_prefix": "get_bank_account_transactions"
+     },
+     {
+      "id": "get_atm_fee_discrepancies",
+      "tool_prefix": "get_atm_fee_discrepancies",
+      "requires": [
+       "get_all_user_accounts_by_user_id",
+       "get_bank_account_transactions"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:get_correct_savings_apy",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_all_user_accounts_by_user_id",
+      "tool_prefix": "get_all_user_accounts_by_user_id"
+     },
+     {
+      "id": "get_correct_savings_apy",
+      "tool_prefix": "get_correct_savings_apy",
+      "requires": [
+       "get_all_user_accounts_by_user_id"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "requires:file_credit_card_transaction_dispute",
+    "enforce": true,
+    "_quote_order": "requires_reads",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_credit_card_transactions_by_user",
+      "tool_prefix": "get_credit_card_transactions_by_user"
+     },
+     {
+      "id": "get_user_dispute_history",
+      "tool_prefix": "get_user_dispute_history"
+     },
+     {
+      "id": "file_credit_card_transaction_dispute",
+      "tool_prefix": "file_credit_card_transaction_dispute",
+      "requires": [
+       "get_credit_card_transactions_by_user",
+       "get_user_dispute_history"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS:change_user_email",
+    "enforce": true,
+    "_quote_order": "customer identity verified and logged (log_verification) in this conversation",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "log_verification",
+      "tool_prefix": "log_verification"
+     },
+     {
+      "id": "change_user_email",
+      "tool_prefix": "change_user_email",
+      "requires": [
+       "log_verification"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS:get_referrals_by_user",
+    "enforce": true,
+    "_quote_order": "customer identity verified and logged (log_verification) in this conversation",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "log_verification",
+      "tool_prefix": "log_verification"
+     },
+     {
+      "id": "get_referrals_by_user",
+      "tool_prefix": "get_referrals_by_user",
+      "requires": [
+       "log_verification"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS:get_credit_card_transactions_by_user",
+    "enforce": true,
+    "_quote_order": "customer identity verified and logged (log_verification) in this conversation",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "log_verification",
+      "tool_prefix": "log_verification"
+     },
+     {
+      "id": "get_credit_card_transactions_by_user",
+      "tool_prefix": "get_credit_card_transactions_by_user",
+      "requires": [
+       "log_verification"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS:get_credit_card_accounts_by_user",
+    "enforce": true,
+    "_quote_order": "customer identity verified and logged (log_verification) in this conversation",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "log_verification",
+      "tool_prefix": "log_verification"
+     },
+     {
+      "id": "get_credit_card_accounts_by_user",
+      "tool_prefix": "get_credit_card_accounts_by_user",
+      "requires": [
+       "log_verification"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS:submit_referral",
+    "enforce": true,
+    "_quote_order": "customer identity verified and logged (log_verification) in this conversation",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "log_verification",
+      "tool_prefix": "log_verification"
+     },
+     {
+      "id": "submit_referral",
+      "tool_prefix": "submit_referral",
+      "requires": [
+       "log_verification"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS:call_discoverable_agent_tool",
+    "enforce": true,
+    "_quote_order": "customer identity verified and logged (log_verification) in this conversation",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "log_verification",
+      "tool_prefix": "log_verification"
+     },
+     {
+      "id": "call_discoverable_agent_tool",
+      "tool_prefix": "call_discoverable_agent_tool",
+      "requires": [
+       "log_verification"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
+   },
+   {
+    "id": "GB3_ELIGIBILITY_BEFORE_REFERRAL_ADVICE:submit_referral",
+    "enforce": true,
+    "_quote_order": "the customer's eligibility to submit referrals has been checked against their referral record",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "get_referrals_by_user",
+      "tool_prefix": "get_referrals_by_user"
+     },
+     {
+      "id": "submit_referral",
+      "tool_prefix": "submit_referral",
+      "requires": [
+       "get_referrals_by_user"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself."
+    }
    }
   ],
   "write_tools": [
@@ -613,11 +979,7 @@
    "transfer_funds_between_bank_accounts",
    "unfreeze_debit_card",
    "update_transaction_rewards"
-  ],
-  "feedback": {
-   "single": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself.",
-   "merged": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction.\nDo this now, with a real tool call: {first}\nStill outstanding after that (do not do them in this reply): {rest}\nWhen all of them hold, then tell the customer to run '{target}'. Telling them to run it earlier is the same as doing it early yourself."
-  }
+  ]
  },
  "LB2": {
   "tools": [
