@@ -284,6 +284,12 @@ def admit(owner, tag, text):
     return True
 
 
+def sim_id(owner):
+    """A short id per simulation. Without it the sidecar lines of four concurrent simulations
+    interleave and no firing can be attributed to the conversation it happened in."""
+    return owner.__dict__.setdefault("_lb_sim", "%06x" % (id(owner) & 0xFFFFFF)) if owner is not None else "-"
+
+
 def sidecar(kind, text, turn=None, **meta):
     path = os.environ.get("LB_SIDECAR") or os.environ.get("T2_FB_SIDECAR")
     if not path:
@@ -322,17 +328,20 @@ def say(turn, findings, owner=None):
             else:
                 d.trace.append(("budget", "rule has spoken enough in this simulation", rule))
         d.advice, d.advice_rules = kept, rules
+    sim = sim_id(owner)
     for c in d.conflicts:
         line = "[LB_CONFLICT] target=%s winner=%s:%s(E%d) losers=%s" % (
             c["target"], c["winner"][0], c["winner"][1], c["winner"][2],
             ",".join("%s:%s(E%d)" % l for l in c["losers"]))
         print(line, file=sys.stderr, flush=True)
-        sidecar("lb-conflict", line, turn, target=str(c["target"]), winner=c["winner"][0])
+        sidecar("lb-conflict", line, turn, sim=sim, target=str(c["target"]), winner=c["winner"][0],
+                loser=",".join(l[0] for l in c["losers"]), winner_grade=c["winner"][2],
+                loser_grade=min([l[2] for l in c["losers"]] or [9]))
     for k, text in d.denies.items():
         w = d.won[("call", k)]
-        sidecar("lb-deny", text, turn, lb=w.lb, source=w.source, target=str(w.target))
-    for text in d.advice:
-        sidecar("lb-advice", text, turn)
+        sidecar("lb-deny", text, turn, sim=sim, lb=w.lb, source=w.source, target=str(w.target))
+    for text, rule in zip(d.advice, d.advice_rules):
+        sidecar("lb-advice", text, turn, sim=sim, source=rule)
     return d
 
 
