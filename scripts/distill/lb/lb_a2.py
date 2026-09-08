@@ -126,7 +126,7 @@ def migrate(domain):
         "LB6": {"annotations": [{"field": a.get("field"), "note": a.get("note")}
                                 for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")]},
         "LB7": {"deliver_for": (src.get("require_doc_before") or {}).get("tools") or [], "max_chars": 90000,
-                "names_feedback": NAMES, "have_value": _have_value(src)},
+                "have_value": _have_value(src)},
     }
     out["_dropped"] = {"write_evidence_specs": [s.get("require_tokens") for s in src.get("write_evidence_specs") or []],
                        "why": "a demanded verdict string prescribes a check the environment does not require "
@@ -144,8 +144,6 @@ UNLOCKED_UNCALLED = ("[OPEN-STEP] You unlocked {names} and never called it. A to
                      "still open: call it, or tell the customer why it is not needed, before closing.")
 STEPS = ("Error: [PROCEDURE-INCOMPLETE] you are about to hand this conversation off, but the procedure you entered "
          "still has steps nobody has done: {steps}. A transfer does not perform them.")
-NAMES = ("Documents you already retrieved name these tools, and none has been called: {names}. If one of them is "
-         "the step you need, unlock and call it by exactly that name.")
 
 
 UNGROUNDED = ("Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or "

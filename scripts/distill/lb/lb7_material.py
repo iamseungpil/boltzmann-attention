@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 """LB7 - material delivery (the premise of every other engine).
 
+Dropped 2026-09-08: `named_uncalled` (retrieved documents name a tool nobody called). It is the old
+`T2_HANDOFF_PREDICATE` / `named-but-not-given`, whose single-variable A/B reads 2/12 <-> 2/12 with
+latency 1.90x and 13 context-window terminations against zero, and whose one positive cell (028) the
+old ledger disowns: the flip came from environment argument errors disappearing, not from this
+predicate. Verdict on record: discard.
+
 One rule: give the model the candidate set it has not seen. Not a seventh mechanism: when the
 candidates never reach the model, every mechanism fails for a reason unrelated to itself
 (x829: without material 0/8, with 47 document titles 8/8). This engine orders nothing; it
@@ -10,7 +16,6 @@ surfaces - the whole set, verbatim from the corpus, no ranking. Declared in A2["
                 context has room (model_context minus the reply reserve minus what the view holds);
                 when there is no room the documents are named, not delivered
   max_chars     delivery cap
-  names_feedback  documents already retrieved name a tool nobody has called
   have_value    [{write, arg, producer_marker, value_after, reask_signals, feedback, acquire_tool, give_tool,
                   acquire_feedback}]  a value a producer already returned is handed back instead of re-asked;
                   when no producer ran and the customer keeps being asked, the acquiring tool is named
@@ -61,19 +66,6 @@ def deliver(turn):
     return []
 
 
-def named_uncalled(turn):
-    """Only when the conversation is being handed off: on an ordinary reply a retrieved tool list names
-    every tool, and probe 004 was told at message 15 that eight debit-card tools were 'uncalled'."""
-    tpl = (turn.a2.get("LB7") or {}).get("names_feedback")
-    transfer = {fam(x) for x in (turn.a2.get("LB5") or {}).get("transfer_tools") or []}
-    if not tpl or not any(fam(turn.name_of(c)) in transfer for c in turn.calls):
-        return []
-    known = turn.executed_fams() | {fam(u) for u in turn.unlocked}
-    named = sorted(r for r in turn.registry.get("agent", ()) if r.lower() in turn.tool_text and fam(r) not in known)
-    return [Finding(LB, SURFACE, named[0], facts=[fill(tpl, names=", ".join(named))], grade=RETRIEVED,
-                    source="named-uncalled")] if named else []
-
-
 def have_value(turn):
     out, said = [], turn.am_text.lower()
     for sp in (turn.a2.get("LB7") or {}).get("have_value") or []:
@@ -105,7 +97,7 @@ def _given(turn, sp):
 
 
 def evaluate(turn):
-    return deliver(turn) + named_uncalled(turn) + have_value(turn)
+    return deliver(turn) + have_value(turn)
 
 
 if __name__ == "__main__":
@@ -120,16 +112,12 @@ if __name__ == "__main__":
             self.role, self.content, self.tool_calls = role, content, list(calls)
 
     corpus = {"doc_a": "How to use transfer_x: search first", "doc_b": "unrelated"}
-    A2 = {"LB7": {"deliver_for": ["transfer_x"], "names_feedback": "named: {names}"}}
+    A2 = {"LB7": {"deliver_for": ["transfer_x"]}}
     t = Turn(A2, [M("tool", "grep hit only")], M(calls=[C("transfer_x_1")]), corpus=corpus)
     assert deliver(t)[0].primitive == DENY and "### doc_a" in deliver(t)[0].order and "doc_b" not in deliver(t)[0].order
     assert not deliver(Turn(A2, [M("tool", "### doc_a\n...")], M(calls=[C("transfer_x_1")]), corpus=corpus))
     full = Turn(dict(A2, model_context=20000), [M("tool", "z" * 60000)], M(calls=[C("transfer_x_1")]), corpus=corpus)
     assert deliver(full)[0].facts[0].startswith("[MATERIAL] The document(s) defining") and "doc_a" in deliver(full)[0].facts[0]
-    A2["LB5"] = {"transfer_tools": ["transfer_x"]}
-    t2 = Turn(A2, [M("tool", "the doc names other_2")], M(calls=[C("transfer_x_1")]), registry={"agent": {"other_2"}})
-    assert named_uncalled(t2)[0].facts[0] == "named: other_2"
-    assert not named_uncalled(Turn(A2, [M("tool", "the doc names other_2")], M(content="done"), registry={"agent": {"other_2"}}))
     A2["LB7"]["have_value"] = [{"write": "file_x", "arg": "last4", "producer_marker": "Executed: get_last4",
                                 "value_after": "Last 4 digits of card:", "reask_signals": ["last 4"],
                                 "feedback": "you have {arg}={value}; file {write}", "acquire_tool": "get_last4",

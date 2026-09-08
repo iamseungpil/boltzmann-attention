@@ -5686,7 +5686,6 @@
    "emergency_credit_bureau_incident_transfer_1114"
   ],
   "max_chars": 90000,
-  "names_feedback": "Documents you already retrieved name these tools, and none has been called: {names}. If one of them is the step you need, unlock and call it by exactly that name.",
   "have_value": [
    {
     "write": "file_credit_card_transaction_dispute_4829",
