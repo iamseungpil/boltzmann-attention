@@ -162,7 +162,12 @@ def claims(spec, turn):
         return any(d.startswith(p) for p in pats if p != "__effective_write__" for d in done)
 
     out = []
+    # "I did X" can be checked against the ledger on any text turn; "I will do X" is only broken when the
+    # conversation is being handed off - on a plain reply it is a plan, and auditing it there pushed
+    # task_004 twice at its second message for promising to verify identity before doing so.
     for key, tpl, target in (("claims", spec.get("feedback"), "claims"), ("pending", spec.get("feedback_pending"), "pending")):
+        if key == "pending" and not transferring:
+            continue
         bad = [c for c in obj.get(key) or [] if isinstance(c, dict) and not backed(c)]
         if bad and tpl:
             out.append(Finding(LB, SURFACE, target, grade=LEDGER, source="claims-" + key,
@@ -225,6 +230,10 @@ if __name__ == "__main__":
     reply = ('{"claims": [{"kind": "search", "what": "searched KB"}, {"kind": "write", "what": "filed it", "tool": "file_x"}],'
              ' "pending": [{"kind": "write", "what": "will call y", "tool": "call_y"}]}')
     t = Turn(A2, [], M(content="Done."), executed={"KB_search": 1}, extras={"ask": lambda p, n: reply})
+    assert [g.order for g in claims(spec, t)] == ["unbacked: write: filed it"]        # a plan is not yet broken
+    spec["transfer_tools"] = ["transfer_x"]
+    t = Turn(A2, [], M(content="Done.", calls=[C("transfer_x", cid="tx")]), executed={"KB_search": 1},
+             extras={"ask": lambda p, n: reply})
     got = claims(spec, t)
     assert [g.order for g in got] == ["unbacked: write: filed it", "pending: write: will call y"], [g.order for g in got]
     print("lb4_coverage self-test OK")
