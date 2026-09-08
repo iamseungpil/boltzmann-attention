@@ -151,7 +151,7 @@ def ask_fn(agent):
 # ---- turn state ----------------------------------------------------------------------------------------
 def build_turn(agent, a2, messages, am):
     env = getattr(getattr(agent, "_lb_orch", None), "environment", None)
-    executed, unlocked, pending = collections.Counter(), set(), {}
+    executed, attempted, unlocked, pending = collections.Counter(), collections.Counter(), set(), {}
     dispatch = a2.get("dispatch") or {}
     probe = Turn(a2, [], am)
     for m in messages:
@@ -163,9 +163,11 @@ def build_turn(agent, a2, messages, am):
             name = pending.pop(getattr(m, "id", None), None)
             text = str(getattr(m, "content", "") or "").lstrip()
             failed = getattr(m, "error", False) or any(text.startswith(k) for k in a2.get("failure_markers") or [])
-            if name and not failed:
-                executed[name] += 1
-    return Turn(a2, messages, am, executed=executed, unlocked=unlocked,
+            if name:
+                attempted[name] += 1
+                if not failed:
+                    executed[name] += 1
+    return Turn(a2, messages, am, executed=executed, attempted=attempted, unlocked=unlocked,
                 visible_tools={getattr(t, "name", None) for t in (agent.tools or [])},
                 registry=registry_of(env), corpus=corpus(), extras={"ask": ask_fn(agent)})
 

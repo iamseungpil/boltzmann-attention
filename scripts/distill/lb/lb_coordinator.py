@@ -149,12 +149,16 @@ class Turn(object):
     """
 
     def __init__(self, a2, messages, am, executed=None, unlocked=(), visible_tools=(),
-                 registry=None, corpus=None, extras=None):
+                 registry=None, corpus=None, extras=None, attempted=None):
         self.a2 = a2 or {}
         self.messages = list(messages or [])
         self.am = am
         self.calls = list(getattr(am, "tool_calls", None) or [])
+        # executed = ran AND the answer was yes; attempted = ran, whatever the answer was. A claim of
+        # having done something is backed by attempted (the check ran; "no" is an answer, not an
+        # absence); permission to take the next step requires executed.
         self.executed = collections.Counter(executed or {})
+        self.attempted = collections.Counter(attempted if attempted is not None else self.executed)
         self.unlocked = set(unlocked or ())
         self.visible_tools = set(visible_tools or ())
         self.registry = registry or {"agent": set(), "user": set(), "user_all": set()}
@@ -191,6 +195,9 @@ class Turn(object):
 
     def executed_fams(self):
         return {fam(n) for n in self.executed}
+
+    def attempted_fams(self):
+        return {fam(n) for n in self.attempted}
 
     def tool_outputs(self):
         return [str(getattr(m, "content", "") or "") for m in self.messages

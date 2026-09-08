@@ -149,7 +149,9 @@ def claims(spec, turn):
     obj = next((r for r in records_in(raw) if "claims" in r or "pending" in r), None)
     if not obj:
         return []
-    done, emap = turn.executed_fams(), spec.get("event_map") or {}
+    # attempted, not executed: on probe 004 the model said it had matched the phone number, the check
+    # had indeed run and answered NOT_VERIFIED, and this audit told the model no such event existed.
+    done, emap = turn.attempted_fams(), spec.get("event_map") or {}
     sidecar("lb-ask", raw, turn, source="claims", done=" ".join(sorted(done)))   # what the audit saw, for forensics
 
     def backed(c):
