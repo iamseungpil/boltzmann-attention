@@ -49,7 +49,7 @@ def migrate(domain):
     table = {(r.get("axis"), r.get("subject")): r.get("value")
              for r in (src.get("policy_ontology") or {}).get("rows") or []}
     src = {k: (v if k == "policy_ontology" else _resolve_refs(v, table)) for k, v in src.items()}
-    d, ep, arb = src.get("dispatcher_role_check") or {}, src.get("eplan") or {}, src.get("arbitration") or {}
+    d, ep = src.get("dispatcher_role_check") or {}, src.get("eplan") or {}
     names = src.get("discoverable_name_check") or {}
     procedures = [_procedure(p) for p in src.get("procedures") or []]
     metrics = {m.get("trigger_tool"): m for m in src.get("ledger_metrics") or []}
@@ -57,7 +57,7 @@ def migrate(domain):
     audit, bind = base.get("claim_audit") or {}, src.get("claim_bindings") or {}
     for sp in src.get("prescription_redirect") or []:
         procedures.append(_prescription(sp))
-    order = arb.get("dominated_push_feedback") or ORDER
+    order = ORDER     # the walker fills {tool} and {missing}; the old arbitration text used other slot names
     for x in (src.get("relations") or {}).get("declarations") or []:
         reads = _env_reads(x.get("reads"), src)
         if reads:
