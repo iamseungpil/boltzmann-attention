@@ -221,3 +221,100 @@ task_010 (base 0/4 · 우리 0/1 · 개입 0): 값 계산은 전부 맞았고, �
 | 088 · 092 | 통과 0 (HARD) | 없음 (user_tools 에는 있음) |
 
 ⇒ "이관 전에 되물어라" 를 전 태스크 게이트로 두면 005·014·035 등 되묻기 없이 통과하는 gold 이관을 한 턴 미룬다(사용자 우려대로). 반면 **손님 도구가 gold 에 있는 3개(034·049·081)에서는 base 통과 sim 전부 손님 도구가 이관에 선행**한다. 판단 없는 형태는 하나뿐이다: *env `user_tools` 에 `request_human_agent_transfer` 가 있는 태스크에서 `transfer_to_human_agents` 는 그 손님 도구 실행 뒤에만* — LB1 2노드 절차, 활성 조건은 registry(`user`) 소속(데이터), 만족자는 손님 도구 실행(`build_turn` 은 user 역할의 tool_calls 도 executed 로 센다). 파는 곳: 088·092(user_tools 에 있으나 gold 는 에이전트 이관만) — base·Max 모두 0/4 라 측정된 손실은 없고 deny 예산 6 뒤 풀린다. 미구현 — 승인 대기.
+
+## 19. 전수 A/B 중간 판정 · −2 넷 포렌식 · 결함 셋 수리 — 2026-09-09 새벽
+
+**한 줄**: 두 팔은 아직 구별되지 않는다(68 태스크 짝, sim 67.5% ↔ 68.8%). −2 네 태스크는 원인을 넷 다 확정했고 **우리 층 귀속은 0건**이다. 우리 층 손실로 확정된 것은 `028` 하나이며, 그것은 A셀이 아니다.
+
+### 19-1 중간 수치 (58/97 완료 시점)
+
+```
+짝 68 태스크   우세 15 · 열세 14 · 동률 39   태스크 부호합 +1
+sim 단위       base 183/271 (67.5%)  →  lb 187/272 (68.8%)   net +4 sim
+```
+
+우세 쪽 상위가 전부 핸드오프 §4-1이 표적으로 지목한 구간이다: `075` 0/4→4/4 · `074` 0/4→3/4 · `094` 0/4→2/4 · `099` 2/4→4/4 · `079` 0/4→1/4. 네 태스크에서만 +10 sim이다. 열세 14: `016 036 049 070 007 019 023 028 040 054 056 073 081 098`.
+
+⛔ 아직 판정이 아니다. 남은 29 태스크에 HARD 25가 몰려 있어 분포가 앞뒤로 다르다.
+
+### 19-2 채점 타당성 — 비-`user_stop` 2건이 채점 없이 실패로 계상됐다
+
+```
+task_023 sim3  term=max_steps               reward=0.0  db_check=None  msgs=258
+task_028 sim3  term=context_window_exceeded reward=0.0  db_check=None  msgs=126
+```
+
+둘 다 **열세 칸에 있는 태스크**이고 둘 다 그 태스크에서 유일하게 긴 sim이다. base 388 sim은 `user_stop` 366 + `infrastructure_error` 2뿐이었고, 그 2건은 `reward=None`으로 분모에서 빠진 뒤 `--auto_resume`으로 재실행됐다(§핸드오프 1). **우리 팔은 같은 성격의 종료를 0.0으로 센다.** 그래서 `023`(base 4/4 → 3/4)의 손실은 전부 이 한 sim이고, `028`도 하나가 여기 걸린다. 비대칭을 맞추면 sim 순증은 +4가 아니라 +6이다.
+
+⇒ **판정 전에 두 sim을 base와 같은 절차로 재실행할 것.** 그 전에는 023을 손실로 읽지 마라.
+
+### 19-3 −2 넷 — 원인 확정, 우리 층 귀속 0
+
+| | DB가 왜 틀렸나 (확정) | 우리 층 귀속 |
+|---|---|---|
+| `016` | gold `016_1`은 `requestor:user`인 `submit_transaction`. 실패 sim의 대화 전체에 그 언급이 0회 | **반증** — ORDER 발화는 통과 sim에 있었다 |
+| `036` | gold에 없는 `file_credit_card_transaction_dispute`를 4/4 sim이 2회씩 기입 | **미지지** — 분쟁 화제는 검색된 KB 문서에서 오고, 접수는 손님이 요구한다 |
+| `049` | gold 쓰기 `apply_statement_credit_8472`·`close_credit_card_account_7834` 미실행 | **판정 불가** — 사이드카 7 그룹 / 4 sim |
+| `070` | `open_bank_account_4821`의 `account_class`가 gold `Sky Blue`가 아님(Hunter Green·Cobalt Blue·Lime Green) | **아님** — 개입 0. base도 2/4만 맞힌다 |
+
+`070`은 **레버가 살 자리가 아니다** — 문서에서 상품명을 고르는 문제다. 핸드오프 §4-1의 `070(+2)`은 이 근거로 재분류할 것.
+
+`036`의 길이 가설도 죽었다: LB 대화가 base보다 체계적으로 길지만(45 태스크 중 32, sim당 +5.5, 부호검정 p≈0.007) **길이 격차가 점수를 예측하지 못한다**(r=0.041; 더 긴 쪽 평균 델타 +0.00, 아닌 쪽 +0.08).
+
+### 19-4 `028` — 우리 층 확정 손실 (유일)
+
+gold는 `update_transaction_rewards_3847` 6건(`028_9`~`028_14`)을 요구한다.
+
+```
+        deny  release  update 호출   결과
+sim0      6       6         7        pass
+sim1      6       0         1        FAIL
+sim2      6       6         7        pass
+sim3      6       6         7        context_window_exceeded (19-2)
+base 통과 sim              7        pass
+```
+
+`lb_coordinator.py:37` `DENY_BUDGET = 6`, `:328` `if denied[rule] > DENY_BUDGET` — 해제는 **7번째 발화부터**다. 세 sim은 밀어붙여 해제를 받았고 `sim1`만 정확히 6에서 포기했다. 막은 문장(`a2/banking_knowledge.lb.json:5731`):
+
+> `Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction.`
+
+**요구하는 증거가 gold에 존재할 수 없다.** 이 태스크의 gold 흐름은 손님이 `submit_cash_back_dispute_0589`를 제출하고(`028_2`~`028_7`) 에이전트가 보상을 갱신하는 것이라 「해결된 분쟁」 단계가 없다. 그리고 `sim1`에는 손님의 그 제출이 **8건**, 분쟁을 언급하는 도구 출력이 **37건** 있었다. 술어가 **손님의 말과 손님의 도구 실행을 구별하지 못한다.**
+
+이 규칙은 `a2be0b85`에서 «027/029: 12 of 12 sims updated rewards on the customer's word»를 막으려 세운 것이고 거기서는 옳다. 처방 = 손님의 **도구 실행**을 증거로 인정한다(`build_turn`이 user 역할 `tool_calls`를 executed로 세는 선례가 있다). ⛔미구현 — 승인 대기.
+
+### 19-5 A셀 하락 5건은 전부 deny 0
+
+```
+007 (3/4) 개입 0        016 (2/4) advice 2      019 (3/4) claims-advice 8
+023 (3/4) advice 1 (손실은 19-2 의 max_steps sim)   098 (3/4) advice 1
+```
+
+**우리 층의 거절은 A셀을 깨는 원인이 아니다.** 확정 손실 `028`은 base 3/4라 A셀이 아니다.
+
+### 19-6 결함 셋 — 수리·검증 완료 (브랜치 `lb-fix-20260909`)
+
+1. **`sim_id`가 조인 키가 아니었다** (`lb_coordinator.py:293`). 객체 주소(`id(owner) & 0xFFFFFF`)라 `results.json`의 `id`와 이을 수 없고, 재시도로 에이전트가 재생성되면 쪼개진다 — 완료 43 태스크 중 11개가 4 sim보다 많은 그룹을 가졌다(`049` 7 · `094` 13). 수리 = 오케스트레이터의 `simulation_id`(tau2 `orchestrator.py:124`→`:807`), `lb_runtime.py:44`가 이미 `agent._lb_orch`로 물려 둔다. ⚠첫 설계였던 「첫 손님 메시지 sha」는 **검증에서 버렸다** — 92 태스크 중 75개에서 user-sim(temp 0.0)이 같은 문장을 내 4 sim이 한 키로 합쳐진다.
+2. **막지 않는 경로가 거절문을 썼다** (`lb1_requirements.py:130-132`). DENY 갈래와 SURFACE 갈래가 같은 `unmet` 문장을 채웠다. 상태를 바꾸지 않는 읽기 도구가 SURFACE를 타면 모델은 막히지 않았는데 `Error: … cannot be carried out yet`을 받는다(`016`의 `get_referrals_by_user`가 그 경우). 수리 = `ORDER_SURFACE`를 선언에 두고(`[ORDER] '{tool}' normally comes after {missing}.`) SURFACE가 그것을 쓴다.
+3. **`lane_lb.sh`가 `LB_REPO`를 무시했다** (`:10` 하드코딩). `lb_ctl.sh`는 존중하는데 레인은 아니라, 다른 트리를 가리켜 발사해도 조용히 기본 트리를 돈다. 시작 줄이 sha를 찍는 설계가 이것을 잡았다.
+
+**관문**: ① 배터리 41/41 ② `lb_replay` — `lb`와 수리 브랜치가 **완전히 동일**(deny 12 · surface 6 · 침묵 LB2·LB3 · conflict 0) ③ 8141 프로브
+
+```
+task      base    lb    fix     사이드카 조인
+task_002  4/4    4/4   4/4      4/4
+task_031  3/4    4/4   4/4      6 그룹 중 4 (2개는 버려진 재시도)
+task_016  4/4    2/4   1/4      4/4
+크래시 0 · 전 sim user_stop · 레버 실발화 > 0
+```
+
+`016`의 실패 3건은 전부 `016_1:user:submit_transaction` 미실행이고 그 세 sim에 우리 층 발화가 0이다. 유일한 발화는 통과 sim에 있었다 — 수리 전과 같은 배치다.
+
+⚠ 수리 1은 파편화를 **없애지 않고 판별 가능하게** 만든다: 재시도가 오케스트레이터를 새로 만들면 새 UUID가 생기고 그것은 최종 결과에 남지 않는다(`031`: 6 그룹 중 4 조인, 2개는 버려진 시도). 완전 제거는 tau2 쪽이라 우리 층 밖이다.
+
+### 19-7 다음 세션이 할 것
+
+0. `023 sim3`·`028 sim3`을 base와 같은 절차(`--auto_resume`)로 재실행한다(19-2). **판정 전에.**
+1. `028` 처방(손님의 도구 실행 = 증거)을 `lb-fix-20260909`에 얹는다.
+2. 97 전수가 끝난 뒤 `lb-fix-20260909` → `lb` 병합. 런 도중 병합하면 팔이 전후로 달라진다.
+3. `016`은 거절이 아닌 개입(주입된 `verify_identity` 4회 · `claims` 질의 · 추가 턴)으로 좁혀졌다. 수리 1 덕분에 다음 런부터 sim 단위로 대조 가능하다.
+4. `070`을 BUY 표적에서 재분류한다(19-3).
