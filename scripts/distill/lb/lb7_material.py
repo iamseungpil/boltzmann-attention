@@ -60,8 +60,11 @@ def deliver(turn):
 
 
 def named_uncalled(turn):
+    """Only when the conversation is being handed off: on an ordinary reply a retrieved tool list names
+    every tool, and probe 004 was told at message 15 that eight debit-card tools were 'uncalled'."""
     tpl = (turn.a2.get("LB7") or {}).get("names_feedback")
-    if turn.calls or not tpl:
+    transfer = {fam(x) for x in (turn.a2.get("LB5") or {}).get("transfer_tools") or []}
+    if not tpl or not any(fam(turn.name_of(c)) in transfer for c in turn.calls):
         return []
     known = turn.executed_fams() | {fam(u) for u in turn.unlocked}
     named = sorted(r for r in turn.registry.get("agent", ()) if r.lower() in turn.tool_text and fam(r) not in known)
@@ -121,8 +124,10 @@ if __name__ == "__main__":
     assert not deliver(Turn(A2, [M("tool", "### doc_a\n...")], M(calls=[C("transfer_x_1")]), corpus=corpus))
     full = Turn(dict(A2, model_context=20000), [M("tool", "z" * 60000)], M(calls=[C("transfer_x_1")]), corpus=corpus)
     assert deliver(full)[0].facts[0].startswith("[MATERIAL] The document(s) defining") and "doc_a" in deliver(full)[0].facts[0]
-    t2 = Turn(A2, [M("tool", "the doc names other_2")], M(content="done"), registry={"agent": {"other_2"}})
+    A2["LB5"] = {"transfer_tools": ["transfer_x"]}
+    t2 = Turn(A2, [M("tool", "the doc names other_2")], M(calls=[C("transfer_x_1")]), registry={"agent": {"other_2"}})
     assert named_uncalled(t2)[0].facts[0] == "named: other_2"
+    assert not named_uncalled(Turn(A2, [M("tool", "the doc names other_2")], M(content="done"), registry={"agent": {"other_2"}}))
     A2["LB7"]["have_value"] = [{"write": "file_x", "arg": "last4", "producer_marker": "Executed: get_last4",
                                 "value_after": "Last 4 digits of card:", "reask_signals": ["last 4"],
                                 "feedback": "you have {arg}={value}; file {write}", "acquire_tool": "get_last4",
