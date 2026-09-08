@@ -344,12 +344,16 @@ def formalize_rows(orch, agent, iso, args, orig_exec):
 
 
 def titled(corpus_docs):
-    """{title: body} - a document's title is its first heading line, which is how a policy set names
-    the subject it covers ('Silver Rewards Card: How to Earn 4% ...')."""
+    """{title: body} - a document names the subject it covers in its title ('Silver Rewards Card:
+    How to Earn 4% ...'). A document is either a JSON record with a title field or text whose first
+    heading line is the title; this corpus is the former and reading it as the latter matched nothing."""
     out = {}
     for body in corpus_docs.values():
-        head = next((l for l in body.splitlines() if l.startswith("#")), "")
-        out[head.lstrip("#").strip()] = body
+        rec = as_dict(body) if body.lstrip()[:1] == "{" else None
+        title = str((rec or {}).get("title") or "").strip() or \
+            next((l for l in body.splitlines() if l.startswith("#")), "").lstrip("#").strip()
+        if title:
+            out[title] = str((rec or {}).get("content") or body)
     return out
 
 
