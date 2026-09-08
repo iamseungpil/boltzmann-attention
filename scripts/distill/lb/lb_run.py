@@ -38,6 +38,12 @@ def main():
     if any(t in a.user_llm.lower() for t in ("anthropic", "claude", "opus", "sonnet", "haiku")):
         raise SystemExit("[COST GUARD] frontier user-sim refused on the shared key")
 
+    # which engine and which code produced this run - the drv log is what gets persisted, so the
+    # line has to live here rather than only in the lane script (an instrument is only what is recovered)
+    print("[lb] run tag=%s tasks=%s engine=%s trials=%d conc=%d sha=%s"
+          % (a.save_to, a.task_ids, a.agent_base, a.num_trials, a.max_concurrency,
+             os.popen("git -C %s rev-parse --short HEAD 2>/dev/null" % os.path.dirname(os.path.abspath(__file__))).read().strip() or "?"),
+          flush=True)
     if a.domain == "banking_knowledge":
         import tau2.knowledge.sandbox_manager as sbm
         sbm._check_sandbox_dependencies = lambda *x, **k: None
