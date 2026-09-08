@@ -50,7 +50,7 @@ def tail_status(path):
 
 def line(logs, task, now):
     fb = os.path.join(logs, "fb_lb_%s.jsonl" % task)
-    drv = os.path.join(logs, "%s_drv.log" % task)
+    drv = os.path.join(logs, "lb_%s_drv.log" % task)      # the tag is lb_<task>, the sidecar is fb_lb_<task>
     rows = sidecar(fb)
     kinds = collections.Counter(r.get("kind") for r in rows)
     last = ""

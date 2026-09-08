@@ -60,7 +60,7 @@ def watch(logs, a2, minutes):
 
     for fb in sorted(glob.glob(os.path.join(logs, "fb_lb_*.jsonl"))):
         task = os.path.basename(fb)[6:-6]
-        drv = os.path.join(logs, "%s_drv.log" % task)
+        drv = os.path.join(logs, "lb_%s_drv.log" % task)  # the tag is lb_<task>, the sidecar is fb_lb_<task>
         data = rows(fb)
         if not data:
             continue
