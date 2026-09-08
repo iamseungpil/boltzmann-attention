@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # LB lane - the B arm of the paired A/B (A = base, --gate 0, already persisted as bank_x806_base_nt4_*).
-#   tree   = /home/woori/scratch/repo_lb (branch lb)      engine = PORT (default 8141, in-house GPU0)
+#   tree   = $LB_REPO, default /home/woori/scratch/repo_lb   engine = PORT (default 8141, in-house GPU0)
+#            lb_ctl.sh already honoured LB_REPO and this did not, so a lane pointed at another
+#            worktree silently ran the default tree - the start line prints the sha it actually uses.
 #   queue  = /home/woori/scratch/x768/q_lb.txt (one task id per line; flock-popped so lanes can share)
 #   out    = /home/woori/scratch/x768/out_lb/<TAG>.results.json.gz + lb sidecar
 # Guards: served model id must match; a task finishing in <120s is a harness failure -> requeue, exit 3.
 set -u
 PORT="${1:-8141}"; CONC="${2:-1}"; NT="${3:-4}"; PREFIX="${4:-lb}"
 QUEUE="${LB_QUEUE:-/home/woori/scratch/x768/q_lb.txt}"; LOCK="$QUEUE.lock"
-R=/home/woori/scratch/repo_lb; LB="$R/scripts/distill/lb"; GO=/home/woori/iso_tau3/tau2-bench
+R="${LB_REPO:-/home/woori/scratch/repo_lb}"; LB="$R/scripts/distill/lb"; GO=/home/woori/iso_tau3/tau2-bench
 OUT=/home/woori/scratch/x768/out_lb; LOG=/home/woori/scratch/logs; mkdir -p "$OUT" "$LOG"
 PY=/home/woori/venvs/seka_env/bin/python
 M="Qwen/Qwen3.8-27B-FP8"
