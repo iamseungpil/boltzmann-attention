@@ -5645,7 +5645,6 @@
    "KB_search"
   ],
   "search_feedback": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
-  "unlock_feedback": "[OPEN-STEP] You unlocked {names} and never called it. A tool unlocked to take a step is a step still open: call it, or tell the customer why it is not needed, before closing.",
   "steps_feedback": "Error: [PROCEDURE-INCOMPLETE] you are about to hand this conversation off, but the procedure you entered still has steps nobody has done: {steps}. A transfer does not perform them."
  },
  "LB6": {

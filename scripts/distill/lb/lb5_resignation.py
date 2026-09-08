@@ -9,7 +9,6 @@ A2["LB5"]:
   doc_feedback     a transfer tool whose defining document was never read      (surface, never deny)
   search_tools     search tools; the same query returning nothing twice is exhaustion
   search_feedback  what the policy says to do when search is exhausted
-  unlock_feedback  a tool unlocked and never called
   steps_feedback   a transfer while an entered procedure still has ready steps
 """
 
@@ -26,14 +25,6 @@ def spec_of(turn):
 def transferring(turn):
     tools = {fam(x) for x in spec_of(turn).get("transfer_tools") or []}
     return [c for c in turn.calls if fam(turn.name_of(c)) in tools]
-
-
-def uncalled_unlocks(turn):
-    called = turn.executed_fams()
-    left = sorted(u for u in turn.unlocked if fam(u) not in called)
-    tpl = spec_of(turn).get("unlock_feedback")
-    return [Finding(LB, SURFACE, left[0], order=fill(tpl, names=", ".join(left)), grade=LEDGER,
-                    source="uncalled-unlock")] if left and tpl else []
 
 
 def exhausted_search(turn):
@@ -79,7 +70,7 @@ def open_steps(turn):
 
 def evaluate(turn):
     if turn.resigning():
-        return uncalled_unlocks(turn) + exhausted_search(turn)
+        return exhausted_search(turn)
     if transferring(turn):
         return unread_definition(turn) + open_steps(turn)
     return []
@@ -97,12 +88,11 @@ if __name__ == "__main__":
             self.role, self.content, self.tool_calls, self.id = role, content, list(calls), mid
 
     A2 = {"LB5": {"transfer_tools": ["transfer_x"], "doc_feedback": "read the doc for {tool}",
-                  "search_tools": ["kb_search"], "search_feedback": "escalate properly",
-                  "unlock_feedback": "uncalled: {names}"}}
+                  "search_tools": ["kb_search"], "search_feedback": "escalate properly"}}
     s1, s2 = C("kb_search", {"q": "a"}, "s1"), C("kb_search", {"q": "a"}, "s2")
     msgs = [M(calls=[s1]), M("tool", "no results", mid="s1"), M(calls=[s2]), M("tool", "[]", mid="s2")]
     f = evaluate(Turn(A2, msgs, M(content="I cannot help further."), unlocked={"tool_9"}))
-    assert {x.source for x in f} == {"uncalled-unlock", "search-exhausted"}
+    assert {x.source for x in f} == {"search-exhausted"}
     assert evaluate(Turn(A2, msgs, M(calls=[C("transfer_x")])))[0].order == "read the doc for transfer_x"
     assert not evaluate(Turn(A2, msgs + [M("tool", "transfer_x: search first")], M(calls=[C("transfer_x")])))
     print("lb5_resignation self-test OK")

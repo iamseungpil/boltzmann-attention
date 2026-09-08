@@ -122,7 +122,7 @@ def migrate(domain):
         "LB5": {"transfer_tools": (src.get("require_doc_before") or {}).get("tools") or [],
                 "doc_feedback": (src.get("require_doc_before") or {}).get("feedback"),
                 "search_tools": src.get("search_tools") or [], "search_feedback": src.get("search_exhaust_escalation"),
-                "unlock_feedback": UNLOCKED_UNCALLED, "steps_feedback": STEPS},
+                "steps_feedback": STEPS},
         "LB6": {"annotations": [{"field": a.get("field"), "note": a.get("note")}
                                 for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")]},
         "LB7": {"deliver_for": (src.get("require_doc_before") or {}).get("tools") or [], "max_chars": 90000,
@@ -137,8 +137,6 @@ REJECTED = ("Error: the environment already rejected '{name}' as unknown earlier
             "name does not exist. Do not reuse it - find the exact registered name first.")
 COVERAGE = ("[COVERAGE] The request is not complete - these records were asked about and no successful action "
             "covers them yet: {missing}. Complete them with real tool calls before ending.")
-UNLOCKED_UNCALLED = ("[OPEN-STEP] You unlocked {names} and never called it. A tool unlocked to take a step is a step "
-                     "still open: call it, or tell the customer why it is not needed, before closing.")
 STEPS = ("Error: [PROCEDURE-INCOMPLETE] you are about to hand this conversation off, but the procedure you entered "
          "still has steps nobody has done: {steps}. A transfer does not perform them.")
 
