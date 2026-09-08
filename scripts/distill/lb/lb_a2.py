@@ -11,6 +11,8 @@ migrate(domain)   build it once from the legacy three-layer files (settings + sp
 import io
 import json
 import os
+
+from lb_coordinator import fam
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -94,7 +96,10 @@ def migrate(domain):
                 + [dict(applies_to=s.get("applies_to"), when=_when(s), arg=s.get("id_key"), field=s.get("record_field"),
                         sources=["customer"], feedback=s.get("feedback")) for s in src.get("ref_verify") or []]
                 + [dict(applies_to=s.get("tool"), arg=s.get("arg"), sources=["records"], feedback=s.get("feedback"))
-                   for s in src.get("choice_grounding") or []],
+                   for s in src.get("choice_grounding") or []]
+                + [dict(applies_to=s.get("applies_to"), when=_when(s), arg=s.get("id_key"), state=s["require_tokens"],
+                        feedback=s.get("feedback"))
+                   for s in src.get("write_evidence_specs") or [] if _record_state(s.get("require_tokens"), src)],
             "names": {"feedback_wrong_suffix": names.get("feedback_wrong_suffix"),
                       "feedback_not_discoverable": names.get("feedback_not_discoverable"),
                       "feedback_rejected": names.get("feedback_rejected") or REJECTED},
@@ -105,7 +110,7 @@ def migrate(domain):
         "LB4": {"sets":
                 [dict(kind="follow_up", after=c.get("after"), requires=c.get("requires"), decision_tools=c.get("decision_tools"),
                       feedback=c.get("feedback"), decision_feedback=c.get("decision_feedback"))
-                 for c in src.get("follow_up_chains") or []]
+                 for c in src.get("follow_up_chains") or [] if not _bare_write_nudge(c, ep.get("write_tools") or [])]
                 + ([dict(kind="settled_rows", settle_tool=w.get("settle_tool"), submit_tool=w.get("submit_tool"),
                          id_key=w.get("id_key") or "transaction_id", feedback=w.get("feedback"))
                     for w in [src.get("withdrawn_row_check")] if w and w.get("settle_tool")])
@@ -209,6 +214,24 @@ def _have_value(src):
                                             "producer_marker": s.get("producer_marker"), "reask_signals": s.get("reask_signals")})
         e.update({"acquire_tool": s.get("acquire_tool"), "give_tool": s.get("give_tool"), "acquire_feedback": s.get("feedback")})
     return list(out.values())
+
+
+def _record_state(tokens, src):
+    """A write-evidence token is a record state only if it is neither a tool's name (that is a
+    prerequisite, LB1's kind) nor a sentence one of our own verifiers prints (that would demand our
+    verdict, a prescription). What survives is a word the environment writes into a record."""
+    if not tokens:
+        return False
+    verdicts = " ".join(str(v) for t in src.get("scaffold_get_tools") or [] for k, v in t.items() if "template" in k)
+    elsewhere = json.dumps({k: v for k, v in src.items() if k != "write_evidence_specs"})
+    return all(tok not in verdicts and ('"%s' % tok) not in elsewhere for tok in tokens)
+
+
+def _bare_write_nudge(chain, write_tools):
+    """A follow-up may demand a read or a decision step; a bare state-changing write with no decision
+    is a nudge to act on a condition the ledger cannot see (submitted is not resolved)."""
+    req = {fam(x) for x in chain.get("requires") or []}
+    return bool(req & {fam(w) for w in write_tools}) and not chain.get("decision_tools")
 
 
 def _when(s):

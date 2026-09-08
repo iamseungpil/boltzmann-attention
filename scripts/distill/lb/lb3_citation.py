@@ -4,11 +4,12 @@
 One rule: every value or name the model writes must exist in a source this conversation holds.
 The engine never produces a value; it only asks "where is this from?". Declared in A2["LB3"]:
 
-  grounding [{applies_to, when{arg, prefix}, arg, sources[records|customer], field, feedback}]
+  grounding [{applies_to, when{arg, prefix}, arg, sources[records|customer], field, state, feedback}]
       the value of `arg` must occur in a source text; with `field`, the record's `field` value must be
-      one the customer said (reference verification). "The output must also carry verdict X" is not a
-      citation but a demand for a particular check, and base passes 049 without it - that is LB1's
-      prerequisite kind, or nothing.
+      one the customer said (reference verification); with `state`, a record naming the value must
+      also carry those state words (a dispute RESOLVED before its reward is corrected). A state is an
+      environment record's word, never one of our own verifiers' verdicts - demanding our verdict is
+      a prescription, and base passes 049 without it.
   names     {feedback_wrong_suffix, feedback_not_discoverable, feedback_rejected}
       a name handed to the unlock / give / call wrappers must be in the registry (agent or user);
       a name the environment already rejected as unknown is not sent again
@@ -84,6 +85,14 @@ def grounding_findings(turn, call):
                                                            for r in records_in(o) if r.get(spec["field"])
                                                            and present(r[spec["field"]], turn.user_text)}))
                                or "(none stated)")
+        elif spec.get("state"):
+            # a state the action depends on (a dispute resolved, an order shipped) must be read from a
+            # record that names this value - the customer saying so is not a record. Base 026/027/029:
+            # 12 of 12 simulations updated rewards on the customer's word that disputes were approved.
+            # the output that names the value must carry the state words: an environment result reads
+            # "Arguments: {...transaction_id...}\nStatus: RESOLVED", the state outside the braces
+            if not any(present(value, o) and all(t in o for t in spec["state"]) for o in turn.tool_outputs()):
+                problem = fill(spec.get("feedback"), id=value, arg=spec["arg"], val=value, value=value)
         elif not grounded(value, turn, spec.get("sources") or ["records", "customer"]):
             problem = fill(spec.get("feedback"), val=value, value=value, arg=spec["arg"])
         if problem:
@@ -188,6 +197,12 @@ if __name__ == "__main__":
     assert grounding_findings(t, bad)[0].order == "no 1234 for last4"
     bad2 = C("call", {"tool": "file_x", "arguments": '{"txn": "t2", "last4": "5320"}'})
     assert grounding_findings(t, bad2)[0].order == "t2 is Facebook; said Marriott"
+    A2["LB3"]["grounding"].append({"applies_to": "call", "when": {"arg": "tool", "prefix": "upd_"}, "arg": "txn",
+                                   "state": ["RESOLVED"], "feedback": "no record shows {id} resolved"})
+    upd = C("call", {"tool": "upd_x", "arguments": '{"txn": "t1"}'})
+    assert grounding_findings(t, upd)[0].order == "no record shows t1 resolved"        # the customer's word is not a record
+    t_res = Turn(A2, msgs + [M("tool", '[{"txn": "t1", "status": "RESOLVED_CUSTOMER_FAVOR"}]')], M(calls=[upd]))
+    assert not grounding_findings(t_res, upd)
     t2 = Turn(A2, [M("tool", "Error: Unknown discoverable tool 'nav_x'")], M(), registry={"agent": {"real_1"}})
     assert name_findings(t2, C("give", {"name": "nav_x"}))[0].order == "rejected nav_x"
     assert name_findings(t2, C("give", {"name": "real_2"}))[0].order == "suffix real_2"

@@ -5365,6 +5365,30 @@
      "records"
     ],
     "feedback": "Error: [CHOICE-GROUND] '{value}' does not appear in any document this conversation retrieved — it may be a name you produced rather than one the bank offers. Search the knowledge base for the account classes that fit what the customer actually asked for, compare them on those stated criteria, and use the exact class name a document gives."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "update_transaction_rewards"
+    },
+    "arg": "transaction_id",
+    "state": [
+     "RESOLVED"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction. Read the dispute status from an actual tool result. Only a dispute resolved in the customer's favor qualifies for a rewards correction: RESOLVED_BANK_FAVOR means the transaction was found valid and no credit is issued, so it must NOT be updated. If the status is RESOLVED_PARTIAL, do not update on your own — tell the customer what the partial resolution says and ask how they want to proceed. Otherwise explain that the correction will be applied once the dispute is actually resolved."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "approve_credit_limit_increase"
+    },
+    "arg": "credit_card_account_id",
+    "state": [
+     "Consecutive on-time payments"
+    ],
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix."
    }
   ],
   "names": {
@@ -5445,18 +5469,6 @@
     ],
     "decision_tools": null,
     "feedback": "Error: [FOLLOW-UP] you already executed the escalation step, but the ledger shows {missing} was never called, so the customer has NOT actually been transferred. Saying that you have connected them does not transfer anyone. If your policy's escalation protocol still requires further steps (for example repeating the escalation tool the prescribed number of times), perform those steps first; once the protocol is satisfied and the customer has agreed, call the transfer tool itself in a tool call.",
-    "decision_feedback": null
-   },
-   {
-    "kind": "follow_up",
-    "after": [
-     "submit_cash_back_dispute_0589"
-    ],
-    "requires": [
-     "update_transaction_rewards_3847"
-    ],
-    "decision_tools": null,
-    "feedback": "Error: [FOLLOW-UP] cash back disputes were submitted, but the ledger shows {missing} was never called. The bank's internal procedure for applying resolved cash back dispute corrections says that after a cash back dispute is resolved and approved, the affected transaction must be updated with the correct rewards value, and that the transaction_ids for that update come from the disputes that are resolved. If the dispute record or the customer's own confirmation shows these disputes resolved and approved, unlock and call the update tool now, using for each of those transactions the correct value the reward-rate check reported - a verbal summary does not update any record. If resolution has NOT been confirmed yet, do not update; tell the customer plainly what remains and that no update has happened.",
     "decision_feedback": null
    },
    {
