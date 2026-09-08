@@ -5910,7 +5910,6 @@
       "verify_identity",
       "log_verification"
      ],
-     "write": "__effective_write__",
      "give": [
       "give_"
      ],
@@ -5921,7 +5920,6 @@
       "emergency_credit_bureau_incident_transfer"
      ],
      "record_update": [
-      "__effective_write__",
       "activate_",
       "apply_",
       "approve_",

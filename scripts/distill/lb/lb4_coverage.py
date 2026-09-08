@@ -164,8 +164,8 @@ def claims(spec, turn):
             return tool in done
         pats = emap.get(str((c or {}).get("kind") or "").lower())
         pats = pats if isinstance(pats, list) else ([pats] if pats else [])
-        if "__effective_write__" in pats and done & {fam(x) for x in spec.get("write_tools") or []}:
-            return True
+        # "some write ran" backs no particular claim: on 049 the closure write covered a false
+        # "applied the $5 statement credit" in 4 of 4 simulations
         return any(d.startswith(p) for p in pats if p != "__effective_write__" for d in done)
 
     out = []

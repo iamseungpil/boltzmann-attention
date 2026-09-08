@@ -125,7 +125,7 @@ def migrate(domain):
                          write_tools=ep.get("write_tools") or [], finalize_writes=ep.get("finalize_writes") or [],
                          feedback=ep.get("coverage_feedback") or COVERAGE)] if ep.get("entity_key") else [])
                 + ([dict(kind="claims", question=audit.get("question"), kinds=bind.get("kinds", ""),
-                         kind_guidance=bind.get("kind_guidance", ""), event_map=bind.get("event_map") or {},
+                         kind_guidance=bind.get("kind_guidance", ""), event_map=_specific(bind.get("event_map") or {}),
                          write_tools=ep.get("write_tools") or [], transfer_tools=(src.get("require_doc_before") or {}).get("tools") or [],
                          feedback=audit.get("feedback"), feedback_pending=audit.get("feedback_pending"))]
                    if audit.get("question") and bind else [])},
@@ -234,6 +234,17 @@ def _edge_procedure(pid, dep, reads, quote, order):
     return {"id": pid, "enforce": True, "_quote_order": quote or "", "_source": [],
             "nodes": [{"id": r, "tool_prefix": r} for r in reads] + [{"id": dep, "tool_prefix": dep, "requires": list(reads)}],
             "prohibits": {}, "feedback": {"unmet": order}}
+
+
+def _specific(emap):
+    """Event patterns that name something. "__effective_write__" (any write) is evidence of nothing."""
+    out = {}
+    for k, v in emap.items():
+        v = v if isinstance(v, list) else [v]
+        v = [x for x in v if x and x != "__effective_write__"]
+        if v:
+            out[k] = v
+    return out
 
 
 def _env_reads(reads, src):
