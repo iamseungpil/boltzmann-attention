@@ -65,8 +65,8 @@ def migrate(domain):
                      "name_args": d.get("name_args") or {}, "payload_key": ep.get("dispatch_args_key") or "arguments"},
         "failure_markers": src.get("failure_markers") or [],
         "LB1": {
-            "prerequisites": [{"dep": x.get("dep"), "reads": x.get("reads") or [], "source": x.get("source")}
-                              for x in (src.get("relations") or {}).get("declarations") or []],
+            "prerequisites": [p for p in ({"dep": x.get("dep"), "reads": _env_reads(x.get("reads"), src), "source": x.get("source")}
+                                          for x in (src.get("relations") or {}).get("declarations") or []) if p["reads"]],
             "gates": [{"id": g.get("id"), "predicate": g.get("predicate"), "satisfiers": sorted(g.get("satisfiers") or {}),
                        "applies_to": g.get("applies_to") or [], "exempt": (g.get("applies_when") or {}).get("not_in") or []}
                       for g in src.get("gates") or [] if g.get("satisfiers")],
@@ -127,7 +127,7 @@ def migrate(domain):
         "LB5": {"transfer_tools": (src.get("require_doc_before") or {}).get("tools") or [],
                 "doc_feedback": (src.get("require_doc_before") or {}).get("feedback"),
                 "search_tools": src.get("search_tools") or [], "search_feedback": src.get("search_exhaust_escalation"),
-                "steps_feedback": STEPS},
+                },
         "LB6": {"annotations": [{"field": a.get("field"), "note": a.get("note")}
                                 for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")]},
         "LB7": {"deliver_for": (src.get("require_doc_before") or {}).get("tools") or [], "max_chars": 90000,
@@ -138,17 +138,13 @@ def migrate(domain):
     return path
 
 
+UNGROUNDED = ("Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or "
+              "customer message in this conversation - record values must be read from the records or given by the "
+              "customer, never invented. Look it up (or ask), then retry with the actual value.")
 REJECTED = ("Error: the environment already rejected '{name}' as unknown earlier in this conversation; that exact "
             "name does not exist. Do not reuse it - find the exact registered name first.")
 COVERAGE = ("[COVERAGE] The request is not complete - these records were asked about and no successful action "
             "covers them yet: {missing}. Complete them with real tool calls before ending.")
-STEPS = ("Error: [PROCEDURE-INCOMPLETE] you are about to hand this conversation off, but the procedure you entered "
-         "still has steps nobody has done: {steps}. A transfer does not perform them.")
-
-
-UNGROUNDED = ("Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or "
-              "customer message in this conversation - record values must be read from the records or given by the "
-              "customer, never invented. Look it up (or ask), then retry with the actual value.")
 VARIANTS = ("ledger", "ratefix")          # the live arm's declaration variants, applied once here
 CATALOG_CONSTRAINTS = [                    # what the old catalog_filter hard-coded; now data
     {"param": "max_annual_fee", "field": "annual_fee", "sense": "le"},
@@ -225,6 +221,13 @@ def _record_state(tokens, src):
     verdicts = " ".join(str(v) for t in src.get("scaffold_get_tools") or [] for k, v in t.items() if "template" in k)
     elsewhere = json.dumps({k: v for k, v in src.items() if k != "write_evidence_specs"})
     return all(tok not in verdicts and ('"%s' % tok) not in elsewhere for tok in tokens)
+
+
+def _env_reads(reads, src):
+    """A prerequisite read must be the environment's tool. One of our own verifiers as a prerequisite
+    is a prescription to use it: 137 of 164 requirement denies on the base census were that one line."""
+    ours = {t.get("name") for t in src.get("scaffold_get_tools") or []}
+    return [r for r in reads or [] if fam(r) not in ours]
 
 
 def _bare_write_nudge(chain, write_tools):

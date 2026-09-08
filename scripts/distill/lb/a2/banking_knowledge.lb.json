@@ -26,17 +26,9 @@
    {
     "dep": "log_verification",
     "reads": [
-     "verify_identity",
      "get_current_time"
     ],
     "source": "satisfier_requires"
-   },
-   {
-    "dep": "apply_for_credit_card",
-    "reads": [
-     "check_card_application_fit"
-    ],
-    "source": "require_tool_before"
    },
    {
     "dep": "open_bank_account",
@@ -5656,8 +5648,7 @@
    "KB_search_dense",
    "KB_search"
   ],
-  "search_feedback": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
-  "steps_feedback": "Error: [PROCEDURE-INCOMPLETE] you are about to hand this conversation off, but the procedure you entered still has steps nobody has done: {steps}. A transfer does not perform them."
+  "search_feedback": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you."
  },
  "LB6": {
   "annotations": []

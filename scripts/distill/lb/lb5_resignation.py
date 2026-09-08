@@ -9,7 +9,6 @@ A2["LB5"]:
   doc_feedback     a transfer tool whose defining document was never read      (surface, never deny)
   search_tools     search tools; the same query returning nothing twice is exhaustion
   search_feedback  what the policy says to do when search is exhausted
-  steps_feedback   a transfer while an entered procedure still has ready steps
 """
 
 from lb_coordinator import Finding, SURFACE, GRADES, fam, fill
@@ -56,23 +55,11 @@ def unread_definition(turn):
             for c in transferring(turn) if tpl and fam(turn.name_of(c)).lower() not in turn.tool_text]
 
 
-def open_steps(turn):
-    tpl = spec_of(turn).get("steps_feedback")
-    if not tpl or not transferring(turn):
-        return []
-    import lb1_requirements as L1
-    left = []
-    for p in L1.active((turn.a2.get("LB1") or {}).get("procedures") or [], turn.executed, turn.user_text):
-        left += [t for n in L1.ready(p, turn.executed) for t in L1._tools(n)]
-    return [Finding(LB, SURFACE, left[0], order=fill(tpl, steps=", ".join(sorted(set(left)))), grade=LEDGER,
-                    source="steps-open")] if left else []
-
-
 def evaluate(turn):
     if turn.resigning():
         return exhausted_search(turn)
     if transferring(turn):
-        return unread_definition(turn) + open_steps(turn)
+        return unread_definition(turn)
     return []
 
 
