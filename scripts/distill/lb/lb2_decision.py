@@ -429,17 +429,24 @@ def grounded_scalar(value, hay, kind):
 
 def render_result(decl, ctx, result):
     ids = result if isinstance(result, list) else []
-    if isinstance(result, list) and not result and decl.get("return_template_empty"):
-        return decl["return_template_empty"]
+    st = ctx.get("_stats") or {}
+    if st and not st.get("judged"):
+        # an empty result over zero judged rows is not "no discrepancy" - probe 017 read it as clean
+        # and skipped the disputes the task is about
+        return ("Error: [COVERAGE] none of the %d rows could be judged - the policy rate for them was not established, "
+                "so this result says nothing. Retrieve the reward-rate policy document for the card first, then call "
+                "again." % st.get("total", 0))
     details = "; ".join("%s: recorded %s, expected %s (delta %s)" % (d["id"], d["actual"], d["expected"], d["delta"])
                         for d in ctx.get("_details") or [])
     slots = {k: v for k, v in ctx.items() if isinstance(v, (str, int, float))}
-    text = fill(decl.get("return_template") or "{result}", result=json.dumps(result, ensure_ascii=False)
-                if isinstance(result, (dict, list)) else result, ids=", ".join(map(str, ids)) or "(none)",
-                details=details or "(none)", **slots)
-    st = ctx.get("_stats")
-    if st and st.get("skipped"):
-        text += " [%d of %d rows could not be judged - a required field was missing or not numeric]" % (st["skipped"], st["total"])
+    if isinstance(result, list) and not result and decl.get("return_template_empty"):
+        text = decl["return_template_empty"]
+    else:
+        text = fill(decl.get("return_template") or "{result}", result=json.dumps(result, ensure_ascii=False)
+                    if isinstance(result, (dict, list)) else result, ids=", ".join(map(str, ids)) or "(none)",
+                    details=details or "(none)", **slots)
+    if st.get("skipped"):
+        text += " [coverage: %d of %d rows could not be judged - no policy rate was established for them]" % (st["skipped"], st["total"])
     return text
 
 

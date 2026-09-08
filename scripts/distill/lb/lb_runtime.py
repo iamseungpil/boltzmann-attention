@@ -331,19 +331,27 @@ def formalize_rows(orch, agent, iso, args, orig_exec):
             break
         msgs.append(resp)
         msgs.extend(orig_exec(orch, calls))
-    if not got:
-        return
-    hay = " ".join(corpora_of(orch, agent)["kb"]).lower()
-    lo, hi = (iso.get("rate_range") or [None, None])[:2]
-    for r in rows:
-        ops = got.get(str(r.get(idf)))
-        if not isinstance(ops, dict):
-            continue
-        quote = str(ops.get(iso.get("quote_field") or "") or "").strip()
-        rate = lb2_decision.num(ops.get(iso.get("rate_field") or ""))
-        if (quote and " ".join(quote.lower().split()) not in " ".join(hay.split())) or                 (rate is not None and lo is not None and not (lo <= rate <= hi)):
-            continue                                       # unsupported: the row stays unverified
-        r.update({k: v for k, v in ops.items() if k in iso["operand_schema"] and v not in ("", None)})
+    verdict = {}
+    if got:
+        hay = " ".join(corpora_of(orch, agent)["kb"]).lower()
+        lo, hi = (iso.get("rate_range") or [None, None])[:2]
+        for r in rows:
+            ops = got.get(str(r.get(idf)))
+            if not isinstance(ops, dict):
+                verdict[str(r.get(idf))] = "absent"
+                continue
+            quote = str(ops.get(iso.get("quote_field") or "") or "").strip()
+            rate = lb2_decision.num(ops.get(iso.get("rate_field") or ""))
+            if quote and " ".join(quote.lower().split()) not in " ".join(hay.split()):
+                verdict[str(r.get(idf))] = "quote not in corpus"
+                continue                                   # unsupported: the row stays unverified
+            if rate is not None and lo is not None and not (lo <= rate <= hi):
+                verdict[str(r.get(idf))] = "rate out of range"
+                continue
+            r.update({k: v for k, v in ops.items() if k in iso["operand_schema"] and v not in ("", None)})
+            verdict[str(r.get(idf))] = "kept rate=%s" % rate
+    sidecar("lb-formalize", "REPLY %s\nVERDICT %s" % (str(getattr(resp, "content", "") or "")[:3000], json_dumps(verdict)),
+            None, sim=sim_id(agent), source=str(iso.get("over")), rounds=rnd + 1)
 
 
 def json_dumps(o):
