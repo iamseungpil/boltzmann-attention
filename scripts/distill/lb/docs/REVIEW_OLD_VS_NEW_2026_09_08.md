@@ -167,3 +167,8 @@ task_010 (base 0/4 · 우리 0/1 · 개입 0): 값 계산은 전부 맞았고, �
 | 나머지 11 | 4/4 또는 3/4 | 동일 | — |
 
 049: 4 sim 모두 모델이 *"$5 statement credit 을 드리겠다"* 고 말만 하고 `apply_statement_credit` 없이 이관. base 는 손님의 되물음 뒤 실행(3/4). 우리 절차 deny(읽기→사유→폐쇄)가 흐름을 바꿔 그 되물음 구간이 사라졌다. 이것은 LB4 `pending`(약속한 행동이 인계 전에 실행됐는가)의 자리인데 두 결함이 막았다: ① `event_map write → __effective_write__` 가 "어떤 쓰기든 하나 있으면 뒷받침" 으로 읽혀 도구 이름을 무시(`backed()` 를 도구 우선으로) ② 인계 **호출** 턴의 조언은 재생성을 안 일으켜 모델에게 닿지 않음(인계 호출은 한 번 미루고 약속을 보인다 — 거부가 아니라 재생성, 예산 2). 재실행: 049 · 004(가드).
+
+## 14. 056 (base 3/4 → LB 2/4) per-step — F2 이되 닫을 수 없는 자리
+
+실패 sim0 은 `open_bank_account(account_class="Silver Plus Saver")`, gold·통과 sim 은 `"Silver Plus Saver Account"`. 환경은 잘린 이름도 받아 다른 계좌 id 를 만들었다(DB 불일치). 우리 발화는 이 자리에 없었다(deny 0).
+선언 `CHOICE-GROUND`(account_class 는 문서에 있어야) 는 substring 이라 잘린 이름을 통과시킨다. 정확 일치로 조이면 gold 를 막는다: gold 의 범주 이름 23개 중 6개가 문서 제목과 다르다 — `Navy Blue`(제목 Navy Blue Account) · `World Blue Account`(제목 World Blue) · `Green Account` · `Evergreen Account` · `Purple Account`. "더 긴 제목의 접두면 잘린 것" 규칙도 `Navy Blue`·`Green Account` 를 오판한다. 범주 이름 인자를 쓰는 gold 행위는 37 태스크. ⇒ 규칙 추가 없음, 결손 기록. (079·078 지갑 분실 가족은 F3 집합 선택 + 순서를 명령하는 문서 부재 — §13 참조.)
