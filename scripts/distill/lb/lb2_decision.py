@@ -570,6 +570,13 @@ def run_tool(decl, args, corpora, evidence):
     """Execute one verifier tool: parse args, ground operands, run the op, render the declaration's text."""
     ctx = {k: (as_dict(v) or _list(v) if isinstance(v, str) and v[:1] in "[{" else v) for k, v in (args or {}).items()}
     ctx.update(evidence or {})
+    # An argument the declaration invites the caller to omit arrives as "" when the model obliges.
+    # Treating that as a malformed array turned an invitation into an error thirteen times across
+    # the sweep, every one of them get_correct_savings_apy with an empty components: the parameter
+    # text says "needed only if you omit components", and the model omitted it.
+    for p in over_params(decl.get("op")):
+        if isinstance(ctx.get(p), str) and not ctx[p].strip():
+            ctx.pop(p)
     bad = [p for p in over_params(decl.get("op")) if isinstance(ctx.get(p), str)]
     if bad:
         return ("Error: [ARGS-FORMAT] the '%s' argument could not be read as a JSON array. Re-issue this call with "
@@ -829,6 +836,9 @@ if __name__ == "__main__":
     text, err, _ids = run_tool(decl, {"tx": json.dumps(c2["tx"]), "cap": "12"}, {"ledger": ["limit 12"]}, {})
     assert text.startswith("bad: t2") and not err, text
     assert run_tool(decl, {"tx": "not json"}, {}, {})[1]
+    # an empty string for an array the declaration lets you omit is an omission, not a format error
+    _t, _e, _ = run_tool(decl, {"tx": "  ", "cap": "12"}, {"ledger": ["limit 12"]}, {})
+    assert "[ARGS-FORMAT]" not in _t, _t
     # derived DAG with a fake formalizer
     a2 = {"LB2": {"derived": [
         {"out": "rows", "inputs": ["tool:get_refs"], "op": "formalize", "shape": "rows", "prompt": "{text}", "params": {"row_keys": ["date", "kind"]}},

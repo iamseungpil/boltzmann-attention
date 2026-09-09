@@ -1409,11 +1409,11 @@
    },
    {
     "name": "get_correct_savings_apy",
-    "description": "ALWAYS provide savings_account_type/customer_products (so the tool can verify against the records itself). USE THIS to compute the correct APY on a savings account under Rho-Bank stacking rules. Do NOT add the boosts up yourself. First read the savings account's base APY and identify EVERY applicable boost from the knowledge base — checking-account APY boosts (from the checking+savings pairing table), credit card APY bonuses, relationship bonuses, and account tier bonuses — then call this tool. It applies the stacking policy: only the HIGHEST checking boost counts, only the HIGHEST card bonus counts, while relationship and tier bonuses all add on top. If you provide savings_account_type and customer_products, you may OMIT components - the tool will search the knowledge base itself.",
+    "description": "ALWAYS provide savings_account_type/customer_products (so the tool can verify against the records itself). USE THIS to compute the correct APY on a savings account under Rho-Bank stacking rules. Do NOT add the boosts up yourself. First read the savings account's base APY and identify EVERY applicable boost from the knowledge base — checking-account APY boosts (from the checking+savings pairing table), credit card APY bonuses, relationship bonuses, and account tier bonuses — then call this tool. It applies the stacking policy: only the HIGHEST checking boost counts, only the HIGHEST card bonus counts, while relationship and tier bonuses all add on top. components is required: it is the list you read out of the knowledge base, and this tool applies the stacking policy to it rather than searching for you. Pass savings_account_type, customer_products and current_balance as well so the tool can check your list against the records.",
     "params": {
      "components": "A JSON array of the APY components you read from the knowledge base for THIS savings account. Each element: {kind: one of 'base'|'checking'|'card'|'relationship'|'tier', value: <number, percentage points, no %>, source: <verbatim quote from the KB doc stating this value>}. Include the base APY as {kind:'base', value:<base>} and EVERY applicable boost (list all checking boosts and all card bonuses you find; the tool keeps only the highest of each per policy). Do not pre-select or pre-sum.",
-     "savings_account_type": "The savings account's type/name (e.g. from the account record). Needed only if you omit components - the tool will look up the components itself.",
-     "customer_products": "Short summary of the customer's boost-relevant products copied from their records (checking account type, credit card type, tenure/tier). Needed only if you omit components.",
+     "savings_account_type": "The savings account's type/name, copied from the account record.",
+     "customer_products": "Short summary of the customer's boost-relevant products copied from their records (checking account type, credit card type, tenure/tier).",
      "current_balance": "The savings account's current balance (number, from the account record). The base APY may be tiered by balance, so the tool's extraction step needs it to pick the right tier. Needed only if you omit components."
     },
     "op": {
@@ -3104,7 +3104,8 @@
     "requires_reads": [
      "get_all_user_accounts_by_user_id"
     ],
-    "return_template": "Correct savings APY computed from the components supplied in this call: {result}%. The stacking policy is base + highest checking boost + highest card bonus + all relationship/tier bonuses. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy."
+    "return_template": "Correct savings APY computed from the components supplied in this call: {result}%. The stacking policy is base + highest checking boost + highest card bonus + all relationship/tier bonuses. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
+    "missing_hint": "Abstained: no base APY was given. components must include one element with kind 'base' - the savings account's own rate at this balance, read from the knowledge base - plus one element per boost you found. Read the account's specification document, then call again with the list."
    },
    {
     "name": "get_interest_correction",
