@@ -4461,6 +4461,128 @@
      "not_computable_note": "(not computable from the documented schedule: {names})"
     },
     "return_template": "Documented ATM fee totals per personal checking account class for the stated usage (monthly free allowances deducted; out-of-network and foreign totals are SEPARATE columns - how the two fee types combine for one withdrawal abroad is not documented, so weigh both columns for foreign out-of-network usage):\n{result}\nThese totals already cover every personal checking class's documented Rho-Bank ATM fees for the stated usage - they are computed, not estimates. Third-party ATM operator surcharges and operator-fee rebate programs are OUTSIDE these totals. This tool does not pick a class: compare the totals yourself, verify the remaining candidate's eligibility and non-ATM terms in its cited source docs, and confirm with the customer. If no rows appear, a numeric parameter was missing or unreadable - call again with months, withdrawals_per_month and withdrawal_amount as plain numbers."
+   },
+   {
+    "name": "check_credit_dispute_provisional_credit",
+    "description": "USE THIS before filing a credit card dispute to decide eligible_for_provisional_credit. The Provisional Credit Eligibility Guidelines make it eligible only when every one of five conditions holds: the account has been open at least 60 days, the reason is one of unauthorized_fraudulent_charge / duplicate_charge / goods_services_not_received (that last one only if the purchase is more than 30 days old), the amount is at least $25 and within the card tier's maximum, the customer has not already filed more than 2 disputes in the past 12 months, and for anything other than fraud the customer went to the merchant first. Read every value off a record - the transaction for the amount and card type, the account for its open date, the dispute history for the count - and call get_current_time for today. Count disputes you have already filed in this conversation as well.",
+    "params": {
+     "dispute_reason": "The dispute_reason you are about to file, exactly as the filing document names it.",
+     "purchase_date": "MM/DD/YYYY, the transaction's date, copied from the transaction record.",
+     "as_of_date": "MM/DD/YYYY, today. Call get_current_time and copy that date.",
+     "contacted_merchant": "true or false - did the customer try the merchant first.",
+     "transaction_amount": "The disputed amount as a number, no $ sign, copied from the transaction record.",
+     "card_type": "The card's type, copied from the credit card account record (e.g. Gold Rewards Card).",
+     "date_of_account_open": "MM/DD/YYYY, from the credit card account record.",
+     "prior_disputes_12mo": "How many disputes this customer has already filed in the past 12 months, including any you filed earlier in this conversation."
+    },
+    "op": {
+     "op": "if_then",
+     "cond": {
+      "op": "bool_expr",
+      "all": [
+       {
+        "expr": {
+         "op": "days_between",
+         "a": "date_of_account_open",
+         "b": "as_of_date"
+        },
+        ">=": 60
+       },
+       {
+        "ref": "dispute_reason",
+        "in": [
+         "unauthorized_fraudulent_charge",
+         "duplicate_charge",
+         "goods_services_not_received"
+        ]
+       },
+       {
+        "not": {
+         "all": [
+          {
+           "ref": "dispute_reason",
+           "in": [
+            "goods_services_not_received"
+           ]
+          },
+          {
+           "expr": {
+            "op": "days_between",
+            "a": "purchase_date",
+            "b": "as_of_date"
+           },
+           "<=": 30
+          }
+         ]
+        }
+       },
+       {
+        "expr": "transaction_amount",
+        ">=": 25
+       },
+       {
+        "expr": {
+         "op": "compare",
+         "cmp": "<=",
+         "a": "transaction_amount",
+         "b": {
+          "op": "case",
+          "key": "card_type",
+          "cases": {
+           "Bronze Rewards Card": 2500,
+           "EcoCard": 2500,
+           "Business Bronze Rewards Card": 2500,
+           "Crypto-Cash Back Card": 2500,
+           "Crypto-Cash Back": 2500,
+           "Silver Rewards Card": 5000,
+           "Business Silver Rewards Card": 5000,
+           "Green Rewards Card": 5000,
+           "Silver Zoom Card": 5000,
+           "Gold Rewards Card": 10000,
+           "Business Gold Rewards Card": 10000,
+           "Platinum Rewards Card": 15000,
+           "Business Platinum Rewards Card": 15000,
+           "Diamond Elite Card": 25000
+          }
+         }
+        }
+       },
+       {
+        "expr": "prior_disputes_12mo",
+        "<=": 2
+       },
+       {
+        "any": [
+         {
+          "ref": "dispute_reason",
+          "in": [
+           "unauthorized_fraudulent_charge"
+          ]
+         },
+         {
+          "ref": "contacted_merchant",
+          "in": [
+           true,
+           "true",
+           "True",
+           "yes",
+           "Yes"
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "then": {
+      "op": "const",
+      "value": "ELIGIBLE - all five conditions of the Provisional Credit Eligibility Guidelines hold. File the dispute with eligible_for_provisional_credit = true."
+     },
+     "else": {
+      "op": "const",
+      "value": "NOT_ELIGIBLE - at least one of the five conditions fails (account under 60 days, a reason outside the eligible set, an amount under $25 or over the card tier's maximum, more than 2 disputes already filed in the past 12 months, or a non-fraud dispute the customer did not take to the merchant first). File the dispute with eligible_for_provisional_credit = false."
+     }
+    },
+    "return_template": "Provisional credit for this dispute (reason {dispute_reason}, amount {transaction_amount} on a {card_type}, {prior_disputes_12mo} disputes already filed): {result}. Pass the verdict as eligible_for_provisional_credit."
    }
   ],
   "derived": [
