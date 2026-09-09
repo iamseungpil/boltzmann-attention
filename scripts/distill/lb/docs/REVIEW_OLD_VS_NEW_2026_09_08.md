@@ -818,3 +818,55 @@ Fisher 정확검정 A 대 B **p = 8.6e-07** · A 대 C **p = 5.7e-08**.
 대화가 이어진다. 효과 크기가 크므로(6%→94%) 살아남을 가능성이 높지만, 확정은 라이브 A/B 다.
 그리고 이 방법 자체가 성과다 — **GPU 스윕보다 훨씬 싼 인과 계측기**이고, 다른 실패 태스크에
 그대로 적용된다.
+
+### 27-8. 같은 계측기를 다른 태스크로 — `010` 은 **우리가 이미 계산한 사실을 에이전트가 부정**해서 진다
+
+먼저 계측기가 닿는 범위를 셌다. 97 태스크 중 **손님측 gold 행동을 가진 것이 46개**,
+그중 실패 sim 에서 그 행동이 **빠진** 태스크:
+
+| task | base | lb | 실패 sim | 그중 미실행 | 손님측 gold |
+|---|---|---|---|---|---|
+| **010** | 0/4 | 0/4 | 8 | **8** | `submit_referral` ★HARD |
+| **063** | 0/4 | 0/4 | 8 | 6 | `apply_for_credit_card` ★HARD |
+| **066** | 0/4 | 0/4 | 8 | 4 | `apply_for_credit_card` ★HARD |
+| 020 | 0/4 | 0/4 | 8 | 3 | `call_discoverable_user_tool` ★HARD |
+| 016 | 4/4 | 2/4 | 2 | 2 | `submit_transaction` |
+| 021 | 3/4 | 3/4 | 2 | 2 | `call_discoverable_user_tool` |
+| 007 · 019 | 4/4 | 3/4 | 1 | 1 | — |
+
+열세 14 중 계측기가 닿는 것은 `016 007 019` 셋뿐이다(나머지는 손님 행동이 **실행됐는데도** 졌다).
+그래서 표적을 **양쪽 0/4 인 HARD** 로 옮겼다 — 거기서 올리면 순수 이득이다.
+
+#### 010 의 기전
+
+도구 출력에 **우리 층이 넣은 `[FACTS]`** 가 이미 들어 있다(축자):
+> *"Referrals dated within the last 9 days: 1. The rolling-window allowance is 2, so **1 may be submitted right now**."*
+
+그런데 에이전트는 정반대를 말한다(축자):
+> *"referrals denied for hitting this limit **can't be reinstated**."*
+
+Platinum 은 10/25 에 7일 창(Bronze 10/20 · Gold 10/22)이 차서 거절됐고, **창은 굴러가므로 지금은
+비어 있다.** gold 는 바로 그 재제출(`submit_referral(account_type="Platinum Rewards Card")`)이다.
+`lb.0` 에서는 손님이 **직접 물었는데도**(*"can I re-submit that?"*) 실제 응답은 0/4 였다.
+
+#### 격리 결과 (4 sim · 팔당 4회 · GPU 0)
+
+| 팔 | 문장 | 호출 | 비율 |
+|---|---|---:|---:|
+| **A 현행** | 실제로 그 자리에 있던 응답 | **0/16** | **0%** |
+| **B 사실을 행동으로** | 창이 굴러 비었다는 계산 + *"A referral for the Platinum Rewards Card can be put in again today"* | **16/16** | **100%** |
+| **C 명시 요청** | B + *"submit … again now"* | **16/16** | **100%** |
+
+Fisher **p = 3.3e-09**. `account_type` **32건 전부 `Platinum Rewards Card`** = gold 와 일치.
+016 과 마찬가지로 **지시(C)는 사실 제시(B) 위에 0%p 를 더한다** — 스위치는 사실의 구체화다.
+
+#### 두 태스크가 같은 결손을 가리킨다
+
+| | 016 | 010 |
+|---|---|---|
+| 우리가 가진 재료 | 문서의 `$750` 요건 | 우리 `[FACTS]` 의 *"1 may be submitted right now"* |
+| 에이전트의 발화 | *"남은 금액은 알려줄 수 없다"* | *"재등록될 수 없다"* |
+| 공통 | **부정으로 끝내고, 가진 사실을 행동에 붙이지 않는다** | |
+
+010 은 한 걸음 더 나쁘다 — **우리가 계산해서 건넨 사실을 에이전트가 부정한다.** 이건 LB3(인용)
+또는 LB1 의 새 kind 하나가 잡을 수 있는 것이고, **전달 대 발화의 모순**이라는 일반형이다.
