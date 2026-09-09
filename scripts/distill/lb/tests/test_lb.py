@@ -104,6 +104,27 @@ check("no dead declaration keys",
       and all(k in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read() for k in FB))
 check("identifying args declared", "transaction_id" in A2["LB3"]["identifying"]["args"])
 
+# base-vs-us divergence inventory: every place our stack leaves tau2's path is raised as
+# diverge("<kind>") and listed in lb_runtime's docstring table. If the two drift apart, a comparison
+# against base is being made against code nobody enumerated.
+RT = io.open(os.path.join(ROOT, "lb_runtime.py"), encoding="utf-8").read()
+raised = set()
+for piece in RT.split('diverge("')[1:]:
+    raised.add(piece.split('"')[0])
+doc = RT.split('"""')[1]
+table = doc.split("kind             where")[-1].split('"""')[0]
+listed = set()
+for line in table.splitlines():
+    tok = line.strip().split(" ")[0]
+    if tok and tok[0].isalpha() and tok == tok.lower() and " " not in tok and len(tok) < 20:
+        listed.add(tok)
+listed = {k for k in listed if k in raised or "-" in k}
+check("every divergence from base is raised and listed", raised and raised == listed,
+      "raised-only %s | listed-only %s" % (sorted(raised - listed), sorted(listed - raised)))
+# with no lever on, our stack must not touch the model at all
+check("levers off delegates to tau2", "if not any_lever():" in RT and RT.count("if not any_lever():") >= 2
+      and "_ORIG_TURN(self, message, state)" in RT and "orig_exec(self, tool_calls)" in RT)
+
 # only seven lever flags in this code base
 flags = set()
 for f in os.listdir(ROOT):

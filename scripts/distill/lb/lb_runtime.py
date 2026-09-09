@@ -11,6 +11,28 @@ Execution hook   LB2 verifier tools (A2["LB2"]["tools"]) are injected into the a
 Sub-call door    `ask(prompt, name)` - one generation with no tools over a minimal context - is the
                  only way an engine talks to the model. fetch_formalize lets that sub-call read
                  records through declared getter tools (executed by the environment, off-ledger).
+
+WHERE WE DIFFER FROM BASE - the complete list. Base is `--gate 0`: stock tau2, none of this. Every
+row below is a place our stack does something tau2 would not, and each one is (a) reachable only
+while some lever is on, and (b) recorded with `diverge(kind)` so a run's sidecar enumerates exactly
+what touched it. With T2_LB1..7 all zero, `any_lever()` is false, both hooks delegate to tau2 and
+this list is empty - that is what makes the levers-off cell a control. Grep must agree with this
+table: tests/test_lb.py fails if a `diverge(` kind is missing here or listed here and never raised.
+
+  kind             where                     gate        what changes for the model
+  inject-tools     install/init              LB2         verifier tools appear in the tool list
+  our-tool         execute                   LB2         a call is answered by us, not the environment
+  facts            append_facts              LB2         a read's output gains "[FACTS] ..."
+  merge-order      execute                   any lever   results are reordered to the call order
+  empty-batch      execute                   any lever   orig_exec is skipped when we took every call
+  fold             turn_hook                 LB6         the view is compacted
+  regen            turn_hook                 any lever   the model's message is replaced
+  ctx-stop         generate                  any lever   a context-window error ends the run gracefully
+
+Two more differences exist and are recorded, but not through `diverge`: the text a lever speaks is
+already one sidecar row per utterance (lb-deny, lb-advice, lb-inject, lb-conflict, lb-release, from
+lb_coordinator.say), and `call_name="lb_turn"` only names the debug log file litellm writes - it is
+not part of the request, so the model cannot see it.
 """
 
 import collections
@@ -27,6 +49,22 @@ ROUNDS = 3            # regenerations per turn
 REGEN_BUDGET = 12     # regenerations per simulation; after that the model's message stands as generated
 GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
 ADVICE_MARK = "[SERVICE LAYER NOTE - not written by the customer; do not reply to it, act on it] "
+
+_ORIG_TURN = None       # tau2's own generation, kept so the all-levers-off cell can run it untouched
+
+
+def diverge(kind, text="", **meta):
+    """One row per place our stack left tau2's path. base raises none of these; a run with levers on
+    should be readable as the list of them. Keep every kind in the module docstring's table."""
+    sidecar("lb-diverge", text, None, kind=kind, **meta)
+
+
+def any_lever():
+    """Is any engine on? With none on, our stack must not reach the model at all - the levers-off
+    cell is the control every A/B is read against, and a control that runs our plumbing is not one.
+    (2026-09-09: append_facts was ungated and rewrote tool output in 016 and 098 with T2_LB2=0.)
+    """
+    return any(enabled("LB%d" % i) for i in range(1, 8))
 
 
 def install(domain):
@@ -45,10 +83,15 @@ def install(domain):
             if enabled("LB2"):
                 names = inject_tools(agent, a2)
                 sidecar("lb-tools", "INJECTED %s" % ", ".join(names), None, sim=sim_id(agent), n=len(names))
+                diverge("inject-tools", ", ".join(names), sim=sim_id(agent), n=len(names))
 
     def exec_hook(self, tool_calls):
+        if not any_lever():
+            return orig_exec(self, tool_calls)
         return execute(self, a2, tool_calls, orig_exec)
 
+    global _ORIG_TURN
+    _ORIG_TURN = LLMAgent._generate_next_message
     BaseOrchestrator.__init__ = init
     BaseOrchestrator._execute_tool_calls = exec_hook
     LLMAgent._generate_next_message = turn_hook
@@ -58,6 +101,11 @@ def install(domain):
 # ---- generation hook ---------------------------------------------------------------------------------
 def turn_hook(self, message, state):
     from tau2.data_model.message import MultiToolMessage, ToolMessage, UserMessage
+    if not any_lever():
+        out = _ORIG_TURN(self, message, state)          # tau2's own path, byte for byte
+        am0 = out[0] if isinstance(out, tuple) else out
+        trace(self, [am0], turn_len=len(state.messages))  # the sidecar only reads; it writes nothing back
+        return out
     state.messages.extend(message.tool_messages if isinstance(message, MultiToolMessage) else [message])
     self._system_messages = state.system_messages
     a2 = getattr(self, "_lb_a2", {}) or {}
@@ -80,6 +128,7 @@ def turn_hook(self, message, state):
         self._lb_regen = self.__dict__.get("_lb_regen", 0) + 1
         # base never has its message replaced. This is the one event that says ours was, and with
         # what: the trajectory keeps only the replacement (memory 30).
+        diverge("regen", "round %d" % self._lb_regen, rnd=self._lb_regen)
         sidecar("lb-regen", "round %d: %d deny, %d advice, force=%s, pin=%s"
                 % (self._lb_regen, len(d.denies), len(d.advice), bool(d.force_call),
                    (d.pins[0][0] if d.pins and d.pins[0] else None)),
@@ -117,6 +166,7 @@ def fold_mark(agent, before, after):
     b = sum(len(str(getattr(m, "content", "") or "")) for m in before)
     a = sum(len(str(getattr(m, "content", "") or "")) for m in after)
     if a != b:
+        diverge("fold", "%d -> %d chars" % (b, a))
         sidecar("lb-fold", "%d -> %d chars over %d messages" % (b, a, len(before)), None,
                 sim=sim_id(agent), before=b, after=a, msgs=len(before))
 
@@ -131,7 +181,9 @@ def generate(self, messages, force=False, pin=None, tools=None, call_name="lb_tu
     elif force:
         kw["tool_choice"] = "required"
     try:
-        return la.generate(model=self.llm, tools=tools or None, messages=self._system_messages + messages,
+        # `tools or None` used to sit here and differed from tau2 whenever the list was empty;
+        # there is no lever behind that, so it is gone rather than gated.
+        return la.generate(model=self.llm, tools=tools, messages=self._system_messages + messages,
                            call_name=call_name, **kw)
     except Exception as e:
         if "ContextWindow" not in type(e).__name__:
@@ -140,6 +192,8 @@ def generate(self, messages, force=False, pin=None, tools=None, call_name="lb_tu
         if orch is not None:
             from tau2.data_model.simulation import TerminationReason
             orch.done, orch.termination_reason = True, TerminationReason.CONTEXT_WINDOW_EXCEEDED
+        diverge("ctx-stop", "context window exceeded; ending the run instead of raising",
+                sim=sim_id(self))
         print("[lb] context window exceeded -> graceful stop", file=sys.stderr, flush=True)
         from tau2.data_model.message import AssistantMessage
         return AssistantMessage(role="assistant", content="(context limit reached - conversation ending)")
@@ -260,6 +314,9 @@ def execute(orch, a2, tool_calls, orig_exec):
             rest.append(tc)
         else:
             ours[id(tc)] = (tc, d)
+    if not rest and tool_calls:
+        diverge("empty-batch", "every call in this batch was ours; the environment was not asked",
+                n=len(tool_calls))
     results = list(orig_exec(orch, rest)) if rest else []
     by_id = {getattr(r, "id", None): r for r in results}
     agent = getattr(orch, "agent", None)
@@ -275,9 +332,16 @@ def execute(orch, a2, tool_calls, orig_exec):
         # result first: the sidecar keeps 4000 chars and a 47-row argument list alone exceeds that
         sidecar("lb-tool", "RESULT %s\nARGS %s" % (text[:2500], json_dumps(args)[:1400]), None, sim=sim_id(agent),
                 source=d["name"], error=bool(err))   # the verifier's full input and output, for live forensics
+        diverge("our-tool", d["name"], sim=sim_id(agent), error=bool(err))
         print("[lb2] tool %s -> %s" % (d["name"], "error" if err else "ok"), file=sys.stderr, flush=True)
     out = [by_id[getattr(tc, "id", None)] for tc in tool_calls if getattr(tc, "id", None) in by_id]
-    append_facts(orch, a2, agent, out)
+    if [getattr(r, "id", None) for r in out] != [getattr(r, "id", None) for r in results]:
+        diverge("merge-order", "results reordered to the call order", ours=len(ours), rest=len(rest))
+    if enabled("LB2"):
+        # derived facts are LB2's, and they rewrite a tool result the model reads. Ungated,
+        # T2_LB2=0 still put "[FACTS] ..." into 016 and 098 in every simulation of the
+        # levers-off cell, so that cell was not the control it was recorded as.
+        append_facts(orch, a2, agent, out)
     return out
 
 
@@ -490,4 +554,5 @@ def append_facts(orch, a2, agent, results):
         facts = lb2_decision.derived_facts(a2, outs, ask_fn(agent), a3_rows=(a2.get("LB2") or {}).get("a3_rows") or ())
         if facts:
             r.content = outs[name] + "\n\n[FACTS] " + " ".join(t for _o, _v, t in facts)
+            diverge("facts", name, n=len(facts))
             print("[lb2] facts appended to %s: %d" % (name, len(facts)), file=sys.stderr, flush=True)
