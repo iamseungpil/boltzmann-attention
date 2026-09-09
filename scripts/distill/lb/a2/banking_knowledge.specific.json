@@ -4121,6 +4121,57 @@
      "value": "NOT_ELIGIBLE - at least one of the five conditions fails (account under 60 days, a reason outside the eligible set, an amount under $25 or over the card tier's maximum, more than 2 disputes already filed in the past 12 months, or a non-fraud dispute the customer did not take to the merchant first). File the dispute with eligible_for_provisional_credit = false."
     }
    }
+  },
+  {
+   "name": "get_debit_dispute_liability_cap",
+   "description": "USE THIS before filing a debit card dispute to obtain customer_max_liability_amount. Regulation E sets it by how long after the statement the customer reported: within 2 days $50, within 60 days the disputed amount up to $500, after that unlimited. The statement closes at the end of the month the transaction is in - a transaction from the current month has not been statemented yet. Copy the transaction date off the record and call get_current_time for today; do not work the tier out yourself.",
+   "params": {
+    "transaction_date": "MM/DD/YYYY, the disputed transaction's date, copied from the transaction record.",
+    "report_date": "MM/DD/YYYY, today. Call get_current_time and copy that date.",
+    "disputed_amount": "The disputed amount as a number, no $ sign, copied from the transaction record."
+   },
+   "return_template": "Maximum customer liability for a debit card transaction dated {transaction_date}, reported {report_date} ({disputed_amount} disputed): {result}. Pass exactly this as customer_max_liability_amount.",
+   "op": {
+    "op": "if_then",
+    "cond": {
+     "op": "compare",
+     "cmp": "<=",
+     "a": {
+      "op": "days_after_month_end",
+      "of": "transaction_date",
+      "to": "report_date"
+     },
+     "b": 2
+    },
+    "then": {
+     "op": "const",
+     "value": 50
+    },
+    "else": {
+     "op": "if_then",
+     "cond": {
+      "op": "compare",
+      "cmp": "<=",
+      "a": {
+       "op": "days_after_month_end",
+       "of": "transaction_date",
+       "to": "report_date"
+      },
+      "b": 60
+     },
+     "then": {
+      "op": "min",
+      "of": [
+       "disputed_amount",
+       500
+      ]
+     },
+     "else": {
+      "op": "const",
+      "value": "unlimited - reported more than 60 days after the statement closed; the customer may not recover these funds"
+     }
+    }
+   }
   }
  ],
  "analysis_producers": [

@@ -14,6 +14,7 @@ The op vocabulary is data-driven (evaluate_op). A sub-call goes through `ask` on
 never guesses a key and never writes a sentence of its own - every template is the declaration's.
 """
 
+import calendar
 import datetime
 import json
 
@@ -29,6 +30,11 @@ def num(v):
         return float(v)
     except (TypeError, ValueError):
         return None
+
+
+def month_end(x):
+    """The close of the statement cycle a date falls in."""
+    return None if x is None else datetime.datetime(x.year, x.month, calendar.monthrange(x.year, x.month)[1])
 
 
 def date(v, fmts=("%m/%d/%Y", "%Y-%m-%d", "%m/%d/%y")):
@@ -384,6 +390,12 @@ OPS = {
     "str_eq": lambda s, c: (None if get(c, s.get("a")) is None else norm(get(c, s["a"])) == norm(s.get("b"))),
     "days_between": lambda s, c: (None if None in (date(get(c, s.get("a"))), date(get(c, s.get("b"))))
                                   else abs((date(get(c, s["b"])) - date(get(c, s["a"]))).days)),
+    # A statement closes at the end of its month: the domain never names a statement date and has no
+    # record carrying one, but every account document speaks of a "monthly statement cycle". Reg E
+    # counts from that close, which is why a November transaction reported in November is still the
+    # first tier however many days have passed (2026-09-09: 16 of 17 gold liability values).
+    "days_after_month_end": lambda s, c: (None if None in (date(get(c, s.get("of"))), date(get(c, s.get("to"))))
+                                          else max(0, (date(get(c, s["to"])) - month_end(date(get(c, s["of"])))).days)),
     "date_in_window": lambda s, c: (None if None in (date(get(c, s.get("anchor"))), date(get(c, s.get("target"))),
                                                      num(get(c, s.get("months"))))
                                     else date(get(c, s["anchor"])) <= date(get(c, s["target"]))
@@ -790,4 +802,8 @@ if __name__ == "__main__":
     A2 = {"dispatch": {"agent_call": "call", "name_args": {"call": "tool"}},
           "LB2": {"computations": [{"kind": "distinct", "tool": "w", "pairs": [["x", "y"]], "feedback": "{a} equals {b}"}]}}
     assert evaluate(Turn(A2, [], M(calls=[C("w", {"x": 5, "y": 5})])))[0].order == "x equals y"
+    assert evaluate_op({"op": "days_after_month_end", "of": "t", "to": "r"},
+                       {"t": "11/07/2025", "r": "11/14/2025"}) == 0      # the cycle has not closed yet
+    assert evaluate_op({"op": "days_after_month_end", "of": "t", "to": "r"},
+                       {"t": "10/05/2025", "r": "11/14/2025"}) == 14     # closed 10/31
     print("lb2_decision self-test OK")
