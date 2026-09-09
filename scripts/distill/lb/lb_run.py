@@ -25,6 +25,13 @@ def main():
     ap.add_argument("--user_llm", required=True)
     ap.add_argument("--user_temp", type=float, default=0.0)
     ap.add_argument("--user_reasoning_effort", default=None)
+    # The remote gpt-5.2 ignores seed: called three times with the same seed at temperature 0 it
+    # returned three different openings (2026-09-09 isolation), so two runs of a task never share
+    # a conversation and a paired ablation cannot separate a lever from a different conversation.
+    # Pointing the simulator and the judge at a local greedy engine makes a run reproducible
+    # (the same engine returned byte-identical output six times out of six, under load).
+    # Leaderboard parity is lost, so this belongs to ablation runs, never to a reported pass rate.
+    ap.add_argument("--user_base", default=None, help="serve the user simulator and judge here")
     ap.add_argument("--task_ids", default=None)
     ap.add_argument("--num_trials", type=int, default=1)
     ap.add_argument("--max_concurrency", type=int, default=4)
@@ -55,8 +62,13 @@ def main():
     user_args = {"temperature": a.user_temp}
     if a.user_reasoning_effort:
         user_args["reasoning_effort"] = a.user_reasoning_effort
+    judge_args = {"temperature": 0.0, "response_format": {"type": "json_object"}}
+    if a.user_base:
+        local = {"api_base": a.user_base, "api_key": "dummy"}
+        user_args.update(local)
+        judge_args.update(local)
     nle.DEFAULT_LLM_NL_ASSERTIONS = a.user_llm
-    nle.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {"temperature": 0.0, "response_format": {"type": "json_object"}}
+    nle.DEFAULT_LLM_NL_ASSERTIONS_ARGS = judge_args
     cfg = dict(domain=a.domain, agent="llm_agent", llm_agent="openai/" + a.agent_model,
                llm_args_agent=dict({"api_base": a.agent_base, "api_key": "dummy", "temperature": 0.0},
                                    **({"max_tokens": a.max_tokens} if a.max_tokens else {})),
