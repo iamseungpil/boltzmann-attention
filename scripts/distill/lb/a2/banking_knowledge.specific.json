@@ -10517,6 +10517,440 @@
         ],
         "note": "total_atm_fees_negated counts Rho-Bank's own fees only; an ATM operator's surcharge is separate and is not documented here. The monthly maintenance fee is listed per account with the balance that waives it."
       }
+    },
+    {
+      "name": "check_business_checking_fit",
+      "description": "MANDATORY before recommending or opening ANY business checking account: formalize what the customer stated - whether they will accept an overdraft fee, the balance they can hold, the largest cheque they deposit by phone, the ATM fee rebates they need each month, whether they want cashback on ordinary debit purchases, whether they will accept a monthly fee at all, whether they insist on a regular rather than a startup account - and call this tool. It filters Rho-Bank's documented business checking catalogue and returns 'eligible', 'excluded' (with the fact that violates what you stated) and 'unverified' (that fact is NOT documented for that account - never tell the customer it qualifies). Each eligible account carries monthly_cost_negated, what it costs to run this month, so the cheapest sorts first; a free introductory period counts as no cost now. Recommend the first eligible account.",
+      "params": {
+        "can_keep_balance": "number, optional - the balance the customer said they can hold in the account. Use the low end of a range. Do NOT pass a figure they said they could not commit to.",
+        "needs_no_overdraft_fee": "boolean, optional - true if the customer said they will not accept overdraft fees.",
+        "min_atm_rebates": "number, optional - the monthly ATM fee rebate the customer said they need, in dollars.",
+        "min_mobile_deposit_limit": "number, optional - the largest cheque the customer said they deposit by phone.",
+        "needs_debit_cashback": "boolean, optional - true if the customer said they want cashback on ordinary debit card purchases.",
+        "needs_zero_monthly_fee": "boolean, optional - true only if the customer said they want no monthly fee at all, not even a waivable one.",
+        "min_free_transactions": "number, optional - the monthly transaction count the customer said they need.",
+        "max_wire_fee": "number, optional - the most the customer said they will pay per outgoing domestic wire.",
+        "wants_regular_business_account": "boolean, optional - true only if the customer said they want a regular business account rather than a startup one whose free period expires."
+      },
+      "return_template": "Business checking accounts for this customer: {result}",
+      "op": {
+        "op": "catalog_filter",
+        "label_field": "business_checking_account",
+        "rank": {
+          "op": "multiply",
+          "a": {
+            "op": "if_then",
+            "cond": {
+              "op": "compare",
+              "cmp": ">=",
+              "a": "r.introductory_free_months",
+              "b": 1
+            },
+            "then": 0.0,
+            "else": {
+              "op": "if_then",
+              "cond": {
+                "op": "compare",
+                "cmp": ">=",
+                "a": {
+                  "op": "max",
+                  "of": [
+                    "can_keep_balance",
+                    0
+                  ]
+                },
+                "b": {
+                  "op": "max",
+                  "of": [
+                    "r.waiver_balance",
+                    0
+                  ]
+                }
+              },
+              "then": 0.0,
+              "else": "r.monthly_maintenance_fee"
+            }
+          },
+          "b": -1
+        },
+        "rank_field": "monthly_cost_negated",
+        "top": 6,
+        "keep_fields": [
+          "monthly_maintenance_fee",
+          "waiver_balance",
+          "minimum_balance",
+          "introductory_free_months",
+          "overdraft_fee",
+          "atm_rebate_cap",
+          "mobile_deposit_limit",
+          "debit_cashback_pct",
+          "free_transactions_per_month",
+          "outgoing_domestic_wire_fee"
+        ],
+        "table": [
+          {
+            "business_checking_account": "Beige",
+            "monthly_maintenance_fee": 200.0,
+            "waiver_balance": 500000,
+            "minimum_balance": 250000,
+            "minimum_balance_applies": true,
+            "zero_monthly_fee": false,
+            "introductory_free_months": 0,
+            "startup_account": false,
+            "regular_business_account": true,
+            "overdraft_fee": 0.0,
+            "no_overdraft_fee": true,
+            "atm_rebate_cap": 50.0,
+            "mobile_deposit_limit": 100000,
+            "debit_cashback_pct": null,
+            "debit_cashback_on_general_purchases": null,
+            "free_transactions_per_month": 50,
+            "outgoing_domestic_wire_fee": 0.0,
+            "source": "doc_business_checking_accounts_beige_001"
+          },
+          {
+            "business_checking_account": "Cobalt Blue",
+            "monthly_maintenance_fee": 20.0,
+            "waiver_balance": 2500,
+            "minimum_balance": 0,
+            "minimum_balance_applies": false,
+            "zero_monthly_fee": false,
+            "introductory_free_months": 0,
+            "startup_account": false,
+            "regular_business_account": true,
+            "overdraft_fee": 0.0,
+            "no_overdraft_fee": true,
+            "atm_rebate_cap": 15.0,
+            "mobile_deposit_limit": 10000,
+            "debit_cashback_pct": 1.0,
+            "debit_cashback_on_general_purchases": true,
+            "free_transactions_per_month": 175,
+            "outgoing_domestic_wire_fee": 20.0,
+            "source": "doc_business_checking_accounts_cobalt_blue_001, doc_business_checking_accounts_cobalt_blue_002"
+          },
+          {
+            "business_checking_account": "Hunter Green",
+            "monthly_maintenance_fee": 25.0,
+            "waiver_balance": 5000,
+            "minimum_balance": 0,
+            "minimum_balance_applies": false,
+            "zero_monthly_fee": false,
+            "introductory_free_months": 0,
+            "startup_account": false,
+            "regular_business_account": true,
+            "overdraft_fee": 0.0,
+            "no_overdraft_fee": true,
+            "atm_rebate_cap": 20.0,
+            "mobile_deposit_limit": 10000,
+            "debit_cashback_pct": 2.0,
+            "debit_cashback_on_general_purchases": false,
+            "free_transactions_per_month": null,
+            "outgoing_domestic_wire_fee": 15.0,
+            "source": "doc_business_checking_accounts_hunter_green_001, doc_business_checking_accounts_hunter_green_010"
+          },
+          {
+            "business_checking_account": "Lime Green",
+            "monthly_maintenance_fee": 25.0,
+            "waiver_balance": 15000,
+            "minimum_balance": 5000,
+            "minimum_balance_applies": true,
+            "zero_monthly_fee": false,
+            "introductory_free_months": 0,
+            "startup_account": false,
+            "regular_business_account": true,
+            "overdraft_fee": 0.0,
+            "no_overdraft_fee": true,
+            "atm_rebate_cap": 25.0,
+            "mobile_deposit_limit": 15000,
+            "debit_cashback_pct": null,
+            "debit_cashback_on_general_purchases": null,
+            "free_transactions_per_month": null,
+            "outgoing_domestic_wire_fee": 10.0,
+            "source": "doc_business_checking_accounts_lime_green_001, doc_business_checking_accounts_lime_green_007"
+          },
+          {
+            "business_checking_account": "Navy Blue",
+            "monthly_maintenance_fee": 0.0,
+            "waiver_balance": null,
+            "minimum_balance": 0,
+            "minimum_balance_applies": false,
+            "zero_monthly_fee": true,
+            "introductory_free_months": 0,
+            "startup_account": false,
+            "regular_business_account": true,
+            "overdraft_fee": 0.0,
+            "no_overdraft_fee": true,
+            "atm_rebate_cap": 10.0,
+            "mobile_deposit_limit": 5000,
+            "debit_cashback_pct": null,
+            "debit_cashback_on_general_purchases": null,
+            "free_transactions_per_month": null,
+            "outgoing_domestic_wire_fee": 15.0,
+            "source": "doc_business_checking_accounts_navy_blue_001"
+          },
+          {
+            "business_checking_account": "Sky Blue",
+            "monthly_maintenance_fee": 25.0,
+            "waiver_balance": null,
+            "minimum_balance": 0,
+            "minimum_balance_applies": false,
+            "zero_monthly_fee": false,
+            "introductory_free_months": 6,
+            "startup_account": true,
+            "regular_business_account": false,
+            "overdraft_fee": 0.0,
+            "no_overdraft_fee": true,
+            "atm_rebate_cap": 15.0,
+            "mobile_deposit_limit": 25000,
+            "debit_cashback_pct": null,
+            "debit_cashback_on_general_purchases": null,
+            "free_transactions_per_month": null,
+            "outgoing_domestic_wire_fee": 15.0,
+            "source": "doc_business_checking_accounts_sky_blue_001, doc_business_checking_accounts_sky_blue_007, doc_business_checking_accounts_sky_blue_010"
+          },
+          {
+            "business_checking_account": "True Blue",
+            "monthly_maintenance_fee": 75.0,
+            "waiver_balance": 50000,
+            "minimum_balance": 25000,
+            "minimum_balance_applies": true,
+            "zero_monthly_fee": false,
+            "introductory_free_months": 0,
+            "startup_account": false,
+            "regular_business_account": true,
+            "overdraft_fee": 25.0,
+            "no_overdraft_fee": false,
+            "atm_rebate_cap": 30.0,
+            "mobile_deposit_limit": 50000,
+            "debit_cashback_pct": null,
+            "debit_cashback_on_general_purchases": null,
+            "free_transactions_per_month": -1,
+            "outgoing_domestic_wire_fee": null,
+            "source": "doc_business_checking_accounts_true_blue_001"
+          },
+          {
+            "business_checking_account": "World Blue",
+            "monthly_maintenance_fee": 50.0,
+            "waiver_balance": 25000,
+            "minimum_balance": 10000,
+            "minimum_balance_applies": true,
+            "zero_monthly_fee": false,
+            "introductory_free_months": 0,
+            "startup_account": false,
+            "regular_business_account": true,
+            "overdraft_fee": 30.0,
+            "no_overdraft_fee": false,
+            "atm_rebate_cap": 100.0,
+            "mobile_deposit_limit": 20000,
+            "debit_cashback_pct": null,
+            "debit_cashback_on_general_purchases": null,
+            "free_transactions_per_month": null,
+            "outgoing_domestic_wire_fee": null,
+            "source": "doc_business_checking_accounts_world_blue_001"
+          }
+        ],
+        "constraints": [
+          {
+            "param": "can_keep_balance",
+            "field": "minimum_balance_applies",
+            "sense": "unless"
+          },
+          {
+            "param": "can_keep_balance",
+            "field": "minimum_balance",
+            "sense": "le"
+          },
+          {
+            "param": "wants_regular_business_account",
+            "field": "regular_business_account",
+            "sense": "flag"
+          },
+          {
+            "param": "needs_no_overdraft_fee",
+            "field": "no_overdraft_fee",
+            "sense": "flag"
+          },
+          {
+            "param": "needs_zero_monthly_fee",
+            "field": "zero_monthly_fee",
+            "sense": "flag"
+          },
+          {
+            "param": "min_atm_rebates",
+            "field": "atm_rebate_cap",
+            "sense": "ge"
+          },
+          {
+            "param": "min_mobile_deposit_limit",
+            "field": "mobile_deposit_limit",
+            "sense": "ge"
+          },
+          {
+            "param": "min_free_transactions",
+            "field": "free_transactions_per_month",
+            "sense": "ge"
+          },
+          {
+            "param": "needs_debit_cashback",
+            "field": "debit_cashback_on_general_purchases",
+            "sense": "flag"
+          },
+          {
+            "param": "max_wire_fee",
+            "field": "outgoing_domestic_wire_fee",
+            "sense": "le"
+          }
+        ],
+        "note": "an account with an ongoing minimum balance is not on the table until the customer has said what they can hold: naming a ceiling they cannot exceed is not the same as committing to a floor. monthly_cost_negated is the maintenance fee only."
+      }
+    },
+    {
+      "name": "check_business_savings_fit",
+      "description": "MANDATORY before recommending or opening ANY business savings account: formalize what the customer stated - the balance they can hold, how many withdrawals a month they need, whether they need same-day ACH, the most they will pay per wire - and call this tool. It filters Rho-Bank's documented business savings catalogue and returns 'eligible', 'excluded' (with the fact that violates what you stated) and 'unverified' (that fact is NOT documented for that account - never tell the customer it qualifies). Each eligible account carries monthly_cost_negated so the cheapest sorts first. Recommend the first eligible account.",
+      "params": {
+        "can_keep_balance": "number, optional - the balance the customer said they can hold. Use the low end of a range. Do NOT pass a figure they said they could not commit to.",
+        "withdrawals_per_month": "number, optional - how many withdrawals a month the customer said they need. Use the high end of a range.",
+        "needs_same_day_ach": "boolean, optional - true if the customer said they need same-day ACH transfers.",
+        "max_wire_fee": "number, optional - the most the customer said they will pay per outgoing domestic wire."
+      },
+      "return_template": "Business savings accounts for this customer: {result}",
+      "op": {
+        "op": "catalog_filter",
+        "label_field": "business_savings_account",
+        "rank": {
+          "op": "multiply",
+          "a": "r.monthly_maintenance_fee",
+          "b": -1
+        },
+        "rank_field": "monthly_cost_negated",
+        "top": 6,
+        "keep_fields": [
+          "minimum_balance",
+          "monthly_maintenance_fee",
+          "same_day_ach",
+          "free_withdrawals_per_month",
+          "outgoing_domestic_wire_fee",
+          "base_apy"
+        ],
+        "table": [
+          {
+            "business_savings_account": "Bronze Saver Account",
+            "minimum_balance": 0,
+            "minimum_balance_applies": false,
+            "monthly_maintenance_fee": 0.0,
+            "same_day_ach": false,
+            "free_withdrawals_per_month": 12,
+            "outgoing_domestic_wire_fee": null,
+            "base_apy": 2.0,
+            "source": "doc_business_savings_accounts_bronze_saver_account_001"
+          },
+          {
+            "business_savings_account": "Silver Saver Account",
+            "minimum_balance": null,
+            "minimum_balance_applies": false,
+            "monthly_maintenance_fee": null,
+            "same_day_ach": false,
+            "free_withdrawals_per_month": null,
+            "outgoing_domestic_wire_fee": null,
+            "base_apy": 2.5,
+            "source": "doc_business_savings_accounts_silver_saver_account_001"
+          },
+          {
+            "business_savings_account": "Silver Plus Saver Account",
+            "minimum_balance": 5000,
+            "minimum_balance_applies": true,
+            "monthly_maintenance_fee": null,
+            "same_day_ach": true,
+            "free_withdrawals_per_month": 20,
+            "outgoing_domestic_wire_fee": null,
+            "base_apy": 2.5,
+            "source": "doc_business_savings_accounts_silver_plus_saver_001, doc_business_savings_accounts_silver_plus_saver_006"
+          },
+          {
+            "business_savings_account": "Gold Saver Account",
+            "minimum_balance": 0,
+            "minimum_balance_applies": false,
+            "monthly_maintenance_fee": 10.0,
+            "same_day_ach": true,
+            "free_withdrawals_per_month": null,
+            "outgoing_domestic_wire_fee": 15.0,
+            "base_apy": 2.5,
+            "source": "doc_business_savings_accounts_gold_saver_account_001, doc_business_savings_accounts_gold_saver_account_006"
+          },
+          {
+            "business_savings_account": "Gold Plus Saver Account",
+            "minimum_balance": 25000,
+            "minimum_balance_applies": true,
+            "monthly_maintenance_fee": 15.0,
+            "same_day_ach": true,
+            "free_withdrawals_per_month": 30,
+            "outgoing_domestic_wire_fee": 10.0,
+            "base_apy": 5.0,
+            "source": "doc_business_savings_accounts_gold_plus_saver_001, doc_business_savings_accounts_gold_plus_saver_006"
+          },
+          {
+            "business_savings_account": "Emerald Saver",
+            "minimum_balance": 1000,
+            "minimum_balance_applies": true,
+            "monthly_maintenance_fee": 5.0,
+            "same_day_ach": null,
+            "free_withdrawals_per_month": null,
+            "outgoing_domestic_wire_fee": null,
+            "base_apy": 3.5,
+            "source": "doc_business_savings_accounts_emerald_saver_001"
+          },
+          {
+            "business_savings_account": "Platinum Reserve Account",
+            "minimum_balance": 100000,
+            "minimum_balance_applies": true,
+            "monthly_maintenance_fee": null,
+            "same_day_ach": null,
+            "free_withdrawals_per_month": null,
+            "outgoing_domestic_wire_fee": 0.0,
+            "base_apy": null,
+            "source": "doc_business_savings_accounts_platinum_reserve_account_001"
+          },
+          {
+            "business_savings_account": "Diamond Vault",
+            "minimum_balance": 500000,
+            "minimum_balance_applies": true,
+            "monthly_maintenance_fee": 0.0,
+            "same_day_ach": true,
+            "free_withdrawals_per_month": null,
+            "outgoing_domestic_wire_fee": 0.0,
+            "base_apy": 6.5,
+            "source": "doc_business_savings_accounts_diamond_vault_001"
+          }
+        ],
+        "constraints": [
+          {
+            "param": "can_keep_balance",
+            "field": "minimum_balance_applies",
+            "sense": "unless"
+          },
+          {
+            "param": "can_keep_balance",
+            "field": "minimum_balance",
+            "sense": "le"
+          },
+          {
+            "param": "needs_same_day_ach",
+            "field": "same_day_ach",
+            "sense": "flag"
+          },
+          {
+            "param": "withdrawals_per_month",
+            "field": "free_withdrawals_per_month",
+            "sense": "ge"
+          },
+          {
+            "param": "max_wire_fee",
+            "field": "outgoing_domestic_wire_fee",
+            "sense": "le"
+          }
+        ],
+        "note": "an account with an ongoing minimum balance is not on the table until the customer has said what they can hold: naming a ceiling they cannot exceed is not the same as committing to a floor."
+      }
     }
   ],
   "analysis_producers": [
