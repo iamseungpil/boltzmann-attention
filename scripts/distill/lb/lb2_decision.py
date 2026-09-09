@@ -294,6 +294,22 @@ def _duplicates(recs, idf, dupf):
     return marked
 
 
+def _select_row(spec, ctx):
+    """One row of a documented table, chosen by the names the caller gave, and one field of it.
+
+    where is [[field, param], ...]; a param the caller left out is not matched on, so a customer
+    who names no card still gets the row with no card. Zero matches or more than one is None -
+    the engine does not pick between rows it cannot tell apart.
+    """
+    rows = spec.get("table") or []
+    for field, param in spec.get("where") or []:
+        want = ctx.get(param)
+        want = None if isinstance(want, str) and not want.strip() else want
+        rows = [r for r in rows
+                if (r.get(field) is None if want is None else norm(r.get(field)) == norm(want))]
+    return rows[0].get(spec.get("get")) if len(rows) == 1 else None
+
+
 def _catalog_filter(spec, ctx):
     """Rows of a documented table filtered by the constraints the caller stated.
 
@@ -454,7 +470,7 @@ OPS = {
                              else (val(c, s.get("then")) if val(c, s.get("then")) == val(c, s.get("else")) else None)),
     "bool_expr": _bool, "lookup_table": _lookup, "match_verdict": _match_verdict,
     "match_verdict_grounded": _match_verdict, "group_reduce": _group_reduce, "bucket_month_window": _bucket,
-    "select_discrepant": _select_discrepant, "catalog_filter": _catalog_filter,
+    "select_discrepant": _select_discrepant, "catalog_filter": _catalog_filter, "select_row": _select_row,
     "catalog_compute": _catalog_compute, "filter": _filter,
 }
 
@@ -822,6 +838,12 @@ if __name__ == "__main__":
                         "then": {"op": "const", "value": "YOUNG"}, "else": {"op": "const", "value": "OLD"}},
                        {"x": "01/01/2026", "y": "03/01/2026"}) == "YOUNG"
     assert evaluate_op({"op": "lookup_table", "key": "n", "table": [{"cmp": "<=", "thr": 4, "result": 0}, {"result": 2.5}]}, {"n": 5}) == 2.5
+    sr = {"op": "select_row", "get": "apy", "where": [["cls", "c"], ["card", "k"]],
+          "table": [{"cls": "Gold", "card": None, "apy": 5.5},
+                    {"cls": "Gold", "card": "Eco", "apy": 6.1}]}
+    assert evaluate_op(sr, {"c": "Gold", "k": "Eco"}) == 6.1
+    assert evaluate_op(sr, {"c": "Gold", "k": ""}) == 5.5
+    assert evaluate_op(sr, {"c": "Silver", "k": "Eco"}) is None
     cf = {"op": "catalog_filter", "label_field": "card", "constraints": [{"param": "max_fee", "field": "fee", "sense": "le"}],
           "table": [{"card": "A", "fee": 0}, {"card": "B", "fee": 200}, {"card": "C"}]}
     r = evaluate_op(cf, {"max_fee": 50})
