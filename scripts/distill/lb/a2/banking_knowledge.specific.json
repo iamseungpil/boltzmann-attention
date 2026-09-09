@@ -10528,7 +10528,7 @@
         "min_mobile_deposit_limit": "number, optional - the largest cheque the customer said they deposit by phone.",
         "needs_debit_cashback": "boolean, optional - true if the customer said they want cashback on ordinary debit card purchases.",
         "needs_zero_monthly_fee": "boolean, optional - true only if the customer said they want no monthly fee at all, not even a waivable one.",
-        "min_free_transactions": "number, optional - the monthly transaction count the customer said they need.",
+        "min_free_transactions": "number, optional - the monthly transaction count the customer said they need. An account documented as -1 included transactions has no limit and always qualifies.",
         "max_wire_fee": "number, optional - the most the customer said they will pay per outgoing domestic wire.",
         "wants_regular_business_account": "boolean, optional - true only if the customer said they want a regular business account rather than a startup one whose free period expires."
       },
@@ -10788,7 +10788,8 @@
           {
             "param": "min_free_transactions",
             "field": "free_transactions_per_month",
-            "sense": "ge"
+            "sense": "ge",
+            "satisfied_by": -1
           },
           {
             "param": "needs_debit_cashback",
@@ -17782,8 +17783,8 @@
       "why": "which document families a catalogue argument's values live in."
     },
     "catalog_attrs": {
-      "verdict": "pending",
-      "why": "the type and unit of every catalogue attribute. Without it a comparison scores foreign_currency_holding == 1 against the value 30 as a penalty of 29 and ranks the best-fitting account worst. The four catalogues authored on 2026-09-09 compare without it."
+      "verdict": "not_migrated",
+      "why": "the type and unit of each catalogue attribute, for a scorer that ranked by distance from a wanted value. The catalogues authored on 2026-09-09 are typed by construction - a fee that is sometimes a percent and sometimes a flat amount gets three columns, pct, floor and cap - so there is no untyped comparison left to protect. The audit it prompted did find one of its own trap in our tables: True Blue documents -1 included transactions, and ge read that as fewer than a hundred. Constraints now declare satisfied_by for a catalogue's own word for no limit."
     },
     "enum_priority": {
       "verdict": "pending",

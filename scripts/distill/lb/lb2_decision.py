@@ -324,6 +324,8 @@ def _catalog_filter(spec, ctx):
                 why = "%s is documented as not available" % c["field"]
             elif c["sense"] == "unless" and rv:
                 why = "%s applies and %s was not stated" % (c["field"], c["param"])
+            elif "satisfied_by" in c and rv == c["satisfied_by"]:
+                pass                              # the catalogue own word for no limit
             elif c["sense"] in ("le", "ge") and num(cv) is not None and num(rv) is not None \
                     and ((c["sense"] == "le" and num(rv) > num(cv)) or (c["sense"] == "ge" and num(rv) < num(cv))):
                 why = "%s=%s violates %s=%s" % (c["field"], rv, c["param"], cv)
