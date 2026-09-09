@@ -87,14 +87,14 @@ def follow_up(spec, turn):
 def settled_rows(spec, turn):
     if turn.calls:
         return []
-    settled, submitted = set(), set()
+    # what the settling verifier found comes from the engine that computed it, not from parsing the
+    # sentence it rendered: records_in over that text returned nothing and the rule never fired once.
+    settled = set((turn.extras.get("rows") or {}).get(fam(spec.get("settle_tool")), ()))
+    submitted = set()
     for call, res in _results(turn):
         if not _succeeded(turn, res):
             continue
-        name = fam(turn.name_of(call))
-        if name == fam(spec.get("settle_tool")):
-            settled |= {str(r[spec["id_key"]]) for r in records_in(getattr(res, "content", ""), spec.get("id_key"))}
-        elif name == fam(spec.get("submit_tool")):
+        if fam(turn.name_of(call)) == fam(spec.get("submit_tool")):
             submitted |= {str(v) for v in _leaves(turn.args_of(call))}
     left = sorted(x for x in settled if not any(x in s for s in submitted))
     return [Finding(LB, SURFACE, spec.get("submit_tool"), order=fill(spec.get("feedback"), ids=", ".join(left)),
@@ -227,7 +227,10 @@ if __name__ == "__main__":
     assert not once(A2["LB4"]["sets"][1], Turn(A2, msgs, M(calls=[other])))
     s, sub = C("settle", {}, "s1"), C("submit", {"rows": '[{"txn": "t1"}]'}, "s2")
     msgs = [M(calls=[s]), M("tool", '[{"txn": "t1"}, {"txn": "t2"}]', mid="s1"), M(calls=[sub]), M("tool", "ok", mid="s2")]
-    assert settled_rows(A2["LB4"]["sets"][2], Turn(A2, msgs, M(content="done")))[0].order == "left t2"
+    # the settled ids arrive as data from the verifier that computed them, never parsed back out of text
+    t_settle = Turn(A2, msgs, M(content="done"), extras={"rows": {fam("settle"): {"t1", "t2"}}})
+    assert settled_rows(A2["LB4"]["sets"][2], t_settle)[0].order == "left t2"
+    assert not settled_rows(A2["LB4"]["sets"][2], Turn(A2, msgs, M(content="done")))   # nothing settled, nothing said
     lst, cn = C("list_orders", {}, "l1"), C("cancel", {"oid": "o1"}, "c9")
     msgs = [M("user", "cancel both orders"), M(calls=[lst]), M("tool", '[{"oid": "o1"}, {"oid": "o2"}]', mid="l1"),
             M(calls=[cn]), M("tool", "ok", mid="c9")]

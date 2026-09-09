@@ -255,7 +255,8 @@ def build_turn(agent, a2, messages, am):
                     executed[name] += 1
     return Turn(a2, messages, am, executed=executed, attempted=attempted, unlocked=unlocked,
                 visible_tools={getattr(t, "name", None) for t in (agent.tools or [])},
-                registry=registry_of(env), corpus=corpus(), extras={"ask": ask_fn(agent)},
+                registry=registry_of(env), corpus=corpus(),
+                extras={"ask": ask_fn(agent), "rows": dict(agent.__dict__.get("_lb_rows") or {})},
                 sim=sim_id(agent))
 
 
@@ -327,7 +328,11 @@ def execute(orch, a2, tool_calls, orig_exec):
             args.update(fetch_formalize(orch, agent, d, iso, args, orig_exec) or {})
         elif iso.get("over") and iso.get("operand_schema"):
             formalize_rows(orch, agent, iso, args, orig_exec)
-        text, err = lb2_decision.run_tool(d, args, corpora_of(orch, agent), evidence_of(orch, d))
+        text, err, ids = lb2_decision.run_tool(d, args, corpora_of(orch, agent), evidence_of(orch, d))
+        if ids and agent is not None:
+            # what a verifier settled travels as data. It used to be recovered by parsing the
+            # sentence we had just written, which found nothing and left LB4 silent.
+            agent.__dict__.setdefault("_lb_rows", {}).setdefault(fam(d["name"]), set()).update(ids)
         by_id[tc.id] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=err, content=text)
         # result first: the sidecar keeps 4000 chars and a 47-row argument list alone exceeds that
         sidecar("lb-tool", "RESULT %s\nARGS %s" % (text[:2500], json_dumps(args)[:1400]), None, sim=sim_id(agent),

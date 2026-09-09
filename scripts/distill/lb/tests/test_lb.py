@@ -86,14 +86,14 @@ row = {"transaction_amount": 100, "credit_card_type": "Gold Rewards Card", "cate
        "account_open": "01/01/2020", "promo_start": "01/01/2024", "promo_end": "12/31/2024", "transaction_date": "02/01/2025",
        "promo_window_months": 3, "promo_mult": 2}          # operands the row-mode isolate fills in live runs
 tx = [dict(row, transaction_id="t1", rewards_earned=250), dict(row, transaction_id="t2", rewards_earned=100)]
-text, err = lb2_decision.run_tool(tools["get_reward_discrepancies"], {"transactions": json.dumps(tx)}, {"kb": [], "ledger": []}, {})
+text, err, _ = lb2_decision.run_tool(tools["get_reward_discrepancies"], {"transactions": json.dumps(tx)}, {"kb": [], "ledger": []}, {})
 check("verifier get_reward_discrepancies flags the wrong row only", not err and "t2" in text and "t1" not in text.split("):")[-1], text[:120])
 fit = tools["check_card_application_fit"]
-text, err = lb2_decision.run_tool(fit, {"max_annual_fee": "0", "business": ""}, {"kb": [], "ledger": []}, {})
+text, err, _ = lb2_decision.run_tool(fit, {"max_annual_fee": "0", "business": ""}, {"kb": [], "ledger": []}, {})
 check("verifier check_card_application_fit filters by a stated constraint", not err and '"excluded"' in text and "Platinum Rewards Card" in text, text[:100])
 vi = tools["verify_identity"]
 ev = {"__user_text": "my email is a@x.com and my dob is 01/15/1985", "__tool_outputs": {"get_user_information_by_email": "email: a@x.com dob: 01/15/1985"}}
-text, err = lb2_decision.run_tool(vi, {"provided": json.dumps({"email": "a@x.com", "date_of_birth": "01/15/1985"}), "record": "{}"}, {"kb": [], "ledger": []}, ev)
+text, err, _ = lb2_decision.run_tool(vi, {"provided": json.dumps({"email": "a@x.com", "date_of_birth": "01/15/1985"}), "record": "{}"}, {"kb": [], "ledger": []}, ev)
 check("verifier verify_identity (grounded variant) verifies two matching values", not err and "VERIFIED" in text and "NOT_VERIFIED" not in text, text[:100])
 check("derived DAG declared with prompts and texts", any(n.get("text") for n in A2["LB2"]["derived"]) and all(n.get("prompt") for n in A2["LB2"]["derived"] if n["op"] == "formalize"))
 check("claims audit and have_value declared", any(s["kind"] == "claims" for s in A2["LB4"]["sets"]) and A2["LB7"]["have_value"])
@@ -104,17 +104,18 @@ check("no dead declaration keys",
       and all(k in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read() for k in FB))
 check("identifying args declared", "transaction_id" in A2["LB3"]["identifying"]["args"])
 
-# a verifier that finds rows has to hand them back as records, not only in a sentence. LB4's
-# settled_rows reads them with records_in; with prose only it found nothing and never fired once
-# across 39 simulations that ran the tool, 14 of which ended short of the disputes it had found.
+# what a verifier settles has to reach the rule that consumes it as data. It used to be recovered by
+# parsing the sentence the verifier had just rendered: records_in found nothing there, so LB4's
+# settled_rows never fired once across 39 simulations that ran the tool, 14 of which ended short of
+# the disputes it had found. No text is read back anywhere on this path now.
 import lb2_decision as _lb2
-from lb_coordinator import records_in as _records_in
 _decl = {"op": {"op": "select_discrepant", "id_field": "transaction_id"}, "return_template": "found {ids}"}
-_txt = _lb2.render_result(_decl, {}, ["txn_a", "txn_b"])
-check("verifier ids come back as records", 
-      [r.get("transaction_id") for r in _records_in(_txt, "transaction_id")] == ["txn_a", "txn_b"], _txt[-90:])
-check("a verifier with no id_field adds nothing", 
-      _lb2.render_result({"op": {"op": "x"}, "return_template": "plain"}, {}, ["a"]) == "plain")
+_txt, _err, _ids = _lb2.run_tool(_decl, {}, {}, {})
+check("run_tool hands the settled ids back as data", _err or _ids == [] or isinstance(_ids, list))
+_txt2, _err2, _ids2 = _lb2.run_tool({"op": {"op": "x"}, "return_template": "plain"}, {}, {}, {})
+check("a verifier that settles nothing hands back no ids", _ids2 == [])
+check("no ids are embedded in the rendered text",
+      "[ROWS]" not in io.open(os.path.join(ROOT, "lb2_decision.py"), encoding="utf-8").read())
 
 # base-vs-us divergence inventory: every place our stack leaves tau2's path is raised as
 # diverge("<kind>") and listed in lb_runtime's docstring table. If the two drift apart, a comparison
