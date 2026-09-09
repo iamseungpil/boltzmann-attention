@@ -23,7 +23,7 @@ Presence is judged on normalised text: case folded, punctuation dropped ("#1234"
 number is present under any conventional rendering (1500, 1500.0, 1,500.00). Rendering is not evidence.
 """
 
-from lb_coordinator import Finding, DENY, GRADES, fam, fill, records_in, as_dict, norm, present
+from lb_coordinator import Finding, DENY, GRADES, fam, fill, records_in, as_dict
 
 LB = "LB3"
 LEDGER, ENV, POLICY = GRADES["execution_ledger"], GRADES["env_output"], GRADES["policy_verbatim"]
@@ -35,6 +35,29 @@ def applies(spec, turn, call):
         return False
     w = spec.get("when") or {}
     return not w.get("arg") or str(as_dict(call.arguments).get(w["arg"]) or "").startswith(w.get("prefix", ""))
+
+
+def norm(text):
+    return " ".join("".join(ch if ch.isalnum() else " " for ch in str(text).lower()).split())
+
+
+def renderings(value):
+    """The strings a value may have been written as: itself, and for a number its usual formats."""
+    s = str(value).strip()
+    out = [norm(s)]
+    try:
+        x = float(s.replace(",", ""))
+    except ValueError:
+        return [f for f in out if f]
+    for f in ("%g" % x, "%d" % x if x == int(x) else "", "%.1f" % x, "%.2f" % x, "{:,.2f}".format(x)):
+        if f and norm(f) not in out:
+            out.append(norm(f))
+    return [f for f in out if f]
+
+
+def present(value, text):
+    t = norm(text)
+    return any(f in t for f in renderings(value))
 
 
 def grounded(value, turn, sources):

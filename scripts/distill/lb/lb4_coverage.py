@@ -16,13 +16,9 @@ what counts as requested and as done is declared in A2["LB4"]["sets"], one of fo
   claims        {question, kinds, event_map, write_tools, transfer_tools, feedback, feedback_pending}
                 at a resign or transfer turn one sub-call lists what the reply claims was done and what
                 was promised; claimed-done minus the execution ledger, promised minus done
-  carry         {applies_to, feedback}
-                operands a wrapper put on the customer's side (the tool it named and the values of the
-                payload it carried) minus the ones the reply writes out - handing a tool over is not
-                telling anyone what to run it as
 """
 
-from lb_coordinator import Finding, DENY, SURFACE, GRADES, fam, fill, records_in, as_dict, present, sidecar
+from lb_coordinator import Finding, DENY, SURFACE, GRADES, fam, fill, records_in, as_dict, sidecar
 
 LB = "LB4"
 LEDGER, POLICY = GRADES["execution_ledger"], GRADES["policy_verbatim"]
@@ -187,37 +183,7 @@ def claims(spec, turn):
     return out
 
 
-def carry(spec, turn):
-    """Operands this turn put on the customer's side, minus the ones the reply writes out.
-
-    021: give_discoverable_user_tool succeeded four times, so the tool really was on the customer's
-    side, and the reply said only to run each one with the pre-filled arguments shown. The customer
-    answered that it could not see any tool or arguments and the run scored 0. Replaying that same
-    prefix with the tool name and the two transaction ids written out took the customer's call from
-    1 of 10 to 8 of 10 (isolation, 2026-09-09). A tool placed on someone's side is not a sentence.
-    """
-    if not turn.am_text.strip():
-        return []                                    # the finding is about a reply; there is none
-    fams = {fam(x) for x in spec.get("applies_to") or [] if x}
-    want = []
-    for call, res in _results(turn):
-        if fam(str(getattr(call, "name", "") or "")) not in fams or not _succeeded(turn, res):
-            continue
-        for v in [turn.named(call)] + list(turn.args_of(call).values()):
-            if v not in (None, "") and str(v) not in want:
-                want.append(str(v))
-    # said once is said: the customer keeps the earlier message, so only what was never written counts
-    said = "\n".join([str(getattr(m, "content", "") or "") for m in turn.messages
-                      if getattr(m, "role", None) == "assistant"] + [turn.am_text])
-    missing = [v for v in want if not present(v, said)]
-    if not missing or not spec.get("feedback"):
-        return []
-    return [Finding(LB, SURFACE, "handover", grade=LEDGER, source="carry",
-                    order=fill(spec["feedback"], missing=", ".join(missing)))]
-
-
-KINDS = {"ledger": ledger, "follow_up": follow_up, "settled_rows": settled_rows, "once": once, "claims": claims,
-         "carry": carry}
+KINDS = {"ledger": ledger, "follow_up": follow_up, "settled_rows": settled_rows, "once": once, "claims": claims}
 
 
 def evaluate(turn):
@@ -287,21 +253,4 @@ if __name__ == "__main__":
     t = Turn(A2, [], M(content="Done.", calls=[C("transfer_x", cid="tx"), C("call_y", cid="cy")]), executed={"KB_search": 1},
              extras={"ask": lambda p, n: reply})
     assert not any("pending" in g.order for g in claims(spec, t))                # kept in this very turn
-    # carry: a tool handed to the customer whose name and payload the reply never writes out
-    A2["LB4"]["sets"].append({"kind": "carry", "applies_to": ["give"], "feedback": "not written: {missing}"})
-    A2["dispatch"]["name_args"]["give"] = "name"
-    g = C("give", {"name": "dispute_0589", "arguments": '{"user_id": "u1", "transaction_id": "t7"}'}, "g1")
-    msgs = [M(calls=[g]), M("tool", "Tool given to user: dispute_0589", mid="g1")]
-    spec_c = A2["LB4"]["sets"][-1]
-    vague = carry(spec_c, Turn(A2, msgs, M(content="Both tools are ready - run each with the pre-filled arguments.")))
-    assert vague and vague[0].order == "not written: dispute_0589, u1, t7", vague and vague[0].order
-    assert vague[0].primitive == SURFACE                      # material, not a refusal
-    spelt = M(content="Run dispute_0589 with user_id u1 and transaction_id t7.")
-    assert not carry(spec_c, Turn(A2, msgs, spelt))
-    assert not carry(spec_c, Turn(A2, msgs, M(content="")))   # a turn with no reply carries nothing
-    # said in an earlier message counts: the customer still holds it
-    assert not carry(spec_c, Turn(A2, msgs + [spelt], M(content="Anything else?")))
-    # a failed handover hands over nothing to write out
-    bad = [M(calls=[g]), M("tool", "Error: Unknown discoverable tool 'dispute_0589'", mid="g1")]
-    assert not carry(spec_c, Turn(A2, bad, M(content="Ready.")))
     print("lb4_coverage self-test OK")

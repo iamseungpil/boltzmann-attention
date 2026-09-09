@@ -6010,13 +6010,6 @@
     ],
     "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet. A statement to the customer is NOT a substitute for the tool call: if the action is still required, make the call in THIS reply; if you cannot make it (for example it is the customer who must run that tool), say plainly that it has NOT been done and tell them exactly what remains.",
     "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why). Do not end your involvement by describing the work as done or under way — either call the tool now, or state explicitly that it has NOT been performed."
-   },
-   {
-    "kind": "carry",
-    "applies_to": [
-     "give_discoverable_user_tool"
-    ],
-    "feedback": "[HANDOVER] the customer now holds a tool, but this reply does not write out its name or the values to run it with: {missing}. A tool placed on their side does not appear to them as a name they can read - write the tool name and each argument value in the reply, once for each item you want run."
    }
   ]
  },

@@ -141,31 +141,6 @@ class Finding(object):
         return ("call", id(self.call)) if self.call is not None else ("target", self.target)
 
 
-def norm(text):
-    return " ".join("".join(ch if ch.isalnum() else " " for ch in str(text).lower()).split())
-
-
-def renderings(value):
-    """The strings a value may have been written as: itself, and for a number its usual formats."""
-    s = str(value).strip()
-    out = [norm(s)]
-    try:
-        x = float(s.replace(",", ""))
-    except ValueError:
-        return [f for f in out if f]
-    for f in ("%g" % x, "%d" % x if x == int(x) else "", "%.1f" % x, "%.2f" % x, "{:,.2f}".format(x)):
-        if f and norm(f) not in out:
-            out.append(norm(f))
-    return [f for f in out if f]
-
-
-def present(value, text):
-    """Is this value written in this text? Normalised, so rendering is not evidence. LB3 asks it of a
-    source, LB4 asks it of the reply - the same question, so it lives here rather than in one engine."""
-    t = norm(text)
-    return any(f in t for f in renderings(value))
-
-
 class Turn(object):
     """Read-only state of one turn. Engines see nothing else.
 
