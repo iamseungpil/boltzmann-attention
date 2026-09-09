@@ -18,6 +18,21 @@
 6. 새 판정을 넣을 때 먼저 묻는다: 어느 LB 의 규칙 하나의 인스턴스인가? 데이터면 `lb.json`, 새 규칙이면 그 LB 의 `kind` 하나 + 자기검정.
 7. 응답·보고는 한글(축자 인용·기술 용어 원어·commit 영어). 커밋은 이 브랜치에서, push 는 지시가 있을 때만.
 
+## ⛔ base 비교 절차 (수치를 말하기 전에 반드시)
+
+정본 = `boltzmann-attention-pi` 브랜치 **`results-153-20260908`** 의
+`reports/facet_rft_2026/sim_results/bank_x806_base_nt4_task_*.results.json.gz`.
+기대값 = **97 태스크 · 388 sim · 192 통과(49.48%)**.
+
+1. `lb_pairs.py` 가 그 수를 세고 어긋나면 경고를 찍는다. **경고가 뜼면 수치를 말하지 마라.**
+2. 「없다」고 말하기 전에 **세 곳**을 본다 — `sim_results` 의 gz · git 브랜치 ·
+   **런의 작업 디렉터리** `<tau2>/data/simulations/bank_x806_base_nt4_<task>/results.json`.
+   2026-09-09 에 앞의 둘만 보고 「20 sim 이 사라졌다」고 했다가 틀렸다(§22).
+3. `x818cloud_*` 는 **09-07 오염 배치**다. 글로브에 걸리지 않게 하라(핸드오프 §7-2).
+4. 짝은 **양쪽 4 sim** 인 것만. 분모가 다르면 `lb_pairs.py` 가 건너뛰고 그 사실을 함께 찍는다.
+5. 런이 끝나면 영속화를 **절차 끝까지**: gzip → `sim_results` → `git add -f` → commit → push →
+   `git ls-files --error-unmatch` 로 tracked 확인. 마지막 칸을 빼먹으면 리모트 디스크가 유일본이다.
+
 ## 지금 상태 (2026-09-09 10:15)
 
 - **전수 A/B**: 77/97 완료 · 큐 16 · 클라우드 9141·9143 4레인. 트리 `repo_lb` = `9cbdeb6c`(브랜치 `lb`). 남은 것은 사실상 HARD 집합이다.

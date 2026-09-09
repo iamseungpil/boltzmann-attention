@@ -76,6 +76,27 @@ def interventions(patterns):
     return out
 
 
+BASE_TASKS, BASE_SIMS = 97, 388     # the closed base arm; 192 of those simulations pass (49.48%)
+
+
+def audit(base):
+    """The base arm is quoted from three places and only one of them is complete. On 2026-09-09 the
+    gz in sim_results held 368 of 388 simulations - six runs had been persisted while they were still
+    in flight - and the whole comparison silently dropped or mismatched those tasks. The full results
+    were in the run's own working directory the entire time."""
+    n, sims = len(base), sum(v[1] for v in base.values())
+    if (n, sims) == (BASE_TASKS, BASE_SIMS):
+        return
+    print("WARNING: base is %d tasks / %d simulations, expected %d / %d." % (n, sims, BASE_TASKS, BASE_SIMS))
+    short = sorted(t for t, v in base.items() if v[1] != 4)
+    if short:
+        print("  fewer than four simulations: %s" % " ".join("%s(%d)" % (t, base[t][1]) for t in short))
+    print("  look in the run's working directory before concluding a result is gone:")
+    print("    <tau2>/data/simulations/bank_x806_base_nt4_<task>/results.json")
+    print("  and never glob x818cloud_* into the base - that is the 09-07 contaminated batch.")
+    print("")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", nargs="+", required=True)
@@ -84,7 +105,14 @@ def main():
     a = ap.parse_args()
     base, lb = scores(a.base), scores(a.lb)
     fb = interventions(a.sidecar) if a.sidecar else {}
-    shared = sorted(set(base) & set(lb))
+    audit(base)
+    uneven = sorted(t for t in set(base) & set(lb) if base[t][1] != lb[t][1])
+    shared = sorted(t for t in set(base) & set(lb) if base[t][1] == lb[t][1])
+    if uneven:
+        print("skipped, the two arms did not run the same number of simulations:")
+        for t in uneven:
+            print("  %s  base %d sim, lb %d sim" % (t, base[t][1], lb[t][1]))
+        print("")
     if not shared:
         print("no task is present in both arms yet (base %d tasks, lb %d tasks)" % (len(base), len(lb)))
         return
