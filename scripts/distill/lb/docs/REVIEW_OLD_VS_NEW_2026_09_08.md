@@ -969,3 +969,63 @@ LB3 와 공유했다. **배터리 41/41 통과.**
 ⚠한계: 이 격리는 **한 턴**을 잰다. 분쟁 접수는 몇 턴 뒤에 일어나므로, 「거래내역으로 돌려세운다」까지가
 직접 측정이고 그 뒤는 궤적이 보여주는 상관이다. 결과 수준의 확정은 9141 에서 도는 셀 C(036, 레버
 전소등)가 준다.
+
+---
+
+## §29. `049` · `070` 전수 per-step — 016 과 다른 종류다 (2026-09-09)
+
+### 29-1. 이 둘은 잡음이 아니다
+
+| | 길이 변동계수 | base 계열 | 우리 계열 | 우리 관측이 base 확률 하에서 나올 확률 |
+|---|---|---|---|---|
+| 016 | 0.15~0.25 (상위 9%) | 5/8 = 0.62 | 7/12 = 0.58 | **0.221** — 흔하다 |
+| **070** | 0.10~0.16 | 2/4 = 0.50 | **0/8** | **0.0039** |
+| **049** | **0.017~0.103** | 3/4 = 0.75 | **1/12** | **2.2e-06** |
+
+049 는 우리 팔 4 시행의 길이 변동계수가 **0.017** 이다 — 거의 같은 궤적으로 **같은 방식으로 진다**.
+016 처럼 매번 다른 대화로 흩어지는 것과 정반대다. ⇒ 앞서 붙인 「레버 무관」은
+「**레버가 원인이 아니다**」일 뿐 「차이가 없다」가 아니다. **설명되지 않은 격차가 남아 있다.**
+
+### 29-2. 070 — 갈리는 것은 문자열 하나다
+
+gold `open_bank_account_4821(account_type="business_checking", account_class="Sky Blue")` 가
+**12 sim 중 11 에서 불일치**한다. 실제로 넘긴 값:
+
+| 팔 | 값 |
+|---|---|
+| base 통과 ×2 | **`Sky Blue`** |
+| base 실패 | `Lime Green Business Checking` · `Hunter Green` |
+| B 실패 ×4 | `Hunter Green` ×2 · `Cobalt Blue` · `Lime Green` |
+| C 실패 ×4 | **`Sky Blue Account`** · `Hunter Green` ×2 · `Lime Green Account` |
+
+실패가 **두 종류**다.
+1. **개념 오선택** — `Hunter Green`(최소잔고 $5,000) 을 고른다. 양쪽 팔 모두 낸다.
+2. **문자열 부정확** — `Sky Blue Account` · `Lime Green Account`. 개념은 맞는데 등록명이 아니다.
+   우리 팔에서만 2건. 이건 판단이 아니라 **표기**이고, LB3(값은 출처에 있는 그대로) 의 자리다.
+
+**우리 층은 070 에서 거의 말하지 않았다** — 조언 1건(`claims`), 거절 0. ⇒ 0/8 은 레버 탓이 아니다.
+C(전소등)도 0/4 이므로 남은 후보는 배관·엔진뿐이고, 그 둘은 **같은 엔진 대조로만** 갈린다.
+
+### 29-3. 049 — 우리 절차가 gold 쓰기를 6회 거절한다
+
+사이드카 축자(6회 동일):
+> `[PROCEDURE] The policy requires steps before 'close_credit_card_account_7834' that have not been
+> done yet: log_reason. Where the procedure stands (3 of 5 done): [x] disputes [x] pending_replacement
+> [x] prior_attempts [ ] log_reason -> log_credit_card_closure_reason_4521 ...`
+
+gold 의 행동 목록에서 `close_credit_card_account_7834` 는 **#8**, `log_credit_card_closure_reason_4521`
+은 **#14** 다 — **우리 절차가 요구하는 순서와 반대**다. 절차 선언 `credit_card_closure_retention` 의
+`nodes` 가 `log_reason` 을 close 앞에 두고 있다.
+
+또 하나: `[PROTOCOL]` 조언이 `transfer_to_human_agents` 앞에 KB 검색을 요구하는데, gold #18 이 바로
+그 transfer 이고 **12/12 sim 에서 불일치**한다.
+
+⚠단 C(전소등)도 0/4 다 — 거절을 없애는 것만으로 049 가 돌아오지는 않는다. 거절은 **확인된 결함**이지
+**충분한 원인은 아니다**.
+
+### 29-4. 그래서 남는 것
+
+- **049 의 절차 순서**는 선언 수정으로 고칠 수 있는 확정 결함이다(gold 순서와 대조해 `nodes` 를 고친다).
+- **070 의 문자열 부정확**은 LB3 의 자리다 — 등록된 클래스명 그대로가 아니면 막는다.
+- **두 태스크의 base 대비 격차 자체**는 아직 설명되지 않았고, 레버가 아니다.
+  `sb_`/`sc_` 를 **같은 엔진에서** 049·070 에 돌리는 것이 남은 유일한 갈림길이다.
