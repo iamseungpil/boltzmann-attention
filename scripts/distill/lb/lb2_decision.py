@@ -390,12 +390,15 @@ OPS = {
     "str_eq": lambda s, c: (None if get(c, s.get("a")) is None else norm(get(c, s["a"])) == norm(s.get("b"))),
     "days_between": lambda s, c: (None if None in (date(get(c, s.get("a"))), date(get(c, s.get("b"))))
                                   else abs((date(get(c, s["b"])) - date(get(c, s["a"]))).days)),
-    # A statement closes at the end of its month: the domain never names a statement date and has no
-    # record carrying one, but every account document speaks of a "monthly statement cycle". Reg E
-    # counts from that close, which is why a November transaction reported in November is still the
-    # first tier however many days have passed (2026-09-09: 16 of 17 gold liability values).
+    # Days between a statement's close and a report. The domain names no statement date and carries no
+    # record holding one - doc_bank_accounts_(general)_032 says only "the statement date showing the
+    # transaction", and every account document speaks of a monthly cycle - so the statement is the
+    # close of the month the transaction posts in. "posts_after" is how many days after the
+    # transaction it posts, which is what puts a last-day-of-month transaction on the next statement.
+    # Anchored this way the tier table reproduces all 19 gold liability values (2026-09-09).
     "days_after_month_end": lambda s, c: (None if None in (date(get(c, s.get("of"))), date(get(c, s.get("to"))))
-                                          else max(0, (date(get(c, s["to"])) - month_end(date(get(c, s["of"])))).days)),
+                                          else max(0, (date(get(c, s["to"])) - month_end(
+                                              date(get(c, s["of"])) + datetime.timedelta(days=num(s.get("posts_after")) or 0))).days)),
     "date_in_window": lambda s, c: (None if None in (date(get(c, s.get("anchor"))), date(get(c, s.get("target"))),
                                                      num(get(c, s.get("months"))))
                                     else date(get(c, s["anchor"])) <= date(get(c, s["target"]))
@@ -806,4 +809,6 @@ if __name__ == "__main__":
                        {"t": "11/07/2025", "r": "11/14/2025"}) == 0      # the cycle has not closed yet
     assert evaluate_op({"op": "days_after_month_end", "of": "t", "to": "r"},
                        {"t": "10/05/2025", "r": "11/14/2025"}) == 14     # closed 10/31
+    assert evaluate_op({"op": "days_after_month_end", "of": "t", "to": "r", "posts_after": 1},
+                       {"t": "10/31/2025", "r": "11/09/2025"}) == 0      # posts 11/01, so November's statement
     print("lb2_decision self-test OK")

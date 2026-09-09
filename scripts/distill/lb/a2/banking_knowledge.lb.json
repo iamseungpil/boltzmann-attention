@@ -4586,7 +4586,7 @@
    },
    {
     "name": "get_debit_dispute_liability_cap",
-    "description": "USE THIS before filing a debit card dispute to obtain customer_max_liability_amount. Regulation E sets it by how long after the statement the customer reported: within 2 days $50, within 60 days the disputed amount up to $500, after that unlimited. The statement closes at the end of the month the transaction is in - a transaction from the current month has not been statemented yet. Copy the transaction date off the record and call get_current_time for today; do not work the tier out yourself.",
+    "description": "USE THIS before filing a debit card dispute to obtain customer_max_liability_amount. Regulation E sets it by how long after the statement the customer reported: within 2 days $50, within 60 days $500, after that unlimited. The statement closes at the end of the month the transaction posts in - a transaction from the current month has not been statemented yet. Copy the transaction date off the record and call get_current_time for today; do not work the tier out yourself.",
     "params": {
      "transaction_date": "MM/DD/YYYY, the disputed transaction's date, copied from the transaction record.",
      "report_date": "MM/DD/YYYY, today. Call get_current_time and copy that date.",
@@ -4600,7 +4600,8 @@
       "a": {
        "op": "days_after_month_end",
        "of": "transaction_date",
-       "to": "report_date"
+       "to": "report_date",
+       "posts_after": 1
       },
       "b": 2
      },
@@ -4616,16 +4617,14 @@
        "a": {
         "op": "days_after_month_end",
         "of": "transaction_date",
-        "to": "report_date"
+        "to": "report_date",
+        "posts_after": 1
        },
        "b": 60
       },
       "then": {
-       "op": "min",
-       "of": [
-        "disputed_amount",
-        500
-       ]
+       "op": "const",
+       "value": 500
       },
       "else": {
        "op": "const",
