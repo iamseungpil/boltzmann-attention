@@ -28684,32 +28684,32 @@
       "why": "the transfer tools an action can end on. Its own note decides against it: blocking request_human_agent_transfer (19 tasks) only moves the exit."
     },
     "analysis_producers": {
-      "verdict": "pending",
-      "why": "which verifier produces the analysis a data source needs."
+      "verdict": "not_migrated",
+      "why": "which verifier produces the analysis a data source needs. A structure declaration: it records what exists rather than forcing anything, and the engine that would read it - the discovery-required arm - is not part of this stack."
     },
     "arbitration": {
-      "verdict": "pending",
-      "why": "which order wins when two of ours point at the same target. Measured on task_102, where the ledger was counted correctly and the answer still moved."
+      "verdict": "not_migrated",
+      "why": "three sentences for order violations. The first is already in use: 20 of the 28 procedures carry its [ORDER] text verbatim as their unmet feedback, so the key has no separate consumer. Its trigger - the model telling the customer to run what it may not run yet - cannot be reached deterministically, because that instruction is prose and engines here carry no regular expressions; the tool-call form, handing the tool over, happens zero times in the sweep against four times in prose, on 048 and 049. The second sentence would make the first unmet step imperative and the rest declarative, after task_101 took only the first of four and spent ten turns on it; a multi-item list appears nine times in the sweep and the model drops items once, on 046. The third is LB3's ground already."
     },
     "arg_producers": {
       "verdict": "not_migrated",
       "why": "the user-side tool that produces an argument the agent cannot read. Its evidence is day 6 040/041 switching to the cash-back dispute after failing to get the last four digits. No simulation in the sweep reaches a cash-back dispute."
     },
     "arg_source_reads": {
-      "verdict": "pending",
-      "why": "argument name to the read that resolves it, for naming the way out of a block. Authored once from the environment registry."
+      "verdict": "not_migrated",
+      "why": "argument name to the read that resolves it, for naming the way out of a fabrication block. Its only consumer was t2_gate_patch._fab_fix_note in the old tree; in this stack LB3's denial already names what is missing and LB1 names the tool for a blocked step."
     },
     "assertion_operands": {
-      "verdict": "pending",
-      "why": "the phrase a claim uses, mapped to the verifier that settles it."
+      "verdict": "not_migrated",
+      "why": "the phrase a claim uses, mapped to the verifier that settles it. Structure for the self-declaration arm, which this stack does not run; LB4 asks its claims question directly."
     },
     "catalog_arg_docs": {
-      "verdict": "pending",
-      "why": "the documents that define a catalogue argument's categories, authored to a user instruction to index them explicitly."
+      "verdict": "not_migrated",
+      "why": "an index of the documents that define a catalogue argument's categories. Its evidence is C570 - 77% of fit calls made with no knowledge-base read behind them. That is now 5% of 83 calls, and all ten calls that pass a spend_category come after a search."
     },
     "catalog_arg_families": {
-      "verdict": "pending",
-      "why": "which document families a catalogue argument's values live in."
+      "verdict": "not_migrated",
+      "why": "which document families a catalogue argument's values come from. Its own note says the only consumer is the x431 measurement pipeline and that it is not on the live engine path. The catalogues authored on 2026-09-09 carry their rows directly, so nothing has to be gathered by family at run time."
     },
     "catalog_attrs": {
       "verdict": "not_migrated",
@@ -28720,12 +28720,12 @@
       "why": "the tier rule for a transfer reason. Its own note says no engine reads it and that it is material for the F/G isolation probe, which was never run: the 5/24 it bought could have come from the general rule or from the examples, and only three of the nineteen codes carry an example - the three that 004, 014 and 012 need. Carrying those would be naming the answer. And there is nothing to buy: across the six tasks whose gold states a reason, our arm already picks it 5 of 5 (004 008 012 014 088; 092 unmeasured)."
     },
     "function_agents": {
-      "verdict": "pending",
-      "why": "the isolated sub-agent that wraps the knowledge-base reads. The new stack has sub-calls (LB4 claims, LB2 select) but does not wrap retrieval."
+      "verdict": "not_migrated",
+      "why": "the isolated sub-agent that wraps knowledge-base reads. This stack does not wrap retrieval - its sub-calls are LB4's claims audit and LB2's select - and the wrap ran behind T2_FN_ISOLATE, off by default, so it was never part of the measured arm either."
     },
     "group_dup_policy_docs": {
-      "verdict": "pending",
-      "why": "documents that restate one policy, so the same rule is not counted twice."
+      "verdict": "not_migrated",
+      "why": "the policy quote to carry when the same benefit shows up under two groups - that card bonuses do not stack. get_correct_savings_apy applies that policy in its reducer, taking the highest card bonus and the highest checking boost, so the rule is enforced rather than recited."
     },
     "name_rules": {
       "verdict": "not_migrated",
@@ -28736,8 +28736,8 @@
       "why": "the unlock/call wrapper explanation. LB3 names already carry it through feedback_not_discoverable."
     },
     "operands": {
-      "verdict": "pending",
-      "why": "the shape of a dispatcher operand and the getter that supplies it."
+      "verdict": "not_migrated",
+      "why": "the shape of a dispatcher operand and the getter that supplies it. Structure; the tool-name guard it fed is LB3's name registry, which reads the registry itself rather than a declaration."
     },
     "policy_facts_file": {
       "verdict": "not_migrated",
@@ -28752,8 +28752,8 @@
       "why": "re-choosing the transaction a dispute names, in isolation, when it does not match the producer's rows. Fabricated ids are already refused: LB3's identifying args read field_ops.id_ref, which lists transaction_id, so a value in no record and in nothing the customer said is denied. What is left is the adjacent-row slip, and the live verdict on C126 rall21 was switched 0 and over-switch 0 - it corrected nothing and broke nothing."
     },
     "suppression_authority": {
-      "verdict": "pending",
-      "why": "when one of ours may silence another. C17 offline sweep: the nine behaviours a condition erases were all in failing simulations, with zero exposure in passing ones."
+      "verdict": "not_migrated",
+      "why": "when one of ours may silence another. Its measurements are from the old arbitration layer; this stack resolves conflicts in lb_coordinator.say, which is a single exit with a fixed order, and adding a second silencing authority on top of it would make the order unreadable."
     },
     "tool_unlock_hint": {
       "verdict": "not_migrated",
@@ -28776,8 +28776,8 @@
       "why": "the closed set a write argument accepts. Its evidence is a live reading from 2026-08-25 - 085 sending 'ATM Withdrawal' for atm_withdrawal, 'No' for no, 'None' for a card action, and spending 22 messages on the environment's rejections. That does not reproduce: across the sweep the environment rejected an enum value nine times, all of them card_type, which none of the nine entries covers, and zero times on any argument they do cover. There is nothing to buy here and a check on every write to pay for."
     },
     "write_initiation": {
-      "verdict": "pending",
-      "why": "the prompt that puts one write decision in isolation with the verbatim audit results already in the conversation."
+      "verdict": "not_migrated",
+      "why": "the prompt that puts one write decision in isolation with the audit results already in the conversation. Same mechanism as function_agents: this stack decides at the turn, not in a separate isolated call."
     }
   }
 }
