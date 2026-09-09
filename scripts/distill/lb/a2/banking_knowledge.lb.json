@@ -21,6 +21,9 @@
   "Unknown discoverable tool",
   "Unknown agent tool"
  ],
+ "verdict_markers": [
+  "NOT_VERIFIED"
+ ],
  "LB1": {
   "procedures": [
    {

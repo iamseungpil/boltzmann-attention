@@ -248,7 +248,12 @@ def build_turn(agent, a2, messages, am):
         if getattr(m, "role", None) == "tool":
             name = pending.pop(getattr(m, "id", None), None)
             text = str(getattr(m, "content", "") or "").lstrip()
-            failed = getattr(m, "error", False) or any(text.startswith(k) for k in a2.get("failure_markers") or [])
+            # a verdict marker is a tool that ran and answered no. Where the question is whether a
+            # step was performed, it was: counting NOT_VERIFIED as unperformed makes a gate demand
+            # the verification again after it happened, and 704 passing simulations were in scope.
+            marks = [k for k in a2.get("failure_markers") or []
+                     if k not in (a2.get("verdict_markers") or [])]
+            failed = getattr(m, "error", False) or any(text.startswith(k) for k in marks)
             if name:
                 attempted[name] += 1
                 if not failed:

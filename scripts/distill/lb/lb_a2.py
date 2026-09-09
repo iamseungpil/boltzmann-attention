@@ -75,6 +75,8 @@ def migrate(domain):
                      "unlock_tool": d.get("unlock_tool"), "give_tool": d.get("give_tool"),
                      "name_args": d.get("name_args") or {}, "payload_key": ep.get("dispatch_args_key") or "arguments"},
         "failure_markers": src.get("failure_markers") or [],
+        # the subset of those that mean the tool ran and the verdict was negative
+        "verdict_markers": src.get("verdict_markers") or [],
         "LB1": {
             "procedures": procedures,
             "write_tools": ep.get("write_tools") or [],
