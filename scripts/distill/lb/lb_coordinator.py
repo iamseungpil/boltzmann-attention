@@ -149,8 +149,11 @@ class Turn(object):
     """
 
     def __init__(self, a2, messages, am, executed=None, unlocked=(), visible_tools=(),
-                 registry=None, corpus=None, extras=None, attempted=None):
+                 registry=None, corpus=None, extras=None, attempted=None, sim="-"):
         self.a2 = a2 or {}
+        # identity, not capability: an engine can label a record with it and do nothing else. LB4's
+        # claims audit is 71% of what our layer does and its rows carried no simulation at all.
+        self.sim = sim
         self.messages = list(messages or [])
         self.am = am
         self.calls = list(getattr(am, "tool_calls", None) or [])

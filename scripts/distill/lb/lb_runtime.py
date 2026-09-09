@@ -74,8 +74,17 @@ def turn_hook(self, message, state):
             break
         if self.__dict__.get("_lb_regen", 0) >= REGEN_BUDGET:
             print("[lb] regen budget spent - message stands", file=sys.stderr, flush=True)
+            sidecar("lb-regen-stop", "budget %d spent; the model message stands" % REGEN_BUDGET,
+                    turn, sim=turn.sim, denies=len(d.denies), advice=len(d.advice))
             break
         self._lb_regen = self.__dict__.get("_lb_regen", 0) + 1
+        # base never has its message replaced. This is the one event that says ours was, and with
+        # what: the trajectory keeps only the replacement (memory 30).
+        sidecar("lb-regen", "round %d: %d deny, %d advice, force=%s, pin=%s"
+                % (self._lb_regen, len(d.denies), len(d.advice), bool(d.force_call),
+                   (d.pins[0][0] if d.pins and d.pins[0] else None)),
+                turn, sim=turn.sim, rnd=self._lb_regen, denies=len(d.denies), advice=len(d.advice),
+                force=bool(d.force_call), pinned=bool(d.pins))
         fb = [am] + [ToolMessage(id=c.id, role="tool", requestor="assistant", error=True,
                                  content=d.denies.get(id(c), GENERIC)) for c in turn.calls]
         # the advice rides in the customer's slot, and on task_070 the model answered it as if the
@@ -192,7 +201,8 @@ def build_turn(agent, a2, messages, am):
                     executed[name] += 1
     return Turn(a2, messages, am, executed=executed, attempted=attempted, unlocked=unlocked,
                 visible_tools={getattr(t, "name", None) for t in (agent.tools or [])},
-                registry=registry_of(env), corpus=corpus(), extras={"ask": ask_fn(agent)})
+                registry=registry_of(env), corpus=corpus(), extras={"ask": ask_fn(agent)},
+                sim=sim_id(agent))
 
 
 def registry_of(env):

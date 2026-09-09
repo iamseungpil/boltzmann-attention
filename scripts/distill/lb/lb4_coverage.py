@@ -154,7 +154,8 @@ def claims(spec, turn):
     # a promise the model is keeping in this very turn ("I'll transfer you" + the transfer call) is kept
     done = turn.attempted_fams() | {fam(turn.name_of(c)) for c in turn.calls}
     emap = spec.get("event_map") or {}
-    sidecar("lb-ask", raw, turn, source="claims", done=" ".join(sorted(done)))   # what the audit saw, for forensics
+    sidecar("lb-ask", raw, turn, source="claims", sim=getattr(turn, "sim", "-"),
+            done=" ".join(sorted(done)))   # what the audit saw, for forensics
 
     def backed(c):
         tool = fam(str((c or {}).get("tool") or ""))
