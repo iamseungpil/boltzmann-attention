@@ -128,7 +128,9 @@ def migrate(domain):
                          kind_guidance=bind.get("kind_guidance", ""), event_map=_specific(bind.get("event_map") or {}),
                          write_tools=ep.get("write_tools") or [], transfer_tools=(src.get("require_doc_before") or {}).get("tools") or [],
                          feedback=audit.get("feedback"), feedback_pending=audit.get("feedback_pending"))]
-                   if audit.get("question") and bind else [])},
+                   if audit.get("question") and bind else [])
+                + ([dict(kind="carry", applies_to=[d.get("give_tool")], feedback=CARRY)]
+                   if d.get("give_tool") else [])},
         "LB5": {"transfer_tools": (src.get("require_doc_before") or {}).get("tools") or [],
                 "doc_feedback": (src.get("require_doc_before") or {}).get("feedback"),
                 "search_tools": src.get("search_tools") or [], "search_feedback": src.get("search_exhaust_escalation"),
@@ -156,6 +158,7 @@ UNGROUNDED = ("Error: [GROUNDING] the value '{val}' you passed for {arg} does no
               "customer, never invented. Look it up (or ask), then retry with the actual value.")
 REJECTED = ("Error: the environment already rejected '{name}' as unknown earlier in this conversation; that exact "
             "name does not exist. Do not reuse it - find the exact registered name first.")
+CARRY = ("[HANDOVER] the customer now holds a tool, but this reply does not write out its name or the values to run it with: {missing}. A tool placed on their side does not appear to them as a name they can read - write the tool name and each argument value in the reply, once for each item you want run.")
 COVERAGE = ("[COVERAGE] The request is not complete - these records were asked about and no successful action "
             "covers them yet: {missing}. Complete them with real tool calls before ending.")
 VARIANTS = ("ledger", "ratefix")          # the live arm's declaration variants, applied once here
