@@ -16,7 +16,7 @@ import copy
 import hashlib
 
 LB = "LB6"
-DEFAULTS = {"keep_recent": 6, "min_len": 800, "head": 400, "annotations": []}
+DEFAULTS = {"keep_recent": 6, "min_len": 800, "head": 400, "annotations": [], "keep": {}}
 CHARS_PER_TOKEN = 3.5
 FOLD_AT = 0.75        # start folding when the view holds this share of the model context
 
@@ -45,16 +45,23 @@ def dedup(messages):
     return out
 
 
-def compact(messages, p):
+def compact(messages, p, names=None):
     if sum(len(_text(m)) for m in messages) <= p["min_total"]:
         return messages
     tools = [i for i, m in enumerate(messages) if getattr(m, "role", None) == "tool"]
     out = list(messages)
     for i in tools[:max(0, len(tools) - p["keep_recent"])]:
         t = _text(messages[i])
-        if len(t) >= p["min_len"]:
-            out[i] = _with_text(messages[i], t[:p["head"]] + "\n[... %d chars folded by the view compactor; "
-                                "the full text was read earlier ...]" % (len(t) - p["head"]))
+        if len(t) < p["min_len"]:
+            continue
+        # head alone drops what a search result is for: on 023 trial0 it kept 27 of 111 document
+        # ids and the model searched again for what it had already read (old tree, section T-6a).
+        tok = (p["keep"] or {}).get((names or {}).get(getattr(messages[i], "id", None)))
+        body = t[:p["head"]]
+        if tok:
+            body += "\n" + "\n".join(l for l in t.split("\n") if any(k in l for k in tok))
+        out[i] = _with_text(messages[i], body + "\n[... %d chars folded by the view compactor; "
+                            "the full text was read earlier ...]" % (len(t) - len(body)))
     return out
 
 
@@ -73,7 +80,16 @@ def reduce(a2, messages):
     folded at 11% of a 131k one and the model re-read what was folded (old tree, section T-6a)."""
     p = dict(DEFAULTS, min_total=int(int(a2.get("model_context") or 131072) * FOLD_AT * CHARS_PER_TOKEN))
     p.update(a2.get("LB6") or {})
-    return annotate(compact(dedup(messages), p), p["annotations"])
+    return annotate(compact(dedup(messages), p, _tool_names(messages)), p["annotations"])
+
+
+def _tool_names(messages):
+    """Which tool produced each result, so the compactor can keep what that tool's output is for."""
+    out = {}
+    for m in messages:
+        for c in (getattr(m, "tool_calls", None) or []):
+            out[getattr(c, "id", None)] = getattr(c, "name", None)
+    return out
 
 
 def evaluate(turn):

@@ -4379,6 +4379,11 @@
    "_note": "2026-07-23 C119(8-task per-step 포렌식·031hv/039 실측): have-value의 앞단계 = 값 획득 경로 실패. 에이전트가 last-4를 재요청하나 ①값 미실재(producer 성공출력0) ②계좌record에 없음 ③get_card_last_4_digits를 give_discoverable_user_tool로 손님에게 안 줌 → 손님이 값 못 얻어 재요청 무한→draft만 열고 STOP(031hv) 또는 앱로그인 안내(039). 031 base는 give함→file 도달(pass). 검출기=재요청∧값미실재∧give미실행(엔진 일반·[[05]]). have-value(값 실재)와 상보·상호배타(값 있으면 skip)."
   }
  ],
+ "view_keep_lines": [
+  "ID:",
+  "Score:"
+ ],
+ "_note_view_keep_lines": "접기가 살려두는 줄의 표지(search_tools 출력에만 적용). 근거: 023 trial0 실측 — 검색 출력이 도구 출력의 92%이고 한 번에 문서 10~15개를 돌려준다. head 400자만 남기면 첫 문서 본문 일부만 남고 나머지 ID 가 사라져(111종 → 27종) 모델이 같은 것을 다시 검색한다(구 트리 §T-6a 가 이미 기록한 사고). ID/Score 줄을 살리면 원본의 5%로 111종을 전부 보존한다.",
  "view_field_annotations": [
   {
    "contains": [

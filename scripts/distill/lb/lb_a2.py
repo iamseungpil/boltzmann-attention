@@ -134,7 +134,11 @@ def migrate(domain):
                 "search_tools": src.get("search_tools") or [], "search_feedback": src.get("search_exhaust_escalation"),
                 },
         "LB6": {"annotations": [{"field": a.get("field"), "note": a.get("note")}
-                                for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")]},
+                                for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")],
+                # what a folded search result must still show: the ids, so the model can read the one
+                # document it wants instead of running the search again
+                "keep": {t: list(src.get("view_keep_lines") or []) for t in src.get("search_tools") or []
+                         if src.get("view_keep_lines")}},
         "LB7": {"have_value": _have_value(src)},
     }
     path = os.path.join(A2_DIR, "%s.lb.json" % domain)

@@ -6029,7 +6029,21 @@
   "search_feedback": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you."
  },
  "LB6": {
-  "annotations": []
+  "annotations": [],
+  "keep": {
+   "KB_search_bm25": [
+    "ID:",
+    "Score:"
+   ],
+   "KB_search_dense": [
+    "ID:",
+    "Score:"
+   ],
+   "KB_search": [
+    "ID:",
+    "Score:"
+   ]
+  }
  },
  "LB7": {
   "have_value": [
