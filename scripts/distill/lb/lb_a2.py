@@ -159,17 +159,6 @@ REJECTED = ("Error: the environment already rejected '{name}' as unknown earlier
 COVERAGE = ("[COVERAGE] The request is not complete - these records were asked about and no successful action "
             "covers them yet: {missing}. Complete them with real tool calls before ending.")
 VARIANTS = ("ledger", "ratefix")          # the live arm's declaration variants, applied once here
-CATALOG_CONSTRAINTS = [                    # what the old catalog_filter hard-coded; now data
-    {"param": "max_annual_fee", "field": "annual_fee", "sense": "le"},
-    {"param": "max_fx_fee", "field": "fx_fee", "sense": "le"},
-    {"param": "max_min_payment_pct", "field": "min_payment_pct", "sense": "le"},
-    {"param": "min_cashback", "field": "cashback", "sense": "ge"},
-    {"param": "min_credit_limit", "field": "limit_max", "sense": "ge"},
-    {"param": "needs_virtual_card", "field": "virtual_card", "sense": "flag"},
-    {"param": "needs_purchase_protection", "field": "purchase_protection", "sense": "flag"},
-    {"param": "credit_score", "field": "min_score", "sense": "le"},
-    {"param": "invited", "field": "invite_only", "sense": "unless"},
-]
 
 
 def _clean(o):
@@ -187,10 +176,6 @@ def _tool(t):
     if hit:
         d.update(have[hit])
     d = _clean(d)
-    op = d.get("op") or {}
-    if op.get("op") == "catalog_filter":
-        op = dict(op, constraints=CATALOG_CONSTRAINTS, segment={"param": "business", "field": "business"}, label_field="card")
-        d["op"] = op
     keep = ("name", "description", "params", "optional", "examples", "op", "ground", "isolate", "requires_reads",
             "return_template", "return_template_empty", "missing_hint", "result_round", "result_range",
             "result_range_feedback", "grounded_params")

@@ -156,6 +156,19 @@ finally:
     os.environ.pop("LB_SIDECAR", None)
     if os.path.exists(_sc):
         os.remove(_sc)
+# a catalogue that excludes everything is a dead tool. check_card_application_fit returned zero
+# eligible cards on every call it ever made: the invite-only constraint read a row that does not
+# carry the flag as undocumented rather than unrestricted, so all seven personal cards sat in
+# 'unverified'. Asked with nothing constrained, a catalogue must offer something.
+for _t in json.load(io.open(os.path.join(ROOT, "a2", "banking_knowledge.specific.json"),
+                            encoding="utf-8")).get("scaffold_get_tools") or []:
+    if (_t.get("op") or {}).get("op") != "catalog_filter":
+        continue
+    _r = lb2_decision.evaluate_op(_t["op"], {})
+    check("catalogue %s offers something when nothing is constrained" % _t["name"],
+          bool(_r and _r.get("eligible")),
+          "%d eligible of %d rows" % (len((_r or {}).get("eligible") or []), len(_t["op"].get("table") or [])))
+
 # with no lever on, our stack must not touch the model at all
 check("levers off delegates to tau2", "if not any_lever():" in RT and RT.count("if not any_lever():") >= 2
       and "_ORIG_TURN(self, message, state)" in RT and "orig_exec(self, tool_calls)" in RT)

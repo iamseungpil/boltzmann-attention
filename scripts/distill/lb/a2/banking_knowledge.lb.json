@@ -4649,7 +4649,7 @@
     },
     "op": {
      "op": "catalog_filter",
-     "label_field": "card",
+     "label_field": "pairing",
      "rank": {
       "op": "diff",
       "a": {
@@ -4790,24 +4790,6 @@
        "source": "doc_savings_accounts_bronze_account_001, doc_savings_accounts_bronze_account_007, doc_credit_cards_ecocard_001"
       },
       {
-       "pairing": "Bronze Account with the Green Rewards Card",
-       "account_class": "Bronze Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 0,
-       "minimum_balance": 0,
-       "tier_threshold": 0,
-       "apy_below_tier": 2.0,
-       "apy_at_tier": 2.0,
-       "free_withdrawals_per_month": 6,
-       "paper_statements": true,
-       "apy_bonus": 0.2,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_bronze_account_001, doc_savings_accounts_bronze_account_007"
-      },
-      {
        "pairing": "Bronze Account with the Crypto-Cash Back Card",
        "account_class": "Bronze Account",
        "card": "Crypto-Cash Back Card",
@@ -4932,24 +4914,6 @@
        "verifies_credit": false,
        "crypto_free": true,
        "source": "doc_savings_accounts_green_account_(savings)_001, doc_savings_accounts_green_account_(savings)_003, doc_credit_cards_ecocard_001"
-      },
-      {
-       "pairing": "Green Account with the Green Rewards Card",
-       "account_class": "Green Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 100,
-       "minimum_balance": 500,
-       "tier_threshold": 0,
-       "apy_below_tier": 4.0,
-       "apy_at_tier": 4.0,
-       "free_withdrawals_per_month": 8,
-       "paper_statements": false,
-       "apy_bonus": 0.4,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_green_account_(savings)_001, doc_savings_accounts_green_account_(savings)_003"
       },
       {
        "pairing": "Green Account with the Crypto-Cash Back Card",
@@ -5078,24 +5042,6 @@
        "source": "doc_savings_accounts_silver_account_001, doc_savings_accounts_silver_account_006, doc_credit_cards_ecocard_001"
       },
       {
-       "pairing": "Silver Account with the Green Rewards Card",
-       "account_class": "Silver Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 500,
-       "minimum_balance": 1000,
-       "tier_threshold": 10000,
-       "apy_below_tier": 2.5,
-       "apy_at_tier": 4.0,
-       "free_withdrawals_per_month": 10,
-       "paper_statements": true,
-       "apy_bonus": 0.0,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_silver_account_001, doc_savings_accounts_silver_account_006"
-      },
-      {
        "pairing": "Silver Account with the Crypto-Cash Back Card",
        "account_class": "Silver Account",
        "card": "Crypto-Cash Back Card",
@@ -5220,24 +5166,6 @@
        "verifies_credit": false,
        "crypto_free": true,
        "source": "doc_savings_accounts_silver_plus_account_001, doc_savings_accounts_silver_plus_account_009, doc_credit_cards_ecocard_001"
-      },
-      {
-       "pairing": "Silver Plus Account with the Green Rewards Card",
-       "account_class": "Silver Plus Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 1000,
-       "minimum_balance": 2500,
-       "tier_threshold": 15000,
-       "apy_below_tier": 3.0,
-       "apy_at_tier": 4.5,
-       "free_withdrawals_per_month": 15,
-       "paper_statements": true,
-       "apy_bonus": 0.1,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_silver_plus_account_001, doc_savings_accounts_silver_plus_account_009"
       },
       {
        "pairing": "Silver Plus Account with the Crypto-Cash Back Card",
@@ -5366,24 +5294,6 @@
        "source": "doc_savings_accounts_gold_account_001, doc_savings_accounts_gold_account_014, doc_credit_cards_ecocard_001"
       },
       {
-       "pairing": "Gold Account with the Green Rewards Card",
-       "account_class": "Gold Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 5000,
-       "minimum_balance": 10000,
-       "tier_threshold": 0,
-       "apy_below_tier": 5.5,
-       "apy_at_tier": 5.5,
-       "free_withdrawals_per_month": 20,
-       "paper_statements": null,
-       "apy_bonus": 0.35,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_gold_account_001, doc_savings_accounts_gold_account_014"
-      },
-      {
        "pairing": "Gold Account with the Crypto-Cash Back Card",
        "account_class": "Gold Account",
        "card": "Crypto-Cash Back Card",
@@ -5508,24 +5418,6 @@
        "verifies_credit": false,
        "crypto_free": true,
        "source": "doc_savings_accounts_gold_plus_account_001, doc_savings_accounts_gold_plus_account_009, doc_credit_cards_ecocard_001"
-      },
-      {
-       "pairing": "Gold Plus Account with the Green Rewards Card",
-       "account_class": "Gold Plus Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 10000,
-       "minimum_balance": 25000,
-       "tier_threshold": 0,
-       "apy_below_tier": 6.0,
-       "apy_at_tier": 6.0,
-       "free_withdrawals_per_month": 25,
-       "paper_statements": null,
-       "apy_bonus": 0.05,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_gold_plus_account_001, doc_savings_accounts_gold_plus_account_009"
       },
       {
        "pairing": "Gold Plus Account with the Crypto-Cash Back Card",
@@ -5654,24 +5546,6 @@
        "source": "doc_savings_accounts_platinum_account_001, doc_savings_accounts_platinum_account_009, doc_credit_cards_ecocard_001"
       },
       {
-       "pairing": "Platinum Account with the Green Rewards Card",
-       "account_class": "Platinum Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 25000,
-       "minimum_balance": 50000,
-       "tier_threshold": 0,
-       "apy_below_tier": 6.5,
-       "apy_at_tier": 6.5,
-       "free_withdrawals_per_month": null,
-       "paper_statements": null,
-       "apy_bonus": 0.0,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_platinum_account_001, doc_savings_accounts_platinum_account_009"
-      },
-      {
        "pairing": "Platinum Account with the Crypto-Cash Back Card",
        "account_class": "Platinum Account",
        "card": "Crypto-Cash Back Card",
@@ -5796,24 +5670,6 @@
        "verifies_credit": false,
        "crypto_free": true,
        "source": "doc_savings_accounts_platinum_plus_account_001, doc_savings_accounts_platinum_plus_account_009, doc_credit_cards_ecocard_001"
-      },
-      {
-       "pairing": "Platinum Plus Account with the Green Rewards Card",
-       "account_class": "Platinum Plus Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 50000,
-       "minimum_balance": 100000,
-       "tier_threshold": 0,
-       "apy_below_tier": 7.0,
-       "apy_at_tier": 7.0,
-       "free_withdrawals_per_month": null,
-       "paper_statements": null,
-       "apy_bonus": 0.0,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_platinum_plus_account_001, doc_savings_accounts_platinum_plus_account_009"
       },
       {
        "pairing": "Platinum Plus Account with the Crypto-Cash Back Card",
@@ -5942,24 +5798,6 @@
        "source": "doc_savings_accounts_diamond_elite_account_001, doc_savings_accounts_diamond_elite_account_011, doc_credit_cards_ecocard_001"
       },
       {
-       "pairing": "Diamond Elite Account with the Green Rewards Card",
-       "account_class": "Diamond Elite Account",
-       "card": "Green Rewards Card",
-       "opening_minimum": 100000,
-       "minimum_balance": 250000,
-       "tier_threshold": 0,
-       "apy_below_tier": 7.5,
-       "apy_at_tier": 7.5,
-       "free_withdrawals_per_month": null,
-       "paper_statements": null,
-       "apy_bonus": 0.0,
-       "annual_fee": null,
-       "minimum_credit_score": null,
-       "verifies_credit": null,
-       "crypto_free": true,
-       "source": "doc_savings_accounts_diamond_elite_account_001, doc_savings_accounts_diamond_elite_account_011"
-      },
-      {
        "pairing": "Diamond Elite Account with the Crypto-Cash Back Card",
        "account_class": "Diamond Elite Account",
        "card": "Crypto-Cash Back Card",
@@ -5980,49 +5818,54 @@
      ],
      "constraints": [
       {
+       "param": "can_keep_balance",
+       "field": "minimum_balance",
+       "sense": "le"
+      },
+      {
+       "param": "deposit_amount",
+       "field": "minimum_balance",
+       "sense": "le"
+      },
+      {
+       "param": "deposit_amount",
+       "field": "opening_minimum",
+       "sense": "le"
+      },
+      {
+       "param": "withdrawals_per_month",
+       "field": "free_withdrawals_per_month",
+       "sense": "ge"
+      },
+      {
+       "param": "needs_paper_statements",
+       "field": "paper_statements",
+       "sense": "flag"
+      },
+      {
+       "param": "credit_score",
+       "field": "minimum_credit_score",
+       "sense": "le"
+      },
+      {
        "param": "max_annual_fee",
        "field": "annual_fee",
        "sense": "le"
       },
       {
-       "param": "max_fx_fee",
-       "field": "fx_fee",
-       "sense": "le"
-      },
-      {
-       "param": "max_min_payment_pct",
-       "field": "min_payment_pct",
-       "sense": "le"
-      },
-      {
-       "param": "min_cashback",
-       "field": "cashback",
-       "sense": "ge"
-      },
-      {
-       "param": "min_credit_limit",
-       "field": "limit_max",
-       "sense": "ge"
-      },
-      {
-       "param": "needs_virtual_card",
-       "field": "virtual_card",
+       "param": "requires_credit_check",
+       "field": "verifies_credit",
        "sense": "flag"
       },
       {
-       "param": "needs_purchase_protection",
-       "field": "purchase_protection",
+       "param": "avoid_cryptocurrency",
+       "field": "crypto_free",
        "sense": "flag"
       },
       {
-       "param": "credit_score",
-       "field": "min_score",
-       "sense": "le"
-      },
-      {
-       "param": "invited",
-       "field": "invite_only",
-       "sense": "unless"
+       "param": "deposit_amount",
+       "field": "apy_bonus",
+       "sense": "documented"
       }
      ],
      "note": "A pairing is eligible only where every fact you constrained is documented. net_annual_return assumes the deposit sits for a year at the documented APY and subtracts the card's annual fee.",
@@ -6037,11 +5880,7 @@
       "minimum_balance",
       "free_withdrawals_per_month"
      ],
-     "top": 8,
-     "segment": {
-      "param": "business",
-      "field": "business"
-     }
+     "top": 8
     },
     "return_template": "Savings pairings for this customer: {result}"
    }

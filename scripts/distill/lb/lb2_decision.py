@@ -309,6 +309,12 @@ def _catalog_filter(spec, ctx):
         for c in spec.get("constraints") or []:
             cv, rv = ctx.get(c["param"]), row.get(c["field"])
             if c["sense"] == "unless":
+                # "excluded unless the caller says so" is a restriction carried by the row. A row that
+                # does not carry it is unrestricted, not undocumented - reading it as undocumented put
+                # every personal card in 'unverified' and left check_card_application_fit with nothing
+                # eligible on every call it ever made (2026-09-10).
+                if not rv:
+                    continue
                 cv = not cv
             if cv is None or cv == "" or cv is False:
                 continue
