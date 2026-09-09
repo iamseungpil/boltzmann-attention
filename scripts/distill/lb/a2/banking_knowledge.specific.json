@@ -28692,8 +28692,8 @@
       "why": "which order wins when two of ours point at the same target. Measured on task_102, where the ledger was counted correctly and the answer still moved."
     },
     "arg_producers": {
-      "verdict": "pending",
-      "why": "which user-side tool produces an argument the agent cannot read. Day 6 040/041: unable to get the last four digits, the model switched to the wrong dispute tool."
+      "verdict": "not_migrated",
+      "why": "the user-side tool that produces an argument the agent cannot read. Its evidence is day 6 040/041 switching to the cash-back dispute after failing to get the last four digits. No simulation in the sweep reaches a cash-back dispute."
     },
     "arg_source_reads": {
       "verdict": "pending",
@@ -28728,8 +28728,8 @@
       "why": "documents that restate one policy, so the same rule is not counted twice."
     },
     "name_rules": {
-      "verdict": "pending",
-      "why": "when two product names are the same product. Corpus census over 698 documents; the trailing form word differs per product."
+      "verdict": "not_migrated",
+      "why": "how to tell two product names apart when only the trailing form word differs. Across 57 name arguments our arm matched gold exactly 55 times and differed by a form word zero times: the model already writes the name the documents use."
     },
     "nonlisted_tool_feedback": {
       "verdict": "not_migrated",
@@ -28744,8 +28744,8 @@
       "why": "a filename the old loader read; the new stack loads a2/<domain>.lb.json and has no second file."
     },
     "recommendation_verify": {
-      "verdict": "pending",
-      "why": "a recommendation must be verified before it is offered."
+      "verdict": "not_migrated",
+      "why": "gating the offer of a credit card on having verified the choice. Its own note classes it DISCARD with the policy basis unestablished, so wiring it would build a gate the domain does not have. The 401 offers that went out unverified are also not evidence yet: check_card_application_fit returned no eligible card at all until 2026-09-09, so there was nothing to verify against. Worth re-measuring now that it answers."
     },
     "ref_iso": {
       "verdict": "not_migrated",
@@ -28756,12 +28756,12 @@
       "why": "when one of ours may silence another. C17 offline sweep: the nine behaviours a condition erases were all in failing simulations, with zero exposure in passing ones."
     },
     "tool_unlock_hint": {
-      "verdict": "pending",
-      "why": "naming the tools a step needs when they are not unlocked yet. Measured on task_028."
+      "verdict": "not_migrated",
+      "why": "the sentence that names the tools a blocked step needs and says they are locked. Its evidence is 028 on 2026-08-05, where the chain fired eight times and the model never unlocked. That does not reproduce: [PROCEDURE] fires 31 times across five tasks, the model unlocks after 20 of them and diverts to a knowledge-base search after none, and the message already names the tool it needs."
     },
     "transcription_check": {
-      "verdict": "pending",
-      "why": "an argument transcribed from a record must match the record. Measured on task_022."
+      "verdict": "not_migrated",
+      "why": "which record field a transcribed argument comes from, for get_reward_discrepancies. Its evidence is 022 omitting account_open from all 77 rows. Every one of the 1,488 transaction rows our arm passed carries the opening date."
     },
     "transfer_reason_policy": {
       "verdict": "not_migrated",
