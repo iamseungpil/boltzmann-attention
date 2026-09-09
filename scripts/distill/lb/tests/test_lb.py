@@ -104,6 +104,18 @@ check("no dead declaration keys",
       and all(k in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read() for k in FB))
 check("identifying args declared", "transaction_id" in A2["LB3"]["identifying"]["args"])
 
+# a verifier that finds rows has to hand them back as records, not only in a sentence. LB4's
+# settled_rows reads them with records_in; with prose only it found nothing and never fired once
+# across 39 simulations that ran the tool, 14 of which ended short of the disputes it had found.
+import lb2_decision as _lb2
+from lb_coordinator import records_in as _records_in
+_decl = {"op": {"op": "select_discrepant", "id_field": "transaction_id"}, "return_template": "found {ids}"}
+_txt = _lb2.render_result(_decl, {}, ["txn_a", "txn_b"])
+check("verifier ids come back as records", 
+      [r.get("transaction_id") for r in _records_in(_txt, "transaction_id")] == ["txn_a", "txn_b"], _txt[-90:])
+check("a verifier with no id_field adds nothing", 
+      _lb2.render_result({"op": {"op": "x"}, "return_template": "plain"}, {}, ["a"]) == "plain")
+
 # base-vs-us divergence inventory: every place our stack leaves tau2's path is raised as
 # diverge("<kind>") and listed in lb_runtime's docstring table. If the two drift apart, a comparison
 # against base is being made against code nobody enumerated.

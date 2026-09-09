@@ -507,6 +507,13 @@ def render_result(decl, ctx, result):
         text = fill(decl.get("return_template") or "{result}", result=json.dumps(result, ensure_ascii=False)
                     if isinstance(result, (dict, list)) else result, ids=", ".join(map(str, ids)) or "(none)",
                     details=details or "(none)", **slots)
+    # The ids have to leave here as records, not only as prose. LB4's settled_rows reads them back
+    # with records_in, which finds JSON objects by brace matching; the sentence above gave it nothing,
+    # so `settled` was always empty and the rule never fired once in 39 simulations that ran this
+    # tool - 14 of them ended short of the disputes it had just found (2026-09-09).
+    idf = (decl.get("op") or {}).get("id_field")
+    if idf and ids:
+        text += "\n[ROWS] " + json.dumps([{idf: str(x)} for x in ids], ensure_ascii=False)
     if st.get("skipped"):
         text += " [coverage: %d of %d rows could not be judged - no policy rate was established for them]" % (st["skipped"], st["total"])
     return text
