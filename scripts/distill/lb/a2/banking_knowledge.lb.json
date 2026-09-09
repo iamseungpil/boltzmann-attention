@@ -12937,6 +12937,19 @@
     "applies_to": "call_discoverable_agent_tool",
     "when": {
      "arg": "agent_tool_name",
+     "prefix": "close_bank_account_7392"
+    },
+    "arg": "reason",
+    "sources": [
+     "records",
+     "customer"
+    ],
+    "feedback": "Error: [FREE-TEXT-DEFAULT] '{val}' is not a value this conversation established for {arg} - no tool output and nothing the customer said contains it, so it is a sentence you composed. This argument has an environment default and the record is meant to keep it. Re-issue the same call with {arg} left out entirely; do not substitute another wording."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
      "prefix": "update_transaction_rewards"
     },
     "arg": "transaction_id",

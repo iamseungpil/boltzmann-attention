@@ -180,6 +180,17 @@ for _t in json.load(io.open(os.path.join(ROOT, "a2", "banking_knowledge.specific
               any(v is not None for v in _scored),
               "all %d rows scored None" % len(_scored))
 
+# a rule authored as data but never wired to an engine is a rule that does not exist.
+# free_text_defaults sat in the declaration from 2026-08-31, naming the very tasks it was measured
+# on, and reached no engine: every one of them still failed the same way on 2026-09-10.
+_A2 = json.load(io.open(os.path.join(ROOT, "a2", "banking_knowledge.lb.json"), encoding="utf-8"))
+_SRC = json.load(io.open(os.path.join(ROOT, "a2", "banking_knowledge.specific.json"), encoding="utf-8"))
+_wired = {(g.get("when", {}).get("prefix"), g.get("arg"))
+          for g in (_A2.get("LB3") or {}).get("grounding") or []}
+_want = {(t, a) for t, args in (_SRC.get("free_text_defaults") or {}).items() for a in args}
+check("every free-text default reaches an engine", _want and _want <= _wired,
+      "declared %s, wired %s" % (sorted(_want), sorted(_want & _wired)))
+
 # with no lever on, our stack must not touch the model at all
 check("levers off delegates to tau2", "if not any_lever():" in RT and RT.count("if not any_lever():") >= 2
       and "_ORIG_TURN(self, message, state)" in RT and "orig_exec(self, tool_calls)" in RT)

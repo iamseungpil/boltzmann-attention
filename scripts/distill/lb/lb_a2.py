@@ -102,6 +102,16 @@ def migrate(domain):
                         sources=["customer"], feedback=s.get("feedback")) for s in src.get("ref_verify") or []]
                 + [dict(applies_to=s.get("tool"), arg=s.get("arg"), sources=["records"], feedback=s.get("feedback"))
                    for s in src.get("choice_grounding") or []]
+                # a free-text argument the environment already defaults: the model fills its own
+                # sentence, that sentence lands in the record, and a DB-judged task fails on it.
+                # Authored 2026-08-31 with the tasks it was measured on, then never wired to an
+                # engine - 060 061 062 065 066 067 068 069 all passed a written reason and all
+                # scored 0 on the run of 2026-09-10.
+                + [dict(applies_to=d.get("agent_call"),
+                        when={"arg": (d.get("name_args") or {}).get(d.get("agent_call")) or "agent_tool_name",
+                              "prefix": tool},
+                        arg=a, sources=["records", "customer"], feedback=FREE_TEXT_DEFAULT)
+                   for tool, args in (src.get("free_text_defaults") or {}).items() for a in args]
                 + [dict(applies_to=s.get("applies_to"), when=_when(s), arg=s.get("id_key"), state=s["require_tokens"],
                         feedback=s.get("feedback"))
                    for s in src.get("write_evidence_specs") or [] if _record_state(s.get("require_tokens"), src)],
@@ -261,6 +271,12 @@ def _when(s):
 def _list(v):
     return list(v) if isinstance(v, list) else ([v] if v else [])
 
+
+FREE_TEXT_DEFAULT = (
+    "Error: [FREE-TEXT-DEFAULT] '{val}' is not a value this conversation established for {arg} - no "
+    "tool output and nothing the customer said contains it, so it is a sentence you composed. This "
+    "argument has an environment default and the record is meant to keep it. Re-issue the same call "
+    "with {arg} left out entirely; do not substitute another wording.")
 
 PROC_FEEDBACK = ("unmet", "unmet_surface")   # the blocking sentence and the one that blocks nothing
 
