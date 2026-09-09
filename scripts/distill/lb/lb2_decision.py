@@ -324,6 +324,10 @@ def _catalog_filter(spec, ctx):
         why, missing = None, []
         for c in spec.get("constraints") or []:
             cv, rv = ctx.get(c["param"]), row.get(c["field"])
+            # the model answers a boolean parameter with the word: "true", "false", "no". A bare
+            # string is truthy, so "false" read as stated-and-true until now.
+            if isinstance(cv, str) and cv.strip().lower() in ("true", "false", "yes", "no"):
+                cv = cv.strip().lower() in ("true", "yes")
             if c["sense"] == "unless":
                 # "excluded unless the caller says so" is a restriction carried by the row. A row that
                 # does not carry it is unrestricted, not undocumented - reading it as undocumented put
