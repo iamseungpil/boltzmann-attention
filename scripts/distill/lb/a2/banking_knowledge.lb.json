@@ -10626,6 +10626,307 @@
      "note": "A combination is eligible only where every fact you constrained is documented. net_annual_return assumes the deposit sits for a year at the documented APY and subtracts the card's annual fee."
     },
     "return_template": "Account combinations for this customer: {result}"
+   },
+   {
+    "name": "check_checking_account_fit",
+    "description": "MANDATORY before recommending or opening ANY personal checking account: formalize what the customer stated - how many withdrawals they will make and how much they take out each time, whether they need early direct deposit and how many days, whether they need no foreign transaction fee, the balance they can keep - and call this tool. It filters Rho-Bank's documented checking catalogue and returns 'eligible', 'excluded' (with the fact that violates what you stated) and 'unverified' (that fee is NOT documented for that account - never tell the customer it is cheaper). With withdrawals_total and withdrawal_amount each eligible account carries total_atm_fees_negated, which is what the whole trip costs in Rho-Bank ATM fees, negated so the cheapest sorts first: an account's out-of-network fee and its foreign ATM fee both apply to a withdrawal made abroad at another bank's machine. Recommend the first eligible account. Do not work the fees out yourself.",
+    "params": {
+     "withdrawals_total": "number, optional - how many ATM withdrawals the customer said they will make in total. Multiply their per-month figure by the months they stated.",
+     "withdrawal_amount": "number, optional - how much the customer said they take out each time.",
+     "needs_early_direct_deposit_days": "number, optional - how many days early the customer said they need their pay. Pass 1 if they need it early but named no number.",
+     "needs_no_foreign_transaction_fee": "boolean, optional - true if the customer said they do not want a fee on purchases made in another currency. This is separate from ATM fees.",
+     "can_keep_balance": "number, optional - the balance the customer said they can keep in this account.",
+     "qualifies_for_restricted_account": "boolean, optional - true ONLY if the customer is documented to meet a restricted account's own requirement (Gold Years is 62 and over, Dark Green wants current enrolment and a GPA, Light Green is a teen account). Leave it out otherwise; those accounts are then not offered."
+    },
+    "op": {
+     "op": "catalog_filter",
+     "label_field": "checking_account",
+     "rank": {
+      "op": "multiply",
+      "a": {
+       "op": "multiply",
+       "a": {
+        "op": "sum",
+        "of": [
+         {
+          "op": "min",
+          "of": [
+           {
+            "op": "max",
+            "of": [
+             {
+              "op": "multiply",
+              "a": {
+               "op": "multiply",
+               "a": "r.out_of_network_pct",
+               "b": "withdrawal_amount"
+              },
+              "b": 0.01
+             },
+             "r.out_of_network_floor"
+            ]
+           },
+           "r.out_of_network_cap"
+          ]
+         },
+         {
+          "op": "min",
+          "of": [
+           {
+            "op": "max",
+            "of": [
+             {
+              "op": "multiply",
+              "a": {
+               "op": "multiply",
+               "a": "r.foreign_atm_pct",
+               "b": "withdrawal_amount"
+              },
+              "b": 0.01
+             },
+             "r.foreign_atm_floor"
+            ]
+           },
+           "r.foreign_atm_cap"
+          ]
+         }
+        ]
+       },
+       "b": "withdrawals_total"
+      },
+      "b": -1
+     },
+     "rank_field": "total_atm_fees_negated",
+     "top": 6,
+     "keep_fields": [
+      "monthly_maintenance_fee",
+      "waiver_balance",
+      "out_of_network_pct",
+      "out_of_network_floor",
+      "out_of_network_cap",
+      "foreign_atm_pct",
+      "foreign_atm_floor",
+      "foreign_atm_cap",
+      "foreign_transaction_free",
+      "early_direct_deposit_days"
+     ],
+     "table": [
+      {
+       "checking_account": "Blue Account",
+       "monthly_maintenance_fee": 20.0,
+       "waiver_balance": 625,
+       "opening_minimum": 0,
+       "out_of_network_pct": 1.0,
+       "out_of_network_floor": null,
+       "out_of_network_cap": 3.0,
+       "foreign_atm_pct": 3.0,
+       "foreign_atm_floor": 5.0,
+       "foreign_atm_cap": null,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 1,
+       "restricted_to": null,
+       "opening_minimum_applies": false,
+       "atm_fees_documented": true,
+       "source": "doc_checking_accounts_blue_account_003, doc_checking_accounts_blue_account_012"
+      },
+      {
+       "checking_account": "Bluest Account",
+       "monthly_maintenance_fee": 75.0,
+       "waiver_balance": 112500,
+       "opening_minimum": 75000,
+       "out_of_network_pct": 0.0,
+       "out_of_network_floor": 2.0,
+       "out_of_network_cap": 2.0,
+       "foreign_atm_pct": 0.0,
+       "foreign_atm_floor": 0.0,
+       "foreign_atm_cap": 0.0,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 2,
+       "restricted_to": null,
+       "opening_minimum_applies": true,
+       "atm_fees_documented": true,
+       "source": "doc_checking_accounts_bluest_account_001, doc_checking_accounts_bluest_account_010"
+      },
+      {
+       "checking_account": "Dark Green Account",
+       "monthly_maintenance_fee": 10.0,
+       "waiver_balance": null,
+       "opening_minimum": 0,
+       "out_of_network_pct": 1.0,
+       "out_of_network_floor": 1.5,
+       "out_of_network_cap": null,
+       "foreign_atm_pct": 2.5,
+       "foreign_atm_floor": null,
+       "foreign_atm_cap": 6.0,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 1,
+       "restricted_to": "student",
+       "opening_minimum_applies": false,
+       "atm_fees_documented": true,
+       "source": "doc_checking_accounts_dark_green_account_001, doc_checking_accounts_dark_green_account_002"
+      },
+      {
+       "checking_account": "Evergreen Account",
+       "monthly_maintenance_fee": 6.0,
+       "waiver_balance": 500,
+       "opening_minimum": 0,
+       "out_of_network_pct": 1.0,
+       "out_of_network_floor": null,
+       "out_of_network_cap": 2.5,
+       "foreign_atm_pct": 2.0,
+       "foreign_atm_floor": 3.0,
+       "foreign_atm_cap": null,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 2,
+       "restricted_to": null,
+       "opening_minimum_applies": false,
+       "atm_fees_documented": true,
+       "source": "doc_checking_accounts_evergreen_account_001, doc_checking_accounts_evergreen_account_008"
+      },
+      {
+       "checking_account": "Gold Years Account",
+       "monthly_maintenance_fee": 0.0,
+       "waiver_balance": null,
+       "opening_minimum": 0,
+       "out_of_network_pct": 0.0,
+       "out_of_network_floor": 0.0,
+       "out_of_network_cap": 0.0,
+       "foreign_atm_pct": 0.0,
+       "foreign_atm_floor": 3.5,
+       "foreign_atm_cap": 3.5,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 2,
+       "restricted_to": "age 62+",
+       "opening_minimum_applies": false,
+       "atm_fees_documented": true,
+       "source": "doc_checking_accounts_gold_years_account_001"
+      },
+      {
+       "checking_account": "Green Account",
+       "monthly_maintenance_fee": 22.5,
+       "waiver_balance": 1350,
+       "opening_minimum": 0,
+       "out_of_network_pct": 0.0,
+       "out_of_network_floor": 3.0,
+       "out_of_network_cap": 3.0,
+       "foreign_atm_pct": null,
+       "foreign_atm_floor": 5.0,
+       "foreign_atm_cap": null,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 1,
+       "restricted_to": null,
+       "opening_minimum_applies": false,
+       "atm_fees_documented": false,
+       "source": "doc_checking_accounts_green_account_(checking)_001, doc_checking_accounts_green_account_(checking)_012"
+      },
+      {
+       "checking_account": "Green Fee-Free Account",
+       "monthly_maintenance_fee": 22.5,
+       "waiver_balance": 150,
+       "opening_minimum": 0,
+       "out_of_network_pct": 0.0,
+       "out_of_network_floor": 0.0,
+       "out_of_network_cap": 0.0,
+       "foreign_atm_pct": 0.0,
+       "foreign_atm_floor": 0.0,
+       "foreign_atm_cap": 0.0,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 0,
+       "restricted_to": null,
+       "opening_minimum_applies": false,
+       "atm_fees_documented": true,
+       "source": "doc_checking_accounts_green_fee-free_account_005"
+      },
+      {
+       "checking_account": "Light Blue Account",
+       "monthly_maintenance_fee": 0.0,
+       "waiver_balance": null,
+       "opening_minimum": 0,
+       "out_of_network_pct": 0.0,
+       "out_of_network_floor": 2.5,
+       "out_of_network_cap": 2.5,
+       "foreign_atm_pct": null,
+       "foreign_atm_floor": null,
+       "foreign_atm_cap": null,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 0,
+       "restricted_to": null,
+       "opening_minimum_applies": false,
+       "atm_fees_documented": false,
+       "source": "doc_checking_accounts_light_blue_account_001, doc_checking_accounts_light_blue_account_004"
+      },
+      {
+       "checking_account": "Light Green Account",
+       "monthly_maintenance_fee": 0.0,
+       "waiver_balance": null,
+       "opening_minimum": 0,
+       "out_of_network_pct": 0.0,
+       "out_of_network_floor": 1.5,
+       "out_of_network_cap": 1.5,
+       "foreign_atm_pct": null,
+       "foreign_atm_floor": null,
+       "foreign_atm_cap": null,
+       "foreign_transaction_free": null,
+       "early_direct_deposit_days": 0,
+       "restricted_to": "teen",
+       "opening_minimum_applies": false,
+       "atm_fees_documented": false,
+       "source": "doc_checking_accounts_light_green_account_001, doc_checking_accounts_light_green_account_013"
+      },
+      {
+       "checking_account": "Purple Account",
+       "monthly_maintenance_fee": 15.0,
+       "waiver_balance": 3750,
+       "opening_minimum": 0,
+       "out_of_network_pct": 0.0,
+       "out_of_network_floor": 2.5,
+       "out_of_network_cap": 2.5,
+       "foreign_atm_pct": 0.0,
+       "foreign_atm_floor": 0.0,
+       "foreign_atm_cap": 0.0,
+       "foreign_transaction_free": true,
+       "early_direct_deposit_days": 2,
+       "restricted_to": null,
+       "opening_minimum_applies": false,
+       "atm_fees_documented": true,
+       "source": "doc_checking_accounts_purple_account_001, doc_checking_accounts_purple_account_012"
+      }
+     ],
+     "constraints": [
+      {
+       "param": "can_keep_balance",
+       "field": "opening_minimum_applies",
+       "sense": "unless"
+      },
+      {
+       "param": "can_keep_balance",
+       "field": "opening_minimum",
+       "sense": "le"
+      },
+      {
+       "param": "needs_early_direct_deposit_days",
+       "field": "early_direct_deposit_days",
+       "sense": "ge"
+      },
+      {
+       "param": "needs_no_foreign_transaction_fee",
+       "field": "foreign_transaction_free",
+       "sense": "flag"
+      },
+      {
+       "param": "qualifies_for_restricted_account",
+       "field": "restricted_to",
+       "sense": "unless"
+      },
+      {
+       "param": "withdrawals_total",
+       "field": "atm_fees_documented",
+       "sense": "flag"
+      }
+     ],
+     "note": "total_atm_fees_negated counts Rho-Bank's own fees only; an ATM operator's surcharge is separate and is not documented here. The monthly maintenance fee is listed per account with the balance that waives it."
+    },
+    "return_template": "Checking accounts for this customer: {result}"
    }
   ],
   "derived": [
