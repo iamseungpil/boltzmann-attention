@@ -16,6 +16,7 @@ never guesses a key and never writes a sentence of its own - every template is t
 
 import calendar
 import datetime
+import collections
 import json
 
 from lb_coordinator import Finding, DENY, GRADES, fam, fill, records_in, as_dict
@@ -309,7 +310,7 @@ def _catalog_filter(spec, ctx):
             cv, rv = ctx.get(c["param"]), row.get(c["field"])
             if c["sense"] == "unless":
                 cv = not cv
-            if cv in (None, "", False):
+            if cv is None or cv == "" or cv is False:
                 continue
             if rv is None:
                 missing.append("%s (constraint %s=%s)" % (c["field"], c["param"], cv))
@@ -323,9 +324,36 @@ def _catalog_filter(spec, ctx):
             if why:
                 break
         facts = {k: v for k, v in row.items() if k not in (spec.get("label_field", "card"), "source")}
-        entry = {"item": row.get(spec.get("label_field", "card")), "facts": facts, "source": row.get("source")}
-        (excl if why else unver if missing else elig).append(dict(entry, reason=why, undocumented=missing))
-    return {"eligible": elig, "excluded": excl, "unverified": unver, "note": spec.get("note", "")}
+        if spec.get("keep_fields"):
+            facts = {k: facts[k] for k in spec["keep_fields"] if k in facts}
+        item = row.get(spec.get("label_field", "card"))
+        if why:
+            excl.append({"item": item, "reason": why})            # the fact that decided it is enough
+        elif missing:
+            unver.append({"item": item, "undocumented": missing})
+        else:
+            elig.append({"item": item, "facts": facts, "source": row.get("source")})
+    if spec.get("rank"):
+        # One documented formula, applied to every surviving row. Ranking is arithmetic, not
+        # judgement: the caller still picks, and rows the formula cannot score sort last.
+        for e in elig:
+            e[spec.get("rank_field", "score")] = evaluate_op(spec["rank"], dict(ctx, r=e["facts"]))
+        key = spec.get("rank_field", "score")
+        elig.sort(key=lambda e: (e[key] is not None, e[key] if e[key] is not None else 0), reverse=True)
+    if spec.get("top"):
+        # a ranked catalogue is read top-down; handing back all of it costs more context than it informs
+        elig = elig[:spec["top"]]
+    return {"eligible": elig, "excluded": _by_reason(excl, "reason"),
+            "unverified": _by_reason(unver, "undocumented"), "note": spec.get("note", "")}
+
+
+def _by_reason(rows, key):
+    """One line per distinct reason. A pair catalogue excludes the same account under every card, and
+    repeating that eight times is context spent saying one thing."""
+    out = collections.OrderedDict()
+    for r in rows:
+        out.setdefault(json.dumps(r[key], ensure_ascii=False), []).append(r["item"])
+    return [{key: json.loads(k), "count": len(v), "examples": v[:2]} for k, v in out.items()]
 
 
 def _catalog_compute(spec, ctx):
@@ -779,7 +807,9 @@ if __name__ == "__main__":
     cf = {"op": "catalog_filter", "label_field": "card", "constraints": [{"param": "max_fee", "field": "fee", "sense": "le"}],
           "table": [{"card": "A", "fee": 0}, {"card": "B", "fee": 200}, {"card": "C"}]}
     r = evaluate_op(cf, {"max_fee": 50})
-    assert [e["item"] for e in r["eligible"]] == ["A"] and [e["item"] for e in r["excluded"]] == ["B"] and r["unverified"][0]["item"] == "C"
+    assert [e["item"] for e in r["eligible"]] == ["A"]
+    # excluded and unverified come back folded by reason, so one line can speak for many rows
+    assert r["excluded"][0]["examples"] == ["B"] and r["unverified"][0]["examples"] == ["C"]
     mv = {"op": "match_verdict", "a": "p", "b": "rec", "fields": ["dob", "email"], "threshold": 2, "met_template": "OK {count}", "unmet_template": "NO {count} {missing}"}
     assert evaluate_op(mv, {"p": {"dob": "1/1/90", "email": "A@x"}, "rec": {"dob": "1/1/90", "email": "a@x"}}) == "OK 2"
     # a verifier tool end to end
