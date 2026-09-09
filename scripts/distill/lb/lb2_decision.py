@@ -343,7 +343,10 @@ def _catalog_filter(spec, ctx):
         # One documented formula, applied to every surviving row. Ranking is arithmetic, not
         # judgement: the caller still picks, and rows the formula cannot score sort last.
         for e in elig:
-            e[spec.get("rank_field", "score")] = evaluate_op(spec["rank"], dict(ctx, r=e["facts"]))
+            # val, not evaluate_op: a rank that is simply a column ("r.bonus") is the common case,
+            # and evaluate_op returns None for anything that is not an op dict - which silently
+            # turned the whole ranking off and left the catalogue in table order
+            e[spec.get("rank_field", "score")] = val(dict(ctx, r=e["facts"]), spec["rank"])
         key = spec.get("rank_field", "score")
         elig.sort(key=lambda e: (e[key] is not None, e[key] if e[key] is not None else 0), reverse=True)
     if spec.get("top"):

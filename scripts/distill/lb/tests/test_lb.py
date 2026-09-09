@@ -168,6 +168,17 @@ for _t in json.load(io.open(os.path.join(ROOT, "a2", "banking_knowledge.specific
     check("catalogue %s offers something when nothing is constrained" % _t["name"],
           bool(_r and _r.get("eligible")),
           "%d eligible of %d rows" % (len((_r or {}).get("eligible") or []), len(_t["op"].get("table") or [])))
+    # a rank that evaluates to None on every row leaves the catalogue in table order while looking
+    # like it is sorted: check_referral_options ranked on a plain column and evaluate_op returned
+    # None for all eighteen rows. Score the rank against the rows directly, with every number the
+    # tool asks for supplied, so a rank that needs an amount is judged on one.
+    if _t["op"].get("rank"):
+        _ctx = {p: 1 for p, d in (_t.get("params") or {}).items() if str(d).startswith("number")}
+        _scored = [lb2_decision.val(dict(_ctx, r=_row), _t["op"]["rank"])
+                   for _row in _t["op"].get("table") or []]
+        check("catalogue %s actually ranks" % _t["name"],
+              any(v is not None for v in _scored),
+              "all %d rows scored None" % len(_scored))
 
 # with no lever on, our stack must not touch the model at all
 check("levers off delegates to tau2", "if not any_lever():" in RT and RT.count("if not any_lever():") >= 2

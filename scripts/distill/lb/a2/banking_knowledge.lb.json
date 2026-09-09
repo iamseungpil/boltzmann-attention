@@ -11361,6 +11361,301 @@
      "note": "an account with an ongoing minimum balance is not on the table until the customer has said what they can hold: naming a ceiling they cannot exceed is not the same as committing to a floor."
     },
     "return_template": "Business savings accounts for this customer: {result}"
+   },
+   {
+    "name": "check_referral_options",
+    "description": "MANDATORY before telling a customer which account to refer someone to: formalize what they stated - how long they have banked here, how much the person they are referring will deposit, whether that person is opening a business account, how many referral bonuses they have already had this year for that account type - and call this tool. It returns 'eligible' (both sides meet the documented requirements), 'excluded' (with the requirement that fails) and 'unverified' (that requirement is NOT documented for that account type). Eligible rows are sorted by referrer_bonus, largest first, so the first one is the most the customer can earn. This tool says nothing about the rolling window: the number of bonuses already paid in the last nine days is a separate check you must still make before submitting. Recommend the first eligible account type and submit exactly that.",
+    "params": {
+     "referrer_tenure_days": "number, optional - days since the customer opened their first checking account here. Read it off their accounts, do not ask them to estimate.",
+     "referred_deposit_amount": "number, optional - how much the customer said the person they are referring will deposit.",
+     "referred_is_business": "boolean, optional - true if the person being referred is opening a business account. Pass false for a personal referral so business account types are not offered.",
+     "referred_age": "number, optional - the age of the person being referred, when the customer stated it. Some account types are only open to a particular age."
+    },
+    "op": {
+     "op": "catalog_filter",
+     "label_field": "account_type",
+     "rank": "r.referrer_bonus",
+     "rank_field": "bonus_rank",
+     "top": 6,
+     "segment": {
+      "param": "referred_is_business",
+      "field": "business"
+     },
+     "keep_fields": [
+      "referrer_bonus",
+      "referred_bonus",
+      "referrer_tenure_days",
+      "annual_referral_limit",
+      "qualifying_deposit",
+      "deposit_window_days",
+      "holder_min_age_years"
+     ],
+     "constraints": [
+      {
+       "param": "referrer_tenure_days",
+       "field": "referrer_tenure_days",
+       "sense": "le"
+      },
+      {
+       "param": "referred_deposit_amount",
+       "field": "qualifying_deposit",
+       "sense": "le"
+      },
+      {
+       "param": "referred_age",
+       "field": "holder_min_age_years",
+       "sense": "le"
+      },
+      {
+       "param": "referred_age",
+       "field": "age_restricted",
+       "sense": "unless"
+      },
+      {
+       "param": "referred_deposit_amount",
+       "field": "referrer_bonus",
+       "sense": "documented"
+      }
+     ],
+     "note": "referrer_bonus is what the customer earns; referred_bonus is what the person they refer receives. The rolling nine-day limit on paid bonuses is not part of this table.",
+     "table": [
+      {
+       "account_type": "Beige Account",
+       "business": true,
+       "referrer_bonus": 500,
+       "referred_bonus": 350,
+       "referrer_tenure_days": 120,
+       "annual_referral_limit": 15,
+       "qualifying_deposit": 100000,
+       "deposit_window_days": 120,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_business_checking_accounts_beige_012"
+      },
+      {
+       "account_type": "Cobalt Blue Account",
+       "business": true,
+       "referrer_bonus": 150,
+       "referred_bonus": 100,
+       "referrer_tenure_days": 60,
+       "annual_referral_limit": 10,
+       "qualifying_deposit": 7500,
+       "deposit_window_days": 90,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_business_checking_accounts_cobalt_blue_001, doc_business_checking_accounts_cobalt_blue_005"
+      },
+      {
+       "account_type": "Hunter Green Account",
+       "business": true,
+       "referrer_bonus": 175,
+       "referred_bonus": 125,
+       "referrer_tenure_days": 60,
+       "annual_referral_limit": 10,
+       "qualifying_deposit": 10000,
+       "deposit_window_days": null,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_business_checking_accounts_hunter_green_001"
+      },
+      {
+       "account_type": "Lime Green Account",
+       "business": true,
+       "referrer_bonus": 200,
+       "referred_bonus": 150,
+       "referrer_tenure_days": 90,
+       "annual_referral_limit": 12,
+       "qualifying_deposit": 15000,
+       "deposit_window_days": 90,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_business_checking_accounts_lime_green_003"
+      },
+      {
+       "account_type": "Navy Blue Account",
+       "business": true,
+       "referrer_bonus": 100,
+       "referred_bonus": 75,
+       "referrer_tenure_days": 60,
+       "annual_referral_limit": 10,
+       "qualifying_deposit": 5000,
+       "deposit_window_days": 90,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_business_checking_accounts_navy_blue_001"
+      },
+      {
+       "account_type": "Sky Blue Account",
+       "business": true,
+       "referrer_bonus": 150,
+       "referred_bonus": 250,
+       "referrer_tenure_days": 45,
+       "annual_referral_limit": 8,
+       "qualifying_deposit": 10000,
+       "deposit_window_days": 90,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_business_checking_accounts_sky_blue_001, doc_business_checking_accounts_sky_blue_002"
+      },
+      {
+       "account_type": "True Blue Account",
+       "business": true,
+       "referrer_bonus": 350,
+       "referred_bonus": 250,
+       "referrer_tenure_days": 90,
+       "annual_referral_limit": 15,
+       "qualifying_deposit": 50000,
+       "deposit_window_days": 120,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_business_checking_accounts_true_blue_002"
+      },
+      {
+       "account_type": "World Blue Account",
+       "business": true,
+       "referrer_bonus": 300,
+       "referred_bonus": 200,
+       "referrer_tenure_days": 90,
+       "annual_referral_limit": 12,
+       "qualifying_deposit": 25000,
+       "deposit_window_days": null,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_business_checking_accounts_world_blue_001, doc_business_checking_accounts_world_blue_007"
+      },
+      {
+       "account_type": "Blue Account",
+       "business": false,
+       "referrer_bonus": 35,
+       "referred_bonus": 30,
+       "referrer_tenure_days": 30,
+       "annual_referral_limit": 5,
+       "qualifying_deposit": 500,
+       "deposit_window_days": 60,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_checking_accounts_blue_account_010"
+      },
+      {
+       "account_type": "Bluest Account",
+       "business": false,
+       "referrer_bonus": 75,
+       "referred_bonus": 50,
+       "referrer_tenure_days": 60,
+       "annual_referral_limit": 8,
+       "qualifying_deposit": 2000,
+       "deposit_window_days": null,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_checking_accounts_bluest_account_003"
+      },
+      {
+       "account_type": "Dark Green Account",
+       "business": false,
+       "referrer_bonus": 40,
+       "referred_bonus": 30,
+       "referrer_tenure_days": 45,
+       "annual_referral_limit": 6,
+       "qualifying_deposit": 1000,
+       "deposit_window_days": 60,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_checking_accounts_dark_green_account_010"
+      },
+      {
+       "account_type": "Evergreen Account",
+       "business": false,
+       "referrer_bonus": 35,
+       "referred_bonus": 25,
+       "referrer_tenure_days": 45,
+       "annual_referral_limit": 6,
+       "qualifying_deposit": 750,
+       "deposit_window_days": 60,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_checking_accounts_evergreen_account_001, doc_checking_accounts_evergreen_account_007"
+      },
+      {
+       "account_type": "Gold Years Account",
+       "business": false,
+       "referrer_bonus": 50,
+       "referred_bonus": 75,
+       "referrer_tenure_days": 30,
+       "annual_referral_limit": 6,
+       "qualifying_deposit": 1000,
+       "deposit_window_days": 90,
+       "holder_min_age_years": 62,
+       "age_restricted": true,
+       "source": "doc_checking_accounts_gold_years_account_010"
+      },
+      {
+       "account_type": "Green Account",
+       "business": false,
+       "referrer_bonus": 20,
+       "referred_bonus": 30,
+       "referrer_tenure_days": 30,
+       "annual_referral_limit": 5,
+       "qualifying_deposit": 500,
+       "deposit_window_days": 60,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_checking_accounts_green_account_(checking)_001"
+      },
+      {
+       "account_type": "Green Fee-Free Account",
+       "business": false,
+       "referrer_bonus": 20,
+       "referred_bonus": 35,
+       "referrer_tenure_days": 30,
+       "annual_referral_limit": 4,
+       "qualifying_deposit": 300,
+       "deposit_window_days": 60,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_checking_accounts_green_fee-free_account_007"
+      },
+      {
+       "account_type": "Light Blue Account",
+       "business": false,
+       "referrer_bonus": 30,
+       "referred_bonus": 20,
+       "referrer_tenure_days": 30,
+       "annual_referral_limit": 5,
+       "qualifying_deposit": 500,
+       "deposit_window_days": 60,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_checking_accounts_light_blue_account_007"
+      },
+      {
+       "account_type": "Light Green Account",
+       "business": false,
+       "referrer_bonus": 15,
+       "referred_bonus": 25,
+       "referrer_tenure_days": 14,
+       "annual_referral_limit": 3,
+       "qualifying_deposit": 100,
+       "deposit_window_days": 90,
+       "holder_min_age_years": 13,
+       "age_restricted": true,
+       "source": "doc_checking_accounts_light_green_account_001, doc_checking_accounts_light_green_account_002"
+      },
+      {
+       "account_type": "Purple Account",
+       "business": false,
+       "referrer_bonus": 45,
+       "referred_bonus": 35,
+       "referrer_tenure_days": 45,
+       "annual_referral_limit": 6,
+       "qualifying_deposit": 1000,
+       "deposit_window_days": 60,
+       "holder_min_age_years": null,
+       "age_restricted": false,
+       "source": "doc_checking_accounts_purple_account_011"
+      }
+     ]
+    },
+    "return_template": "Referral options for this customer: {result}"
    }
   ],
   "derived": [
