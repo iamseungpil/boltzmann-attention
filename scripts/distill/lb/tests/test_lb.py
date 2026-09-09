@@ -191,6 +191,16 @@ _want = {(t, a) for t, args in (_SRC.get("free_text_defaults") or {}).items() fo
 check("every free-text default reaches an engine", _want and _want <= _wired,
       "declared %s, wired %s" % (sorted(_want), sorted(_want & _wired)))
 
+# the same failure again: the action index was derived from the environment, measured in isolation
+# at 10/24 -> 24/24, and appeared zero times in the built A2 while the model grepped for what it
+# already had. Anything the ontology carries for the model to read must reach an engine.
+_ai = (_A2.get("LB7") or {}).get("action_index") or {}
+_po = _SRC.get("policy_ontology") or {}
+check("the action index reaches an engine",
+      bool(_po.get("action_index")) == bool(_ai.get("rows"))
+      and len(_ai.get("rows") or []) == len(_po.get("action_index") or []),
+      "declared %d rows, wired %d" % (len(_po.get("action_index") or []), len(_ai.get("rows") or [])))
+
 # with no lever on, our stack must not touch the model at all
 check("levers off delegates to tau2", "if not any_lever():" in RT and RT.count("if not any_lever():") >= 2
       and "_ORIG_TURN(self, message, state)" in RT and "orig_exec(self, tool_calls)" in RT)

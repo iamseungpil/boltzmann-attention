@@ -7,6 +7,12 @@ orders nothing and blocks nothing. Declared in A2["LB7"]:
   have_value    [{write, arg, producer_marker, value_after, reask_signals, feedback, acquire_tool, give_tool,
                   acquire_feedback}]  a value a producer already returned is handed back instead of re-asked;
                   when no producer ran and the customer keeps being asked, the acquiring tool is named
+  action_index  {text, rows[{title, tools}]}  the documents that describe an action, with the tool each
+                  one names. Printed before the first retrieval and nowhere else: once material comes
+                  back it is more specific than a list of titles, and adding to it hurts. The engine
+                  prints; it does not choose. Measured in isolation at x319 (n=24, blocks of 8): no
+                  help 10/24, these titles 24/24, the 91 tool descriptions 23/24, the 91 bare names
+                  16/24 - meaning beats naming, and the cheapest of the three is the best.
 """
 
 from lb_coordinator import Finding, SURFACE, GRADES, fam, fill
@@ -47,8 +53,28 @@ def _given(turn, sp):
                for m in turn.messages for c in (getattr(m, "tool_calls", None) or []))
 
 
+def action_index(turn):
+    """The titles of the documents that describe an action, each with the tool it names.
+
+    Only before the first retrieval: this is the fallback for having nothing, and once real material
+    is back it is the more specific thing to read. Having no tool output yet happens on exactly one
+    turn of a simulation, so this prints once by construction rather than by a flag.
+    """
+    spec = (turn.a2.get("LB7") or {}).get("action_index") or {}
+    rows, head = spec.get("rows") or [], spec.get("text")
+    if not rows or not head or turn.tool_outputs():
+        return []
+    lines = [head]
+    for r in rows:
+        title = " ".join(str(r.get("title") or "").split())
+        tools = ", ".join(r.get("tools") or [])
+        lines.append("- %s%s" % (title, (" [%s]" % tools) if tools else ""))
+    return [Finding(LB, SURFACE, None, grade=RETRIEVED, source="action-index",
+                     order=chr(10).join(lines))]
+
+
 def evaluate(turn):
-    return have_value(turn)
+    return have_value(turn) + action_index(turn)
 
 
 if __name__ == "__main__":
@@ -72,4 +98,10 @@ if __name__ == "__main__":
     assert not have_value(Turn(A2, [M("user", "hi")], M(content="please tell me the last 4 digits")))   # nothing retrieved names the tool
     need = Turn(A2, [M("tool", "doc: use get_last4 to read the digits")], M(content="please tell me the last 4 digits"))
     assert have_value(need)[0].order == "give get_last4 via give"
+    A2["LB7"]["action_index"] = {"text": "Consult the relevant one.",
+                                 "rows": [{"title": "Closing Personal Checking Accounts",
+                                           "tools": ["close_bank_account_7392"]}]}
+    first = Turn(A2, [M("user", "close my account")], M(content=""))
+    assert action_index(first)[0].order.endswith("- Closing Personal Checking Accounts [close_bank_account_7392]")
+    assert not action_index(Turn(A2, [M("tool", "1. some retrieved document")], M(content="")))   # material beats a list
     print("lb7_material self-test OK")

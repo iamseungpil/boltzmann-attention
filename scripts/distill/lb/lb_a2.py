@@ -149,7 +149,12 @@ def migrate(domain):
                 # document it wants instead of running the search again
                 "keep": {t: list(src.get("view_keep_lines") or []) for t in src.get("search_tools") or []
                          if src.get("view_keep_lines")}},
-        "LB7": {"have_value": _have_value(src)},
+        # the action index is machine-derived from the environment's own files (titles + the tools
+        # each document names), so it moves as data. It was authored and then reached no engine: it
+        # appears zero times in the built A2 of 2026-09-10, and the model spent its turns grepping.
+        "LB7": {"have_value": _have_value(src),
+                "action_index": {"text": (src.get("policy_ontology") or {}).get("action_index_text"),
+                                 "rows": (src.get("policy_ontology") or {}).get("action_index") or []}},
     }
     path = os.path.join(A2_DIR, "%s.lb.json" % domain)
     io.open(path, "w", encoding="utf-8").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
