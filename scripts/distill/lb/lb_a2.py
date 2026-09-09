@@ -154,7 +154,9 @@ def migrate(domain):
         # appears zero times in the built A2 of 2026-09-10, and the model spent its turns grepping.
         "LB7": {"have_value": _have_value(src),
                 "action_index": {"text": (src.get("policy_ontology") or {}).get("action_index_text"),
-                                 "rows": (src.get("policy_ontology") or {}).get("action_index") or []}},
+                                 "rows": (src.get("policy_ontology") or {}).get("action_index") or []},
+                "write_rules": [{"applies_to": w.get("applies_to"), "text": w.get("text")}
+                                for w in src.get("write_rules") or [] if w.get("text")]},
     }
     path = os.path.join(A2_DIR, "%s.lb.json" % domain)
     io.open(path, "w", encoding="utf-8").write(json.dumps(out, ensure_ascii=False, indent=1) + "\n")

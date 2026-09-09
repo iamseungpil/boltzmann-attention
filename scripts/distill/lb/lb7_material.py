@@ -7,6 +7,13 @@ orders nothing and blocks nothing. Declared in A2["LB7"]:
   have_value    [{write, arg, producer_marker, value_after, reask_signals, feedback, acquire_tool, give_tool,
                   acquire_feedback}]  a value a producer already returned is handed back instead of re-asked;
                   when no producer ran and the customer keeps being asked, the acquiring tool is named
+  write_rules   [{applies_to, text}]  a policy sentence carried to the decision point. The rule
+                  reaches the conversation early, in a retrieved document, and the write comes much
+                  later; by then it is far away. Surfaced when the model unlocks that write tool,
+                  which is the last moment before it composes the call. Isolation x537 (085, n=4):
+                  the decision-point window as it stands 0/12, this sentence placed at the decision
+                  point 12/12, an unrelated sentence of the same length 0/12. The engine neither
+                  searches nor ranks - it carries the sentence.
   action_index  {text, rows[{title, tools}]}  the documents that describe an action, with the tool each
                   one names. Printed before the first retrieval and nowhere else: once material comes
                   back it is more specific than a list of titles, and adding to it hurts. The engine
@@ -15,7 +22,7 @@ orders nothing and blocks nothing. Declared in A2["LB7"]:
                   16/24 - meaning beats naming, and the cheapest of the three is the best.
 """
 
-from lb_coordinator import Finding, SURFACE, GRADES, fam, fill
+from lb_coordinator import Finding, SURFACE, GRADES, as_dict, fam, fill
 
 LB = "LB7"
 RETRIEVED = GRADES["retrieved_prose"]
@@ -73,8 +80,26 @@ def action_index(turn):
                      order=chr(10).join(lines))]
 
 
+def write_rules(turn):
+    """The policy sentence for a write, carried to the moment the model reaches for that write."""
+    out, unlock = [], (turn.a2.get("dispatch") or {}).get("unlock_tool")
+    reaching = set()
+    for c in turn.calls:
+        name = turn.name_of(c)
+        reaching.add(fam(name))
+        if unlock and name == unlock:
+            asked = str(turn.args_of(c).get("agent_tool_name") or as_dict(c.arguments).get("agent_tool_name") or "")
+            if asked:
+                reaching.add(fam(asked))
+    for sp in (turn.a2.get("LB7") or {}).get("write_rules") or []:
+        if sp.get("text") and fam(sp.get("applies_to", "")) in reaching:
+            out.append(Finding(LB, SURFACE, fam(sp["applies_to"]), grade=RETRIEVED, source="write-rule",
+                               order=sp["text"]))
+    return out
+
+
 def evaluate(turn):
-    return have_value(turn) + action_index(turn)
+    return have_value(turn) + action_index(turn) + write_rules(turn)
 
 
 if __name__ == "__main__":
@@ -104,4 +129,9 @@ if __name__ == "__main__":
     first = Turn(A2, [M("user", "close my account")], M(content=""))
     assert action_index(first)[0].order.endswith("- Closing Personal Checking Accounts [close_bank_account_7392]")
     assert not action_index(Turn(A2, [M("tool", "1. some retrieved document")], M(content="")))   # material beats a list
+    A2["dispatch"] = {"unlock_tool": "unlock"}
+    A2["LB7"]["write_rules"] = [{"applies_to": "file_x", "text": "Dispute the earliest one."}]
+    got = write_rules(Turn(A2, [M("user", "hi")], M(calls=[C("file_x_9")])))
+    assert got and got[0].order == "Dispute the earliest one.", got
+    assert not write_rules(Turn(A2, [M("user", "hi")], M(calls=[C("other")])))
     print("lb7_material self-test OK")
