@@ -17747,5 +17747,111 @@
   "group_dup_policy_docs": [
     "Credit Card APY Bonuses: Stacking Policy"
   ],
-  "_note_group_dup_policy_docs": "2026-09-01 §T-15. 교차그룹 동일값을 **표면화할 때 실어 보내는 정책 축자**. 출처=KB 문서 제목(gold 무접촉·[[23]]). 축자: '카드 보너스는 stack 하지 않는다 · 최고 하나만 적용'. ⚠엔진은 이 문서를 **해석하지 않는다** — 배달만 하고 같은 혜택인지 판단은 LLM 몫이다([[10]]/[[66]])."
+  "_note_group_dup_policy_docs": "2026-09-01 §T-15. 교차그룹 동일값을 **표면화할 때 실어 보내는 정책 축자**. 출처=KB 문서 제목(gold 무접촉·[[23]]). 축자: '카드 보너스는 stack 하지 않는다 · 최고 하나만 적용'. ⚠엔진은 이 문서를 **해석하지 않는다** — 배달만 하고 같은 혜택인지 판단은 LLM 몫이다([[10]]/[[66]]).",
+  "_note_migration": {
+    "action_tools": {
+      "verdict": "not_migrated",
+      "why": "the transfer tools an action can end on. Its own note decides against it: blocking request_human_agent_transfer (19 tasks) only moves the exit."
+    },
+    "analysis_producers": {
+      "verdict": "pending",
+      "why": "which verifier produces the analysis a data source needs."
+    },
+    "arbitration": {
+      "verdict": "pending",
+      "why": "which order wins when two of ours point at the same target. Measured on task_102, where the ledger was counted correctly and the answer still moved."
+    },
+    "arg_producers": {
+      "verdict": "pending",
+      "why": "which user-side tool produces an argument the agent cannot read. Day 6 040/041: unable to get the last four digits, the model switched to the wrong dispute tool."
+    },
+    "arg_source_reads": {
+      "verdict": "pending",
+      "why": "argument name to the read that resolves it, for naming the way out of a block. Authored once from the environment registry."
+    },
+    "assertion_operands": {
+      "verdict": "pending",
+      "why": "the phrase a claim uses, mapped to the verifier that settles it."
+    },
+    "catalog_arg_docs": {
+      "verdict": "pending",
+      "why": "the documents that define a catalogue argument's categories, authored to a user instruction to index them explicitly."
+    },
+    "catalog_arg_families": {
+      "verdict": "pending",
+      "why": "which document families a catalogue argument's values live in."
+    },
+    "catalog_attrs": {
+      "verdict": "pending",
+      "why": "the type and unit of every catalogue attribute. Without it a comparison scores foreign_currency_holding == 1 against the value 30 as a penalty of 29 and ranks the best-fitting account worst. The four catalogues authored on 2026-09-09 compare without it."
+    },
+    "enum_priority": {
+      "verdict": "pending",
+      "why": "which transfer reason outranks which. x485: the definition table alone gives gold 0/24, the table with the gate ask gives 5/24."
+    },
+    "function_agents": {
+      "verdict": "pending",
+      "why": "the isolated sub-agent that wraps the knowledge-base reads. The new stack has sub-calls (LB4 claims, LB2 select) but does not wrap retrieval."
+    },
+    "group_dup_policy_docs": {
+      "verdict": "pending",
+      "why": "documents that restate one policy, so the same rule is not counted twice."
+    },
+    "name_rules": {
+      "verdict": "pending",
+      "why": "when two product names are the same product. Corpus census over 698 documents; the trailing form word differs per product."
+    },
+    "nonlisted_tool_feedback": {
+      "verdict": "not_migrated",
+      "why": "the unlock/call wrapper explanation. LB3 names already carry it through feedback_not_discoverable."
+    },
+    "operands": {
+      "verdict": "pending",
+      "why": "the shape of a dispatcher operand and the getter that supplies it."
+    },
+    "policy_facts_file": {
+      "verdict": "not_migrated",
+      "why": "a filename the old loader read; the new stack loads a2/<domain>.lb.json and has no second file."
+    },
+    "recommendation_verify": {
+      "verdict": "pending",
+      "why": "a recommendation must be verified before it is offered."
+    },
+    "ref_iso": {
+      "verdict": "pending",
+      "why": "isolating the reference a write names. Wrong-transaction slips recurred three times across rall 19/20."
+    },
+    "suppression_authority": {
+      "verdict": "pending",
+      "why": "when one of ours may silence another. C17 offline sweep: the nine behaviours a condition erases were all in failing simulations, with zero exposure in passing ones."
+    },
+    "tool_unlock_hint": {
+      "verdict": "pending",
+      "why": "naming the tools a step needs when they are not unlocked yet. Measured on task_028."
+    },
+    "transcription_check": {
+      "verdict": "pending",
+      "why": "an argument transcribed from a record must match the record. Measured on task_022."
+    },
+    "transfer_reason_policy": {
+      "verdict": "pending",
+      "why": "the tier a transfer reason belongs to. Measured on task_004."
+    },
+    "unavailable_tools": {
+      "verdict": "not_migrated",
+      "why": "canned errors for tools the environment does not serve. The environment already answers for itself; our copy would be a second voice."
+    },
+    "verdict_markers": {
+      "verdict": "pending",
+      "why": "the words a verifier's verdict may use. 3,353 NOT_VERIFIED emissions, of which 704 landed in simulations that passed."
+    },
+    "write_arg_enum": {
+      "verdict": "pending",
+      "why": "the closed set a write argument may take. x275: live 8/8 with an 11K context, 8/8 from a single opening line, 0/8 on the negative control."
+    },
+    "write_initiation": {
+      "verdict": "pending",
+      "why": "the prompt that puts one write decision in isolation with the verbatim audit results already in the conversation."
+    }
+  }
 }

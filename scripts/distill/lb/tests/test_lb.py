@@ -201,6 +201,27 @@ check("the action index reaches an engine",
       and len(_ai.get("rows") or []) == len(_po.get("action_index") or []),
       "declared %d rows, wired %d" % (len(_po.get("action_index") or []), len(_ai.get("rows") or [])))
 
+# Two rules were authored, measured, and silently absent from the live stack - the free-text
+# default and the action index, each with the tasks it was measured on written beside it. Nothing
+# failed because nothing was checking. A declaration key either reaches an engine or is entered in
+# the migration register with a verdict; "pending" is a verdict, and the debt prints on every run.
+_decl = {}
+for _part in ("settings", "specific"):
+    _p = os.path.join(ROOT, "a2", "banking_knowledge.%s.json" % _part)
+    if os.path.exists(_p):
+        _decl.update(json.load(io.open(_p, encoding="utf-8")))
+_code = chr(10).join(io.open(_f, encoding="utf-8").read() for _f in glob.glob(os.path.join(ROOT, "*.py")))
+_unwired = sorted(k for k, v in _decl.items() if not k.startswith("_") and v
+                  and ('"%s"' % k not in _code and "'%s'" % k not in _code))
+_reg = _decl.get("_note_migration") or {}
+_unaccounted = [k for k in _unwired if k not in _reg]
+check("every declaration key reaches an engine or the migration register", not _unaccounted,
+      "unaccounted: %s" % _unaccounted)
+_pending = sorted(k for k, v in _reg.items() if (v or {}).get("verdict") == "pending")
+if _pending:
+    print("     debt: %d declarations measured and not yet wired - %s"
+          % (len(_pending), " ".join(_pending)))
+
 # with no lever on, our stack must not touch the model at all
 check("levers off delegates to tau2", "if not any_lever():" in RT and RT.count("if not any_lever():") >= 2
       and "_ORIG_TURN(self, message, state)" in RT and "orig_exec(self, tool_calls)" in RT)
