@@ -56,7 +56,7 @@ _ORIG_TURN = None       # tau2's own generation, kept so the all-levers-off cell
 def diverge(kind, text="", **meta):
     """One row per place our stack left tau2's path. base raises none of these; a run with levers on
     should be readable as the list of them. Keep every kind in the module docstring's table."""
-    sidecar("lb-diverge", text, None, kind=kind, **meta)
+    sidecar("lb-diverge", text, None, at=kind, **meta)
 
 
 def any_lever():

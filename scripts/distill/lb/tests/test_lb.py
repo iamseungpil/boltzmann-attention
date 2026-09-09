@@ -10,6 +10,7 @@ import io
 import json
 import os
 import subprocess
+import tempfile
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -80,6 +81,7 @@ check("048: signal in customer text does redirect", any(f.source.startswith("pro
 
 # sub-call levers: the real declarations drive the deterministic cores offline
 import json
+import lb_runtime
 import lb2_decision
 tools = {t["name"]: t for t in A2["LB2"]["tools"]}
 row = {"transaction_amount": 100, "credit_card_type": "Gold Rewards Card", "category": "Dining", "base_rate": 2.5,
@@ -134,6 +136,26 @@ for line in table.splitlines():
 listed = {k for k in listed if k in raised or "-" in k}
 check("every divergence from base is raised and listed", raised and raised == listed,
       "raised-only %s | listed-only %s" % (sorted(raised - listed), sorted(listed - raised)))
+# ...and every one of them must survive being called. A keyword that collides with sidecar's own
+# parameters raises TypeError at the call site, which killed all 4 sims of bz_task_070 (2026-09-09):
+# the inventory check above passed because it only reads source text, never runs it.
+_sc = os.path.join(tempfile.gettempdir(), "lb_diverge_probe.jsonl")
+if os.path.exists(_sc):
+    os.remove(_sc)
+os.environ["LB_SIDECAR"] = _sc
+try:
+    for _k in sorted(raised):
+        lb_runtime.diverge(_k, "probe", sim="s", n=1)
+    _rows = [json.loads(l) for l in io.open(_sc, encoding="utf-8")]
+    check("every divergence kind can actually be raised", len(_rows) == len(raised)
+          and {r.get("at") for r in _rows} == raised,
+          "wrote %d rows for %d kinds" % (len(_rows), len(raised)))
+except TypeError as _e:
+    check("every divergence kind can actually be raised", False, str(_e))
+finally:
+    os.environ.pop("LB_SIDECAR", None)
+    if os.path.exists(_sc):
+        os.remove(_sc)
 # with no lever on, our stack must not touch the model at all
 check("levers off delegates to tau2", "if not any_lever():" in RT and RT.count("if not any_lever():") >= 2
       and "_ORIG_TURN(self, message, state)" in RT and "orig_exec(self, tool_calls)" in RT)
