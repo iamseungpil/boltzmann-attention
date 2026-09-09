@@ -1029,3 +1029,73 @@ gold 의 행동 목록에서 `close_credit_card_account_7834` 는 **#8**, `log_c
 - **070 의 문자열 부정확**은 LB3 의 자리다 — 등록된 클래스명 그대로가 아니면 막는다.
 - **두 태스크의 base 대비 격차 자체**는 아직 설명되지 않았고, 레버가 아니다.
   `sb_`/`sc_` 를 **같은 엔진에서** 049·070 에 돌리는 것이 남은 유일한 갈림길이다.
+
+---
+
+## §30. 실패 원인 전수 분류 — 우리 실패의 83%는 「안 한 것」이 아니라 「값이 틀린 것」 (2026-09-09)
+
+사용자 지시: *"실패 원인을 알아야 일반화한다."* 점수 귀속(태스크 하나의 −2를 레버에 붙이기)은 오늘
+네 번 무너졌지만, **원인 규명은 네 번 다 성공했다.** 둘은 다른 작업이다. 그래서 아직 한 번도 읽지
+않은 가장 큰 덩어리 — 「에이전트가 할 행동을 안 함」 — 을 전수로 읽었다.
+
+### 30-1. 150 실패 sim 의 원인
+
+| 원인 | sim | 비율 |
+|---|---:|---:|
+| **① 실행은 했는데 인자가 gold 와 다름** | **125** | **83.3%** |
+| ③ 아예 부르지 않음 | 25 | 16.7% |
+| ② 환경이 거절함 | 0 | 0% |
+
+「행동이 빠졌다」는 이름이 오해를 부른다. **도구는 맞게 골랐고 값이 틀린다.**
+
+### 30-2. 어느 행동에서
+
+| gold 행동 | sim | 태스크 |
+|---|---:|---:|
+| **`open_bank_account`** | **27** | **14** |
+| `file_debit_card_transaction_dispute` | 24 | 7 |
+| `submit_cash_back_dispute` | 20 | 9 |
+| `get_card_last_4_digits` | 15 | 5 |
+| `close_bank_account` | 12 | 4 |
+
+⚠ 분쟁 계열의 수는 **부풀려져 있다** — 추출이 gold 여러 건을 실제 호출 첫 하나에 비교했다.
+`open_bank_account` 는 sim 당 호출이 대개 하나라 영향이 없다.
+
+### 30-3. `open_bank_account` — 24 건 전부 같은 인자
+
+| 인자 | 틀린 횟수 | 예 |
+|---|---:|---|
+| **`account_class`** | **24 / 24** | `Silver Plus Account`→`Purple Account` · `Sky Blue`→`Hunter Green` · `Blue Account`→`Light Blue Account` |
+| `account_type` | 12 / 24 | `savings`→`checking` · `business_savings`→`business_checking` |
+
+**070 은 단발 사고가 아니라 이 계열의 한 사례다.** 그리고 이 24 sim 은 오늘 확인한 어떤 계열보다
+크다(손님 행동 미실행 10 sim · 우리 여분 쓰기 6 sim).
+
+### 30-4. 선례가 이미 있다 — 카드에는 선별기가 있고 계좌에는 없다
+
+`check_card_application_fit` 의 선언:
+
+```
+op:     {"op": "catalog_filter", "table": [{card, annual_fee, fx_fee, cashback, min_score, ...,
+                                            "source": "doc platinum_rewards_card_*"}, ...]}
+ground: {"intent_fields": [{param: "max_annual_fee", corpus: ["user"],
+                            cue_any: ["annual fee", "no fee", "fee-free", ...]}, ...]}
+```
+
+**표는 손으로 저작됐고, 행마다 출처 문서를 달고 있다.** 계좌에는 같은 것이 없어 모델이 문서를 읽고
+눈으로 고른다 — 24/24 틀린다. `a3_rows` 의 계좌 축은 **추천 보너스 표**뿐이라(`referrer_bonus_usd`
+`qualifying_deposit_usd` …) 선택을 가르는 축(월 수수료·면제 잔고·APY·오버드래프트)이 없다.
+
+문서에는 있다(축자: *"Monthly maintenance fee: $20.00 / How to waive it: maintain a daily balance at
+or above $2,500 / Your balance earns an APY of 0.5%"*). 다만 기계 추출은 얇다 — 21 행에서
+`monthly_fee` 14 · `apy` 10 · `waiver_balance` 1. 카드 표가 손으로 저작된 이유가 이것이다([[72]]).
+
+### 30-5. 짓기 전에 격리로 판별력부터 (진행 중)
+
+오늘의 교훈대로 순서를 바꿨다. 저작 비용을 치르기 전에 **더 싼 물음**을 먼저 던진다:
+**문서화된 사실이 모이지 않아서 틀리는가, 모이고도 판단이 틀리는가?**
+
+실패한 접두 10개에 대해 ①현행 ②같은 계열 전 상품의 비용·이자 줄을 **축자 그대로** 담은 도구 응답
+하나를 더한 것 — 두 팔에서 `account_class` 가 gold 와 일치하는 비율을 센다. 거르지도, 추천하지도
+않는다(재료만). B 가 오르면 결손은 **집계**이고 표를 저작할 값어치가 있다. 안 오르면 결손은
+**판단**이고, 그때는 `catalog_filter` 처럼 **걸러서** 줘야 한다.
