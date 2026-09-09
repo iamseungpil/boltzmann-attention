@@ -28771,10 +28771,6 @@
       "verdict": "not_migrated",
       "why": "canned errors for tools the environment does not serve. The environment already answers for itself; our copy would be a second voice."
     },
-    "verdict_markers": {
-      "verdict": "pending",
-      "why": "the words a verifier's verdict may use. 3,353 NOT_VERIFIED emissions, of which 704 landed in simulations that passed."
-    },
     "write_arg_enum": {
       "verdict": "not_migrated",
       "why": "the closed set a write argument accepts. Its evidence is a live reading from 2026-08-25 - 085 sending 'ATM Withdrawal' for atm_withdrawal, 'No' for no, 'None' for a card action, and spending 22 messages on the environment's rejections. That does not reproduce: across the sweep the environment rejected an enum value nine times, all of them card_type, which none of the nine entries covers, and zero times on any argument they do cover. There is nothing to buy here and a check on every write to pay for."

@@ -217,6 +217,8 @@ _reg = _decl.get("_note_migration") or {}
 _unaccounted = [k for k in _unwired if k not in _reg]
 check("every declaration key reaches an engine or the migration register", not _unaccounted,
       "unaccounted: %s" % _unaccounted)
+_stale = sorted(k for k in _reg if k not in _unwired)
+check("the migration register holds nothing already wired", not _stale, "stale: %s" % _stale)
 _pending = sorted(k for k, v in _reg.items() if (v or {}).get("verdict") == "pending")
 if _pending:
     print("     debt: %d declarations measured and not yet wired - %s"
