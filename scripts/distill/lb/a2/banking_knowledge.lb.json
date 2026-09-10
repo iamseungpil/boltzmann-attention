@@ -939,6 +939,33 @@
     }
    },
    {
+    "id": "GB2_NOTICE_BEFORE_TRANSFER:transfer_to_human_agents",
+    "enforce": true,
+    "blocks": true,
+    "_quote_order": "the pre-transfer notice (ask-first) has been communicated to the user",
+    "_source": [],
+    "nodes": [
+     {
+      "id": "notice",
+      "said_tokens": [
+       "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+      ]
+     },
+     {
+      "id": "transfer_to_human_agents",
+      "tool_prefix": "transfer_to_human_agents",
+      "requires": [
+       "notice"
+      ]
+     }
+    ],
+    "prohibits": {},
+    "feedback": {
+     "unmet": "the transfer is blocked only because the exact notice has not been communicated yet. Send the user exactly this message now: \"TRANSFER NOTICE: Would you like to be transferred to a human agent?\" - even if the customer already asked for or agreed to the transfer (their agreement stays valid; this notice is a required disclosure, not asking again). Send it at most ONCE; once it is on the record this gate stops blocking, and you do not repeat the notice. Whether to transfer at all is still governed by the policy: do this only if you absolutely have to and you are sure there are no potential actions you can still take for the customer. If a knowledge-base document defines a specific transfer or escalation tool for this situation, call THAT tool instead of the general one - the general transfer is only for cases no protocol document covers. Saying you will transfer, or repeating the notice, does not transfer anyone. When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits. Do not ask for more identifiers — identity verification is not required for a transfer.",
+     "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
+    }
+   },
+   {
     "id": "GB3_ELIGIBILITY_BEFORE_REFERRAL_ADVICE:submit_referral",
     "enforce": true,
     "_quote_order": "the customer's eligibility to submit referrals has been checked against their referral record",

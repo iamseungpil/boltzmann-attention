@@ -31,9 +31,11 @@ def _matches(node, name):
     return name in _tools(node) or (node.get("tool_prefix") and name.startswith(node["tool_prefix"]))
 
 
-def _done(node, executed, waived=()):
-    if node.get("id") in waived:
-        return True                                   # the policy's own conditional took this step out
+def _done(node, executed, settled=()):
+    if node.get("id") in settled:
+        return True                        # settled without a call: waived by the source, or already said
+    if node.get("said_tokens"):
+        return False    # a disclosure is observable: it is on the record or it is not, never unknown
     tools = _tools(node)
     if not tools and not node.get("tool_prefix"):
         return None                                   # unobservable step (a bound to check)
@@ -51,8 +53,10 @@ def active(procs, executed, user_text):
     return out
 
 
-def waived_nodes(proc, turn, call):
-    """Node ids the procedure's own source takes out of it for this subject.
+def settled_nodes(proc, turn, call):
+    """Node ids this procedure needs no tool call for.
+
+    Two ways a step is settled without a call. One, the source's own conditional takes it out.
 
     The retention protocol reads: "If records exist for this account within that time frame, skip
     retention offers and proceed directly to processing the closure." task_049's Green card carried
@@ -68,16 +72,23 @@ def waived_nodes(proc, turn, call):
     out = set()
     for n in proc.get("nodes") or []:
         toks = n.get("skip_when_tokens")
-        if not toks:
-            continue
-        for o in turn.tool_outputs():
-            if all(t in o for t in toks) and (subject is None or str(subject) in o):
-                out.add(n["id"])
-                break
+        if toks:
+            for o in turn.tool_outputs():
+                if all(t in o for t in toks) and (subject is None or str(subject) in o):
+                    out.add(n["id"])
+                    break
+        # Two, the step is a disclosure: it is done when we have already told the customer, on an
+        # earlier turn. GB2 - the ask-first notice before a transfer - is that kind, and migration
+        # dropped it because it could only express a gate as a tool prerequisite. task_088
+        # transferred with no notice sent and no write performed.
+        toks = n.get("said_tokens")
+        # turn.said is normalised to lower case; the declared sentence is not
+        if toks and all(str(t).lower() in turn.said for t in toks):
+            out.add(n["id"])
     return out
 
 
-def unmet(proc, node, executed, waived=()):
+def unmet(proc, node, executed, settled=()):
     """Prerequisite node ids of `node` that have not run (transitive, declaration order)."""
     by_id = {n["id"]: n for n in proc.get("nodes") or []}
     seen, out, stack = set(), [], list(node.get("requires") or [])
@@ -86,16 +97,16 @@ def unmet(proc, node, executed, waived=()):
         if nid in seen or nid not in by_id:
             continue
         seen.add(nid)
-        if _done(by_id[nid], executed, waived) is False:
+        if _done(by_id[nid], executed, settled) is False:
             out.append(nid)
         stack.extend(by_id[nid].get("requires") or [])
     return sorted(out, key=[n["id"] for n in proc.get("nodes") or []].index)
 
 
-def ready(proc, executed, waived=()):
+def ready(proc, executed, settled=()):
     """Nodes not done whose own prerequisites are all done."""
     return [n for n in proc.get("nodes") or []
-            if _done(n, executed, waived) is False and not unmet(proc, n, executed, waived)]
+            if _done(n, executed, settled) is False and not unmet(proc, n, executed, settled)]
 
 
 def mandatory(proc):
@@ -116,14 +127,14 @@ def changes_state(a2, name):
     return not writes or fam(name) in writes
 
 
-def state_slots(proc, executed, unlocked, waived=()):
+def state_slots(proc, executed, unlocked, settled=()):
     rows, done = [], 0
     for n in proc.get("nodes") or []:
-        ok = _done(n, executed, waived)
+        ok = _done(n, executed, settled)
         done += ok is True
         rows.append("[%s] %s%s" % ("x" if ok else ("?" if ok is None else " "), n["id"],
                                    (" -> " + "/".join(_tools(n))) if ok is False and _tools(n) else ""))
-    cands = ready(proc, executed, waived)
+    cands = ready(proc, executed, settled)
     nxt = cands[0] if len(cands) == 1 and mandatory(proc) else None
     ntool = (_tools(nxt) or [""])[0] if nxt else ""
     return {"procedure": proc.get("id", ""), "done": done, "total": len(proc.get("nodes") or []),
@@ -147,15 +158,18 @@ def procedure_findings(turn, call):
         node = next((n for n in p.get("nodes") or [] if _matches(n, name)), None)
         if node is None:
             continue
-        waived = waived_nodes(p, turn, call)
-        missing = unmet(p, node, turn.executed, waived)
+        settled = settled_nodes(p, turn, call)
+        missing = unmet(p, node, turn.executed, settled)
         if not missing:
             continue
-        slots = state_slots(p, turn.executed, turn.unlocked, waived)
+        slots = state_slots(p, turn.executed, turn.unlocked, settled)
         slots["unlock_hint"] = fill(slots["unlock_hint"], **slots)
         text = fill(fb.get("unmet", ""), tool=name, missing=", ".join(missing),
                     source=", ".join(p.get("_source") or [])[:120], **slots)
-        if mandatory(p) and changes_state(turn.a2, name):
+        # A gate names the one tool it guards, and that naming is the warrant to block it. The
+        # transfer tool is not on the environment's write list, so without this a required
+        # disclosure could only be mentioned, never waited for - and task_088 transferred anyway.
+        if mandatory(p) and (changes_state(turn.a2, name) or p.get("blocks")):
             pin = _pin(turn, p, missing)
             return [Finding(LB, DENY, fam(name), call, text, grade=POLICY, source="procedure:" + p["id"], pin=pin)]
         # Nothing was blocked here - the call proceeds. Saying "cannot be carried out" reports a

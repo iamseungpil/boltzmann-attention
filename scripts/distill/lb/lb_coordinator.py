@@ -170,6 +170,9 @@ class Turn(object):
         self.user_text = self._text("user")
         self.tool_text = self._text("tool")
         self.am_text = str(getattr(am, "content", "") or "")
+        # what we have already told the customer. A required disclosure is satisfied by having said
+        # it on an earlier turn, not by saying it in the same breath as the action it gates.
+        self.said = self._text("assistant")
         d = self.a2.get("dispatch") or {}
         self.name_args = dict(d.get("name_args") or {})
         self.exec_wrappers = {d.get("agent_call"), d.get("user_call")}

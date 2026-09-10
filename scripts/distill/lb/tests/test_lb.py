@@ -321,6 +321,26 @@ check("the same step still stands where the source does not waive it",
 # so it has no satisfiers, so it was skipped, so the ask-first notice before a transfer does not
 # exist here. task_088 transferred with no notice and no work done. A gate either reaches the
 # procedures or is entered in the register.
+# A gate satisfied by an utterance has to block, not merely mention: GB2 was dropped entirely at
+# migration because the loop could only build a tool prerequisite, and task_088 transferred with the
+# notice never sent and none of the three writes gold performs done first.
+_NOTICE = "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+
+
+def _transfer(said):
+    _c = _C("transfer_to_human_agents", {"reason": "fraud_or_security_concern"})
+    _hist = [_M("user", "help")] + ([_M("assistant", "Sure. " + said)] if said else [])
+    _t = _Turn(_A2, _hist, _M(calls=[_c]))
+    return [f for f in lb1_requirements.procedure_findings(_t, _c)
+            if f.primitive == lb1_requirements.DENY]
+
+
+_before = _transfer("")
+check("a notice gate blocks the action until the notice is on the record",
+      bool(_before) and _NOTICE in (_before[0].order or ""),
+      "no deny carrying the exact sentence")
+check("and stops blocking once it has been said", not _transfer(_NOTICE))
+
 _gate_ids = {g.get("id") for g in _decl.get("gates") or []}
 _reached = {str(p.get("id", "")).split(":")[0] for p in (A2.get("LB1") or {}).get("procedures") or []}
 _lost = sorted(_gate_ids - _reached - set(_decl.get("_note_migration") or {}))

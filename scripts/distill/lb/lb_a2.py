@@ -66,7 +66,16 @@ def migrate(domain):
         sat = sorted(g.get("satisfiers") or {})
         exempt = set((g.get("applies_when") or {}).get("not_in") or [])
         for t in g.get("applies_to") or []:
-            if sat and t not in exempt:
+            if t in exempt:
+                continue
+            if g.get("notice_text"):
+                # A gate can be satisfied by telling the customer something rather than by calling a
+                # tool, and this loop could only build a tool prerequisite - so a gate with no
+                # satisfiers was skipped and GB2, the ask-first notice before a transfer, did not
+                # exist here at all. task_088 transferred with the notice never sent and not one of
+                # the three writes gold performs done first.
+                procedures.append(_notice_procedure(g, t, order))
+            elif sat:
                 procedures.append(_edge_procedure("%s:%s" % (g.get("id"), t), t, sat, g.get("predicate"), order))
     out = {
         "domain": domain,
@@ -245,6 +254,22 @@ def _edge_procedure(pid, dep, reads, quote, order):
     return {"id": pid, "enforce": True, "_quote_order": quote or "", "_source": [],
             "nodes": [{"id": r, "tool_prefix": r} for r in reads] + [{"id": dep, "tool_prefix": dep, "requires": list(reads)}],
             "prohibits": {}, "feedback": {"unmet": order, "unmet_surface": ORDER_SURFACE}}
+
+
+def _notice_procedure(g, dep, order):
+    """A required disclosure as a procedure: the action waits until the notice is on the record.
+
+    The notice node is satisfied by what we have already said, not by a call, so it carries
+    said_tokens instead of a tool. The deny body is the gate's own `ask`, which gives the exact
+    sentence to send and says it is sent once - a refusal has to name the way out.
+    """
+    body = " ".join(x for x in (g.get("ask"), g.get("term_grant_reminder_extra")) if x)
+    return {"id": "%s:%s" % (g.get("id"), dep), "enforce": True, "blocks": True,
+            "_quote_order": g.get("predicate") or "", "_source": [],
+            "nodes": [{"id": "notice", "said_tokens": [g["notice_text"]]},
+                      {"id": dep, "tool_prefix": dep, "requires": ["notice"]}],
+            "prohibits": {},
+            "feedback": {"unmet": body or order, "unmet_surface": ORDER_SURFACE}}
 
 
 def _specific(emap):
