@@ -226,6 +226,19 @@ if _pending:
     print("     debt: %d declarations measured and not yet wired - %s"
           % (len(_pending), " ".join(_pending)))
 
+# We must not hand the agent the name of a tool it cannot call. check_card_application_fit's
+# description ended "The card_type you then pass to apply_for_credit_card ...", and that tool is the
+# customer's - declared in this same file as recommendation_verify.action_tool. task_023 sim1 spent
+# 82 shell commands and 61 searches looking for it and ran out of steps at 261 messages; base, which
+# never sees the name, hunts zero times in four.
+_theirs = {(_decl.get("recommendation_verify") or {}).get("action_tool")} | {
+    (_v or {}).get("user_tool") for _v in (_decl.get("arg_producers") or {}).values()}
+_theirs.discard(None)
+_named = sorted({(_t.get("name"), _u) for _t in _decl.get("scaffold_get_tools") or []
+                 for _u in _theirs if _u in (_t.get("description") or "")})
+check("our tool descriptions never name a tool the agent cannot call", not _named,
+      "; ".join("%s names %s" % (a, b) for a, b in _named))
+
 # A procedure step its own source makes conditional must not be enforced when the condition holds.
 # task_049: the retention protocol says "If records exist for this account within that time frame,
 # skip retention offers and proceed directly to processing the closure." The Green card carried such
