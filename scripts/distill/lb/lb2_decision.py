@@ -147,7 +147,13 @@ def _match_verdict(spec, ctx):
         missing = fields
     if grounded and not norm(" ".join(str((ctx.get("__tool_outputs") or {}).get(t) or "")
                                         for t in spec.get("evidence_from") or [])):
-        tpl = spec.get("no_record_template") or spec.get("unmet_template") or "{count}"
+        # v2 supersedes: the first text told the caller to look the customer up and stopped there,
+        # and a caller with one identifier re-sent the same lookup until the step budget ran out.
+        # v2 names the way out - a different identifier, or stop and say the account cannot be
+        # verified. It was written 2026-08-02 behind a flag this code base does not have, so
+        # nothing read it.
+        tpl = (spec.get("no_record_template_v2") or spec.get("no_record_template")
+               or spec.get("unmet_template") or "{count}")
     else:
         tpl = spec.get("met_template" if len(matched) >= thr else "unmet_template") or "{count}"
     return fill(tpl, count=len(matched), threshold=thr, matched=", ".join(matched) or "(none)",
@@ -169,7 +175,7 @@ def _group_reduce(spec, ctx):
     if spec.get("require_complete_groups") and exp and exp.get("field") == spec.get("group_by"):
         if any(str(l) not in groups for l in exp.get("labels") or []):
             return None                                   # some window has no data: abstain
-    reducers, red = spec.get("reducers") or {}, []
+    reducers, red, unknown = spec.get("reducers") or {}, [], []
     for g, vs in groups.items():
         r = reducers.get(g, spec.get("default_reducer"))
         if r == "max1":
@@ -177,11 +183,23 @@ def _group_reduce(spec, ctx):
         elif r == "sum":
             red.append(sum(vs))
         else:
-            ctx.setdefault("_flags", []).append(g)
+            unknown.append(g)
     across = spec.get("across", "sum")
     if not red:
-        return None if across in ("min", "max") else 0.0
-    return {"min": min, "max": max}.get(across, sum)(red)
+        total = None if across in ("min", "max") else 0.0
+    else:
+        total = {"min": min, "max": max}.get(across, sum)(red)
+    if not unknown:
+        return total
+    # A group this table documents no reducer for used to be dropped from the total in silence -
+    # the name was appended to a ctx list nothing read, and the caller was handed a confident
+    # number that was short by exactly the part we could not account for. unknown_policy says what
+    # to do instead, and has said "flag" since it was declared.
+    if spec.get("unknown_policy") == "flag":
+        return {"total": total, "unaccounted_components": sorted(set(unknown)),
+                "note": "these components have no documented stacking rule here; read their "
+                        "documents before quoting the total"}
+    return None
 
 
 def _bucket(spec, ctx):
@@ -310,6 +328,34 @@ def _select_row(spec, ctx):
     return rows[0].get(spec.get("get")) if len(rows) == 1 else None
 
 
+def _word_bool(v):
+    """The model answers a boolean parameter with the word. A bare string is truthy, so "false"
+    read as stated-and-true until task_007 applied for a business card (2026-09-10)."""
+    if isinstance(v, str) and v.strip().lower() in ("true", "false", "yes", "no"):
+        return v.strip().lower() in ("true", "yes")
+    return v
+
+
+def _conditional(row, spec, ctx):
+    """A documented fact that has two values, one of which the caller's own situation selects.
+
+    The Silver Rewards Card charges 2.75% abroad without the premium subscription and 0% with it,
+    and the table can only hold one number per column. Declared as
+    {"fx_fee": {"alt": "fx_fee_with_premium", "when": "premium_subscriber"}}, this reads the
+    alternate when the caller stated the condition. Declared since 2026-07-25 and implemented
+    nowhere: task_003 asked for a card with no foreign transaction fee while holding the
+    subscription, and the catalogue excluded the one the task wanted, four simulations out of four.
+    """
+    cond = spec.get("conditional_fields") or {}
+    if not cond:
+        return row
+    out = dict(row)
+    for field, rule in cond.items():
+        if _word_bool(ctx.get(rule["when"])) is True and rule["alt"] in row:
+            out[field] = row[rule["alt"]]
+    return out
+
+
 def _catalog_filter(spec, ctx):
     """Rows of a documented table filtered by the constraints the caller stated.
 
@@ -319,21 +365,12 @@ def _catalog_filter(spec, ctx):
     elig, excl, unver = [], [], []
     seg = spec.get("segment") or {}
     for row in spec.get("table") or []:
-        if seg:
-            # the same word-as-boolean the constraints take: business="false" meant the
-            # personal cards and selected the business ones (task_007, 2026-09-10)
-            want = ctx.get(seg["param"])
-            if isinstance(want, str) and want.strip().lower() in ("true", "false", "yes", "no"):
-                want = want.strip().lower() in ("true", "yes")
-            if bool(row.get(seg["field"])) != bool(want):
-                continue
+        if seg and bool(row.get(seg["field"])) != bool(_word_bool(ctx.get(seg["param"]))):
+            continue
+        row = _conditional(row, spec, ctx)
         why, missing = None, []
         for c in spec.get("constraints") or []:
-            cv, rv = ctx.get(c["param"]), row.get(c["field"])
-            # the model answers a boolean parameter with the word: "true", "false", "no". A bare
-            # string is truthy, so "false" read as stated-and-true until now.
-            if isinstance(cv, str) and cv.strip().lower() in ("true", "false", "yes", "no"):
-                cv = cv.strip().lower() in ("true", "yes")
+            cv, rv = _word_bool(ctx.get(c["param"])), row.get(c["field"])
             if c["sense"] == "unless":
                 # "excluded unless the caller says so" is a restriction carried by the row. A row that
                 # does not carry it is unrestricted, not undocumented - reading it as undocumented put
@@ -367,6 +404,7 @@ def _catalog_filter(spec, ctx):
             unver.append({"item": item, "undocumented": missing})
         else:
             elig.append({"item": item, "facts": facts, "source": row.get("source")})
+    _stated_value(elig, spec, ctx)
     if spec.get("rank"):
         # One documented formula, applied to every surviving row. Ranking is arithmetic, not
         # judgement: the caller still picks, and rows the formula cannot score sort last.
@@ -382,6 +420,40 @@ def _catalog_filter(spec, ctx):
         elig = elig[:spec["top"]]
     return {"eligible": elig, "excluded": _by_reason(excl, "reason"),
             "unverified": _by_reason(unver, "undocumented"), "note": spec.get("note", "")}
+
+
+def _stated_value(elig, spec, ctx):
+    """The arithmetic a caller's own numbers allow, on the columns of this table alone.
+
+    Declared as value_formula since the card catalogue was written and read by nothing: task_003
+    passed spend_category="travel" in all four simulations, and the rate that answers it
+    (category_rates.travel) sat in the row unused while the caller compared a category-limited 4%
+    against an all-purchases 2.5% by eye. The engine multiplies and subtracts; it does not sort the
+    rows and does not name a winner.
+    """
+    f = spec.get("value_formula")
+    if not f:
+        return
+    cat = ctx.get(f.get("category_param"))
+    amount = num(ctx.get(f.get("amount_param")))
+    rate_from = f.get("rate_from") or {}
+    for e in elig:
+        facts = e["facts"]
+        rate = None
+        if cat:
+            rate = num((facts.get(rate_from.get("category_field")) or {}).get(cat))
+        if rate is None:
+            rate = num(facts.get(rate_from.get("default_field")))
+        if rate is None:
+            continue
+        if cat:
+            e["documented_rate_for_stated_category"] = rate
+        if amount is None:
+            continue
+        value = amount * rate / 100.0
+        for m in f.get("minus_fields") or []:
+            value -= num(facts.get(m)) or 0
+        e[f.get("label", "value")] = round(value, 2)
 
 
 def _by_reason(rows, key):

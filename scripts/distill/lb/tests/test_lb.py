@@ -224,6 +224,36 @@ if _pending:
     print("     debt: %d declarations measured and not yet wired - %s"
           % (len(_pending), " ".join(_pending)))
 
+# The register above sees only the top level. conditional_fields sat four levels down, inside the
+# card catalogue's op, declared 2026-07-25 and read by nothing: task_003 held the premium
+# subscription that zeroes the Silver card's foreign fee, and the catalogue excluded the one card
+# the task wanted, four simulations out of four. Every key an op carries beside its own name is a
+# directive the engine is supposed to obey, so every one of them has to appear in the engines.
+_directives = {}
+
+
+def _walk_ops(node, where):
+    if isinstance(node, dict):
+        if isinstance(node.get("op"), str):
+            for _k in node:
+                if _k != "op" and not _k.startswith("_"):
+                    _directives.setdefault(_k, set()).add(where + "/" + node["op"])
+        for _k, _v in node.items():
+            _walk_ops(_v, where + "/" + str(_k))
+    elif isinstance(node, list):
+        for _v in node:
+            _walk_ops(_v, where)
+
+
+for _part in ("settings", "specific"):
+    _p = os.path.join(ROOT, "a2", "banking_knowledge.%s.json" % _part)
+    if os.path.exists(_p):
+        _walk_ops(json.load(io.open(_p, encoding="utf-8")), _part)
+_dead_ops = sorted(k for k in _directives
+                   if '"%s"' % k not in _code and "'%s'" % k not in _code)
+check("every op directive reaches an engine", not _dead_ops,
+      "; ".join("%s (%s)" % (k, sorted(_directives[k])[0]) for k in _dead_ops))
+
 # with no lever on, our stack must not touch the model at all
 check("levers off delegates to tau2", "if not any_lever():" in RT and RT.count("if not any_lever():") >= 2
       and "_ORIG_TURN(self, message, state)" in RT and "orig_exec(self, tool_calls)" in RT)
