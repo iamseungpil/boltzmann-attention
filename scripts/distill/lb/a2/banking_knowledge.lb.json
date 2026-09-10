@@ -218,15 +218,32 @@
       ]
      },
      {
-      "id": "outcome",
+      "id": "remedy",
       "tool_any": [
        "apply_credit_card_account_flag_6147",
-       "apply_for_credit_card",
-       "apply_statement_credit_8472",
-       "close_credit_card_account_7834"
+       "apply_for_credit_card"
       ],
       "requires": [
        "log_reason"
+      ]
+     },
+     {
+      "id": "offer",
+      "said_tokens": [
+       "statement credit"
+      ],
+      "requires": [
+       "log_reason"
+      ],
+      "skip_when_tokens": [
+       "record(s) in 'credit_card_closure_reasons'"
+      ]
+     },
+     {
+      "id": "close",
+      "tool": "close_credit_card_account_7834",
+      "requires": [
+       "offer"
       ]
      }
     ],
@@ -24659,7 +24676,7 @@
    },
    {
     "applies_to": "log_credit_card_closure_reason_4521",
-    "text": "The reason you are logging decides the next step, and it is not the tier offer. The protocol answers each reason on its own terms first: annual fee - waive the fee for a year with apply_credit_card_account_flag_6147 if they have been a customer 2+ years, or offer a permanent downgrade to a no-annual-fee card that preserves account history if under 2 years; not using the card - name the benefits they are missing and suggest a recurring subscription to keep it active; found a better card - ask what features drew them, and if Rho-Bank has a card that matches or beats it, offer to help them apply instead of closing; unhappy with rewards - check their enrolment in bonus categories and show how to earn more; negative experience - apologise, gather details, escalate if warranted. Only if the customer STILL wants to close after that does the tier offer come out, and only then."
+    "text": "The reason you log is this card's answer, not the one the call opened with, and the protocol only knows how to answer five of them: annual fee - waive the fee for a year with apply_credit_card_account_flag_6147 if they have been a customer 2+ years, or a permanent downgrade to a no-annual-fee card that preserves account history if under 2 years; not using the card - the benefits they are missing, and a recurring subscription to keep it active; found a better card - what features drew them, and a Rho-Bank card that matches or beats it to apply for instead of closing; unhappy with rewards - their enrolment in bonus categories and how to earn more; negative experience - an apology, the details, an escalation if warranted."
    }
   ]
  }

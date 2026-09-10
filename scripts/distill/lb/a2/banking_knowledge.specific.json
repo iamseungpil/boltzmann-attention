@@ -23132,18 +23132,36 @@
           "_note_skip": "출처 축자 doc_credit_cards_credit_card_account_logistics_003 (Internal: Credit Card Retention Protocol) Step 2: \"If records exist for this account within that time frame, skip retention offers and proceed directly to processing the closure.\" Step 3 이 'Understand and Log the Reason' 이므로 그 skip 은 로깅을 뺀다. 판별력 실측(049): green='Found 1 record(s) in ...' 걸림 / eco·crypto='No closure reason records found' 안 걸림. ⚠정책의 'within the past year' 는 이 술어가 보지 않는다."
         },
         {
-          "id": "outcome",
+          "id": "remedy",
           "tool_any": [
             "apply_credit_card_account_flag_6147",
-            "apply_for_credit_card",
-            "apply_statement_credit_8472",
-            "close_credit_card_account_7834"
+            "apply_for_credit_card"
           ],
           "requires": [
             "log_reason"
           ],
-          "_quote": "Step 6: Accept the Decision - If the customer declines the retention offer (or was ineligible due to prior attempts), thank them for being a Rho-Bank customer and proceed with closure.",
-          "_note": "2026-09-08: closure is the alternative outcome to an accepted retention offer, not a step of its own. Declared as a separate always-ready node it kept '[ ] close' on the checklist after the $5 credit, and task_049 closed the retained card in 2 of 4 sims (base 3/4)."
+          "_note": "Step 4 의 도구형 구제책. 나머지 가지(혜택 안내·보너스 카테고리·사과)는 발화라 노드가 아니다."
+        },
+        {
+          "id": "offer",
+          "said_tokens": [
+            "statement credit"
+          ],
+          "requires": [
+            "log_reason"
+          ],
+          "skip_when_tokens": [
+            "record(s) in 'credit_card_closure_reasons'"
+          ],
+          "_note": "Step 5 \"make one retention offer\" 는 발화로 충족된다. 모든 등급의 제안에 statement credit 이 들어간다(500 points or a $5 statement credit / 2,000 or $20 / 5,000 or $50). Step 2 가 건너뛰라 한 계좌에서는 이 단계도 없다."
+        },
+        {
+          "id": "close",
+          "tool": "close_credit_card_account_7834",
+          "requires": [
+            "offer"
+          ],
+          "_note": "Step 6 \"If the customer declines the retention offer … proceed with closure\" — 제안이 기록에 오른 뒤에만 해지가 온다. 이력에 기록이 있으면 offer 가 waive 되어 그대로 통과한다."
         }
       ],
       "tables": {
@@ -23173,7 +23191,8 @@
       "_note_procedure": "★2026-08-05: x83 실측 — 이 계열 9 태스크가 공유 코어 8종을 갖고, 각 태스크 gold의 50~86%가 그 코어다(9/9가 요구하는 도구 3종). 즉 태스크가 아니라 **절차 하나**다. 실패 지점도 공통: Step 5 보유 제안 미실행 · discoverable 도구 미발견 · 그로 인한 ctx 사망.",
       "_note_nodes": "★2026-08-05 교정(x91 gold-경로 게이트): 구판은 ① `eligibility`(=check_card_closure_eligibility 호출)를 Step2~6의 **선행**으로 걸고 ② `close`에 `retention_offer`를 **필수**로 걸었다. 정책 원문은 둘 다 말하지 않는다 — Step 1은 *'Check these in order: 1. Pending disputes 2. No pending replacement cards 3. Minimum account age 4. Outstanding balance'* 라는 **확인 4가지**이지 특정 도구 호출이 아니고, Step 2는 *'If records exist ... skip retention offers and proceed directly to processing the closure'* 로 **보유 제안의 우회를 명시**한다. 그 과잉 규정이 gold 경로를 6 태스크·47곳에서 막고 있었다(x91). 보유-제안은 조건이 도구 **출력 내용**에 달려 있어 우리에겐 닫히지 않으므로 **표면화만** 한다.",
       "id_key": "credit_card_account_id",
-      "_note_id_key": "2026-09-10: the subject of this procedure is one card account, so a step waived by the source is waived for that account only."
+      "_note_id_key": "2026-09-10: the subject of this procedure is one card account, so a step waived by the source is waived for that account only.",
+      "_note_dag_2026_09_11": "★outcome 한 노드에 구제·제안·해지를 tool_any 로 뭉쳐 두었더니 Step 5→6 의 순서가 그래프에서 사라졌다. 048/049 의 실패가 전부 '제안 없이 해지' 또는 '제안하고도 해지'였다. 순서는 산문이 아니라 간선으로 적는다."
     },
     {
       "id": "incident_transfer_order",
@@ -28719,8 +28738,9 @@
     },
     {
       "applies_to": "log_credit_card_closure_reason_4521",
-      "text": "The reason you are logging decides the next step, and it is not the tier offer. The protocol answers each reason on its own terms first: annual fee - waive the fee for a year with apply_credit_card_account_flag_6147 if they have been a customer 2+ years, or offer a permanent downgrade to a no-annual-fee card that preserves account history if under 2 years; not using the card - name the benefits they are missing and suggest a recurring subscription to keep it active; found a better card - ask what features drew them, and if Rho-Bank has a card that matches or beats it, offer to help them apply instead of closing; unhappy with rewards - check their enrolment in bonus categories and show how to earn more; negative experience - apologise, gather details, escalate if warranted. Only if the customer STILL wants to close after that does the tier offer come out, and only then.",
-      "_note_": "★2026-09-10 신설. 출처 축자 = doc_credit_cards_credit_card_account_logistics_003 (Internal: Credit Card Retention Protocol) Step 4 'Address the Concern' 전체 + Step 5 첫 문장 \"If the customer still wants to close **after addressing their concerns**, make one retention offer based on their card tier.\" gold 미참조([[23]]) — 순서가 문서 자신의 조건이다. 왜 필요한가: 049 에서 우리 4 sim 전부 사유를 기록하자마자 Step 5 로 건너뛴다(\"let me log your reason and make one quick offer … 500 bonus points or a $5 statement credit … or shall I go ahead and close?\") → 손님 거절 → 해지. base 는 통과 sim 에서 Step 4 를 한다(축자: \"Since you've had the card for under two years, I can offer you a permanent downgrade to our no-annual-fee Bronze Rewards Card instead of closing it\") → 그 뒤 Step 5 → 손님 수락. base 의 실패 sim 은 우리와 똑같이 Step 4 를 건너뛴다. 엔진은 표를 나르고 어느 가지인지는 모델이 고른다([[92]]). 반증조건: 이 문장이 도달했는데도 049 가 여전히 Step 5 로 직행하면 원인은 거리가 아니다."
+      "text": "The reason you log is this card's answer, not the one the call opened with, and the protocol only knows how to answer five of them: annual fee - waive the fee for a year with apply_credit_card_account_flag_6147 if they have been a customer 2+ years, or a permanent downgrade to a no-annual-fee card that preserves account history if under 2 years; not using the card - the benefits they are missing, and a recurring subscription to keep it active; found a better card - what features drew them, and a Rho-Bank card that matches or beats it to apply for instead of closing; unhappy with rewards - their enrolment in bonus categories and how to earn more; negative experience - an apology, the details, an escalation if warranted.",
+      "_note_": "★2026-09-10 신설. 출처 축자 = doc_credit_cards_credit_card_account_logistics_003 (Internal: Credit Card Retention Protocol) Step 4 'Address the Concern' 전체 + Step 5 첫 문장 \"If the customer still wants to close **after addressing their concerns**, make one retention offer based on their card tier.\" gold 미참조([[23]]) — 순서가 문서 자신의 조건이다. 왜 필요한가: 049 에서 우리 4 sim 전부 사유를 기록하자마자 Step 5 로 건너뛴다(\"let me log your reason and make one quick offer … 500 bonus points or a $5 statement credit … or shall I go ahead and close?\") → 손님 거절 → 해지. base 는 통과 sim 에서 Step 4 를 한다(축자: \"Since you've had the card for under two years, I can offer you a permanent downgrade to our no-annual-fee Bronze Rewards Card instead of closing it\") → 그 뒤 Step 5 → 손님 수락. base 의 실패 sim 은 우리와 똑같이 Step 4 를 건너뛴다. 엔진은 표를 나르고 어느 가지인지는 모델이 고른다([[92]]). 반증조건: 이 문장이 도달했는데도 049 가 여전히 Step 5 로 직행하면 원인은 거리가 아니다.",
+      "_note_dag_split": "★2026-09-11. 순서 문장(\"Only if the customer STILL wants to close after that does the tier offer come out\")을 여기서 **뺐다** — 그것은 절차의 간선이고 이제 LB1 의 DAG 가 진다(log_reason → offer → close). 여기 남은 것은 재료뿐이다: 어느 사유에 어떤 대응이 문서에 적혀 있는가. 사용자 지시 2026-09-11: 절차는 DAG 로, 산문은 재료로만."
     }
   ],
   "write_once_keys": [
