@@ -319,14 +319,8 @@ def _catalog_filter(spec, ctx):
     elig, excl, unver = [], [], []
     seg = spec.get("segment") or {}
     for row in spec.get("table") or []:
-        if seg:
-            # the same word-as-boolean the constraints take: business="false" meant
-            # the personal cards and selected the business ones (task_007, 2026-09-10)
-            want = ctx.get(seg["param"])
-            if isinstance(want, str) and want.strip().lower() in ("true", "false", "yes", "no"):
-                want = want.strip().lower() in ("true", "yes")
-            if bool(row.get(seg["field"])) != bool(want):
-                continue
+        if seg and bool(row.get(seg["field"])) != bool(ctx.get(seg["param"])):
+            continue
         why, missing = None, []
         for c in spec.get("constraints") or []:
             cv, rv = ctx.get(c["param"]), row.get(c["field"])

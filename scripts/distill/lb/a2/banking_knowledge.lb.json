@@ -14,7 +14,6 @@
   },
   "payload_key": "arguments"
  },
- "stand_down_messages": 150,
  "failure_markers": [
   "Error:",
   "Failed to",

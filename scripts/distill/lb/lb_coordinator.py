@@ -320,19 +320,7 @@ def sidecar(kind, text, turn=None, **meta):
 
 
 def say(turn, findings, owner=None):
-    """The single exit: stand-down -> window -> fingerprint -> budget -> conflict record."""
-    # Past the length base ever needed, our layer stands down. base finished all 388 of its
-    # simulations within 145 messages and passed none longer than that, so a conversation past
-    # that point is one where what we are adding is not working. Standing down leaves tau2 to
-    # finish it. The cost is measured: one passing simulation of ours has ever run longer.
-    limit = turn.a2.get("stand_down_messages")
-    if limit and len(turn.messages) > limit:
-        sidecar("lb-standdown", "", turn, messages=len(turn.messages), limit=limit,
-                findings=len(findings))
-        d = Decision()
-        d.trace.append(("stand-down", "past the longest base ever needed", len(turn.messages)))
-        return d
-
+    """The single exit: window -> fingerprint -> budget -> conflict record."""
     d = resolve(findings, turn)
     targets = {f.target for f in d.won.values() if f.target}
     if d.advice and not window_opened(turn.am, targets, turn.name_of):
@@ -420,12 +408,4 @@ if __name__ == "__main__":
     assert t.name_of(C("call_x", {"tool": "inner_1"})) == "inner_1" and t.named(C("unlock", {"tool": "z"})) == "z"
     assert "close my card" in t.user_text and t.executed_fams() == set()
     assert fam("close_card_7834") == "close_card" and fam("verify_identity") == "verify_identity"
-    # past the length base ever needed, the exit says nothing at all
-    long_turn = Turn({"stand_down_messages": 3}, [M("user", "a"), M("user", "b"),
-                                                   M("user", "c"), M("user", "d")], M())
-    quiet = say(long_turn, [Finding("LB1", DENY, "t", object(), "stop")])
-    assert quiet.empty() and quiet.trace and quiet.trace[0][0] == "stand-down", quiet.trace
-    short_turn = Turn({"stand_down_messages": 99}, [M("user", "a")], M())
-    assert not say(short_turn, [Finding("LB1", DENY, "t", object(), "stop")]).empty()
-
     print("lb_coordinator self-test OK")
