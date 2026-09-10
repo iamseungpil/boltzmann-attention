@@ -24625,6 +24625,10 @@
    {
     "applies_to": "close_bank_account_7392",
     "text": "Opening a personal savings account requires an active checking account whose tenure is at least 14 days. Closing a checking account can leave the customer without one that qualifies. If they have also asked for a savings account, open it before closing anything, and check the opening date of the checking accounts that would remain."
+   },
+   {
+    "applies_to": "close_debit_card_4721",
+    "text": "When the reason is 'lost', 'stolen' or 'fraud_suspected', the closing procedure's step at this point reads: \"Ask if they want to order a replacement card immediately.\" Closing is only half of it - the customer is left without a card until one is ordered. Ask, and if they want one, order it with order_debit_card_5739; the delivery option and the card design are theirs to choose and the fees follow their account tier."
    }
   ]
  }
