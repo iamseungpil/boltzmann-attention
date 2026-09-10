@@ -24656,6 +24656,10 @@
    {
     "applies_to": "close_debit_card_4721",
     "text": "When the reason is 'lost', 'stolen' or 'fraud_suspected', the closing procedure's step at this point reads: \"Ask if they want to order a replacement card immediately.\" Closing is only half of it - the customer is left without a card until one is ordered. Ask, and if they want one, order it with order_debit_card_5739; the delivery option and the card design are theirs to choose and the fees follow their account tier."
+   },
+   {
+    "applies_to": "log_credit_card_closure_reason_4521",
+    "text": "The reason you are logging decides the next step, and it is not the tier offer. The protocol answers each reason on its own terms first: annual fee - waive the fee for a year with apply_credit_card_account_flag_6147 if they have been a customer 2+ years, or offer a permanent downgrade to a no-annual-fee card that preserves account history if under 2 years; not using the card - name the benefits they are missing and suggest a recurring subscription to keep it active; found a better card - ask what features drew them, and if Rho-Bank has a card that matches or beats it, offer to help them apply instead of closing; unhappy with rewards - check their enrolment in bonus categories and show how to earn more; negative experience - apologise, gather details, escalate if warranted. Only if the customer STILL wants to close after that does the tier offer come out, and only then."
    }
   ]
  }
