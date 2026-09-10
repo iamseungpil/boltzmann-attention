@@ -321,7 +321,7 @@ def _procedure(p):
     q["prohibits"] = {n: {"quote": s.get("_quote")} for n, s in (p.get("prohibits") or {}).items() if isinstance(s, dict)}
     q["nodes"] = [{k: v for k, v in n.items()
                    if k in ("id", "tool", "tool_any", "tool_prefix", "requires", "min_count", "skip_when_tokens",
-                             "said_tokens")}
+                             "said_tokens", "said_any")}
                   for n in p.get("nodes") or []]
     return q
 

@@ -23133,15 +23133,24 @@
           "_note_skip": "출처 축자 doc_credit_cards_credit_card_account_logistics_003 (Internal: Credit Card Retention Protocol) Step 2: \"If records exist for this account within that time frame, skip retention offers and proceed directly to processing the closure.\" Step 3 이 'Understand and Log the Reason' 이므로 그 skip 은 로깅을 뺀다. 판별력 실측(049): green='Found 1 record(s) in ...' 걸림 / eco·crypto='No closure reason records found' 안 걸림. ⚠정책의 'within the past year' 는 이 술어가 보지 않는다."
         },
         {
-          "id": "remedy",
-          "tool_any": [
-            "apply_credit_card_account_flag_6147",
-            "apply_for_credit_card"
-          ],
+          "id": "addressed",
           "requires": [
             "log_reason"
           ],
-          "_note": "Step 4 의 도구형 구제책. 나머지 가지(혜택 안내·보너스 카테고리·사과)는 발화라 노드가 아니다."
+          "skip_when_tokens": [
+            "record(s) in 'credit_card_closure_reasons'"
+          ],
+          "tool_any": [
+            "apply_credit_card_account_flag_6147"
+          ],
+          "said_any": [
+            "downgrade",
+            "bonus categor",
+            "recurring subscription",
+            "apolog",
+            "waive"
+          ],
+          "_note": "Step 4 'Address the Concern'. 문서가 사유마다 다른 대응을 적고 그중 도구로 관측되는 것은 연회비 면제 하나뿐이다(그것도 2년 이상일 때만). 나머지는 발화다 — 다운그레이드 제안·놓친 혜택과 정기결제·보너스 카테고리·사과. 그래서 이 노드는 **어느 쪽이든 하나가 기록에 오르면** 충족된다. 어느 가지가 맞는지는 LLM 이 판단하고(2년 이상인가 같은 것은 엔진이 볼 수 없다), 엔진은 그 단계가 일어났는지만 센다. Step 2 가 건너뛰라 한 계좌에서는 이 단계도 없다."
         },
         {
           "id": "offer",
@@ -23149,7 +23158,7 @@
             "statement credit"
           ],
           "requires": [
-            "log_reason"
+            "addressed"
           ],
           "skip_when_tokens": [
             "record(s) in 'credit_card_closure_reasons'"

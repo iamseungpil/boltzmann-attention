@@ -34,11 +34,12 @@ def _matches(node, name):
 def _done(node, executed, settled=()):
     if node.get("id") in settled:
         return True                        # settled without a call: waived by the source, or already said
-    if node.get("said_tokens"):
-        return False    # a disclosure is observable: it is on the record or it is not, never unknown
     tools = _tools(node)
     if not tools and not node.get("tool_prefix"):
-        return None                                   # unobservable step (a bound to check)
+        # A step the source lets you take more than one way is done when any of them is on the
+        # record - which one to take is the caller's judgement, not ours. With no way at all
+        # declared the step is unobservable and we say so rather than guess.
+        return False if (node.get("said_tokens") or node.get("said_any")) else None
     n = sum(v for k, v in executed.items() if _matches(node, k))
     return n >= int(node.get("min_count") or 1)
 
@@ -84,6 +85,11 @@ def settled_nodes(proc, turn, call):
         toks = n.get("said_tokens")
         # turn.said is normalised to lower case; the declared sentence is not
         if toks and all(str(t).lower() in turn.said for t in toks):
+            out.add(n["id"])
+        # said_any is the disjunction: the source names several ways to take one step, and any of
+        # the words it uses for them settles it. The engine counts; the caller chooses.
+        alt = n.get("said_any")
+        if alt and any(str(t).lower() in turn.said for t in alt):
             out.add(n["id"])
     return out
 

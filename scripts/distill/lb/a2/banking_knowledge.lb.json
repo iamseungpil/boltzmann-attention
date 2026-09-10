@@ -218,13 +218,22 @@
       ]
      },
      {
-      "id": "remedy",
-      "tool_any": [
-       "apply_credit_card_account_flag_6147",
-       "apply_for_credit_card"
-      ],
+      "id": "addressed",
       "requires": [
        "log_reason"
+      ],
+      "skip_when_tokens": [
+       "record(s) in 'credit_card_closure_reasons'"
+      ],
+      "tool_any": [
+       "apply_credit_card_account_flag_6147"
+      ],
+      "said_any": [
+       "downgrade",
+       "bonus categor",
+       "recurring subscription",
+       "apolog",
+       "waive"
       ]
      },
      {
@@ -233,7 +242,7 @@
        "statement credit"
       ],
       "requires": [
-       "log_reason"
+       "addressed"
       ],
       "skip_when_tokens": [
        "record(s) in 'credit_card_closure_reasons'"
