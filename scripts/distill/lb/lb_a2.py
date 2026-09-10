@@ -74,6 +74,9 @@ def migrate(domain):
         "dispatch": {"agent_call": d.get("agent_call"), "user_call": d.get("user_call"),
                      "unlock_tool": d.get("unlock_tool"), "give_tool": d.get("give_tool"),
                      "name_args": d.get("name_args") or {}, "payload_key": ep.get("dispatch_args_key") or "arguments"},
+        # past this many messages our layer stands down: base finished all 388 of its simulations
+        # inside 145 and passed none longer, so beyond it what we add is not working
+        "stand_down_messages": src.get("stand_down_messages"),
         "failure_markers": src.get("failure_markers") or [],
         # the subset of those that mean the tool ran and the verdict was negative
         "verdict_markers": src.get("verdict_markers") or [],
