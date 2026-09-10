@@ -179,6 +179,16 @@ for _t in json.load(io.open(os.path.join(ROOT, "a2", "banking_knowledge.specific
         check("catalogue %s actually ranks" % _t["name"],
               any(v is not None for v in _scored),
               "all %d rows scored None" % len(_scored))
+        # scoring the table row is not the test: the caller is handed facts, and keep_fields trims
+        # them. check_referral_options ranked on combined_bonus, keep_fields dropped that column, and
+        # every eligible row came back with a rank of None in catalogue order while the tool went on
+        # telling the caller the rows were sorted.
+        _out = lb2_decision.evaluate_op(_t["op"], dict(_ctx))
+        _elig = (_out or {}).get("eligible") or []
+        _key = _t["op"].get("rank_field", "score")
+        check("catalogue %s ranks the rows it hands back" % _t["name"],
+              not _elig or any(_e.get(_key) is not None for _e in _elig),
+              "all %d eligible rows scored None on %s" % (len(_elig), _key))
 
 # a rule authored as data but never wired to an engine is a rule that does not exist.
 # free_text_defaults sat in the declaration from 2026-08-31, naming the very tasks it was measured

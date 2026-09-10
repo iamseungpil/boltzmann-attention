@@ -22343,7 +22343,7 @@
    },
    {
     "name": "check_referral_options",
-    "description": "MANDATORY before telling a customer which account to refer someone to: formalize what they stated - how long they have banked here, how much the person they are referring will deposit, whether that person is opening a business account, how many referral bonuses they have already had this year for that account type - and call this tool. It returns 'eligible' (both sides meet the documented requirements), 'excluded' (with the requirement that fails) and 'unverified' (that requirement is NOT documented for that account type). Eligible rows are sorted by referrer_bonus, largest first, so the first one is the most the customer can earn. This tool says nothing about the rolling window: the number of bonuses already paid in the last nine days is a separate check you must still make before submitting. Recommend the first eligible account type and submit exactly that. The item name in the result is the name on file: pass it to the opening tool exactly as written, adding no words and dropping none - 'Sky Blue' is not 'Sky Blue Account'.",
+    "description": "MANDATORY before telling a customer which account to refer someone to: formalize what they stated - how long they have banked here, how much the person they are referring will deposit, whether that person is opening a business account, how many referral bonuses they have already had this year for that account type - and call this tool. It returns 'eligible' (both sides meet the documented requirements), 'excluded' (with the requirement that fails) and 'unverified' (that requirement is NOT documented for that account type). Every eligible row carries referrer_bonus (what the customer earns), referred_bonus (what the person they refer earns) and combined_bonus, the two added together; rows are sorted by referrer_bonus, largest first. Sorted is not chosen: read the three numbers and pick the row that answers what THIS customer asked for - the top row if they want the largest total, but the largest referrer_bonus instead if they asked only about their own bonus. This tool says nothing about the rolling window: the number of bonuses already paid in the last nine days is a separate check you must still make before submitting. The item name in the result is the name on file: pass it to the opening tool exactly as written, adding no words and dropping none - 'Sky Blue' is not 'Sky Blue Account'.",
     "params": {
      "referrer_tenure_days": "number, optional - days since the customer opened their first checking account here. Read it off their accounts, do not ask them to estimate.",
      "referred_deposit_amount": "number, optional - how much the customer said the person they are referring will deposit.",
@@ -22364,6 +22364,7 @@
       "account_type",
       "referrer_bonus",
       "referred_bonus",
+      "combined_bonus",
       "referrer_tenure_days",
       "annual_referral_limit",
       "qualifying_deposit",
@@ -22410,7 +22411,8 @@
        "deposit_window_days": 120,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_business_checking_accounts_beige_012"
+       "source": "doc_business_checking_accounts_beige_012",
+       "combined_bonus": 850
       },
       {
        "account_type": "Cobalt Blue Account",
@@ -22423,7 +22425,8 @@
        "deposit_window_days": 90,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_business_checking_accounts_cobalt_blue_001, doc_business_checking_accounts_cobalt_blue_005"
+       "source": "doc_business_checking_accounts_cobalt_blue_001, doc_business_checking_accounts_cobalt_blue_005",
+       "combined_bonus": 250
       },
       {
        "account_type": "Hunter Green Account",
@@ -22436,7 +22439,8 @@
        "deposit_window_days": null,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_business_checking_accounts_hunter_green_001"
+       "source": "doc_business_checking_accounts_hunter_green_001",
+       "combined_bonus": 300
       },
       {
        "account_type": "Lime Green Account",
@@ -22449,7 +22453,8 @@
        "deposit_window_days": 90,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_business_checking_accounts_lime_green_003"
+       "source": "doc_business_checking_accounts_lime_green_003",
+       "combined_bonus": 350
       },
       {
        "account_type": "Navy Blue Account",
@@ -22462,7 +22467,8 @@
        "deposit_window_days": 90,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_business_checking_accounts_navy_blue_001"
+       "source": "doc_business_checking_accounts_navy_blue_001",
+       "combined_bonus": 175
       },
       {
        "account_type": "Sky Blue Account",
@@ -22475,7 +22481,8 @@
        "deposit_window_days": 90,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_business_checking_accounts_sky_blue_001, doc_business_checking_accounts_sky_blue_002"
+       "source": "doc_business_checking_accounts_sky_blue_001, doc_business_checking_accounts_sky_blue_002",
+       "combined_bonus": 400
       },
       {
        "account_type": "True Blue Account",
@@ -22488,7 +22495,8 @@
        "deposit_window_days": 120,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_business_checking_accounts_true_blue_002"
+       "source": "doc_business_checking_accounts_true_blue_002",
+       "combined_bonus": 600
       },
       {
        "account_type": "World Blue Account",
@@ -22501,7 +22509,8 @@
        "deposit_window_days": null,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_business_checking_accounts_world_blue_001, doc_business_checking_accounts_world_blue_007"
+       "source": "doc_business_checking_accounts_world_blue_001, doc_business_checking_accounts_world_blue_007",
+       "combined_bonus": 500
       },
       {
        "account_type": "Blue Account",
@@ -22514,7 +22523,8 @@
        "deposit_window_days": 60,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_checking_accounts_blue_account_010"
+       "source": "doc_checking_accounts_blue_account_010",
+       "combined_bonus": 65
       },
       {
        "account_type": "Bluest Account",
@@ -22527,7 +22537,8 @@
        "deposit_window_days": null,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_checking_accounts_bluest_account_003"
+       "source": "doc_checking_accounts_bluest_account_003",
+       "combined_bonus": 125
       },
       {
        "account_type": "Dark Green Account",
@@ -22540,7 +22551,8 @@
        "deposit_window_days": 60,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_checking_accounts_dark_green_account_010"
+       "source": "doc_checking_accounts_dark_green_account_010",
+       "combined_bonus": 70
       },
       {
        "account_type": "Evergreen Account",
@@ -22553,7 +22565,8 @@
        "deposit_window_days": 60,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_checking_accounts_evergreen_account_001, doc_checking_accounts_evergreen_account_007"
+       "source": "doc_checking_accounts_evergreen_account_001, doc_checking_accounts_evergreen_account_007",
+       "combined_bonus": 60
       },
       {
        "account_type": "Gold Years Account",
@@ -22566,7 +22579,8 @@
        "deposit_window_days": 90,
        "holder_min_age_years": 62,
        "age_restricted": true,
-       "source": "doc_checking_accounts_gold_years_account_010"
+       "source": "doc_checking_accounts_gold_years_account_010",
+       "combined_bonus": 125
       },
       {
        "account_type": "Green Account",
@@ -22579,7 +22593,8 @@
        "deposit_window_days": 60,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_checking_accounts_green_account_(checking)_001"
+       "source": "doc_checking_accounts_green_account_(checking)_001",
+       "combined_bonus": 50
       },
       {
        "account_type": "Green Fee-Free Account",
@@ -22592,7 +22607,8 @@
        "deposit_window_days": 60,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_checking_accounts_green_fee-free_account_007"
+       "source": "doc_checking_accounts_green_fee-free_account_007",
+       "combined_bonus": 55
       },
       {
        "account_type": "Light Blue Account",
@@ -22605,7 +22621,8 @@
        "deposit_window_days": 60,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_checking_accounts_light_blue_account_007"
+       "source": "doc_checking_accounts_light_blue_account_007",
+       "combined_bonus": 50
       },
       {
        "account_type": "Light Green Account",
@@ -22618,7 +22635,8 @@
        "deposit_window_days": 90,
        "holder_min_age_years": 13,
        "age_restricted": true,
-       "source": "doc_checking_accounts_light_green_account_001, doc_checking_accounts_light_green_account_002"
+       "source": "doc_checking_accounts_light_green_account_001, doc_checking_accounts_light_green_account_002",
+       "combined_bonus": 40
       },
       {
        "account_type": "Purple Account",
@@ -22631,7 +22649,8 @@
        "deposit_window_days": 60,
        "holder_min_age_years": null,
        "age_restricted": false,
-       "source": "doc_checking_accounts_purple_account_011"
+       "source": "doc_checking_accounts_purple_account_011",
+       "combined_bonus": 80
       }
      ]
     },
