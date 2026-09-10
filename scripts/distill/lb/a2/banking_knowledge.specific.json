@@ -28878,6 +28878,10 @@
     "table": {
       "verdict": "pending",
       "why": "the credit-limit-increase procedure's tier-dependent argument bounds: which table holds the number, which operand selects the row, and what the chosen argument must then satisfy. Declared on two nodes of that one procedure and dropped by the node whitelist at migration; no engine reads any of the six."
+    },
+    "GB2_NOTICE_BEFORE_TRANSFER": {
+      "verdict": "pending",
+      "why": "the ask-first notice before a transfer. lb_a2 turns a gate into a tool-prerequisite edge and skips any gate with no satisfiers; GB2 is satisfied by an utterance to the customer, not by a tool call, so it is dropped and does not exist in this stack. Its own note records the target: EARLY_TRANSFER, 36 simulations, 21.2% of transfers outside gold. task_088 is one - it transferred with the TRANSFER NOTICE never sent and no write performed, where gold files the dispute, closes the card and orders the replacement before transferring."
     }
   }
 }

@@ -243,7 +243,7 @@ _unaccounted = [k for k in _unwired if k not in _reg]
 check("every declaration key reaches an engine or the migration register", not _unaccounted,
       "unaccounted: %s" % _unaccounted)
 _nodekeys = {k for p in _decl.get("procedures") or [] for n in p.get("nodes") or [] for k in n
-             if not k.startswith("_")}
+             if not k.startswith("_")} | {g.get("id") for g in _decl.get("gates") or []}
 _stale = sorted(k for k in _reg if k not in _unwired and k not in _nodekeys)
 check("the migration register holds nothing already wired", not _stale, "stale: %s" % _stale)
 _pending = sorted(k for k, v in _reg.items() if (v or {}).get("verdict") == "pending")
@@ -315,6 +315,16 @@ check("a procedure step its source waives is not enforced", not _closes("cc_x_gr
       "denied the closure of a card whose history already holds a record")
 check("the same step still stands where the source does not waive it",
       bool(_closes("cc_x_crypto", _NONE)), "no denial where no record exists")
+
+# A gate is a rule, and migration turns it into a tool-prerequisite edge - which it can only do
+# when the gate names tools that satisfy it. GB2 is satisfied by sending the customer a sentence,
+# so it has no satisfiers, so it was skipped, so the ask-first notice before a transfer does not
+# exist here. task_088 transferred with no notice and no work done. A gate either reaches the
+# procedures or is entered in the register.
+_gate_ids = {g.get("id") for g in _decl.get("gates") or []}
+_reached = {str(p.get("id", "")).split(":")[0] for p in (A2.get("LB1") or {}).get("procedures") or []}
+_lost = sorted(_gate_ids - _reached - set(_decl.get("_note_migration") or {}))
+check("every declared gate reaches the procedures or the register", not _lost, "lost: %s" % _lost)
 
 # A policy sentence carried to a write must survive the exit. Every write in this domain is
 # reached through a dispatcher, so the call's own name is call_discoverable_agent_tool; the advice
