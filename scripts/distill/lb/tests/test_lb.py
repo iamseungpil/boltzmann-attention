@@ -179,6 +179,21 @@ for _t in json.load(io.open(os.path.join(ROOT, "a2", "banking_knowledge.specific
         check("catalogue %s actually ranks" % _t["name"],
               any(v is not None for v in _scored),
               "all %d rows scored None" % len(_scored))
+        # a catalogue must not present an order it could not compute. task_067 called
+        # check_checking_account_fit with every field empty; six accounts came back in catalogue
+        # order carrying a score of None, the model opened the third, and the answer was the sixth.
+        # With nothing to rank on, the result has to say so, drop the empty score, and keep every
+        # row - `top` cuts an unordered list at an arbitrary place.
+        _bare = lb2_decision.evaluate_op(_t["op"], {}) or {}
+        _rows = _bare.get("eligible") or []
+        _k = _t["op"].get("rank_field", "score")
+        if _rows and all(_e.get(_k) is None for _e in _rows):
+            check("catalogue %s says so when it cannot rank" % _t["name"],
+                  "NOT RANKED" in (_bare.get("note") or "")
+                  and not any(_k in _e for _e in _rows)
+                  and ("cut to the first" in (_bare.get("note") or "")
+                       or len(_rows) < (_t["op"].get("top") or 99) + 1),
+                  "presented %d rows in table order as though ranked" % len(_rows))
         # scoring the table row is not the test: the caller is handed facts, and keep_fields trims
         # them. check_referral_options ranked on combined_bonus, keep_fields dropped that column, and
         # every eligible row came back with a rank of None in catalogue order while the tool went on

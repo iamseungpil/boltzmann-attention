@@ -415,11 +415,49 @@ def _catalog_filter(spec, ctx):
             e[spec.get("rank_field", "score")] = val(dict(ctx, r=e["facts"]), spec["rank"])
         key = spec.get("rank_field", "score")
         elig.sort(key=lambda e: (e[key] is not None, e[key] if e[key] is not None else 0), reverse=True)
+    note = spec.get("note", "")
+    key = spec.get("rank_field", "score")
+    unranked = bool(spec.get("rank")) and bool(elig) and all(e.get(key) is None for e in elig)
+    if unranked:
+        # Nothing could be scored, so what follows is the catalogue's own order and the caller reads
+        # the first row as the answer. task_067 called check_checking_account_fit with every field
+        # empty, got six accounts in table order carrying a score of None, and opened the third; the
+        # answer was the sixth. Say so and drop the empty score. The cut stays - without it the
+        # savings catalogue answers an empty call with 168 rows and 97,000 characters - but the note
+        # says the list is both unordered and cut, so the first row is not read as a verdict.
+        for e in elig:
+            e.pop(key, None)
+        need = sorted(n for n in _rank_inputs(spec["rank"], set()) if num(ctx.get(n)) is None)
+        cut = bool(spec.get("top")) and len(elig) > spec["top"]
+        note = (note + " NOT RANKED: these rows are in catalogue order, not best-first, because "
+                "%s was not supplied.%s The first row is not the answer - call again with %s to have "
+                "them ranked, or compare the facts yourself."
+                % (", ".join(need) or "the figures the ranking needs",
+                   " They are also cut to the first %d of %d." % (spec["top"], len(elig)) if cut else "",
+                   ", ".join(need) or "those figures")).strip()
     if spec.get("top"):
         # a ranked catalogue is read top-down; handing back all of it costs more context than it informs
         elig = elig[:spec["top"]]
     return {"eligible": elig, "excluded": _by_reason(excl, "reason"),
-            "unverified": _by_reason(unver, "undocumented"), "note": spec.get("note", "")}
+            "unverified": _by_reason(unver, "undocumented"), "note": note}
+
+
+def _rank_inputs(node, out):
+    """The caller-supplied names a rank expression reads. "r.<column>" is a row's own fact; every
+    other bare string is something the caller has to pass before the arithmetic can run."""
+    if isinstance(node, str):
+        # a name, not an operator: ">=" is the cmp of a comparison inside the expression, not
+        # something the caller can pass, and naming it in the note asked for a figure called ">="
+        if not node.startswith("r.") and node.replace("_", "").isalnum():
+            out.add(node)
+    elif isinstance(node, dict):
+        for k, v in node.items():
+            if k != "op":
+                _rank_inputs(v, out)
+    elif isinstance(node, list):
+        for v in node:
+            _rank_inputs(v, out)
+    return out
 
 
 def _stated_value(elig, spec, ctx):
