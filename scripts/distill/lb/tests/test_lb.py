@@ -356,6 +356,8 @@ _REC = ("Closure reason history for credit card account cc_x_green:" + _NL
         + "   credit_card_account_id: cc_x_green")
 _NONE = ("Closure reason history for credit card account cc_x_crypto:" + _NL
          + "No closure reason records found for this credit card account.")
+_ADDRESSED = ("Since you have had the card under two years I can offer a permanent downgrade to a "
+              "no-annual-fee card instead of closing it.")
 _OFFER = "I can add 500 bonus points or a $5 statement credit if you keep the card open."
 _RUN = {"get_user_dispute_history_7291": 1, "get_pending_replacement_orders_5765": 1,
         "get_closure_reason_history_8293": 1, "log_credit_card_closure_reason_4521": 1}
@@ -371,9 +373,16 @@ def _closure(card, hist, said):
             if f.primitive == lb1_requirements.DENY]
 
 
-check("closure waits for the retention offer", bool(_closure("cc_x_crypto", _NONE, None)))
-check("and proceeds once the offer is on the record", not _closure("cc_x_crypto", _NONE, _OFFER))
-check("and proceeds with no offer where the source skips retention",
+check("closure waits for the concern and the offer",
+      bool(_closure("cc_x_crypto", _NONE, None)))
+check("the offer alone does not clear it - the concern comes first",
+      bool(_closure("cc_x_crypto", _NONE, _OFFER)))
+check("and proceeds once both are on the record",
+      not _closure("cc_x_crypto", _NONE, _ADDRESSED + " " + _OFFER))
+check("either documented way of addressing it settles that step",
+      not _closure("cc_x_crypto", _NONE,
+                   "Let me check your enrolment in the bonus categories you are missing. " + _OFFER))
+check("and proceeds with neither where the source skips retention",
       not _closure("cc_x_green", _REC, None))
 
 # A policy sentence carried to a write must survive the exit. Every write in this domain is
