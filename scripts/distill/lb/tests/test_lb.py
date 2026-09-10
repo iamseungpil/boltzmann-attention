@@ -356,34 +356,35 @@ _REC = ("Closure reason history for credit card account cc_x_green:" + _NL
         + "   credit_card_account_id: cc_x_green")
 _NONE = ("Closure reason history for credit card account cc_x_crypto:" + _NL
          + "No closure reason records found for this credit card account.")
-_ADDRESSED = ("Since you have had the card under two years I can offer a permanent downgrade to a "
-              "no-annual-fee card instead of closing it.")
-_OFFER = "I can add 500 bonus points or a $5 statement credit if you keep the card open."
 _RUN = {"get_user_dispute_history_7291": 1, "get_pending_replacement_orders_5765": 1,
         "get_closure_reason_history_8293": 1, "log_credit_card_closure_reason_4521": 1}
 
 
-def _closure(card, hist, said):
+def _closure(card, hist, yes=()):
+    """yes: which of the step questions the isolated sub-call answers YES to."""
+    def _ask(prompt, name="lb_ask"):
+        return "YES" if any(k in prompt for k in yes) else "NO"
+
     _c = _C("call_discoverable_agent_tool",
             {"agent_tool_name": "close_credit_card_account_7834",
              "arguments": {"credit_card_account_id": card}})
-    _msgs = [_M("tool", hist)] + ([_M("assistant", said)] if said else [])
-    _t = _Turn(_A2, _msgs, _M(calls=[_c]), executed=dict(_RUN))
+    _t = _Turn(_A2, [_M("tool", hist), _M("assistant", "we have been talking")], _M(calls=[_c]),
+               executed=dict(_RUN), extras={"ask": _ask})
     return [f for f in lb1_requirements.procedure_findings(_t, _c)
             if f.primitive == lb1_requirements.DENY]
 
 
-check("closure waits for the concern and the offer",
-      bool(_closure("cc_x_crypto", _NONE, None)))
+check("closure waits for the concern and the offer", bool(_closure("cc_x_crypto", _NONE)))
 check("the offer alone does not clear it - the concern comes first",
-      bool(_closure("cc_x_crypto", _NONE, _OFFER)))
+      bool(_closure("cc_x_crypto", _NONE, yes=("Step 5",))))
 check("and proceeds once both are on the record",
-      not _closure("cc_x_crypto", _NONE, _ADDRESSED + " " + _OFFER))
-check("either documented way of addressing it settles that step",
-      not _closure("cc_x_crypto", _NONE,
-                   "Let me check your enrolment in the bonus categories you are missing. " + _OFFER))
+      not _closure("cc_x_crypto", _NONE, yes=("Step 4", "Step 5")))
+check("the step question goes to a sub-call, not to a word match",
+      "done_when" in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read()
+      and "said_any" not in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read())
 check("and proceeds with neither where the source skips retention",
-      not _closure("cc_x_green", _REC, None))
+      not _closure("cc_x_green", _REC))
+
 
 # A policy sentence carried to a write must survive the exit. Every write in this domain is
 # reached through a dispatcher, so the call's own name is call_discoverable_agent_tool; the advice

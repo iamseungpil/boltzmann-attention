@@ -23143,27 +23143,19 @@
           "tool_any": [
             "apply_credit_card_account_flag_6147"
           ],
-          "said_any": [
-            "downgrade",
-            "bonus categor",
-            "recurring subscription",
-            "apolog",
-            "waive"
-          ],
-          "_note": "Step 4 'Address the Concern'. 문서가 사유마다 다른 대응을 적고 그중 도구로 관측되는 것은 연회비 면제 하나뿐이다(그것도 2년 이상일 때만). 나머지는 발화다 — 다운그레이드 제안·놓친 혜택과 정기결제·보너스 카테고리·사과. 그래서 이 노드는 **어느 쪽이든 하나가 기록에 오르면** 충족된다. 어느 가지가 맞는지는 LLM 이 판단하고(2년 이상인가 같은 것은 엔진이 볼 수 없다), 엔진은 그 단계가 일어났는지만 센다. Step 2 가 건너뛰라 한 계좌에서는 이 단계도 없다."
+          "_note": "Step 4 'Address the Concern'. 문서가 사유마다 다른 대응을 적고 그중 도구로 관측되는 것은 연회비 면제 하나뿐이다(그것도 2년 이상일 때만). 나머지는 발화다 — 다운그레이드 제안·놓친 혜택과 정기결제·보너스 카테고리·사과. 그래서 이 노드는 **어느 쪽이든 하나가 기록에 오르면** 충족된다. 어느 가지가 맞는지는 LLM 이 판단하고(2년 이상인가 같은 것은 엔진이 볼 수 없다), 엔진은 그 단계가 일어났는지만 센다. Step 2 가 건너뛰라 한 계좌에서는 이 단계도 없다.",
+          "done_when": "The credit card retention protocol's Step 4 says to address the customer's stated reason on its own terms before any retention offer: for an annual fee, waive it for a year if they have been a customer 2+ years or offer a permanent downgrade to a no-annual-fee card if less; for not using the card, name the benefits they are missing and suggest a recurring subscription; for having found a better card, ask what drew them and offer a Rho-Bank card that matches it to apply for instead of closing; for being unhappy with rewards, check their bonus category enrolment and show how to earn more; for a negative experience, apologise and gather details. Has the agent done this for the card being closed?"
         },
         {
           "id": "offer",
-          "said_tokens": [
-            "statement credit"
-          ],
           "requires": [
             "addressed"
           ],
           "skip_when_tokens": [
             "record(s) in 'credit_card_closure_reasons'"
           ],
-          "_note": "Step 5 \"make one retention offer\" 는 발화로 충족된다. 모든 등급의 제안에 statement credit 이 들어간다(500 points or a $5 statement credit / 2,000 or $20 / 5,000 or $50). Step 2 가 건너뛰라 한 계좌에서는 이 단계도 없다."
+          "_note": "Step 5 \"make one retention offer\" 는 발화로 충족된다. 모든 등급의 제안에 statement credit 이 들어간다(500 points or a $5 statement credit / 2,000 or $20 / 5,000 or $50). Step 2 가 건너뛰라 한 계좌에서는 이 단계도 없다.",
+          "done_when": "The retention protocol's Step 5 says to make one retention offer based on the card's tier - 500 bonus points or a $5 statement credit for entry tier, 2,000 or $20 for mid, 5,000 or $50 for premium and above. Has the agent put such an offer to the customer for the card being closed?"
         },
         {
           "id": "close",

@@ -228,25 +228,17 @@
       "tool_any": [
        "apply_credit_card_account_flag_6147"
       ],
-      "said_any": [
-       "downgrade",
-       "bonus categor",
-       "recurring subscription",
-       "apolog",
-       "waive"
-      ]
+      "done_when": "The credit card retention protocol's Step 4 says to address the customer's stated reason on its own terms before any retention offer: for an annual fee, waive it for a year if they have been a customer 2+ years or offer a permanent downgrade to a no-annual-fee card if less; for not using the card, name the benefits they are missing and suggest a recurring subscription; for having found a better card, ask what drew them and offer a Rho-Bank card that matches it to apply for instead of closing; for being unhappy with rewards, check their bonus category enrolment and show how to earn more; for a negative experience, apologise and gather details. Has the agent done this for the card being closed?"
      },
      {
       "id": "offer",
-      "said_tokens": [
-       "statement credit"
-      ],
       "requires": [
        "addressed"
       ],
       "skip_when_tokens": [
        "record(s) in 'credit_card_closure_reasons'"
-      ]
+      ],
+      "done_when": "The retention protocol's Step 5 says to make one retention offer based on the card's tier - 500 bonus points or a $5 statement credit for entry tier, 2,000 or $20 for mid, 5,000 or $50 for premium and above. Has the agent put such an offer to the customer for the card being closed?"
      },
      {
       "id": "close",

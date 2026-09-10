@@ -39,7 +39,7 @@ def _done(node, executed, settled=()):
         # A step the source lets you take more than one way is done when any of them is on the
         # record - which one to take is the caller's judgement, not ours. With no way at all
         # declared the step is unobservable and we say so rather than guess.
-        return False if (node.get("said_tokens") or node.get("said_any")) else None
+        return False if (node.get("said_tokens") or node.get("done_when")) else None
     n = sum(v for k, v in executed.items() if _matches(node, k))
     return n >= int(node.get("min_count") or 1)
 
@@ -52,6 +52,24 @@ def active(procs, executed, user_text):
         if not ew or set(ew.get("tool_any") or []) & ran or any(s.lower() in user_text for s in ew.get("signals") or []):
             out.append(p)
     return out
+
+
+def _asked(turn, node, question):
+    """Put the step's own description to an isolated sub-call and take the word it answers with.
+
+    The engine does not read the conversation for meaning; it asks and counts. The answer contract
+    is ours - one word - so nothing here interprets prose.
+    """
+    ask = (getattr(turn, "extras", None) or {}).get("ask")
+    said = getattr(turn, "said", "") or ""
+    if not ask or not said.strip():
+        return False
+    prompt = (question + chr(10) + chr(10)
+              + "Here is everything the agent has said to the customer so far:" + chr(10) + chr(10)
+              + said[-12000:] + chr(10) + chr(10)
+              + "Answer with one word, YES or NO.")
+    out = str(ask(prompt, "lb1_step") or "").strip().upper()
+    return out.startswith("YES")
 
 
 def settled_nodes(proc, turn, call):
@@ -86,10 +104,13 @@ def settled_nodes(proc, turn, call):
         # turn.said is normalised to lower case; the declared sentence is not
         if toks and all(str(t).lower() in turn.said for t in toks):
             out.add(n["id"])
-        # said_any is the disjunction: the source names several ways to take one step, and any of
-        # the words it uses for them settles it. The engine counts; the caller chooses.
-        alt = n.get("said_any")
-        if alt and any(str(t).lower() in turn.said for t in alt):
+        # A step whose only trace is something said cannot be recognised by matching words - the
+        # wording is the model's, not ours, and a substring test is a guess dressed as a check.
+        # done_when hands the question to an isolated sub-call instead: the declaration carries the
+        # source's own description of the step, the sub-call answers whether it has happened, and
+        # this engine reads only the one word it asked for.
+        q = n.get("done_when")
+        if q and _asked(turn, n, q):
             out.add(n["id"])
     return out
 
