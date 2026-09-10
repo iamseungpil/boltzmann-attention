@@ -24598,6 +24598,10 @@
    {
     "applies_to": "file_debit_card_transaction_dispute",
     "text": "Maximum liability by reporting timing: reported within 2 business days of the statement = $50; reported within 60 days of the statement = $500; reported after 60 days = unlimited liability, and the tool takes -1 for unlimited."
+   },
+   {
+    "applies_to": "close_bank_account_7392",
+    "text": "Opening a personal savings account requires an active checking account whose tenure is at least 14 days. Closing a checking account can leave the customer without one that qualifies. If they have also asked for a savings account, open it before closing anything, and check the opening date of the checking accounts that would remain."
    }
   ]
  }
