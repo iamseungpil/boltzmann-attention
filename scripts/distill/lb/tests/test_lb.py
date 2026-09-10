@@ -236,6 +236,7 @@ if _pending:
     print("     debt: %d declarations measured and not yet wired - %s"
           % (len(_pending), " ".join(_pending)))
 
+
 # We must not hand the agent the name of a tool it cannot call. check_card_application_fit's
 # description ended "The card_type you then pass to apply_for_credit_card ...", and that tool is the
 # customer's - declared in this same file as recommendation_verify.action_tool. task_023 sim1 spent
@@ -300,6 +301,32 @@ check("a procedure step its source waives is not enforced", not _closes("cc_x_gr
 check("the same step still stands where the source does not waive it",
       bool(_closes("cc_x_crypto", _NONE)), "no denial where no record exists")
 
+# A policy sentence carried to a write must survive the exit. Every write in this domain is
+# reached through a dispatcher, so the call's own name is call_discoverable_agent_tool; the advice
+# window compared that name against the target and was shut for all of them. 085 logged sixteen
+# conflict lines for its write rules and emitted none of them, four simulations out of four.
+import lb7_material
+import lb_coordinator
+
+
+def _reaches(inner):
+    _c = _C("call_discoverable_agent_tool", {"agent_tool_name": inner, "arguments": {}})
+    _t = _Turn(_A2, [_M("user", "go ahead")], _M(calls=[_c]))
+    return lb_coordinator.say(_t, lb7_material.write_rules(_t)).advice
+
+
+_rules = (_A2.get("LB7") or {}).get("write_rules") or []
+def _as_registered(name):
+    # the environment serves these with a numeric suffix; a rule may be declared with or without one
+    return name if name.rsplit("_", 1)[-1].isdigit() else name + "_0000"
+
+
+_mute = sorted({r["applies_to"] for r in _rules
+                if r.get("text") and not _reaches(_as_registered(r["applies_to"]))})
+check("a write rule reaches the model on the turn that reaches for its tool", not _mute,
+      "silent for: %s" % _mute)
+check("and stays quiet on a tool it was not written for",
+      not _reaches("get_user_information_by_name"))
 # The register above sees only the top level. conditional_fields sat four levels down, inside the
 # card catalogue's op, declared 2026-07-25 and read by nothing: task_003 held the premium
 # subscription that zeroes the Silver card's foreign fee, and the catalogue excluded the one card

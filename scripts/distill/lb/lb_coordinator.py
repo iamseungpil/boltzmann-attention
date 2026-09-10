@@ -274,13 +274,27 @@ def _merge(turn, winner, group, order_ok=True):
     return (head + " " + " ".join(x for x in facts if x != head)).strip()
 
 
-def window_opened(am, targets, name_of):
-    """The model is leaving: resigning (text, no calls), acting on a target, or instructing one."""
+def window_opened(am, targets, names_of):
+    """The model is leaving: resigning (text, no calls), acting on a target, or instructing one.
+
+    A discoverable tool is reached through a dispatcher, so the call's own name is
+    unlock_discoverable_agent_tool or call_discoverable_agent_tool and never the target itself.
+    Comparing only that name kept this window shut for every discoverable write in the domain: LB7
+    carried its policy sentence to the turn the model reached for the tool, resolve built the
+    advice, a conflict line was written for it, and the exit dropped it - 085 recorded sixteen of
+    those lines and not one write-rule advice, in four simulations out of four. So the names a call
+    is judged by include the one it names.
+    """
     calls = list(getattr(am, "tool_calls", None) or [])
     text = str(getattr(am, "content", "") or "")
     if not calls and text.strip():
         return True
-    return any(name_of(c) in targets for c in calls) or any(t and t in text for t in targets)
+    for c in calls:
+        got = names_of(c)
+        for n in ([got] if isinstance(got, str) else list(got or [])):
+            if n and n in targets:
+                return True
+    return any(t and t in text for t in targets)
 
 
 def admit(owner, tag, text):
@@ -323,7 +337,8 @@ def say(turn, findings, owner=None):
     """The single exit: window -> fingerprint -> budget -> conflict record."""
     d = resolve(findings, turn)
     targets = {f.target for f in d.won.values() if f.target}
-    if d.advice and not window_opened(turn.am, targets, turn.name_of):
+    if d.advice and not window_opened(turn.am, targets, lambda c: (
+            turn.name_of(c), fam(turn.name_of(c)), fam(turn.named(c) or ""))):
         d.trace.append(("window", "closed", len(d.advice)))
         d.advice, d.advice_rules = [], []
     if owner is not None:
