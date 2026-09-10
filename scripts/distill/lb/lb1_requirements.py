@@ -31,7 +31,9 @@ def _matches(node, name):
     return name in _tools(node) or (node.get("tool_prefix") and name.startswith(node["tool_prefix"]))
 
 
-def _done(node, executed):
+def _done(node, executed, waived=()):
+    if node.get("id") in waived:
+        return True                                   # the policy's own conditional took this step out
     tools = _tools(node)
     if not tools and not node.get("tool_prefix"):
         return None                                   # unobservable step (a bound to check)
@@ -49,7 +51,33 @@ def active(procs, executed, user_text):
     return out
 
 
-def unmet(proc, node, executed):
+def waived_nodes(proc, turn, call):
+    """Node ids the procedure's own source takes out of it for this subject.
+
+    The retention protocol reads: "If records exist for this account within that time frame, skip
+    retention offers and proceed directly to processing the closure." task_049's Green card carried
+    such a record; the model read it, said it would close directly, and we denied the closure until
+    it logged a reason. That put a row on an account gold never touches - four simulations out of
+    four - and the reason word it invented there was the one it then reused on the account gold does
+    judge, where the customer had given a different reason out loud. The tokens are the format
+    string the environment prints for itself, checked for co-presence with the subject id; nothing
+    here parses the record. The policy bounds this by "within the past year" and this test does not
+    read the date, so a record older than a year waives a step the policy would still want.
+    """
+    subject = turn.args_of(call).get(proc["id_key"]) if proc.get("id_key") else None
+    out = set()
+    for n in proc.get("nodes") or []:
+        toks = n.get("skip_when_tokens")
+        if not toks:
+            continue
+        for o in turn.tool_outputs():
+            if all(t in o for t in toks) and (subject is None or str(subject) in o):
+                out.add(n["id"])
+                break
+    return out
+
+
+def unmet(proc, node, executed, waived=()):
     """Prerequisite node ids of `node` that have not run (transitive, declaration order)."""
     by_id = {n["id"]: n for n in proc.get("nodes") or []}
     seen, out, stack = set(), [], list(node.get("requires") or [])
@@ -58,16 +86,16 @@ def unmet(proc, node, executed):
         if nid in seen or nid not in by_id:
             continue
         seen.add(nid)
-        if _done(by_id[nid], executed) is False:
+        if _done(by_id[nid], executed, waived) is False:
             out.append(nid)
         stack.extend(by_id[nid].get("requires") or [])
     return sorted(out, key=[n["id"] for n in proc.get("nodes") or []].index)
 
 
-def ready(proc, executed):
+def ready(proc, executed, waived=()):
     """Nodes not done whose own prerequisites are all done."""
     return [n for n in proc.get("nodes") or []
-            if _done(n, executed) is False and not unmet(proc, n, executed)]
+            if _done(n, executed, waived) is False and not unmet(proc, n, executed, waived)]
 
 
 def mandatory(proc):
@@ -88,14 +116,14 @@ def changes_state(a2, name):
     return not writes or fam(name) in writes
 
 
-def state_slots(proc, executed, unlocked):
+def state_slots(proc, executed, unlocked, waived=()):
     rows, done = [], 0
     for n in proc.get("nodes") or []:
-        ok = _done(n, executed)
+        ok = _done(n, executed, waived)
         done += ok is True
         rows.append("[%s] %s%s" % ("x" if ok else ("?" if ok is None else " "), n["id"],
                                    (" -> " + "/".join(_tools(n))) if ok is False and _tools(n) else ""))
-    cands = ready(proc, executed)
+    cands = ready(proc, executed, waived)
     nxt = cands[0] if len(cands) == 1 and mandatory(proc) else None
     ntool = (_tools(nxt) or [""])[0] if nxt else ""
     return {"procedure": proc.get("id", ""), "done": done, "total": len(proc.get("nodes") or []),
@@ -119,10 +147,11 @@ def procedure_findings(turn, call):
         node = next((n for n in p.get("nodes") or [] if _matches(n, name)), None)
         if node is None:
             continue
-        missing = unmet(p, node, turn.executed)
+        waived = waived_nodes(p, turn, call)
+        missing = unmet(p, node, turn.executed, waived)
         if not missing:
             continue
-        slots = state_slots(p, turn.executed, turn.unlocked)
+        slots = state_slots(p, turn.executed, turn.unlocked, waived)
         slots["unlock_hint"] = fill(slots["unlock_hint"], **slots)
         text = fill(fb.get("unmet", ""), tool=name, missing=", ".join(missing),
                     source=", ".join(p.get("_source") or [])[:120], **slots)

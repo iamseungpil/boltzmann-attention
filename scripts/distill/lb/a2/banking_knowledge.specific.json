@@ -23104,7 +23104,11 @@
           "requires": [
             "prior_attempts"
           ],
-          "_quote": "Ask the customer why they want to close their account. Then log it using log_credit_card_closure_reason_4521."
+          "_quote": "Ask the customer why they want to close their account. Then log it using log_credit_card_closure_reason_4521.",
+          "skip_when_tokens": [
+            "record(s) in 'credit_card_closure_reasons'"
+          ],
+          "_note_skip": "출처 축자 doc_credit_cards_credit_card_account_logistics_003 (Internal: Credit Card Retention Protocol) Step 2: \"If records exist for this account within that time frame, skip retention offers and proceed directly to processing the closure.\" Step 3 이 'Understand and Log the Reason' 이므로 그 skip 은 로깅을 뺀다. 판별력 실측(049): green='Found 1 record(s) in ...' 걸림 / eco·crypto='No closure reason records found' 안 걸림. ⚠정책의 'within the past year' 는 이 술어가 보지 않는다."
         },
         {
           "id": "outcome",
@@ -23146,7 +23150,9 @@
         "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}."
       },
       "_note_procedure": "★2026-08-05: x83 실측 — 이 계열 9 태스크가 공유 코어 8종을 갖고, 각 태스크 gold의 50~86%가 그 코어다(9/9가 요구하는 도구 3종). 즉 태스크가 아니라 **절차 하나**다. 실패 지점도 공통: Step 5 보유 제안 미실행 · discoverable 도구 미발견 · 그로 인한 ctx 사망.",
-      "_note_nodes": "★2026-08-05 교정(x91 gold-경로 게이트): 구판은 ① `eligibility`(=check_card_closure_eligibility 호출)를 Step2~6의 **선행**으로 걸고 ② `close`에 `retention_offer`를 **필수**로 걸었다. 정책 원문은 둘 다 말하지 않는다 — Step 1은 *'Check these in order: 1. Pending disputes 2. No pending replacement cards 3. Minimum account age 4. Outstanding balance'* 라는 **확인 4가지**이지 특정 도구 호출이 아니고, Step 2는 *'If records exist ... skip retention offers and proceed directly to processing the closure'* 로 **보유 제안의 우회를 명시**한다. 그 과잉 규정이 gold 경로를 6 태스크·47곳에서 막고 있었다(x91). 보유-제안은 조건이 도구 **출력 내용**에 달려 있어 우리에겐 닫히지 않으므로 **표면화만** 한다."
+      "_note_nodes": "★2026-08-05 교정(x91 gold-경로 게이트): 구판은 ① `eligibility`(=check_card_closure_eligibility 호출)를 Step2~6의 **선행**으로 걸고 ② `close`에 `retention_offer`를 **필수**로 걸었다. 정책 원문은 둘 다 말하지 않는다 — Step 1은 *'Check these in order: 1. Pending disputes 2. No pending replacement cards 3. Minimum account age 4. Outstanding balance'* 라는 **확인 4가지**이지 특정 도구 호출이 아니고, Step 2는 *'If records exist ... skip retention offers and proceed directly to processing the closure'* 로 **보유 제안의 우회를 명시**한다. 그 과잉 규정이 gold 경로를 6 태스크·47곳에서 막고 있었다(x91). 보유-제안은 조건이 도구 **출력 내용**에 달려 있어 우리에겐 닫히지 않으므로 **표면화만** 한다.",
+      "id_key": "credit_card_account_id",
+      "_note_id_key": "2026-09-10: the subject of this procedure is one card account, so a step waived by the source is waived for that account only."
     },
     {
       "id": "incident_transfer_order",
@@ -28827,6 +28833,30 @@
     "write_initiation": {
       "verdict": "not_migrated",
       "why": "the prompt that puts one write decision in isolation with the audit results already in the conversation. Same mechanism as function_agents: this stack decides at the turn, not in a separate isolated call."
+    },
+    "arg_from_table": {
+      "verdict": "pending",
+      "why": "the credit-limit-increase procedure's tier-dependent argument bounds: which table holds the number, which operand selects the row, and what the chosen argument must then satisfy. Declared on two nodes of that one procedure and dropped by the node whitelist at migration; no engine reads any of the six."
+    },
+    "kind": {
+      "verdict": "pending",
+      "why": "the credit-limit-increase procedure's tier-dependent argument bounds: which table holds the number, which operand selects the row, and what the chosen argument must then satisfy. Declared on two nodes of that one procedure and dropped by the node whitelist at migration; no engine reads any of the six."
+    },
+    "operand": {
+      "verdict": "pending",
+      "why": "the credit-limit-increase procedure's tier-dependent argument bounds: which table holds the number, which operand selects the row, and what the chosen argument must then satisfy. Declared on two nodes of that one procedure and dropped by the node whitelist at migration; no engine reads any of the six."
+    },
+    "param_note": {
+      "verdict": "pending",
+      "why": "the credit-limit-increase procedure's tier-dependent argument bounds: which table holds the number, which operand selects the row, and what the chosen argument must then satisfy. Declared on two nodes of that one procedure and dropped by the node whitelist at migration; no engine reads any of the six."
+    },
+    "param_requirement": {
+      "verdict": "pending",
+      "why": "the credit-limit-increase procedure's tier-dependent argument bounds: which table holds the number, which operand selects the row, and what the chosen argument must then satisfy. Declared on two nodes of that one procedure and dropped by the node whitelist at migration; no engine reads any of the six."
+    },
+    "table": {
+      "verdict": "pending",
+      "why": "the credit-limit-increase procedure's tier-dependent argument bounds: which table holds the number, which operand selects the row, and what the chosen argument must then satisfy. Declared on two nodes of that one procedure and dropped by the node whitelist at migration; no engine reads any of the six."
     }
   }
 }

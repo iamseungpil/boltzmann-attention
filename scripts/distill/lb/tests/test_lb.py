@@ -217,12 +217,65 @@ _reg = _decl.get("_note_migration") or {}
 _unaccounted = [k for k in _unwired if k not in _reg]
 check("every declaration key reaches an engine or the migration register", not _unaccounted,
       "unaccounted: %s" % _unaccounted)
-_stale = sorted(k for k in _reg if k not in _unwired)
+_nodekeys = {k for p in _decl.get("procedures") or [] for n in p.get("nodes") or [] for k in n
+             if not k.startswith("_")}
+_stale = sorted(k for k in _reg if k not in _unwired and k not in _nodekeys)
 check("the migration register holds nothing already wired", not _stale, "stale: %s" % _stale)
 _pending = sorted(k for k, v in _reg.items() if (v or {}).get("verdict") == "pending")
 if _pending:
     print("     debt: %d declarations measured and not yet wired - %s"
           % (len(_pending), " ".join(_pending)))
+
+# A procedure step its own source makes conditional must not be enforced when the condition holds.
+# task_049: the retention protocol says "If records exist for this account within that time frame,
+# skip retention offers and proceed directly to processing the closure." The Green card carried such
+# a record, the model read it and said it would close directly, and we denied the closure until it
+# logged a reason - a row on an account gold never touches, four simulations out of four. The two
+# environment texts below are verbatim from that run, and the gate wants the requirement waived on
+# the one and standing on the other.
+import lb1_requirements
+from lb_coordinator import Turn as _Turn
+
+
+class _C(object):
+    def __init__(self, name, args=None):
+        self.name, self.arguments, self.id = name, args or {}, name
+
+
+class _M(object):
+    def __init__(self, role="assistant", content="", calls=()):
+        self.role, self.content, self.tool_calls = role, content, list(calls)
+
+
+_HAVE = ("Closure reason history for credit card account cc_x_green:" + chr(10) + "Found 1 record(s) in 'credit_card_closure_reasons':" + chr(10) + "" + chr(10) + "1. Record ID: clsr_x_green_001" + chr(10) + "   credit_card_account_id: cc_x_green" + chr(10) + "   closure_reason: not_using_card" + chr(10) + "   status: LOGGED")
+_NONE = ("Closure reason history for credit card account cc_x_crypto:" + chr(10) + "" + chr(10) + "No closure reason records found for this credit card account.")
+_A2 = A2
+_RUN = {"get_user_dispute_history_7291": 1, "get_pending_replacement_orders_5765": 1,
+        "get_closure_reason_history_8293": 1}
+
+
+def _closes(card, output):
+    _call = _C("call_discoverable_agent_tool",
+               {"agent_tool_name": "close_credit_card_account_7834",
+                "arguments": {"credit_card_account_id": card}})
+    _t = _Turn(_A2, [_M("tool", output)], _M(calls=[_call]), executed=dict(_RUN))
+    return [f for f in lb1_requirements.procedure_findings(_t, _call) if f.primitive == lb1_requirements.DENY]
+
+
+# migration keeps procedure node keys by whitelist, so a key added to the declaration is dropped in
+# silence: skip_when_tokens was declared, the engine read it, and the node it arrived on no longer
+# carried it. Every key the declaration puts on a node has to survive the crossing.
+_kept = {k for p in (A2.get("LB1") or {}).get("procedures") or [] for n in p.get("nodes") or [] for k in n}
+_declared = {k for p in _decl.get("procedures") or [] for n in p.get("nodes") or [] for k in n
+             if not k.startswith("_")}
+_lost = sorted(_declared - _kept - set(_decl.get("_note_migration") or {}))
+check("migration keeps every declared procedure node key or the register carries it", not _lost,
+      "dropped: %s" % _lost)
+
+check("a procedure step its source waives is not enforced", not _closes("cc_x_green", _HAVE),
+      "denied the closure of a card whose history already holds a record")
+check("the same step still stands where the source does not waive it",
+      bool(_closes("cc_x_crypto", _NONE)), "no denial where no record exists")
 
 # The register above sees only the top level. conditional_fields sat four levels down, inside the
 # card catalogue's op, declared 2026-07-25 and read by nothing: task_003 held the premium

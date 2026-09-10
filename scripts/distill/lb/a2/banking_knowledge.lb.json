@@ -212,6 +212,9 @@
       "tool": "log_credit_card_closure_reason_4521",
       "requires": [
        "prior_attempts"
+      ],
+      "skip_when_tokens": [
+       "record(s) in 'credit_card_closure_reasons'"
       ]
      },
      {
@@ -245,6 +248,7 @@
     "feedback": {
      "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source})."
     },
+    "id_key": "credit_card_account_id",
     "prohibits": {}
    },
    {
