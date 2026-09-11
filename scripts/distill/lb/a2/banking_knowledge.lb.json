@@ -167,7 +167,7 @@
      "doc_credit_cards_credit_card_account_logistics_001 (How can I close a credit card account?)"
     ],
     "_quote_order": "Check these in order: 1. Pending disputes … 2. No pending replacement cards … 3. Minimum account age … 4. Outstanding balance.",
-    "enforce": true,
+    "enforce": false,
     "enter_when": {
      "tool_any": [
       "close_credit_card_account_7834",
@@ -24309,7 +24309,22 @@
    "KB_search",
    "KB_search_bm25",
    "KB_search_dense",
-   "shell"
+   "shell",
+   "get_reward_discrepancies",
+   "check_rebate_qualification",
+   "get_correct_savings_apy",
+   "check_card_closure_eligibility",
+   "check_cli_eligibility",
+   "check_card_application_fit",
+   "get_atm_fee_discrepancies",
+   "get_checking_atm_fee_totals",
+   "check_credit_dispute_provisional_credit",
+   "get_debit_dispute_liability_cap",
+   "check_savings_account_fit",
+   "check_checking_account_fit",
+   "check_business_checking_fit",
+   "check_business_savings_fit",
+   "check_referral_options"
   ],
   "repeat_cap": 4,
   "repeat_feedback": "[LEDGER] This retrieval has already returned that exact result {n} times in this conversation, so running it again cannot produce anything new. Stop looking for it. Either act on what you have already retrieved, ask the customer for the detail that is missing, or tell them plainly that the knowledge base does not describe what they are asking for and say what you can do instead."
