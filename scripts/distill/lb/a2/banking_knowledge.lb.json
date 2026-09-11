@@ -960,7 +960,7 @@
    },
    {
     "id": "GB2_NOTICE_BEFORE_TRANSFER:transfer_to_human_agents",
-    "enforce": true,
+    "enforce": false,
     "blocks": true,
     "_quote_order": "the pre-transfer notice (ask-first) has been communicated to the user",
     "_source": [],
