@@ -274,6 +274,20 @@ _cmd = sorted(t["name"] for t in _decl.get("scaffold_get_tools") or []
 check("our tool descriptions offer a tool, they do not command it", not _cmd,
       "commanded: %s" % _cmd)
 
+
+# Fifty places in this declaration reach the model and thirty-five of them stated no condition at all.
+# task_007 measured what that costs: the card catalogue ran on a customer who had already chosen, and
+# three simulations of four ended in a comparison instead of the application its gold requires. A
+# description that says only what a tool does leaves when to use it to us; saying when leaves it to
+# the model. These markers are our own wording, so this is a lint on our catalogue, not a read of
+# anything the model wrote.
+_WHEN = ("use this when", "use this before", "use this whenever", "applies only", "do not call it",
+         "do not use it", "only when", "only after", "whenever a customer", "before closing",
+         "before filing", "before deciding", "before recommending", "does not apply")
+_bare = sorted(t["name"] for t in _decl.get("scaffold_get_tools") or []
+               if not any(m in (t.get("description") or "").lower() for m in _WHEN))
+check("every tool we add says when it applies", not _bare, "no condition stated: %s" % _bare)
+
 # A procedure step its own source makes conditional must not be enforced when the condition holds.
 # task_049: the retention protocol says "If records exist for this account within that time frame,
 # skip retention offers and proceed directly to processing the closure." The Green card carried such
