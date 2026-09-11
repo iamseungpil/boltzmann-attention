@@ -277,13 +277,14 @@ from lb_coordinator import Turn as _Turn
 
 
 class _C(object):
-    def __init__(self, name, args=None):
-        self.name, self.arguments, self.id = name, args or {}, name
+    def __init__(self, name, args=None, cid=None):
+        self.name, self.arguments, self.id = name, args or {}, cid or name
 
 
 class _M(object):
-    def __init__(self, role="assistant", content="", calls=()):
-        self.role, self.content, self.tool_calls = role, content, list(calls)
+    # a tool message carries the id of the call it answers; a check that pairs the two needs it
+    def __init__(self, role="assistant", content="", calls=(), mid=None):
+        self.role, self.content, self.tool_calls, self.id = role, content, list(calls), mid
 
 
 _HAVE = ("Closure reason history for credit card account cc_x_green:" + chr(10) + "Found 1 record(s) in 'credit_card_closure_reasons':" + chr(10) + "" + chr(10) + "1. Record ID: clsr_x_green_001" + chr(10) + "   credit_card_account_id: cc_x_green" + chr(10) + "   closure_reason: not_using_card" + chr(10) + "   status: LOGGED")
@@ -495,6 +496,30 @@ check("it is said once in a simulation, not at every departure", bool(_first) an
 check("and not while the model is still working",
       not _leaves("Let me look that up for you.", "the purchase was never submitted",
                   calls=[_C("KB_search_bm25", {"query": "x"})]))
+
+
+# task_023's runaways are one shape: the customer asks how to apply for a card that is invitation-only
+# and has no application tool, and the agent searches for it - the same query sixteen times, the same
+# document eleven - for a hundred assistant turns until the step cap ends the simulation. The
+# exhaustion test on file looks for an empty result and every one of those came back full. Over base's
+# 388 simulations one identical retrieval result never comes back a fourth time; ours reach four, five
+# and six, and both runaways are in that group.
+def _loop(times, tool="KB_search_bm25"):
+    msgs = []
+    for i in range(times):
+        c = _C(tool, {"query": "diamond elite apply"}, cid="s%d" % i)
+        msgs += [_M(calls=[c]), _M("tool", "the same nine documents", mid="s%d" % i)]
+    nxt = _C(tool, {"query": "diamond elite apply"}, cid="next")
+    return [f for f in lb5_resignation.evaluate(_Turn(_A2, msgs, _M(calls=[nxt])))
+            if f.primitive == lb5_resignation.DENY]
+
+
+_cap = int((_A2.get("LB5") or {}).get("repeat_cap") or 0)
+check("a retrieval that keeps handing back the same result is stopped", bool(_loop(_cap)))
+check("and one below the cap is not", not _loop(_cap - 1))
+check("the cap is the count base never reaches", _cap >= 4)
+check("and a tool that is not a retrieval is left alone",
+      not _loop(_cap + 2, tool="get_user_information_by_name"))
 check("and stays quiet on a tool it was not written for",
       not _reaches("get_user_information_by_name"))
 # The register above sees only the top level. conditional_fields sat four levels down, inside the

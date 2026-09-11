@@ -11,9 +11,15 @@ engine never decides; whether to persist or hand off is the model's call. Declar
   search_feedback  what the policy says to do when search is exhausted
   open_request     {question, feedback}  the customer's request the run record does not answer, put to
                    an isolated sub-call at the moment of leaving and named once per simulation
+  repeat_tools     retrieval tools whose output repeating is the sign a search cannot go further
+  repeat_cap       how many times one identical result may come back before the search is exhausted
+  repeat_feedback  what to do instead; this one is denied, because a runaway never reaches a
+                   leaving turn and advice does not reach the model on a tool-calling turn
 """
 
-from lb_coordinator import Finding, SURFACE, GRADES, fam, fill
+import collections
+
+from lb_coordinator import Finding, DENY, SURFACE, GRADES, fam, fill
 
 LB = "LB5"
 LEDGER, POLICY = GRADES["execution_ledger"], GRADES["policy_verbatim"]
@@ -97,6 +103,46 @@ def open_request(turn):
     return [fill(spec["feedback"], open=out)]
 
 
+def repeated_search(turn):
+    """A search that hands back what it has already handed back cannot be exhausted by trying again.
+
+    task_023's three runaways are one shape: the customer asks how to apply for the Diamond Elite
+    Card, which is invitation-only and has no application tool, and the agent hunts for it - the same
+    query sixteen times, the same document read eleven times - for a hundred assistant turns until
+    the step cap or the context window ends the simulation. The exhaustion test that exists looks for
+    an empty result, and every one of these came back full: the same documents, again.
+
+    The count is the measurement. Across base's 388 simulations one identical retrieval result never
+    comes back a fourth time - the histogram stops at three, in three simulations - while ours reach
+    four, five and six, and both of our runaways are in that group. So the cap is declared, not
+    guessed, and at four it has never fired on base at all.
+
+    This one is denied rather than surfaced. A runaway never reaches a leaving turn, and advice
+    reaches the model only on a text turn or a hand-off, so a note here would never arrive. The denial
+    says what cannot work and what to do instead, which is what a denial owes.
+    """
+    spec = spec_of(turn)
+    tools = {fam(x) for x in spec.get("repeat_tools") or []}
+    tpl, cap = spec.get("repeat_feedback"), int(spec.get("repeat_cap") or 0)
+    if not tools or not tpl or cap < 2:
+        return []
+    asking = [c for c in turn.calls if fam(turn.name_of(c)) in tools]
+    if not asking:
+        return []
+    by_id = {getattr(m, "id", None): m for m in turn.messages if getattr(m, "role", None) == "tool"}
+    seen = collections.Counter()
+    for m in turn.messages:
+        for c in (getattr(m, "tool_calls", None) or []):
+            res = by_id.get(getattr(c, "id", None))
+            if fam(turn.name_of(c)) in tools and res is not None:
+                seen[str(getattr(res, "content", "") or "")] += 1
+    worst = max(seen.values()) if seen else 0
+    if worst < cap:
+        return []
+    return [Finding(LB, DENY, fam(turn.name_of(c)), c, grade=LEDGER, source="search-repeat",
+                    order=fill(tpl, n=worst)) for c in asking]
+
+
 def leaving(turn):
     """The one decision point: everything still open, in one surfaced note, when the model is leaving."""
     handoff = transferring(turn)
@@ -108,7 +154,7 @@ def leaving(turn):
 
 
 def evaluate(turn):
-    return leaving(turn)
+    return leaving(turn) + repeated_search(turn)
 
 
 if __name__ == "__main__":

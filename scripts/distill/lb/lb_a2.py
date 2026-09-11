@@ -156,6 +156,10 @@ def migrate(domain):
                 # the third kind this engine's contract names: what the customer asked for and the
                 # run record does not show, put to a sub-call once as the model leaves
                 "open_request": src.get("open_request") or {},
+                # a retrieval that hands back what it already handed back is exhausted; the cap is
+                # the count base never reaches
+                "repeat_tools": src.get("repeat_tools") or [], "repeat_cap": src.get("repeat_cap"),
+                "repeat_feedback": src.get("repeat_feedback"),
                 },
         "LB6": {"annotations": [{"field": a.get("field"), "note": a.get("note")}
                                 for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")],
