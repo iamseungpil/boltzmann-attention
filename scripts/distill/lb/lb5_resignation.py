@@ -63,6 +63,27 @@ def unread_definition(turn):
             if tpl and fam(turn.name_of(c)).lower() not in turn.tool_text]
 
 
+def read_form(out):
+    """Read KIND and REQUEST out of the sub-call's answer. The engine reads; it does not judge.
+
+    A2 declares the kinds and which of them this rule speaks for; whether this conversation is one of
+    them is the sub-call's answer, and all that happens here is that the two lines are taken apart.
+    """
+    kind, named = "", ""
+    for line in str(out or "").splitlines():
+        s = line.strip()
+        if ":" not in s:
+            continue
+        head, rest = s.split(":", 1)
+        head = head.strip().upper()
+        if head == "KIND":
+            w = rest.strip().upper().split()
+            kind = w[0].strip(".,") if w else ""
+        elif head == "REQUEST":
+            named = " ".join(rest.split())
+    return kind, ("" if named in ("", "-", "--") else named)
+
+
 def open_request(turn):
     """What the customer asked for and the run record does not show, named once as the model leaves.
 
@@ -84,23 +105,31 @@ def open_request(turn):
     spec = spec_of(turn).get("open_request") or {}
     ask = (getattr(turn, "extras", None) or {}).get("ask")
     once = (getattr(turn, "extras", None) or {}).get("once")
-    if not spec.get("question") or not spec.get("feedback") or not ask or once is None:
+    speak = {str(k).upper() for k in (spec.get("speak_when") or ())}
+    if not spec.get("question") or not spec.get("feedback") or not ask or once is None or not speak:
         return []
     if KEY in once:
+        return []
+    asked = sum(1 for k in once if isinstance(k, str) and k.startswith(KEY + "#"))
+    if asked >= int(spec.get("ask_cap") or 0):
         return []
     ran = [name for name, _ in getattr(turn, "ran", ())]
     if not turn.user_text.strip():
         return []
-    prompt = (spec["question"] + chr(10) + chr(10)
-              + "What the customer has said:" + chr(10) + chr(10) + turn.user_text[-8000:] + chr(10) + chr(10)
-              + "Every tool the agent actually ran, in order:" + chr(10) + chr(10)
-              + (", ".join(ran) or "(none)") + chr(10) + chr(10)
-              + "Answer with one short line naming the request, or the single word NONE.")
-    out = " ".join(str(ask(prompt, "lb5_open") or "").split())
-    once.add(KEY)
-    if not out or out.upper().startswith("NONE"):
+    kinds = spec.get("kinds") or {}
+    nl = chr(10)
+    prompt = (spec["question"] + nl + nl
+              + nl.join("%s - %s" % (k, v) for k, v in kinds.items()) + nl + nl
+              + "What the customer has said:" + nl + nl + turn.user_text[-8000:] + nl + nl
+              + "Every tool the agent actually ran, in order:" + nl + nl
+              + (", ".join(ran) or "(none)") + nl + nl
+              + str(spec.get("form") or ""))
+    kind, named = read_form(ask(prompt, KEY))
+    once.add(KEY + "#%d" % asked)
+    if kind not in speak or not named:
         return []
-    return [fill(spec["feedback"], open=out)]
+    once.add(KEY)
+    return [fill(spec["feedback"], open=named)]
 
 
 def repeated_search(turn):

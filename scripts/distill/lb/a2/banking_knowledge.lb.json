@@ -24300,7 +24300,21 @@
    "KB_search"
   ],
   "search_feedback": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
-  "open_request": {},
+  "open_request": {
+   "kinds": {
+    "ACTION": "the customer has asked for something that only a change to their money or their records can finish - a payment put through, an application filed, an order placed, a card issued, an account or a limit changed. Telling them about it does not finish it.",
+    "INQUIRY": "the customer has asked to be told, shown, checked, looked up, confirmed or explained something. A reply finishes it, and nothing is left open once the agent has replied.",
+    "NONE": "the customer has not asked for either kind yet - they have raised a problem, given information, or are still deciding."
+   },
+   "question": "A bank agent is about to end its part of this conversation. Read what the customer has said and the list of tools the agent actually ran, and say which kind of thing the customer is still waiting for. The kinds are defined below; use them as written. If the customer has asked for more than one thing, answer for the one the run record does not show. Judge only from what is below: if the customer has not asked for an ACTION in their own words, the answer is INQUIRY or NONE, never ACTION.",
+   "form": "Answer in exactly two lines and nothing else:\nKIND: ACTION or INQUIRY or NONE\nREQUEST: one short line naming it, or a single dash if there is none",
+   "speak_when": [
+    "ACTION"
+   ],
+   "ask_cap": 4,
+   "feedback": "[LEDGER] You are ending your part here and the run record shows no action for this: {open}. If the customer asked you to carry something out, a reply explaining the policy is not that action - make the call now. If you have decided not to, say plainly to the customer that you are not doing it and why.",
+   "_note": "2026-09-12 nc6. nc5 and before asked one free-form line and appended \"or the single word NONE\" in code; the exclusion lived in a subordinate clause of the question and never reached the output, so the sub-call named the only request it could see. In task_016 that was the right answer: at the leaving turn the customer had said only \"can you check what's going on\" - the request to put a purchase through first appears three turns later. The rule then never asked again, because the once-key was spent whether or not anything was named: measured across fs/nc/nc5/t17/tb, every firing in task_016 is at turn 5 and there is not one at any other turn. So the kinds are declared here, the answer is formalized as KIND plus REQUEST, the engine speaks only for the kinds in speak_when, and the once-key is spent only when it speaks - up to ask_cap asks per simulation."
+  },
   "repeat_tools": [
    "KB_search",
    "KB_search_bm25",
