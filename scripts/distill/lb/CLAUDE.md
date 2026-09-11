@@ -209,3 +209,44 @@ task  base  cb_   ub_   mn_        비고
 | 구 코드가 읽던 플래그 358개 → 어느 함수·어느 L군 | `docs/flags_inventory.tsv` |
 | 구 코드의 발화 지점 96곳(중재기 경유 0) | `docs/UTTERANCE_INVENTORY_2026_09_08.md` |
 | 새 구조·실행·이전 표 | `README.md` |
+
+## `git reset` 은 파일을 바꾸지 않는다 (2026-09-12)
+
+팔 트리를 세울 때 `git reset <sha>` 를 쓰면 **HEAD 와 인덱스만** 움직이고 작업트리 파일은 그대로
+남는다. `repo_lbv2nc5` 가 31분 동안 nc5 가 아니라 **원본 선언**을 돌렸고, 그동안 레인 로그는
+`sha=f3c068ac` 라고 찍고 있었다. `lane_lb.sh:21` 이 찍던 것이 **HEAD sha** 였기 때문이다.
+
+- 팔 트리는 `git reset --hard <sha>` 또는 `git checkout -f` 로만 세운다.
+- 발사 전 `git status --porcelain` 이 비었는지 본다. `lane_lb.sh` 가 이제 더러우면 **거부**한다.
+- 레인 시작 줄은 이제 커밋이 아니라 **실제로 읽은 선언**을 찍는다:
+  `a2=<파일 sha1> open=LIVE|EMPTY speak=… repeat=N enforce=N desc=N`.
+- 팔 결과를 집계하기 전에 그 지문이 그 팔의 것인지 대조한다. 커밋 이름은 증거가 아니다.
+
+## [LEDGER] 는 행동형에서 이득, 조사형에서 손해다 (2026-09-12)
+
+서브호출이 부른 이름으로 가른 실측 (모든 팔, 울린 sim vs 조용한 sim):
+
+| 이득 | 태스크 | 부른 이름 |
+|---|---|---|
+| +46% | 049 | `Close the Green Rewards credit card` ×12 |
+| +25% | 047 | `Closing the Silver Zoom card` |
+| +25% | 045 | `Close the business Silver Rewards card` |
+| −16% | 016 | `Check the status of the missing referral bonus` |
+| −84% | 019 | (조사형) |
+| −17% | 081 · 054 | (조사형) |
+
+이득 쪽은 전부 `Close …`, 손해 쪽은 전부 `Check …` 다. 예외 2건(036 +24% `Show …`,
+023 +18% `Check …`)은 표본이 2·4 로 작다.
+
+원인은 물음이 아니라 **출력 형식**이었다. 배제 조항은 물음 안에 있었는데
+(`as opposed to an answer or an explanation, which a reply satisfies`), 코드가 덧붙인 출력 줄은
+`one short line naming the request, or the single word NONE` 이었고 **NONE 의 조건이 어디에도
+없었다**. 가장 가깝고 명령형인 문장이 「하나를 대라」였으므로 서브는 하나를 댔다.
+
+016 에서는 그 답이 **옳았다**. 발화 시점(t5)까지 손님은 `can you check what's going on` 만 했고,
+`I can make a purchase today to get them over the line` 은 **t8 에 처음** 나온다. 그리고
+once-key 가 이름을 댔든 말든 소모되어 **다시 묻지 않았다** — fs·nc·nc5·t17·tb 전 팔에서 016 의
+발화는 **전부 t5 한 번뿐**이고 다른 턴에는 하나도 없다.
+
+→ nc6: 종류를 A2 에 `kinds` 로 적고, 답을 `KIND` + `REQUEST` 로 형식화하고, 엔진은 A2 의
+`speak_when` 에 있는 종류에만 말하고, once-key 는 **말할 때만** 소모한다(`ask_cap` 까지 묻는다).
