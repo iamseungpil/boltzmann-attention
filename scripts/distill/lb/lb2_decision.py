@@ -156,8 +156,18 @@ def _match_verdict(spec, ctx):
                or spec.get("unmet_template") or "{count}")
     else:
         tpl = spec.get("met_template" if len(matched) >= thr else "unmet_template") or "{count}"
-    return fill(tpl, count=len(matched), threshold=thr, matched=", ".join(matched) or "(none)",
-                missing=", ".join(missing) or "(none)")
+    out = fill(tpl, count=len(matched), threshold=thr, matched=", ".join(matched) or "(none)",
+               missing=", ".join(missing) or "(none)")
+    # A sentence telling the caller how to get something it already has is noise, and noise is what
+    # this verdict is mostly made of on a task it has nothing to do with. task_016's conversation was
+    # verified early and then carried "FIRST call get_current_time, wait for its result, then copy
+    # that exact timestamp" on every verified turn afterwards, while the task turned on telling the
+    # customer what their friend still had to spend. The advice rides only until the tool it names
+    # has run - the run record answers that, so nothing here judges anything.
+    adv = spec.get("advice") or {}
+    if adv.get("text") and adv.get("unless_ran") not in (ctx.get("__tool_outputs") or {}):
+        out += adv["text"]
+    return out
 
 
 def _group_reduce(spec, ctx):

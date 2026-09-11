@@ -288,6 +288,22 @@ _bare = sorted(t["name"] for t in _decl.get("scaffold_get_tools") or []
                if not any(m in (t.get("description") or "").lower() for m in _WHEN))
 check("every tool we add says when it applies", not _bare, "no condition stated: %s" % _bare)
 
+
+# A verdict that tells the caller how to obtain something it already has is noise. task_016 was
+# verified early and then carried "FIRST call get_current_time, wait for its result, then copy that
+# exact timestamp" on every verified turn afterwards, while the task turned on telling the customer
+# what their friend still had to spend - base holds none of our tools and passes 4/4.
+import lb2_decision
+_SPEC = {"op": "match_verdict", "a": "p", "b": "rec", "fields": ["dob"], "threshold": 1,
+         "met_template": "VERIFIED {count}.", "unmet_template": "NO {count}",
+         "advice": {"text": " Call get_current_time first.", "unless_ran": "get_current_time"}}
+_CTX = {"p": {"dob": "1"}, "rec": {"dob": "1"}}
+_before = lb2_decision.evaluate_op(_SPEC, dict(_CTX, __tool_outputs={}))
+_after = lb2_decision.evaluate_op(_SPEC, dict(_CTX, __tool_outputs={"get_current_time": "12:00"}))
+check("a verdict's advice is said while it is still needed", "get_current_time first" in _before)
+check("and stops once the tool it names has run", "get_current_time first" not in _after
+      and "VERIFIED" in _after)
+
 # A procedure step its own source makes conditional must not be enforced when the condition holds.
 # task_049: the retention protocol says "If records exist for this account within that time frame,
 # skip retention offers and proceed directly to processing the closure." The Green card carried such
