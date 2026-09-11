@@ -403,6 +403,15 @@ check("and the record that does belong to this card still clears it",
       not _closure("cc_x_crypto", _NONE, yes=("Step 4", "Step 5")))
 
 
+# The protocol answers five reasons and the customer's need not be one of them. On the fixed graph
+# task_049 ran four simulations: the three that logged simplifying_finances were denied three or four
+# times each and all failed, and the one that logged annual_fee drew no denial and passed. A step the
+# source has no branch for cannot be a step the graph waits on for ever - and whether the reason is
+# one of the five is the sub-call's judgement, not this engine's.
+check("a reason the source prescribes no answer for does not deadlock the closure",
+      not _closure("cc_x_crypto", _NONE, yes=("prescribes no response", "Step 5")))
+
+
 # A policy sentence carried to a write must survive the exit. Every write in this domain is
 # reached through a dispatcher, so the call's own name is call_discoverable_agent_tool; the advice
 # window compared that name against the target and was shut for all of them. 085 logged sixteen

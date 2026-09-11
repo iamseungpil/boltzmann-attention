@@ -228,7 +228,7 @@
       "tool_any": [
        "apply_credit_card_account_flag_6147"
       ],
-      "done_when": "The credit card retention protocol's Step 4 says to address the customer's stated reason on its own terms before any retention offer: for an annual fee, waive it for a year if they have been a customer 2+ years or offer a permanent downgrade to a no-annual-fee card if less; for not using the card, name the benefits they are missing and suggest a recurring subscription; for having found a better card, ask what drew them and offer a Rho-Bank card that matches it to apply for instead of closing; for being unhappy with rewards, check their bonus category enrolment and show how to earn more; for a negative experience, apologise and gather details. Has the agent done this for the card being closed?"
+      "done_when": "The credit card retention protocol's Step 4 says to address the customer's stated reason on its own terms before any retention offer: for an annual fee, waive it for a year if they have been a customer 2+ years or offer a permanent downgrade to a no-annual-fee card if less; for not using the card, name the benefits they are missing and suggest a recurring subscription; for having found a better card, ask what drew them and offer a Rho-Bank card that matches it to apply for instead of closing; for being unhappy with rewards, check their bonus category enrolment and show how to earn more; for a negative experience, apologise and gather details. Has the agent done this for the card being closed? If the reason the customer actually gave is not one of those five, the protocol prescribes no response for it and there is nothing for the agent to address - answer YES in that case."
      },
      {
       "id": "offer",
