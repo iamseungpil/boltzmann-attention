@@ -411,9 +411,11 @@ import lb7_material
 import lb_coordinator
 
 
-def _reaches(inner):
+def _reaches(inner, holds=True):
+    """holds: what the isolated sub-call answers when a rule states its own condition."""
     _c = _C("call_discoverable_agent_tool", {"agent_tool_name": inner, "arguments": {}})
-    _t = _Turn(_A2, [_M("user", "go ahead")], _M(calls=[_c]))
+    _t = _Turn(_A2, [_M("tool", "the record"), _M("user", "go ahead")], _M(calls=[_c]),
+               extras={"ask": lambda prompt, name="": "YES" if holds else "NO"})
     return lb_coordinator.say(_t, lb7_material.write_rules(_t)).advice
 
 
@@ -425,8 +427,22 @@ def _as_registered(name):
 
 _mute = sorted({r["applies_to"] for r in _rules
                 if r.get("text") and not _reaches(_as_registered(r["applies_to"]))})
+# A rule whose sentence states a condition ("... when multiple duplicates exist") was handed over
+# whether the condition held or not. task_036 has two charges from different merchants and a gold
+# that files no dispute at all; of twelve simulations with a reward, the two that passed had
+# received neither this sentence nor the acquire advice and all ten that failed had received one.
+_cond = [r for r in _rules if r.get("when")]
+_leak = sorted({r["applies_to"] for r in _cond
+                if any(r["text"] in a for a in _reaches(_as_registered(r["applies_to"]), holds=False))})
+_held = sorted({r["applies_to"] for r in _cond
+                if not any(r["text"] in a for a in _reaches(_as_registered(r["applies_to"])))})
 check("a write rule reaches the model on the turn that reaches for its tool", not _mute,
       "silent for: %s" % _mute)
+
+check("a rule that states its own condition stays back when the condition does not hold",
+      bool(_cond) and not _leak, "leaked: %s" % _leak)
+check("and reaches the model when it does", bool(_cond) and not _held,
+      "withheld: %s" % _held)
 check("and stays quiet on a tool it was not written for",
       not _reaches("get_user_information_by_name"))
 # The register above sees only the top level. conditional_fields sat four levels down, inside the

@@ -26,6 +26,28 @@ from lb_coordinator import Finding, SURFACE, GRADES, as_dict, fam, fill
 
 LB = "LB7"
 RETRIEVED = GRADES["retrieved_prose"]
+def _holds(turn, question, record, tag):
+    """Ask an isolated sub-call whether a rule's own condition is true here, over the record.
+
+    A rule whose condition lives only inside its sentence is delivered as though the condition held.
+    "Dispute the earliest (first) transaction when multiple duplicates exist" went to the model on
+    every dispute turn of task_036, where the two charges are separate merchants and gold never
+    files a dispute at all - it orders a replacement card. Twelve simulations with a reward: the two
+    that passed received neither this sentence nor the acquire advice, and all ten that failed
+    received at least one. The condition is a judgement about the material, so the sub-call makes it
+    and this engine reads the one word it asked for. With no sub-call door the sentence stays back:
+    an unchecked condition is the state we are correcting.
+    """
+    ask = (getattr(turn, "extras", None) or {}).get("ask")
+    if not ask or not str(record or "").strip():
+        return False
+    prompt = (question + chr(10) + chr(10)
+              + "Here is the record to answer from:" + chr(10) + chr(10)
+              + str(record)[-12000:] + chr(10) + chr(10)
+              + "Answer with one word, YES or NO.")
+    return str(ask(prompt, tag) or "").strip().upper().startswith("YES")
+
+
 def have_value(turn):
     out, said = [], turn.am_text.lower()
     for sp in (turn.a2.get("LB7") or {}).get("have_value") or []:
@@ -42,7 +64,9 @@ def have_value(turn):
             if value and sp.get("feedback"):
                 out.append(Finding(LB, SURFACE, fam(sp.get("write")), grade=RETRIEVED, source="have-value",
                                    order=fill(sp["feedback"], value=value, arg=sp.get("arg"), write=sp.get("write"))))
-        elif sp.get("acquire_feedback") and sp.get("acquire_tool") and not _given(turn, sp):
+        elif (sp.get("acquire_feedback") and sp.get("acquire_tool") and not _given(turn, sp)
+              and (not sp.get("acquire_when")
+                   or _holds(turn, sp["acquire_when"], turn.user_text, "lb7_acquire"))):
             out.append(Finding(LB, SURFACE, fam(sp["acquire_tool"]), grade=RETRIEVED, source="value-acquire",
                                order=fill(sp["acquire_feedback"], arg=sp.get("arg"), acquire_tool=sp["acquire_tool"],
                                           give_tool=sp.get("give_tool"), write=sp.get("write"))))
@@ -92,7 +116,9 @@ def write_rules(turn):
             if asked:
                 reaching.add(fam(asked))
     for sp in (turn.a2.get("LB7") or {}).get("write_rules") or []:
-        if sp.get("text") and fam(sp.get("applies_to", "")) in reaching:
+        if not sp.get("text") or fam(sp.get("applies_to", "")) not in reaching:
+            continue
+        if not sp.get("when") or _holds(turn, sp["when"], chr(10).join(turn.tool_outputs()), "lb7_rule"):
             out.append(Finding(LB, SURFACE, fam(sp["applies_to"]), grade=RETRIEVED, source="write-rule",
                                order=sp["text"]))
     return out

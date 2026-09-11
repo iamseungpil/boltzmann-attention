@@ -166,7 +166,10 @@ def migrate(domain):
         "LB7": {"have_value": _have_value(src),
                 "action_index": {"text": (src.get("policy_ontology") or {}).get("action_index_text"),
                                  "rows": (src.get("policy_ontology") or {}).get("action_index") or []},
-                "write_rules": [{"applies_to": w.get("applies_to"), "text": w.get("text")}
+                # `when` is the rule's own condition, taken out of its sentence: a rule that reads
+                # "... when multiple duplicates exist" was delivered whether they existed or not
+                "write_rules": [{"applies_to": w.get("applies_to"), "text": w.get("text"),
+                                 "when": w.get("when")}
                                 for w in src.get("write_rules") or [] if w.get("text")]},
     }
     path = os.path.join(A2_DIR, "%s.lb.json" % domain)
@@ -234,7 +237,8 @@ def _have_value(src):
     for s in src.get("value_acquisition") or []:
         e = out.setdefault(s.get("write"), {"write": s.get("write"), "arg": s.get("arg"),
                                             "producer_marker": s.get("producer_marker"), "reask_signals": s.get("reask_signals")})
-        e.update({"acquire_tool": s.get("acquire_tool"), "give_tool": s.get("give_tool"), "acquire_feedback": s.get("feedback")})
+        e.update({"acquire_tool": s.get("acquire_tool"), "give_tool": s.get("give_tool"),
+                  "acquire_feedback": s.get("feedback"), "acquire_when": s.get("when")})
     return list(out.values())
 
 
