@@ -250,3 +250,31 @@ once-key 가 이름을 댔든 말든 소모되어 **다시 묻지 않았다** �
 
 → nc6: 종류를 A2 에 `kinds` 로 적고, 답을 `KIND` + `REQUEST` 로 형식화하고, 엔진은 A2 의
 `speak_when` 에 있는 종류에만 말하고, once-key 는 **말할 때만** 소모한다(`ask_cap` 까지 묻는다).
+
+## gold action 중에는 **손님이 부르는 것**이 있다 (2026-09-12)
+
+task_049 의 `request_human_agent_transfer` 는 base 4 sim **전부** `{'user': 1}` 이다. 우리
+에이전트는 한 번도 부르지 않는다 — 부를 수 없는 user tool 이다. 그러므로 이 액션은 **손님이
+스스로 부르게 만들어야** 얻는다. 007 의 `apply_for_credit_card` 와 같은 구조다.
+
+| 팔 | 손님이 그 도구를 부른 sim | 점수 |
+|---|---|---|
+| base | 4/4 | 3/4 |
+| nc8a (`leaving_after: 7`) | 3/4 | 2/4 |
+| nc6a (t4 오발) | 1/4 | 0/4 |
+
+`leaving_after` 가 049 를 0/4 → 2/4 로 올린 기전이 이것이다: **이른 `[LEDGER]` 가 손님의 턴을
+지운다.** 실패 궤적과 base 승 궤적의 차이는 한 턴이다 —
+
+```
+base 승:  assistant apply_statement_credit ×2 → assistant "…죄송합니다…"(말하는 턴)
+          → user CALL request_human_agent_transfer → assistant transfer_to_human_agents
+sw 패:    assistant apply_statement_credit ×2 → assistant transfer_to_human_agents (말하는 턴 없음)
+```
+
+`[LEDGER]` feedback 의 *"a reply explaining the policy is not that action - make the call now"*
+가 그 말하는 턴을 없앤다. **우리가 대화를 압축하면 user simulator 의 gold action 이 사라진다.**
+007(긴 산문이 손님을 떠나게 함)과 049(짧은 재촉이 손님의 턴을 지움)는 같은 기전의 양 끝이다.
+
+판정 전 확인: 빠진 gold 가 있으면 **누가 부르는 도구인지부터** 본다. user 쪽이면 우리 삽입이
+그 턴을 지웠는지 궤적 끝을 대조한다.
