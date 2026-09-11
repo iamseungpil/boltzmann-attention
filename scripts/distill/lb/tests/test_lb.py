@@ -265,6 +265,15 @@ _named = sorted({(_t.get("name"), _u) for _t in _decl.get("scaffold_get_tools") 
 check("our tool descriptions never name a tool the agent cannot call", not _named,
       "; ".join("%s names %s" % (a, b) for a, b in _named))
 
+# A description that commands is the engine deciding. task_007: base holds none of these tools,
+# applies for the card on its own and passes 4/4; every simulation of ours called the catalogue,
+# and three of four then compared cards for the customer and applied for nothing. When to compare
+# is the model's judgement, so a description states the condition and the model chooses.
+_cmd = sorted(t["name"] for t in _decl.get("scaffold_get_tools") or []
+            if "MANDATORY" in (t.get("description") or ""))
+check("our tool descriptions offer a tool, they do not command it", not _cmd,
+      "commanded: %s" % _cmd)
+
 # A procedure step its own source makes conditional must not be enforced when the condition holds.
 # task_049: the retention protocol says "If records exist for this account within that time frame,
 # skip retention offers and proceed directly to processing the closure." The Green card carried such
