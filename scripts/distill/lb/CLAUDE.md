@@ -175,6 +175,8 @@ task  base  cb_   ub_   mn_        비고
 |---|---|
 | 기전·LB 표·판정 규칙·도는 실험·확정 결함·선행연구 | `docs/RESEARCH_BASE.md` |
 | 사전런 `fs_` 판정 — 손해 15, −22 → −15 | `docs/PRERUN_FS_2026_09_11.md` |
+| 아직 지는 9 태스크의 정밀 포렌식(007·016·048 세 가지 다른 병) | `docs/FORENSIC_LOSS9_2026_09_11.md` |
+| 클라우드 엔진 동시 사망 원인·오염·복구 | `docs/CLOUD_ENGINE_FAULT_2026_09_11.md` |
 | 손해 목록에서 빠져 있던 `058`·`070` 의 부검 + 예측 | `docs/AUTOPSY_058_070_2026_09_11.md` |
 | `mn_`(명령 3개 빼기) 판정 · 036 의 진짜 원인 · 잡음 실측 | `docs/MN_ARM_VERDICT_2026_09_11.md` |
 | 구 레버 185개의 판정(VALID 0 · HARMFUL 22 · DARK 38) | `docs/LEVER_ROSTER_2026_08_19.md` |
