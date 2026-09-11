@@ -24317,11 +24317,7 @@
      "4 digits",
      "correct last 4"
     ],
-    "feedback": "[HAVE-VALUE] The customer has already retrieved and confirmed the last 4 digits of the card: {value}. You already have this value - do NOT ask for it again and do NOT re-run any lookup for it. File the dispute NOW: unlock file_credit_card_transaction_dispute and call it via call_discoverable_agent_tool with the transaction_id of the charge being disputed and card_last_4_digits='{value}'. Then move on to the next disputed charge.",
-    "acquire_tool": "get_card_last_4_digits",
-    "give_tool": "give_discoverable_user_tool",
-    "acquire_feedback": "[VALUE-ACQUIRE] The customer cannot read the last 4 digits off the card and they are NOT stored in the account records - they must be retrieved by the CUSTOMER running get_card_last_4_digits. Stop re-asking the customer for them. Use give_discoverable_user_tool to give get_card_last_4_digits to the customer NOW, then have them run it with their credit_card_account_id and read the value from its output. Read the value from its output; whether a dispute is the right step here is yours to judge from the customer's request and the knowledge base.",
-    "acquire_when": "A bank agent is about to tell the customer how to obtain '{arg}'. Looking only at what the customer has asked for in their own words below, is '{arg}' needed to carry out what they asked? Answer NO if what they asked for can be done without it."
+    "feedback": "[HAVE-VALUE] The customer has already retrieved and confirmed the last 4 digits of the card: {value}. You already have this value - do NOT ask for it again and do NOT re-run any lookup for it. File the dispute NOW: unlock file_credit_card_transaction_dispute and call it via call_discoverable_agent_tool with the transaction_id of the charge being disputed and card_last_4_digits='{value}'. Then move on to the next disputed charge."
    }
   ],
   "action_index": {
