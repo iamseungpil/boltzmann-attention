@@ -521,13 +521,21 @@ check("and reaches the model when it does", bool(_cond) and not _held,
       "withheld: %s" % _held)
 
 
-# The acquire advice names the tool that produces a value. Its condition was first written about the
-# customer's intent - "have they asked to dispute a charge" - and task_036 still drew it twice: that
-# customer reports two fraudulent charges and asks for a reissue, and a fraud report reads as a
-# dispute. A condition about the value carries the argument's own name into the question.
+# The acquire advice names the tool that produces a value, and the value exists to fill in one write.
+# Two forms of its condition have now drawn on task_036, where the gold is a replacement card and no
+# dispute at all: "have they asked to dispute a charge" (a fraud report reads as a dispute) and "is
+# the value needed for what they asked" (it is, if a dispute is what you assume). Both let our layer
+# push the model onto a write the gold does not contain, in four simulations out of four.
+# So the question has to put the two requests side by side and say which one answers NO.
 _acq = [v for v in _decl.get("value_acquisition") or [] if v.get("when")]
-check("the acquire condition asks about the value, not about the intent",
+check("the acquire condition carries the argument it guards into the question",
       bool(_acq) and all("{arg}" in v["when"] for v in _acq))
+check("and names the request that must answer NO, not only the one that answers YES",
+      bool(_acq) and all("NO" in v["when"] and "replacement" in v["when"] for v in _acq),
+      "without it the question reverts to the form task_036 drew twice")
+check("and the acquire sentence leaves the write to the model rather than ordering it",
+      bool(_acq) and all("{write}" in v["feedback"] and "NOW" not in v["feedback"] for v in _acq),
+      "the sentence that said 'give it to the customer NOW' was in every failing simulation")
 _built = [h for h in (A2.get("LB7") or {}).get("have_value") or [] if h.get("acquire_when")]
 check("and it survives migration onto the spec that carries that argument",
       bool(_built) and all(h.get("arg") for h in _built))
