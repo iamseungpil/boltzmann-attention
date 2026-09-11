@@ -312,10 +312,12 @@ def inject_tools(agent, a2):
     from tau2.environment.tool import Tool
     have, added = {getattr(t, "name", None) for t in (agent.tools or [])}, []
     for d in (a2.get("LB2") or {}).get("tools") or []:
-        # a hidden verifier stays out of the model's list. verify_identity answered VERIFIED on all
-        # 312 of its calls across 372 simulations - a round trip per conversation for an answer the
-        # model already had. The check itself still runs, on our side, and speaks only when it fails.
-        if d["name"] in have or d.get("hidden"):
+        # two different things, and they are not the same switch. `hidden` keeps the tool out of the
+        # model's list while its check goes on running elsewhere - verify_identity answered VERIFIED
+        # on all 312 of its calls, so the check moved to LB3.identity and speaks only when it fails.
+        # `disable` withdraws the function: get_interest_correction abstained on 319 of 319 calls and
+        # there is nothing left behind it to run.
+        if d["name"] in have or d.get("hidden") or d.get("disable"):
             continue
         params, optional = d.get("params") or {}, set(d.get("optional") or [])
         sig = ", ".join(["%s: str" % p for p in params if p not in optional] + ['%s: str = ""' % p for p in params if p in optional])

@@ -219,7 +219,7 @@ def _tool(t):
     # `hidden` keeps a verifier out of the model's tool list while its check still runs on our side
     keep = ("name", "description", "params", "optional", "examples", "op", "ground", "isolate", "requires_reads",
             "return_template", "return_template_empty", "missing_hint", "result_round", "result_range",
-            "result_range_feedback", "grounded_params", "hidden")
+            "result_range_feedback", "grounded_params", "hidden", "disable", "check_moved_to")
     return {k: d[k] for k in keep if k in d}
 
 
