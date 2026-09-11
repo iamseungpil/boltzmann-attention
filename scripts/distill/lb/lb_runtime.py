@@ -218,18 +218,28 @@ def pinned(tools, tool_name, arg, value):
 
 
 def ask_fn(agent):
-    """The sub-call door: one tool-less generation over the prompt alone. Cached per (name, prompt)."""
+    """The sub-call door: one tool-less generation over the prompt alone. Cached per (name, prompt).
+
+    Every call is recorded. Only LB4's claims path used to write a row of its own, so a gate that
+    asked a question and acted on the answer left no trace at all: task_036's acquire condition ran
+    four simulations and what it was asked and what it said could not be read afterwards. A verdict
+    that cannot be recovered is a verdict that does not exist (memory 30), and a condition that
+    cannot be read cannot be repaired.
+    """
     def ask(prompt, name="lb_ask"):
         from tau2.data_model.message import UserMessage
         cache = agent.__dict__.setdefault("_lb_ask_cache", {})
         key = (name, prompt)
-        if key not in cache:
+        hit = key in cache
+        if not hit:
             try:
                 r = generate(agent, [UserMessage(role="user", content=prompt)], tools=[], call_name=name)
                 cache[key] = str(getattr(r, "content", "") or "")
             except Exception as e:
                 print("[lb] ask failed: %r" % (e,), file=sys.stderr, flush=True)
                 cache[key] = ""
+        sidecar("lb-ask", cache[key][:600], None, source=name, sim=sim_id(agent),
+                cached=hit, asked=prompt[:400], qlen=len(prompt))
         return cache[key]
     return ask
 
