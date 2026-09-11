@@ -24339,7 +24339,9 @@
    "check_referral_options"
   ],
   "repeat_cap": 4,
-  "repeat_feedback": "[LEDGER] This retrieval has already returned that exact result {n} times in this conversation, so running it again cannot produce anything new. Stop looking for it. Either act on what you have already retrieved, ask the customer for the detail that is missing, or tell them plainly that the knowledge base does not describe what they are asking for and say what you can do instead."
+  "repeat_feedback": "[LEDGER] This retrieval has already returned that exact result {n} times in this conversation, so running it again cannot produce anything new. Stop looking for it. Either act on what you have already retrieved, ask the customer for the detail that is missing, or tell them plainly that the knowledge base does not describe what they are asking for and say what you can do instead.",
+  "leaving_after": 7,
+  "_leaving_after_source": "base's own 386 simulations: of the 2286 assistant turns that carry text and no tool call, 386 (17%) are that simulation's last turn - but of the 647 at assistant turn 4 or earlier, 646 are not, and t7 is the first turn where 15% of them are. resigning() calls every text-only turn a departure, so the rule was firing at t4 and t5 on conversations with eighty turns still to run. The floor is read off that distribution; no task and no evaluation criteria were read."
  },
  "LB6": {
   "annotations": [],

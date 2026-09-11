@@ -173,10 +173,24 @@ def repeated_search(turn):
                     order=fill(tpl, n=worst)) for c in asking]
 
 
+def nth_assistant_turn(turn):
+    """Which assistant turn this is, counting the one being decided."""
+    return 1 + sum(1 for m in turn.messages if getattr(m, "role", None) == "assistant")
+
+
 def leaving(turn):
-    """The one decision point: everything still open, in one surfaced note, when the model is leaving."""
+    """The one decision point: everything still open, in one surfaced note, when the model is leaving.
+
+    A text-only turn is not a departure. Across base's 386 simulations, 2286 assistant turns carry
+    text and no tool call and only 386 of them - 17 percent - are that simulation's last; of the 647
+    at assistant turn 4 or earlier, 646 are not. So A2 declares the turn this decision point starts
+    at, and before it only an actual hand-off counts as leaving.
+    """
     handoff = transferring(turn)
     if not handoff and not turn.resigning():
+        return []
+    floor = int(spec_of(turn).get("leaving_after") or 0)
+    if not handoff and floor and nth_assistant_turn(turn) < floor:
         return []
     facts = unread_definition(turn) + [f.order for f in exhausted_search(turn)] + open_request(turn)
     target = fam(turn.name_of(handoff[0])) if handoff else "leaving"
