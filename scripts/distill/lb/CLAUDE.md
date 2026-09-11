@@ -155,6 +155,7 @@ conc4+conc2 두 레인, 8141 은 conc2 하나) · `keeper_aa.sh`(죽은 레인�
 | 물음 | 파일 |
 |---|---|
 | 기전·LB 표·판정 규칙·도는 실험·확정 결함·선행연구 | `docs/RESEARCH_BASE.md` |
+| 손해 목록에서 빠져 있던 `058`·`070` 의 부검 + `aa_` 예측 | `docs/AUTOPSY_058_070_2026_09_11.md` |
 | 구 레버 185개의 판정(VALID 0 · HARMFUL 22 · DARK 38) | `docs/LEVER_ROSTER_2026_08_19.md` |
 | 구 코드가 읽던 플래그 358개 → 어느 함수·어느 L군 | `docs/flags_inventory.tsv` |
 | 구 코드의 발화 지점 96곳(중재기 경유 0) | `docs/UTTERANCE_INVENTORY_2026_09_08.md` |
