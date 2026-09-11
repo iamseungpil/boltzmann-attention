@@ -120,6 +120,7 @@ def open_request(turn):
     nl = chr(10)
     prompt = (spec["question"] + nl + nl
               + nl.join("%s - %s" % (k, v) for k, v in kinds.items()) + nl + nl
+              + str(spec.get("acts") or "") + nl + nl
               + "What the customer has said:" + nl + nl + turn.user_text[-8000:] + nl + nl
               + "Every tool the agent actually ran, in order:" + nl + nl
               + (", ".join(ran) or "(none)") + nl + nl
