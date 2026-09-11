@@ -363,7 +363,7 @@ def execute(orch, a2, tool_calls, orig_exec):
             args.update(fetch_formalize(orch, agent, d, iso, args, orig_exec) or {})
         elif iso.get("over") and iso.get("operand_schema"):
             formalize_rows(orch, agent, iso, args, orig_exec)
-        text, err, ids = lb2_decision.run_tool(d, args, corpora_of(orch, agent), evidence_of(orch, d))
+        text, err, ids, verdict = lb2_decision.run_tool(d, args, corpora_of(orch, agent), evidence_of(orch, d))
         if ids and agent is not None:
             # what a verifier settled travels as data. It used to be recovered by parsing the
             # sentence we had just written, which found nothing and left LB4 silent.
@@ -373,9 +373,8 @@ def execute(orch, a2, tool_calls, orig_exec):
         # characters, an instruction to call log_verification next and a rule about its arguments.
         # The tool stays in the list and keeps running; only the passing answer shrinks to its
         # verdict. A failing answer is the whole point of the check and is left untouched.
-        q = str(d.get("quiet_ok") or "")
-        if d.get("hidden") and q and text and str(text).lstrip().startswith(q):
-            quiet = q
+        if d.get("hidden") and verdict == "met":
+            quiet = str(d.get("ok_text") or "OK")
             sidecar("lb-quiet", "%s: %d -> %d chars" % (d["name"], len(text), len(quiet)), None,
                     sim=sim_id(agent), source=d["name"])
             text = quiet
