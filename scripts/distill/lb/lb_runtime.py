@@ -373,16 +373,12 @@ def execute(orch, a2, tool_calls, orig_exec):
         # characters, an instruction to call log_verification next and a rule about its arguments.
         # The tool stays in the list and keeps running; only the passing answer shrinks to its
         # verdict. A failing answer is the whole point of the check and is left untouched.
-        if d.get("hidden") and not err and text:
-            head = str(text).splitlines()[0]
-            for sep in (" — ", " - ", ";", ":"):
-                if sep in head:
-                    head = head.split(sep)[0]
-            quiet = str(d.get("ok_text") or head).strip()
-            if quiet and quiet != text:
-                sidecar("lb-quiet", "%s: %d -> %d chars" % (d["name"], len(text), len(quiet)), None,
-                        sim=sim_id(agent), source=d["name"])
-                text = quiet
+        q = str(d.get("quiet_ok") or "")
+        if d.get("hidden") and q and text and str(text).lstrip().startswith(q):
+            quiet = q
+            sidecar("lb-quiet", "%s: %d -> %d chars" % (d["name"], len(text), len(quiet)), None,
+                    sim=sim_id(agent), source=d["name"])
+            text = quiet
         by_id[tc.id] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=err, content=text)
         # result first: the sidecar keeps 4000 chars and a 47-row argument list alone exceeds that
         sidecar("lb-tool", "RESULT %s\nARGS %s" % (text[:2500], json_dumps(args)[:1400]), None, sim=sim_id(agent),

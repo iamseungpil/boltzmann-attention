@@ -1347,7 +1347,8 @@
     "return_template": "{result}",
     "missing_hint": "NOT_VERIFIED — provide 'provided' (the identity values the customer gave you).",
     "hidden": true,
-    "check_moved_to": "identity_gate"
+    "check_moved_to": "identity_gate",
+    "quiet_ok": "VERIFIED"
    },
    {
     "name": "check_rebate_qualification",
