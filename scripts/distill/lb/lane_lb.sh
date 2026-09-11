@@ -15,10 +15,27 @@ PY=/home/woori/venvs/seka_env/bin/python
 M="Qwen/Qwen3.8-27B-FP8"
 GOT=$(curl -s -m 20 "http://localhost:$PORT/v1/models" | grep -oE '"id":"[^"]+"' | head -1 | cut -d'"' -f4)
 [ "$GOT" = "$M" ] || { echo "[lb] refusing - port $PORT serves '$GOT'"; exit 1; }
+# A tree whose files do not match its HEAD runs something the start line cannot name: `git reset`
+# without --hard moves HEAD and leaves the files, and on 2026-09-12 an arm ran the unedited
+# declaration for 31 minutes while this line printed the arm's sha. Refuse, and print what the
+# declaration actually says rather than which commit it is supposed to be.
+DIRTY=$(git -C "$R" status --porcelain 2>/dev/null | head -c 300)
+[ -z "$DIRTY" ] || { echo "[lb] refusing - $R does not match its HEAD: $DIRTY"; exit 1; }
+A2="$LB/a2/banking_knowledge.lb.json"
+FP=$($PY -c "
+import json,io,sys
+d=json.load(io.open(sys.argv[1],encoding='utf-8'))
+o=d['LB5'].get('open_request') or {}
+print('a2=%s open=%s speak=%s repeat=%d enforce=%d desc=%d'%(
+ __import__('hashlib').sha1(io.open(sys.argv[1],'rb').read()).hexdigest()[:12],
+ 'LIVE' if o else 'EMPTY', ','.join(o.get('speak_when') or []) or '-',
+ len(d['LB5'].get('repeat_tools') or []),
+ sum(1 for p in d['LB1']['procedures'] if p.get('enforce')),
+ sum(len(str(t.get('description') or '')) for t in d['LB2']['tools'])))" "$A2")
 source /home/woori/.openrouter_key; [ -f /home/woori/.openai_key ] && source /home/woori/.openai_key
 export LB_DOCS_DIR="$GO/data/tau2/domains/banking_knowledge/documents"
 export PYTHONPATH="src:$LB"
-echo "[lb $(date '+%m-%d %H:%M')] start port=$PORT model=$GOT conc=$CONC nt=$NT prefix=$PREFIX queue=$(wc -l < "$QUEUE") sha=$(git -C "$R" rev-parse --short HEAD)"
+echo "[lb $(date '+%m-%d %H:%M')] start port=$PORT model=$GOT conc=$CONC nt=$NT prefix=$PREFIX queue=$(wc -l < "$QUEUE") sha=$(git -C "$R" rev-parse --short HEAD) $FP"
 pop(){ local t; exec 9>"$LOCK"; flock 9; t=$(head -1 "$QUEUE" 2>/dev/null); [ -n "$t" ] && sed -i '1d' "$QUEUE"; flock -u 9; exec 9>&-; echo "$t"; }
 cd "$GO" || exit 1
 while true; do
