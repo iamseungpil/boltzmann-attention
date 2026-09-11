@@ -289,6 +289,17 @@ _bare = sorted(t["name"] for t in _decl.get("scaffold_get_tools") or []
 check("every tool we add says when it applies", not _bare, "no condition stated: %s" % _bare)
 
 
+# A refusal needs a sentence from the source behind it. This declaration says so itself, in
+# account_opening: "정책 축자 인용이 없으므로 이 enforce 는 부채다 - 인용을 못 대면 enforce:false 로
+# 내려 표면화만 한다." All twenty-seven enforcing procedures carry one today, including the ones
+# migration derives; this keeps it that way, because a derived procedure sets enforce from a template
+# and nothing was checking whether the quote came with it.
+_unquoted = sorted(p.get("id", "?") for p in (A2.get("LB1") or {}).get("procedures") or []
+                   if p.get("enforce") and not str(p.get("_quote_order") or "").strip())
+check("a procedure denies only where it can quote the policy", not _unquoted,
+      "enforcing without a quote: %s" % _unquoted)
+
+
 # A verdict that tells the caller how to obtain something it already has is noise. task_016 was
 # verified early and then carried "FIRST call get_current_time, wait for its result, then copy that
 # exact timestamp" on every verified turn afterwards, while the task turned on telling the customer
