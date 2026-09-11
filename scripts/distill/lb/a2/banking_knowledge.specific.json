@@ -22608,27 +22608,7 @@
       "_note": "2026-07-23 C115(HAVE_VALUE_RETRY_LEVER_DESIGN·have-value→act 일반레버·격리 idx55 8/9): last-4(1652)를 손님이 get_card_last_4_digits(user측 call_discoverable_user_tool)로 실행·확인해 tool출력(marker 'Executed: get_card_last_4_digits')+user발화에 실재하는데도 에이전트가 '올바른 last 4가 필요' 재요청 7턴 반복·file 미시도(temp0 고착). 엔진 술어=W미시도∧producer성공출력실재∧(이전+지금)재요청(도메인 리터럴0). value_pattern은 producer 성공출력의 값 인용용(옵션·유일할 때만). 시각054·CLI052·flail050과 한 가족—provenance 채널 단일수렴(개별 A2 hint 증식 대신). Δspurious: 넛지는 요구된 write만 유도(새 write 안 만듦)·미실재면 미발화."
     }
   ],
-  "value_acquisition": [
-    {
-      "write": "file_credit_card_transaction_dispute_4829",
-      "arg": "card_last_4_digits",
-      "acquire_tool": "get_card_last_4_digits",
-      "give_tool": "give_discoverable_user_tool",
-      "producer_marker": "Executed: get_card_last_4_digits",
-      "reask_signals": [
-        "last 4",
-        "last four",
-        "last-4",
-        "four digits",
-        "4 digits",
-        "correct last 4"
-      ],
-      "feedback": "[VALUE-ACQUIRE] The customer cannot read the last 4 digits off the card and they are NOT stored in the account records - they must be retrieved by the CUSTOMER running get_card_last_4_digits. Stop re-asking the customer for them. Use give_discoverable_user_tool to give get_card_last_4_digits to the customer NOW, then have them run it with their credit_card_account_id and read the value from its output. Read the value from its output; whether a dispute is the right step here is yours to judge from the customer's request and the knowledge base.",
-      "_note": "2026-07-23 C119(8-task per-step 포렌식·031hv/039 실측): have-value의 앞단계 = 값 획득 경로 실패. 에이전트가 last-4를 재요청하나 ①값 미실재(producer 성공출력0) ②계좌record에 없음 ③get_card_last_4_digits를 give_discoverable_user_tool로 손님에게 안 줌 → 손님이 값 못 얻어 재요청 무한→draft만 열고 STOP(031hv) 또는 앱로그인 안내(039). 031 base는 give함→file 도달(pass). 검출기=재요청∧값미실재∧give미실행(엔진 일반·[[05]]). have-value(값 실재)와 상보·상호배타(값 있으면 skip).",
-      "when": "A bank agent is about to tell the customer how to obtain '{arg}'. Looking only at what the customer has asked for in their own words below, is '{arg}' needed to carry out what they asked? Answer NO if what they asked for can be done without it.",
-      "_note_when": "2026-09-11. First written as 'has the customer asked to dispute a charge', and task_036 still drew it twice: that customer reports two fraudulent charges and asks for her card to be reissued, and a fraud report reads as a dispute request. The condition belongs on the value, not on the intent - a replacement card does not need the card's last four digits and a dispute does. What the request needs is the sub-call's judgement; no task words here."
-    }
-  ],
+  "value_acquisition": [],
   "view_keep_lines": [
     "ID:",
     "Score:"
@@ -23084,7 +23064,7 @@
         "doc_credit_cards_credit_card_account_logistics_001 (How can I close a credit card account?)"
       ],
       "_quote_order": "Check these in order: 1. Pending disputes … 2. No pending replacement cards … 3. Minimum account age … 4. Outstanding balance.",
-      "enforce": true,
+      "enforce": false,
       "_note_enforce": "정책이 Step 1에서 '이 순서로 확인하라'고 명령하고 Step 2가 그 다음임을 지정하므로 순서 강제의 허가가 있다. 허가 문장이 없으면 표면화만 한다.",
       "enter_when": {
         "tool_any": [
@@ -23206,7 +23186,8 @@
       "_note_nodes": "★2026-08-05 교정(x91 gold-경로 게이트): 구판은 ① `eligibility`(=check_card_closure_eligibility 호출)를 Step2~6의 **선행**으로 걸고 ② `close`에 `retention_offer`를 **필수**로 걸었다. 정책 원문은 둘 다 말하지 않는다 — Step 1은 *'Check these in order: 1. Pending disputes 2. No pending replacement cards 3. Minimum account age 4. Outstanding balance'* 라는 **확인 4가지**이지 특정 도구 호출이 아니고, Step 2는 *'If records exist ... skip retention offers and proceed directly to processing the closure'* 로 **보유 제안의 우회를 명시**한다. 그 과잉 규정이 gold 경로를 6 태스크·47곳에서 막고 있었다(x91). 보유-제안은 조건이 도구 **출력 내용**에 달려 있어 우리에겐 닫히지 않으므로 **표면화만** 한다.",
       "id_key": "credit_card_account_id",
       "_note_id_key": "2026-09-10: the subject of this procedure is one card account, so a step waived by the source is waived for that account only.",
-      "_note_dag_2026_09_11": "★outcome 한 노드에 구제·제안·해지를 tool_any 로 뭉쳐 두었더니 Step 5→6 의 순서가 그래프에서 사라졌다. 048/049 의 실패가 전부 '제안 없이 해지' 또는 '제안하고도 해지'였다. 순서는 산문이 아니라 간선으로 적는다."
+      "_note_dag_2026_09_11": "★outcome 한 노드에 구제·제안·해지를 tool_any 로 뭉쳐 두었더니 Step 5→6 의 순서가 그래프에서 사라졌다. 048/049 의 실패가 전부 '제안 없이 해지' 또는 '제안하고도 해지'였다. 순서는 산문이 아니라 간선으로 적는다.",
+      "_note_enforce_min": "MINIMAL ARM. [PROCEDURE] fired 19 times across the tasks where we lose to base and every one of them was a denial; the three firings in a task we win were all surfaces. The order is still stated, the model still decides."
     },
     {
       "id": "incident_transfer_order",
@@ -28928,11 +28909,6 @@
       "why": "the credit-limit-increase procedure's tier-dependent argument bounds: which table holds the number, which operand selects the row, and what the chosen argument must then satisfy. Declared on two nodes of that one procedure and dropped by the node whitelist at migration; no engine reads any of the six."
     }
   },
-  "open_request": {
-    "question": "A bank agent is about to end its part of this conversation. Read what the customer asked for and the list of tools the agent actually ran. Is the customer leaving with something they asked for that the agent never carried out - a payment, an application, an order, a change to an account - as opposed to an answer or an explanation, which a reply satisfies? Judge only from what is below.",
-    "feedback": "[LEDGER] You are ending your part here and the run record shows no action for this: {open}. If the customer asked you to carry something out, a reply explaining the policy is not that action - make the call now. If you have decided not to, say plainly to the customer that you are not doing it and why.",
-    "_note": "2026-09-11 task_016. LB5's own contract says to name what the ledger can still show as open at the moment the model leaves, and the only kinds declared were an unread transfer document and an exhausted search. 016: the customer asks for a friend's $750 purchase to be put through, the agent verifies the caller with the right arguments, researches the referral terms, decides it cannot confirm one clause and leaves having explained. base writes it 4/4; our arms wrote it 0/4 (v2), 1/4 (cab), 1/4 (sb), 3/4 (sc), and every simulation that wrote at all used base's own arguments. 007 has the same shape - its single write is simply absent in the failures. Neither tool name occurs in any of the 698 documents, so the step cannot be declared as a procedure node without transcribing gold; the question is put to an isolated sub-call instead. Bounded to once per simulation: LB1's walker named the next step on every text turn and fired 180 times over 216 simulations."
-  },
   "repeat_tools": [
     "KB_search",
     "KB_search_bm25",
@@ -28941,5 +28917,6 @@
   ],
   "repeat_cap": 4,
   "repeat_feedback": "[LEDGER] This retrieval has already returned that exact result {n} times in this conversation, so running it again cannot produce anything new. Stop looking for it. Either act on what you have already retrieved, ask the customer for the detail that is missing, or tell them plainly that the knowledge base does not describe what they are asking for and say what you can do instead.",
-  "_note_repeat": "2026-09-11 task_023. Three runaways across the lb, n and v2 arms are one shape: the customer asks how to apply for the Diamond Elite Card, which is invitation-only and has no application tool, and the agent searches for it - the same query 16 times, the same document read 11 times - for a hundred assistant turns until max_steps or the context window ends it. The exhaustion test on file looks for an empty result and every one of these came back full. The cap is measured, not chosen: over base's 388 simulations one identical retrieval result never comes back a fourth time (histogram 1:368, 2:15, 3:3), while ours reach 4, 5 and 6 and both runaways are in that group - 5 simulations of 372. shell joins the search tools here because these loops are mostly shell; the empty-result test keeps its own list."
+  "_note_repeat": "2026-09-11 task_023. Three runaways across the lb, n and v2 arms are one shape: the customer asks how to apply for the Diamond Elite Card, which is invitation-only and has no application tool, and the agent searches for it - the same query 16 times, the same document read 11 times - for a hundred assistant turns until max_steps or the context window ends it. The exhaustion test on file looks for an empty result and every one of these came back full. The cap is measured, not chosen: over base's 388 simulations one identical retrieval result never comes back a fourth time (histogram 1:368, 2:15, 3:3), while ours reach 4, 5 and 6 and both runaways are in that group - 5 simulations of 372. shell joins the search tools here because these loops are mostly shell; the empty-result test keeps its own list.",
+  "_note_minimal_arm_2026_09_11": "Three subtractions from a11ebd48, nothing else. Each is a place where we command rather than inform: the acquire advice tells the model to hand a tool to the customer (task_036: removing it took 0/4 to 2/4, which is base), the closure procedure denies rather than states (tasks 048 and 049), and open_request speaks on the way out (it fired zero times on task_007 and twice on task_016, naming the wrong thing both times). What earns the +26 over base - the write-evidence rules, the order denials, the follow-up chain - is untouched."
 }
