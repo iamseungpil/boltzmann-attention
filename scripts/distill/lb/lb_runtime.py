@@ -318,12 +318,10 @@ def inject_tools(agent, a2, said=None):
     from tau2.environment.tool import Tool
     have, added = {getattr(t, "name", None) for t in (agent.tools or [])}, []
     for d in (a2.get("LB2") or {}).get("tools") or []:
-        # two different things, and they are not the same switch. `hidden` keeps the tool out of the
-        # model's list while its check goes on running elsewhere - verify_identity answered VERIFIED
-        # on all 312 of its calls, so the check moved to LB3.identity and speaks only when it fails.
         # `disable` withdraws the function: get_interest_correction abstained on 319 of 319 calls and
-        # there is nothing left behind it to run.
-        if d["name"] in have or d.get("hidden") or d.get("disable"):
+        # there is nothing left behind it to run. `hidden` is not that and does not belong here - it
+        # is about what the answer says, not whether the tool exists, and is applied in execute().
+        if d["name"] in have or d.get("disable"):
             continue
         # a third switch, and the cheapest: a tool whose subject has not come up does not go in the
         # window at all. `inject_when` names that subject; a tool without one is always injected.
@@ -370,6 +368,21 @@ def execute(orch, a2, tool_calls, orig_exec):
             # what a verifier settled travels as data. It used to be recovered by parsing the
             # sentence we had just written, which found nothing and left LB4 silent.
             agent.__dict__.setdefault("_lb_rows", {}).setdefault(fam(d["name"]), set()).update(ids)
+        # `hidden`: a verifier that passes has told the model nothing it did not already believe.
+        # verify_identity came back VERIFIED on 1,037 of 1,037 calls and each answer carried 150
+        # characters, an instruction to call log_verification next and a rule about its arguments.
+        # The tool stays in the list and keeps running; only the passing answer shrinks to its
+        # verdict. A failing answer is the whole point of the check and is left untouched.
+        if d.get("hidden") and not err and text:
+            head = str(text).splitlines()[0]
+            for sep in (" — ", " - ", ";", ":"):
+                if sep in head:
+                    head = head.split(sep)[0]
+            quiet = str(d.get("ok_text") or head).strip()
+            if quiet and quiet != text:
+                sidecar("lb-quiet", "%s: %d -> %d chars" % (d["name"], len(text), len(quiet)), None,
+                        sim=sim_id(agent), source=d["name"])
+                text = quiet
         by_id[tc.id] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=err, content=text)
         # result first: the sidecar keeps 4000 chars and a 47-row argument list alone exceeds that
         sidecar("lb-tool", "RESULT %s\nARGS %s" % (text[:2500], json_dumps(args)[:1400]), None, sim=sim_id(agent),
