@@ -161,9 +161,45 @@ def identifying_findings(turn, call):
     return []
 
 
+def identity_findings(turn, call):
+    """The check that only speaks when it fails - no tool, no round trip, no turn spent on a yes.
+
+    verify_identity was a tool of ours in the model's list: 312 calls across 372 simulations and not
+    one of them came back anything but VERIFIED. It never told the model something it did not already
+    believe, and every call cost a round trip - the request, the answer, and on task_016 a further
+    instruction to go and fetch the current time. base has no such tool and verifies anyway.
+
+    The same question is answerable without asking: the values the agent is about to record are the
+    call's own arguments, and the record is already in the conversation. Count how many of the
+    declared fields appear in one retrieved record; under the threshold, say so. Above it, say
+    nothing at all.
+    """
+    spec = (turn.a2.get("LB3") or {}).get("identity") or {}
+    if not spec.get("feedback") or fam(turn.name_of(call)) != fam(spec.get("applies_to", "")):
+        return []
+    args = turn.args_of(call)
+    have = [f for f in spec.get("fields") or [] if str(args.get(f) or "").strip()]
+    if not have:
+        return []
+    # counted inside one tool output, not across them: two details that matched two different
+    # customers are not a verification. The environment prints its records as a listing, not as JSON,
+    # so there is nothing to parse here - the output itself is the record.
+    best, who = 0, ""
+    for o in turn.tool_outputs():
+        hit = [f for f in have if present(args[f], o)]
+        if len(hit) > best:
+            best, who = len(hit), ", ".join(hit)
+    if best >= int(spec.get("threshold") or 2):
+        return []
+    return [Finding(LB, DENY, fam(turn.name_of(call)), call,
+                    fill(spec["feedback"], count=best, threshold=int(spec.get("threshold") or 2),
+                         matched=who or "(none)", fields=", ".join(spec.get("fields") or [])),
+                    grade=LEDGER, source="identity")]
+
+
 def evaluate(turn):
     return [f for c in turn.calls for f in grounding_findings(turn, c) + name_findings(turn, c)
-            + schema_findings(turn, c) + identifying_findings(turn, c)]
+            + schema_findings(turn, c) + identifying_findings(turn, c) + identity_findings(turn, c)]
 
 
 if __name__ == "__main__":

@@ -130,6 +130,8 @@ def migrate(domain):
                       "feedback_not_discoverable": names.get("feedback_not_discoverable"),
                       "feedback_rejected": names.get("feedback_rejected") or REJECTED},
             "schema": src.get("tool_signatures") or {},
+            # the check that speaks only when it fails: no tool in the list, no round trip on a yes
+            "identity": src.get("identity_gate") or {},
             "identifying": {"args": sorted(set((src.get("field_ops") or {}).get("id_ref") or [])
                                            | set(src.get("identifying_arg_types") or [])), "feedback": UNGROUNDED},
         },
@@ -214,9 +216,10 @@ def _tool(t):
     if hit:
         d.update(have[hit])
     d = _clean(d)
+    # `hidden` keeps a verifier out of the model's tool list while its check still runs on our side
     keep = ("name", "description", "params", "optional", "examples", "op", "ground", "isolate", "requires_reads",
             "return_template", "return_template_empty", "missing_hint", "result_round", "result_range",
-            "result_range_feedback", "grounded_params")
+            "result_range_feedback", "grounded_params", "hidden")
     return {k: d[k] for k in keep if k in d}
 
 

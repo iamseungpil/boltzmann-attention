@@ -312,7 +312,10 @@ def inject_tools(agent, a2):
     from tau2.environment.tool import Tool
     have, added = {getattr(t, "name", None) for t in (agent.tools or [])}, []
     for d in (a2.get("LB2") or {}).get("tools") or []:
-        if d["name"] in have:
+        # a hidden verifier stays out of the model's list. verify_identity answered VERIFIED on all
+        # 312 of its calls across 372 simulations - a round trip per conversation for an answer the
+        # model already had. The check itself still runs, on our side, and speaks only when it fails.
+        if d["name"] in have or d.get("hidden"):
             continue
         params, optional = d.get("params") or {}, set(d.get("optional") or [])
         sig = ", ".join(["%s: str" % p for p in params if p not in optional] + ['%s: str = ""' % p for p in params if p in optional])

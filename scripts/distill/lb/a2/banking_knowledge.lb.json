@@ -1338,7 +1338,8 @@
      }
     },
     "return_template": "{result}",
-    "missing_hint": "NOT_VERIFIED — provide 'provided' (the identity values the customer gave you)."
+    "missing_hint": "NOT_VERIFIED — provide 'provided' (the identity values the customer gave you).",
+    "hidden": true
    },
    {
     "name": "check_rebate_qualification",
@@ -24031,6 +24032,18 @@
     "discoverable_tool_name",
     "arguments"
    ]
+  },
+  "identity": {
+   "applies_to": "log_verification",
+   "fields": [
+    "date_of_birth",
+    "address",
+    "phone_number",
+    "email"
+   ],
+   "threshold": 2,
+   "feedback": "Error: [IDENTITY] before logging a verification the policy needs at least {threshold} of {fields} that the customer PROVIDED to match their account record, and the records retrieved here match only {count} ({matched}). Ask the customer for another of those details and check it against the record you pulled, or say plainly that the account cannot be verified - do not log a verification that did not happen.",
+   "_note": "The tool form of this check said VERIFIED 312 times out of 312. What it is for is the other answer, and that one needs no tool: the values are the call's own arguments and the record is already in the conversation."
   },
   "identifying": {
    "args": [

@@ -635,6 +635,32 @@ check("no regular expressions in engines", not any("import re" in io.open(os.pat
                                                     for m in MODULES))
 lines = sum(len(io.open(os.path.join(ROOT, f), encoding="utf-8").read().splitlines())
             for f in os.listdir(ROOT) if f.endswith(".py"))
+
+# verify_identity was a tool in the model's list and answered VERIFIED on all 312 of its calls across
+# 372 simulations - it never told the model anything it did not already believe, and each call cost a
+# round trip. base has no such tool and verifies anyway. The check now reads log_verification's own
+# arguments against the record that is already in the conversation, and says nothing when they match.
+import lb3_citation
+_ID = {"LB3": {"identity": {"applies_to": "log_verification", "fields": ["date_of_birth", "email"],
+                            "threshold": 2, "feedback": "only {count} of {threshold} matched"}}}
+
+
+def _logv(record, **args):
+    _c = _C("log_verification", args)
+    _t = _Turn(_ID, [_M("tool", record)], _M(calls=[_c]))
+    return [f for f in lb3_citation.identity_findings(_t, _c)]
+
+
+_NL2 = chr(10)
+_rec = (_NL2.join(["Found 1 record(s) in 'users':", "", "1. Record ID: u1",
+                   "   date_of_birth: 02/14/1988", "   email: a@b.com"]))
+check("the identity check says nothing when the record backs the values",
+      not _logv(_rec, date_of_birth="02/14/1988", email="a@b.com"))
+check("and speaks when it does not",
+      bool(_logv(_rec, date_of_birth="01/01/1990", email="zz@zz.com")))
+_hidden = [t["name"] for t in (A2.get("LB2") or {}).get("tools") or [] if t.get("hidden")]
+check("a hidden verifier stays out of the model's tool list", "verify_identity" in _hidden)
+
 print("code base size: %d lines across %d files" % (lines, len([f for f in os.listdir(ROOT) if f.endswith('.py')])))
 print("RESULT: %s (%d/%d)" % ("PASS" if all(OK) else "FAIL", sum(OK), len(OK)))
 sys.exit(0 if all(OK) else 1)

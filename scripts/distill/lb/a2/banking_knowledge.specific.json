@@ -816,7 +816,9 @@
           "missing_hint": "NOT_VERIFIED — provide 'provided' (the identity values the customer gave you)."
         }
       },
-      "_note_when_2026_09_11": "task_016: this is the one tool of ours whose output we also rewrite, and the rewrite is all procedure bookkeeping - call log_verification, copy the current time. The task turns on something else entirely: telling the customer that their friend must spend $750, after which the customer runs submit_transaction themselves. base does that in four simulations of four and never holds any of our tools. Saying when this one stops applying is the least we can do for a conversation that has already verified and needs to move on."
+      "_note_when_2026_09_11": "task_016: this is the one tool of ours whose output we also rewrite, and the rewrite is all procedure bookkeeping - call log_verification, copy the current time. The task turns on something else entirely: telling the customer that their friend must spend $750, after which the customer runs submit_transaction themselves. base does that in four simulations of four and never holds any of our tools. Saying when this one stops applying is the least we can do for a conversation that has already verified and needs to move on.",
+      "hidden": true,
+      "_note_hidden": "2026-09-11: 312 calls over 372 simulations and every one answered VERIFIED - it never told the model anything it did not already believe, and each call cost a round trip (task_016: the request, the answer, and then an instruction to go fetch the current time). base has no such tool and verifies anyway. The check moves to LB3.identity, where it reads log_verification's own arguments against the retrieved record and speaks only when fewer than two of them match."
     },
     {
       "name": "check_rebate_qualification",
@@ -28954,5 +28956,17 @@
   ],
   "repeat_cap": 4,
   "repeat_feedback": "[LEDGER] This retrieval has already returned that exact result {n} times in this conversation, so running it again cannot produce anything new. Stop looking for it. Either act on what you have already retrieved, ask the customer for the detail that is missing, or tell them plainly that the knowledge base does not describe what they are asking for and say what you can do instead.",
-  "_note_repeat": "2026-09-11 task_023. Three runaways across the lb, n and v2 arms are one shape: the customer asks how to apply for the Diamond Elite Card, which is invitation-only and has no application tool, and the agent searches for it - the same query 16 times, the same document read 11 times - for a hundred assistant turns until max_steps or the context window ends it. The exhaustion test on file looks for an empty result and every one of these came back full. The cap is measured, not chosen: over base's 388 simulations one identical retrieval result never comes back a fourth time (histogram 1:368, 2:15, 3:3), while ours reach 4, 5 and 6 and both runaways are in that group - 5 simulations of 372. shell joins the search tools here because these loops are mostly shell; the empty-result test keeps its own list."
+  "_note_repeat": "2026-09-11 task_023. Three runaways across the lb, n and v2 arms are one shape: the customer asks how to apply for the Diamond Elite Card, which is invitation-only and has no application tool, and the agent searches for it - the same query 16 times, the same document read 11 times - for a hundred assistant turns until max_steps or the context window ends it. The exhaustion test on file looks for an empty result and every one of these came back full. The cap is measured, not chosen: over base's 388 simulations one identical retrieval result never comes back a fourth time (histogram 1:368, 2:15, 3:3), while ours reach 4, 5 and 6 and both runaways are in that group - 5 simulations of 372. shell joins the search tools here because these loops are mostly shell; the empty-result test keeps its own list.",
+  "identity_gate": {
+    "applies_to": "log_verification",
+    "fields": [
+      "date_of_birth",
+      "address",
+      "phone_number",
+      "email"
+    ],
+    "threshold": 2,
+    "feedback": "Error: [IDENTITY] before logging a verification the policy needs at least {threshold} of {fields} that the customer PROVIDED to match their account record, and the records retrieved here match only {count} ({matched}). Ask the customer for another of those details and check it against the record you pulled, or say plainly that the account cannot be verified - do not log a verification that did not happen.",
+    "_note": "The tool form of this check said VERIFIED 312 times out of 312. What it is for is the other answer, and that one needs no tool: the values are the call's own arguments and the record is already in the conversation."
+  }
 }
