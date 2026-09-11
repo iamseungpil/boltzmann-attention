@@ -293,11 +293,17 @@ _RUN = {"get_user_dispute_history_7291": 1, "get_pending_replacement_orders_5765
         "get_closure_reason_history_8293": 1}
 
 
-def _closes(card, output):
+def _ran(run, card):
+    """The run record with each call's arguments - what a per-subject procedure counts."""
+    return [(k, {"credit_card_account_id": card}) for k, v in run.items() for _ in range(v)]
+
+
+def _closes(card, output, on=None):
     _call = _C("call_discoverable_agent_tool",
                {"agent_tool_name": "close_credit_card_account_7834",
                 "arguments": {"credit_card_account_id": card}})
-    _t = _Turn(_A2, [_M("tool", output)], _M(calls=[_call]), executed=dict(_RUN))
+    _t = _Turn(_A2, [_M("tool", output)], _M(calls=[_call]), executed=dict(_RUN),
+               ran=_ran(_RUN, on or card))
     return [f for f in lb1_requirements.procedure_findings(_t, _call) if f.primitive == lb1_requirements.DENY]
 
 
@@ -360,7 +366,7 @@ _RUN = {"get_user_dispute_history_7291": 1, "get_pending_replacement_orders_5765
         "get_closure_reason_history_8293": 1, "log_credit_card_closure_reason_4521": 1}
 
 
-def _closure(card, hist, yes=()):
+def _closure(card, hist, yes=(), on=None):
     """yes: which of the step questions the isolated sub-call answers YES to."""
     def _ask(prompt, name="lb_ask"):
         return "YES" if any(k in prompt for k in yes) else "NO"
@@ -369,7 +375,7 @@ def _closure(card, hist, yes=()):
             {"agent_tool_name": "close_credit_card_account_7834",
              "arguments": {"credit_card_account_id": card}})
     _t = _Turn(_A2, [_M("tool", hist), _M("assistant", "we have been talking")], _M(calls=[_c]),
-               executed=dict(_RUN), extras={"ask": _ask})
+               executed=dict(_RUN), ran=_ran(_RUN, on or card), extras={"ask": _ask})
     return [f for f in lb1_requirements.procedure_findings(_t, _c)
             if f.primitive == lb1_requirements.DENY]
 
@@ -384,6 +390,17 @@ check("the step question goes to a sub-call, not to a word match",
       and "said_any" not in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read())
 check("and proceeds with neither where the source skips retention",
       not _closure("cc_x_green", _REC))
+
+
+# task_049's customer holds four cards. The smoke closed the Green card legitimately - its history
+# already held a record, so the source waived the retention steps - and from that call onward every
+# node of this procedure read as done for the Crypto card as well, so the graph let the Crypto
+# closure through with its own steps never taken. A procedure that names its subject runs once per
+# subject.
+check("another card's steps do not satisfy this card's",
+      bool(_closure("cc_x_crypto", _NONE, yes=("Step 4", "Step 5"), on="cc_x_green")))
+check("and the record that does belong to this card still clears it",
+      not _closure("cc_x_crypto", _NONE, yes=("Step 4", "Step 5")))
 
 
 # A policy sentence carried to a write must survive the exit. Every write in this domain is

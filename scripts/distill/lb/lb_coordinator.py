@@ -149,7 +149,7 @@ class Turn(object):
     """
 
     def __init__(self, a2, messages, am, executed=None, unlocked=(), visible_tools=(),
-                 registry=None, corpus=None, extras=None, attempted=None, sim="-"):
+                 registry=None, corpus=None, extras=None, attempted=None, sim="-", ran=()):
         self.a2 = a2 or {}
         # identity, not capability: an engine can label a record with it and do nothing else. LB4's
         # claims audit is 71% of what our layer does and its rows carried no simulation at all.
@@ -162,6 +162,9 @@ class Turn(object):
         # absence); permission to take the next step requires executed.
         self.executed = collections.Counter(executed or {})
         self.attempted = collections.Counter(attempted if attempted is not None else self.executed)
+        # the same list as executed, kept in order and with each call's arguments, so a procedure
+        # that names its subject can count only the calls that carried that subject
+        self.ran = list(ran or ())
         self.unlocked = set(unlocked or ())
         self.visible_tools = set(visible_tools or ())
         self.registry = registry or {"agent": set(), "user": set(), "user_all": set()}

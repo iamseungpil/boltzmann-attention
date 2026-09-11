@@ -16,6 +16,8 @@ policy sentence that licenses the order; otherwise it surfaces. The engine names
 sentence of its own: every template is the declaration's. Task-specific cases are data here.
 """
 
+import collections
+
 from lb_coordinator import Finding, DENY, SURFACE, PIN, GRADES, fam, fill
 
 LB = "LB1"
@@ -44,6 +46,29 @@ def _done(node, executed, settled=()):
     return n >= int(node.get("min_count") or 1)
 
 
+def scoped(turn, proc, call):
+    """The run record as this procedure's subject sees it.
+
+    A procedure that names its subject (`id_key`) runs once per subject, not once per conversation.
+    task_049's customer holds four cards: the smoke closed the Green card legitimately, and from
+    that moment disputes, pending_replacement, prior_attempts and close all read as done for the
+    Crypto card too, so the graph waved through a closure whose own steps were never taken. Counting
+    tool names alone cannot tell one card from another; the declaration already carries the argument
+    that can. A call that names no subject is not about a different one, so it still counts - the
+    dispute history is read per customer, not per card.
+    """
+    key = proc.get("id_key")
+    subject = turn.args_of(call).get(key) if key else None
+    if subject is None:
+        return turn.executed
+    out = collections.Counter()
+    for name, args in getattr(turn, "ran", ()):
+        got = args.get(key)
+        if got is None or str(got) == str(subject):
+            out[name] += 1
+    return out
+
+
 def active(procs, executed, user_text):
     ran = set(executed)
     out = []
@@ -54,17 +79,22 @@ def active(procs, executed, user_text):
     return out
 
 
-def _asked(turn, node, question):
+def _asked(turn, node, question, subject=None):
     """Put the step's own description to an isolated sub-call and take the word it answers with.
 
     The engine does not read the conversation for meaning; it asks and counts. The answer contract
-    is ours - one word - so nothing here interprets prose.
+    is ours - one word - so nothing here interprets prose. When the procedure names its subject the
+    question carries it: the retention offer the agent made for one card is not the offer this card
+    is owed, and without the name the sub-call read the whole transcript and said yes to both.
     """
     ask = (getattr(turn, "extras", None) or {}).get("ask")
     said = getattr(turn, "said", "") or ""
     if not ask or not said.strip():
         return False
     prompt = (question + chr(10) + chr(10)
+              + ("The question is about this account only: %s. Something the agent did for a "
+                 "different account does not answer it." % (subject,) + chr(10) + chr(10)
+                 if subject is not None else "")
               + "Here is everything the agent has said to the customer so far:" + chr(10) + chr(10)
               + said[-12000:] + chr(10) + chr(10)
               + "Answer with one word, YES or NO.")
@@ -110,7 +140,7 @@ def settled_nodes(proc, turn, call):
         # source's own description of the step, the sub-call answers whether it has happened, and
         # this engine reads only the one word it asked for.
         q = n.get("done_when")
-        if q and _asked(turn, n, q):
+        if q and _asked(turn, n, q, subject):
             out.add(n["id"])
     return out
 
@@ -186,10 +216,11 @@ def procedure_findings(turn, call):
         if node is None:
             continue
         settled = settled_nodes(p, turn, call)
-        missing = unmet(p, node, turn.executed, settled)
+        ran = scoped(turn, p, call)
+        missing = unmet(p, node, ran, settled)
         if not missing:
             continue
-        slots = state_slots(p, turn.executed, turn.unlocked, settled)
+        slots = state_slots(p, ran, turn.unlocked, settled)
         slots["unlock_hint"] = fill(slots["unlock_hint"], **slots)
         text = fill(fb.get("unmet", ""), tool=name, missing=", ".join(missing),
                     source=", ".join(p.get("_source") or [])[:120], **slots)

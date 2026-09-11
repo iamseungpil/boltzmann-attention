@@ -238,15 +238,16 @@ def ask_fn(agent):
 def build_turn(agent, a2, messages, am):
     env = getattr(getattr(agent, "_lb_orch", None), "environment", None)
     executed, attempted, unlocked, pending = collections.Counter(), collections.Counter(), set(), {}
+    ran = []
     dispatch = a2.get("dispatch") or {}
     probe = Turn(a2, [], am)
     for m in messages:
         for c in (getattr(m, "tool_calls", None) or []):
-            pending[getattr(c, "id", None)] = probe.name_of(c)
+            pending[getattr(c, "id", None)] = (probe.name_of(c), probe.args_of(c))
             if getattr(c, "name", None) == dispatch.get("unlock_tool"):
                 unlocked.add(probe.named(c))
         if getattr(m, "role", None) == "tool":
-            name = pending.pop(getattr(m, "id", None), None)
+            name, args = pending.pop(getattr(m, "id", None), None) or (None, {})
             text = str(getattr(m, "content", "") or "").lstrip()
             # a verdict marker is a tool that ran and answered no. Where the question is whether a
             # step was performed, it was: counting NOT_VERIFIED as unperformed makes a gate demand
@@ -258,7 +259,8 @@ def build_turn(agent, a2, messages, am):
                 attempted[name] += 1
                 if not failed:
                     executed[name] += 1
-    return Turn(a2, messages, am, executed=executed, attempted=attempted, unlocked=unlocked,
+                    ran.append((name, args))
+    return Turn(a2, messages, am, executed=executed, attempted=attempted, unlocked=unlocked, ran=ran,
                 visible_tools={getattr(t, "name", None) for t in (agent.tools or [])},
                 registry=registry_of(env), corpus=corpus(),
                 extras={"ask": ask_fn(agent), "rows": dict(agent.__dict__.get("_lb_rows") or {})},

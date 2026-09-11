@@ -57,19 +57,20 @@ def state_before(a2, messages, upto):
     """The executed counter and unlocked set as of message `upto` (exclusive)."""
     probe = Turn(a2, [], Msg({}))
     dispatch = a2.get("dispatch") or {}
-    executed, unlocked, pending = collections.Counter(), set(), {}
+    executed, unlocked, pending, ran = collections.Counter(), set(), {}, []
     for m in messages[:upto]:
         for c in m.tool_calls:
-            pending[c.id] = probe.name_of(c)
+            pending[c.id] = (probe.name_of(c), probe.args_of(c))
             if c.name == dispatch.get("unlock_tool"):
                 unlocked.add(probe.named(c))
         if m.role == "tool":
-            name = pending.pop(m.id, None)
+            name, args = pending.pop(m.id, None) or (None, {})
             text = str(m.content or "").lstrip()
             failed = m.error or any(text.startswith(k) for k in a2.get("failure_markers") or [])
             if name and not failed:
                 executed[name] += 1
-    return executed, unlocked
+                ran.append((name, args))
+    return executed, unlocked, ran
 
 
 def replay_sim(a2, sim, corpus):
@@ -79,8 +80,8 @@ def replay_sim(a2, sim, corpus):
     for i, m in enumerate(messages):
         if m.role != "assistant":
             continue
-        executed, unlocked = state_before(a2, messages, i)
-        turn = Turn(a2, messages[:i], m, executed=executed, unlocked=unlocked, corpus=corpus)
+        executed, unlocked, ran = state_before(a2, messages, i)
+        turn = Turn(a2, messages[:i], m, executed=executed, unlocked=unlocked, ran=ran, corpus=corpus)
         for lb, findings in evaluate(turn).items():
             for f in findings:
                 out.append((i, f))
