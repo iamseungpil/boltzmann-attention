@@ -660,6 +660,13 @@ check("and speaks when it does not",
       bool(_logv(_rec, date_of_birth="01/01/1990", email="zz@zz.com")))
 _hidden = [t["name"] for t in (A2.get("LB2") or {}).get("tools") or [] if t.get("hidden")]
 check("a hidden verifier stays out of the model's tool list", "verify_identity" in _hidden)
+# Hiding a tool is switching a lever off, and a lever goes off on a measurement, not on a hunch.
+# get_interest_correction abstained on 319 of 319 calls - it never produced an answer, and one of the
+# values its grounding refuses is the APY our own verifier had just computed.
+_nonote = sorted(t["name"] for t in _decl.get("scaffold_get_tools") or []
+                 if t.get("hidden") and not str(t.get("_note_hidden") or "").strip())
+check("a tool is only hidden with the measurement that justified it", not _nonote,
+      "hidden with no note: %s" % _nonote)
 
 print("code base size: %d lines across %d files" % (lines, len([f for f in os.listdir(ROOT) if f.endswith('.py')])))
 print("RESULT: %s (%d/%d)" % ("PASS" if all(OK) else "FAIL", sum(OK), len(OK)))
