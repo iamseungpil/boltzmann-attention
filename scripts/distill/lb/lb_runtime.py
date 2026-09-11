@@ -263,7 +263,11 @@ def build_turn(agent, a2, messages, am):
     return Turn(a2, messages, am, executed=executed, attempted=attempted, unlocked=unlocked, ran=ran,
                 visible_tools={getattr(t, "name", None) for t in (agent.tools or [])},
                 registry=registry_of(env), corpus=corpus(),
-                extras={"ask": ask_fn(agent), "rows": dict(agent.__dict__.get("_lb_rows") or {})},
+                # `once` is the simulation's own record of what has already been said once and must
+                # not be said again. LB1's walker was removed for firing 180 times over 216
+                # simulations; anything that speaks at a decision point every turn repeats that.
+                extras={"ask": ask_fn(agent), "rows": dict(agent.__dict__.get("_lb_rows") or {}),
+                        "once": agent.__dict__.setdefault("_lb_once", set())},
                 sim=sim_id(agent))
 
 

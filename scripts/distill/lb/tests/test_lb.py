@@ -443,6 +443,37 @@ check("a rule that states its own condition stays back when the condition does n
       bool(_cond) and not _leak, "leaked: %s" % _leak)
 check("and reaches the model when it does", bool(_cond) and not _held,
       "withheld: %s" % _held)
+
+
+# LB5's contract says to name what the ledger can still show as open at the moment the model leaves,
+# and only two kinds were declared - an unread transfer document and an exhausted search. task_016's
+# customer asks for a friend's purchase to be put through; the agent verifies the caller with base's
+# own arguments, researches the referral terms, and leaves having explained. base writes it 4/4 and
+# our arms wrote it 0/4, 1/4, 1/4, 3/4. Neither that tool nor 007's occurs in any of the 698
+# documents, so the step cannot be a declared procedure node without transcribing gold.
+import lb5_resignation
+
+
+def _leaves(said, answer, calls=(), once=None, user="please put the purchase through"):
+    _t = _Turn(_A2, [_M("user", user)], _M(content=said, calls=list(calls)),
+               ran=[("log_verification", {})],
+               extras={"ask": lambda prompt, name="": answer,
+                       "once": set() if once is None else once})
+    return [f for f in lb5_resignation.evaluate(_t)]
+
+
+_open = _leaves("I hope that helps. Have a good day.", "the friend's $750 purchase was never submitted")
+check("what the customer asked for and the record does not show is named as the model leaves",
+      bool(_open) and any("never submitted" in f for f in _open[0].facts))
+check("and nothing is said when the sub-call finds nothing open",
+      not _leaves("I hope that helps. Have a good day.", "NONE"))
+_seen = set()
+_first = _leaves("Have a good day.", "the purchase was never submitted", once=_seen)
+_again = _leaves("Have a good day.", "the purchase was never submitted", once=_seen)
+check("it is said once in a simulation, not at every departure", bool(_first) and not _again)
+check("and not while the model is still working",
+      not _leaves("Let me look that up for you.", "the purchase was never submitted",
+                  calls=[_C("KB_search_bm25", {"query": "x"})]))
 check("and stays quiet on a tool it was not written for",
       not _reaches("get_user_information_by_name"))
 # The register above sees only the top level. conditional_fields sat four levels down, inside the

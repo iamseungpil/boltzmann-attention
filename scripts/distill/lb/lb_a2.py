@@ -153,6 +153,9 @@ def migrate(domain):
         "LB5": {"transfer_tools": (src.get("require_doc_before") or {}).get("tools") or [],
                 "doc_feedback": (src.get("require_doc_before") or {}).get("feedback"),
                 "search_tools": src.get("search_tools") or [], "search_feedback": src.get("search_exhaust_escalation"),
+                # the third kind this engine's contract names: what the customer asked for and the
+                # run record does not show, put to a sub-call once as the model leaves
+                "open_request": src.get("open_request") or {},
                 },
         "LB6": {"annotations": [{"field": a.get("field"), "note": a.get("note")}
                                 for a in src.get("view_field_annotations") or [] if a.get("field") and a.get("note")],

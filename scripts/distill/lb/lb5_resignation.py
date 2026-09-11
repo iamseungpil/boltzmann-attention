@@ -9,12 +9,15 @@ engine never decides; whether to persist or hand off is the model's call. Declar
   doc_feedback     a transfer tool whose defining document was never read      (surface, never deny)
   search_tools     search tools; the same query returning nothing twice is exhaustion
   search_feedback  what the policy says to do when search is exhausted
+  open_request     {question, feedback}  the customer's request the run record does not answer, put to
+                   an isolated sub-call at the moment of leaving and named once per simulation
 """
 
 from lb_coordinator import Finding, SURFACE, GRADES, fam, fill
 
 LB = "LB5"
 LEDGER, POLICY = GRADES["execution_ledger"], GRADES["policy_verbatim"]
+KEY = "lb5_open"
 
 
 def spec_of(turn):
@@ -54,12 +57,52 @@ def unread_definition(turn):
             if tpl and fam(turn.name_of(c)).lower() not in turn.tool_text]
 
 
+def open_request(turn):
+    """What the customer asked for and the run record does not show, named once as the model leaves.
+
+    This engine's own decision point says to "name what the ledger can still show as open", and the
+    only kinds declared were an unread transfer document and an exhausted search. task_016 is the
+    missing one: the customer asks for a purchase to be put through on their friend's card, the
+    agent verifies the caller correctly, researches the referral terms for sixty messages, decides
+    it cannot confirm one clause, and leaves having explained rather than acted. Base does the write
+    in four simulations out of four; ours did it in none. Nothing was mis-argued - every simulation
+    that wrote at all wrote the same arguments base did.
+
+    Which request is still open is a judgement about this conversation, and no document in the
+    corpus names the tool, so the engine cannot hold the answer: it puts the customer's own words
+    and the run record to an isolated sub-call and carries back the line it answers with. It speaks
+    at most once per simulation. LB1 had a walker that named the next step on every text turn and it
+    fired 180 times over 216 simulations; the bound is the difference between naming something once
+    on the way out and talking over the whole conversation.
+    """
+    spec = spec_of(turn).get("open_request") or {}
+    ask = (getattr(turn, "extras", None) or {}).get("ask")
+    once = (getattr(turn, "extras", None) or {}).get("once")
+    if not spec.get("question") or not spec.get("feedback") or not ask or once is None:
+        return []
+    if KEY in once:
+        return []
+    ran = [name for name, _ in getattr(turn, "ran", ())]
+    if not turn.user_text.strip():
+        return []
+    prompt = (spec["question"] + chr(10) + chr(10)
+              + "What the customer has said:" + chr(10) + chr(10) + turn.user_text[-8000:] + chr(10) + chr(10)
+              + "Every tool the agent actually ran, in order:" + chr(10) + chr(10)
+              + (", ".join(ran) or "(none)") + chr(10) + chr(10)
+              + "Answer with one short line naming the request, or the single word NONE.")
+    out = " ".join(str(ask(prompt, "lb5_open") or "").split())
+    once.add(KEY)
+    if not out or out.upper().startswith("NONE"):
+        return []
+    return [fill(spec["feedback"], open=out)]
+
+
 def leaving(turn):
     """The one decision point: everything still open, in one surfaced note, when the model is leaving."""
     handoff = transferring(turn)
     if not handoff and not turn.resigning():
         return []
-    facts = unread_definition(turn) + [f.order for f in exhausted_search(turn)]
+    facts = unread_definition(turn) + [f.order for f in exhausted_search(turn)] + open_request(turn)
     target = fam(turn.name_of(handoff[0])) if handoff else "leaving"
     return [Finding(LB, SURFACE, target, facts=facts, grade=POLICY, source="leaving")] if facts else []
 
