@@ -367,16 +367,23 @@ _RUN = {"get_user_dispute_history_7291": 1, "get_pending_replacement_orders_5765
         "get_closure_reason_history_8293": 1, "log_credit_card_closure_reason_4521": 1}
 
 
-def _closure(card, hist, yes=(), on=None):
-    """yes: which of the step questions the isolated sub-call answers YES to."""
+def _closure(card, hist, yes=(), on=None, offered=False):
+    """yes: which of the step questions the isolated sub-call answers YES to.
+
+    offered: whether the retention offer was actually applied with its tool. Step 5 is a tool in the
+    source - task_049's gold applies a $5 statement credit - so saying it is not doing it.
+    """
     def _ask(prompt, name="lb_ask"):
         return "YES" if any(k in prompt for k in yes) else "NO"
 
     _c = _C("call_discoverable_agent_tool",
             {"agent_tool_name": "close_credit_card_account_7834",
              "arguments": {"credit_card_account_id": card}})
+    _run = dict(_RUN)
+    if offered:
+        _run["apply_statement_credit_8472"] = 1
     _t = _Turn(_A2, [_M("tool", hist), _M("assistant", "we have been talking")], _M(calls=[_c]),
-               executed=dict(_RUN), ran=_ran(_RUN, on or card), extras={"ask": _ask})
+               executed=_run, ran=_ran(_run, on or card), extras={"ask": _ask})
     return [f for f in lb1_requirements.procedure_findings(_t, _c)
             if f.primitive == lb1_requirements.DENY]
 
@@ -385,7 +392,7 @@ check("closure waits for the concern and the offer", bool(_closure("cc_x_crypto"
 check("the offer alone does not clear it - the concern comes first",
       bool(_closure("cc_x_crypto", _NONE, yes=("Step 5",))))
 check("and proceeds once both are on the record",
-      not _closure("cc_x_crypto", _NONE, yes=("Step 4", "Step 5")))
+      not _closure("cc_x_crypto", _NONE, yes=("Step 4",), offered=True))
 check("the step question goes to a sub-call, not to a word match",
       "done_when" in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read()
       and "said_any" not in io.open(os.path.join(ROOT, "lb1_requirements.py"), encoding="utf-8").read())
@@ -399,9 +406,9 @@ check("and proceeds with neither where the source skips retention",
 # closure through with its own steps never taken. A procedure that names its subject runs once per
 # subject.
 check("another card's steps do not satisfy this card's",
-      bool(_closure("cc_x_crypto", _NONE, yes=("Step 4", "Step 5"), on="cc_x_green")))
+      bool(_closure("cc_x_crypto", _NONE, yes=("Step 4",), offered=True, on="cc_x_green")))
 check("and the record that does belong to this card still clears it",
-      not _closure("cc_x_crypto", _NONE, yes=("Step 4", "Step 5")))
+      not _closure("cc_x_crypto", _NONE, yes=("Step 4",), offered=True))
 
 
 # The protocol answers five reasons and the customer's need not be one of them. On the fixed graph
@@ -410,7 +417,16 @@ check("and the record that does belong to this card still clears it",
 # source has no branch for cannot be a step the graph waits on for ever - and whether the reason is
 # one of the five is the sub-call's judgement, not this engine's.
 check("a reason the source prescribes no answer for does not deadlock the closure",
-      not _closure("cc_x_crypto", _NONE, yes=("prescribes no response", "Step 5")))
+      not _closure("cc_x_crypto", _NONE, yes=("prescribes no response",), offered=True))
+
+
+# task_049's gold applies the retention offer - apply_statement_credit_8472, $5.00, reason
+# retention_offer - and then transfers, leaving the Crypto card open. Ours offered the credit in
+# words, the customer declined, and the closure went through behind it: eight simulations of
+# eight closed a card gold leaves open. A step the source performs with a tool is not done by
+# saying it.
+check("an offer the source makes with a tool is not satisfied by saying it",
+      bool(_closure("cc_x_crypto", _NONE, yes=("Step 4", "Step 5"))))
 
 
 # A policy sentence carried to a write must survive the exit. Every write in this domain is

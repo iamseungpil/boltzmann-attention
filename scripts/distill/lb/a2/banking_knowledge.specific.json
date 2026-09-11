@@ -23156,8 +23156,11 @@
           "skip_when_tokens": [
             "record(s) in 'credit_card_closure_reasons'"
           ],
-          "_note": "Step 5 \"make one retention offer\" 는 발화로 충족된다. 모든 등급의 제안에 statement credit 이 들어간다(500 points or a $5 statement credit / 2,000 or $20 / 5,000 or $50). Step 2 가 건너뛰라 한 계좌에서는 이 단계도 없다.",
-          "done_when": "The retention protocol's Step 5 says to make one retention offer based on the card's tier - 500 bonus points or a $5 statement credit for entry tier, 2,000 or $20 for mid, 5,000 or $50 for premium and above. Has the agent put such an offer to the customer for the card being closed?"
+          "_note": "Step 5, 'make one retention offer'. This node said an utterance satisfied it and that was wrong: task_049's gold applies the offer - apply_statement_credit_8472 on the Crypto card for $5.00 with reason retention_offer - and then transfers, leaving the card open. Our simulations offered the credit in words, the customer declined, and close opened behind it: all eight closed a card gold leaves open. The shape before the DAG rewrite carried this tool in its outcome node and the rewrite dropped it into a spoken verdict. The offers the source lists are 500 bonus points or a $5 statement credit by tier and only the credit has a tool, so this is the one observable form of the step.",
+          "tool_any": [
+            "apply_statement_credit_8472"
+          ],
+          "_note_no_done_when": "No done_when here on purpose. With both, a spoken offer settles the node and the closure unlocks behind it, which is the hole being closed."
         },
         {
           "id": "close",

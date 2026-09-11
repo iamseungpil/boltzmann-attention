@@ -238,7 +238,9 @@
       "skip_when_tokens": [
        "record(s) in 'credit_card_closure_reasons'"
       ],
-      "done_when": "The retention protocol's Step 5 says to make one retention offer based on the card's tier - 500 bonus points or a $5 statement credit for entry tier, 2,000 or $20 for mid, 5,000 or $50 for premium and above. Has the agent put such an offer to the customer for the card being closed?"
+      "tool_any": [
+       "apply_statement_credit_8472"
+      ]
      },
      {
       "id": "close",
