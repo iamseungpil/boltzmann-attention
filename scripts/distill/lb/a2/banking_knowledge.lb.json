@@ -1339,7 +1339,7 @@
     },
     "return_template": "{result}",
     "missing_hint": "NOT_VERIFIED — provide 'provided' (the identity values the customer gave you).",
-    "hidden": true,
+    "hidden": false,
     "check_moved_to": "identity_gate"
    },
    {
@@ -14252,7 +14252,7 @@
      "min_exclusive": 0
     },
     "result_range_feedback": "Error: [RESULT-SIGN] this correction computes to {result}, which is not greater than {min_exclusive}, so it is not a credit amount. You passed correct(expected) APY={expected_apy}% and applied(actual) APY={actual_apy}% on principal={principal}. The credit tool's own argument contract is \"amount (number): The positive dollar amount to credit (must be greater than 0)\", so this number cannot be passed to it - and flipping its sign would credit the customer for interest they were never short-paid. What to do: if you are not certain the correct APY is right, re-read the account record with get_all_user_accounts_by_user_id and recompute the correct APY with get_correct_savings_apy, then call this tool again with the corrected values. If the applied APY really is the higher of the two, then no interest correction is owed for this period - tell the customer that instead of applying any credit.",
-    "disable": true
+    "disable": false
    },
    {
     "name": "check_card_closure_eligibility",

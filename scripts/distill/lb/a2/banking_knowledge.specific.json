@@ -817,7 +817,7 @@
         }
       },
       "_note_when_2026_09_11": "task_016: this is the one tool of ours whose output we also rewrite, and the rewrite is all procedure bookkeeping - call log_verification, copy the current time. The task turns on something else entirely: telling the customer that their friend must spend $750, after which the customer runs submit_transaction themselves. base does that in four simulations of four and never holds any of our tools. Saying when this one stops applying is the least we can do for a conversation that has already verified and needs to move on.",
-      "hidden": true,
+      "hidden": false,
       "_note_hidden": "2026-09-11: 312 calls over 372 simulations and every one answered VERIFIED - it never told the model anything it did not already believe, and each call cost a round trip (task_016: the request, the answer, and then an instruction to go fetch the current time). base has no such tool and verifies anyway. The check moves to LB3.identity, where it reads log_verification's own arguments against the retrieved record and speaks only when fewer than two of them match. `hidden` means the check still runs and only the tool is gone; the check lives at identity_gate and speaks when fewer than two details match. That is a different thing from `off`, which withdraws the function outright.",
       "check_moved_to": "identity_gate"
     },
@@ -13767,7 +13767,7 @@
       "_note_result_round": "2026-08-22 (093 실시간 포렌식): op 의 1/12 근사(`0.08333333333333333`) 탓에 이 도구가 32.999999999999986 을 냈고, 모델이 통화로 옳게 33.0 으로 반올림해 write 하자 T2_WRITE_EVIDENCE 가 '33.0 은 도구 출력에 없다'며 10회 반려했다 — 우리 표현 오차가 우리 게이트를 막은 것이다([[25]]). 자릿수 2 = 달러 금액(센트)이고 근거는 크레딧 도구의 인자 계약('The positive dollar amount to credit')이다. gold 미참조([[23]]).",
       "_note_ground_expected_apy": "★2026-08-31 (사용자 지시 \"우리 계산도구 결과는 반드시 사용하게 만들라\" · x696 착지 실측): expected_apy 를 **생산자 고정**으로 근거대조한다. 구 주석은 *\"expected_apy는 미ground(get_correct_savings_apy 산출)\"* 였는데 **그 산출을 실제로 썼는지는 아무도 안 봤다**. x696 축자: msg84 get_correct_savings_apy → **6.85**, msg90 그 값으로 **140.0(=gold)**, 그러나 msg104 expected_apy=**5.625**(모델이 넘긴 자기 성분값 5.5+0.1+0.025) · msg115 **6.625** 를 **손으로** 넣어 **122.0 이 커밋**됐다(gold 140.0 · reward 0.0 · db_match False). 복사 실수가 아니라 도구 답의 **대체**다. corpus=[\"tool:get_correct_savings_apy\"] 는 그 도구가 낸 출력만 본다 — ledger_tools(도구 출력 전량)면 다른 검색 결과에 우연히 같은 수가 있을 때 통과한다. 값을 바꾸려면 **그 도구를 다시 부르면 된다**(계산=엔진·선택=모델·[[10]]).",
       "_note_when_2026_09_11": "These three said what the tool does and never when it does not apply. Fifty places in this declaration reach the model and thirty-five of them stated no condition; task_007 measured what that costs when the tool is a catalogue and the customer has already decided. When to use a tool is the model's judgement, so the description carries the condition and the model chooses.",
-      "disable": true,
+      "disable": false,
       "_note_disable": "OFF 2026-09-11, by measurement. 319 calls across 372 simulations and 319 of them came back \"Abstained: these inputs are not supported by any record or document in this conversation\". It has never once produced an answer, so every call was a round trip spent on an error. One of the values it refuses is expected_apy, which get_correct_savings_apy - our own verifier - had just computed: the grounding check does not accept what our own tool produced. Until that is settled the tool cannot help, and a tool whose every output is identical is a dead tool. The declaration stays; flip hidden to false to put it back in the model's list."
     },
     {
