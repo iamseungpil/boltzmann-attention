@@ -1302,7 +1302,14 @@
        "credit_card_transaction_history"
       ]
      }
-    }
+    },
+    "inject_when": [
+     "reward",
+     "cash back",
+     "cashback",
+     "points",
+     "earned"
+    ]
    },
    {
     "name": "verify_identity",
@@ -1465,7 +1472,12 @@
      },
      "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
     },
-    "return_template": "Rebate qualification, computed deterministically over every anniversary monthly window of the cardmember year (by posting date): {result}. The customer qualifies only if EVERY month met the threshold; a single month below disqualifies (no proration)."
+    "return_template": "Rebate qualification, computed deterministically over every anniversary monthly window of the cardmember year (by posting date): {result}. The customer qualifies only if EVERY month met the threshold; a single month below disqualifies (no proration).",
+    "inject_when": [
+     "annual fee",
+     "rebate",
+     "waive"
+    ]
    },
    {
     "name": "get_correct_savings_apy",
@@ -14093,7 +14105,12 @@
      "get_all_user_accounts_by_user_id"
     ],
     "return_template": "Correct savings APY computed from the components supplied in this call: {result}%. The stacking policy is base + highest checking boost + highest card bonus + all relationship/tier bonuses. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
-    "missing_hint": "Abstained: no base APY was given. components must include one element with kind 'base' - the savings account's own rate at this balance, read from the knowledge base - plus one element per boost you found. Read the account's specification document, then call again with the list."
+    "missing_hint": "Abstained: no base APY was given. components must include one element with kind 'base' - the savings account's own rate at this balance, read from the knowledge base - plus one element per boost you found. Read the account's specification document, then call again with the list.",
+    "inject_when": [
+     "savings",
+     "apy",
+     "interest"
+    ]
    },
    {
     "name": "get_interest_correction",
@@ -14252,7 +14269,11 @@
      "min_exclusive": 0
     },
     "result_range_feedback": "Error: [RESULT-SIGN] this correction computes to {result}, which is not greater than {min_exclusive}, so it is not a credit amount. You passed correct(expected) APY={expected_apy}% and applied(actual) APY={actual_apy}% on principal={principal}. The credit tool's own argument contract is \"amount (number): The positive dollar amount to credit (must be greater than 0)\", so this number cannot be passed to it - and flipping its sign would credit the customer for interest they were never short-paid. What to do: if you are not certain the correct APY is right, re-read the account record with get_all_user_accounts_by_user_id and recompute the correct APY with get_correct_savings_apy, then call this tool again with the corrected values. If the applied APY really is the higher of the two, then no interest correction is owed for this period - tell the customer that instead of applying any credit.",
-    "disable": true
+    "disable": true,
+    "inject_when": [
+     "interest",
+     "apy"
+    ]
    },
    {
     "name": "check_card_closure_eligibility",
@@ -14294,7 +14315,13 @@
      ]
     },
     "return_template": "Closure eligibility for credit card account {credit_card_account_id} (outstanding balance {outstanding_balance}): {result}",
-    "missing_hint": "COULD NOT VERIFY — the balance you provided could not be verified against the account records. Re-read the credit card account record and copy the outstanding balance and its verbatim source line exactly."
+    "missing_hint": "COULD NOT VERIFY — the balance you provided could not be verified against the account records. Re-read the credit card account record and copy the outstanding balance and its verbatim source line exactly.",
+    "inject_when": [
+     "close",
+     "cancel",
+     "closing",
+     "cancell"
+    ]
    },
    {
     "name": "check_cli_eligibility",
@@ -14533,7 +14560,12 @@
      "get_payment_history"
     ],
     "return_template": "CLI eligibility for {credit_card_account_id} ({card_type}): {result}",
-    "missing_hint": "COULD NOT VERIFY - one or more inputs are missing or unparseable, so no verdict is given. Re-read the account record, the CLI request history and the payment history, then call again with exact values (balances/limits as plain numbers, dates exactly as shown, 'none' for the last-approved date only if no approved prior request exists)."
+    "missing_hint": "COULD NOT VERIFY - one or more inputs are missing or unparseable, so no verdict is given. Re-read the account record, the CLI request history and the payment history, then call again with exact values (balances/limits as plain numbers, dates exactly as shown, 'none' for the last-approved date only if no approved prior request exists).",
+    "inject_when": [
+     "credit limit",
+     "limit increase",
+     "raise my limit"
+    ]
    },
    {
     "name": "check_card_application_fit",
@@ -14917,7 +14949,22 @@
        "on_fail": "drop"
       }
      ]
-    }
+    },
+    "inject_when": [
+     "apply",
+     "application",
+     "new card",
+     "open a",
+     "recommend",
+     "qualify",
+     "looking for a",
+     "card for",
+     "sign-up",
+     "signup",
+     "which card",
+     "best card",
+     "open both"
+    ]
    },
    {
     "name": "get_atm_fee_discrepancies",
@@ -15221,7 +15268,10 @@
        "record id:"
       ]
      }
-    }
+    },
+    "inject_when": [
+     "atm"
+    ]
    },
    {
     "name": "get_checking_atm_fee_totals",
@@ -15463,7 +15513,10 @@
      "row_template": "- {account_class}: out-of-network ATM total ${out_of_network_total_usd:.2f} | foreign ATM total ${foreign_atm_total_usd:.2f} ({source})",
      "not_computable_note": "(not computable from the documented schedule: {names})"
     },
-    "return_template": "Documented ATM fee totals per personal checking account class for the stated usage (monthly free allowances deducted; out-of-network and foreign totals are SEPARATE columns - how the two fee types combine for one withdrawal abroad is not documented, so weigh both columns for foreign out-of-network usage):\n{result}\nThese totals already cover every personal checking class's documented Rho-Bank ATM fees for the stated usage - they are computed, not estimates. Third-party ATM operator surcharges and operator-fee rebate programs are OUTSIDE these totals. This tool does not pick a class: compare the totals yourself, verify the remaining candidate's eligibility and non-ATM terms in its cited source docs, and confirm with the customer. If no rows appear, a numeric parameter was missing or unreadable - call again with months, withdrawals_per_month and withdrawal_amount as plain numbers."
+    "return_template": "Documented ATM fee totals per personal checking account class for the stated usage (monthly free allowances deducted; out-of-network and foreign totals are SEPARATE columns - how the two fee types combine for one withdrawal abroad is not documented, so weigh both columns for foreign out-of-network usage):\n{result}\nThese totals already cover every personal checking class's documented Rho-Bank ATM fees for the stated usage - they are computed, not estimates. Third-party ATM operator surcharges and operator-fee rebate programs are OUTSIDE these totals. This tool does not pick a class: compare the totals yourself, verify the remaining candidate's eligibility and non-ATM terms in its cited source docs, and confirm with the customer. If no rows appear, a numeric parameter was missing or unreadable - call again with months, withdrawals_per_month and withdrawal_amount as plain numbers.",
+    "inject_when": [
+     "atm"
+    ]
    },
    {
     "name": "check_credit_dispute_provisional_credit",
@@ -15585,7 +15638,15 @@
       "value": "NOT_ELIGIBLE - at least one of the five conditions fails (account under 60 days, a reason outside the eligible set, an amount under $25 or over the card tier's maximum, more than 2 disputes already filed in the past 12 months, or a non-fraud dispute the customer did not take to the merchant first). File the dispute with eligible_for_provisional_credit = false."
      }
     },
-    "return_template": "Provisional credit for this dispute (reason {dispute_reason}, amount {transaction_amount} on a {card_type}, {prior_disputes_12mo} disputes already filed): {result}. Pass the verdict as eligible_for_provisional_credit."
+    "return_template": "Provisional credit for this dispute (reason {dispute_reason}, amount {transaction_amount} on a {card_type}, {prior_disputes_12mo} disputes already filed): {result}. Pass the verdict as eligible_for_provisional_credit.",
+    "inject_when": [
+     "dispute",
+     "fraud",
+     "unauthorized",
+     "didn't make",
+     "did not make",
+     "charge"
+    ]
    },
    {
     "name": "get_debit_dispute_liability_cap",
@@ -15635,7 +15696,13 @@
       }
      }
     },
-    "return_template": "Maximum customer liability for a debit card transaction dated {transaction_date}, reported {report_date} ({disputed_amount} disputed): {result}. Pass exactly this as customer_max_liability_amount - a value of -1 means unlimited liability."
+    "return_template": "Maximum customer liability for a debit card transaction dated {transaction_date}, reported {report_date} ({disputed_amount} disputed): {result}. Pass exactly this as customer_max_liability_amount - a value of -1 means unlimited liability.",
+    "inject_when": [
+     "dispute",
+     "debit",
+     "fraud",
+     "unauthorized"
+    ]
    },
    {
     "name": "check_savings_account_fit",
@@ -21628,7 +21695,10 @@
      ],
      "note": "A combination is eligible only where every fact you constrained is documented. net_annual_return assumes the deposit sits for a year at the documented APY and subtracts the card's annual fee."
     },
-    "return_template": "Account combinations for this customer: {result}"
+    "return_template": "Account combinations for this customer: {result}",
+    "inject_when": [
+     "savings"
+    ]
    },
    {
     "name": "check_checking_account_fit",
@@ -21940,7 +22010,10 @@
      ],
      "note": "total_atm_fees_negated counts Rho-Bank's own fees only; an ATM operator's surcharge is separate and is not documented here. The monthly maintenance fee is listed per account with the balance that waives it."
     },
-    "return_template": "Checking accounts for this customer: {result}"
+    "return_template": "Checking accounts for this customer: {result}",
+    "inject_when": [
+     "checking"
+    ]
    },
    {
     "name": "check_business_checking_fit",
@@ -22236,7 +22309,10 @@
      ],
      "note": "an account with an ongoing minimum balance is not on the table until the customer has said what they can hold: naming a ceiling they cannot exceed is not the same as committing to a floor. monthly_cost_negated is the maintenance fee only."
     },
-    "return_template": "Business checking accounts for this customer: {result}"
+    "return_template": "Business checking accounts for this customer: {result}",
+    "inject_when": [
+     "business"
+    ]
    },
    {
     "name": "check_business_savings_fit",
@@ -22393,7 +22469,10 @@
      ],
      "note": "an account with an ongoing minimum balance is not on the table until the customer has said what they can hold: naming a ceiling they cannot exceed is not the same as committing to a floor."
     },
-    "return_template": "Business savings accounts for this customer: {result}"
+    "return_template": "Business savings accounts for this customer: {result}",
+    "inject_when": [
+     "business"
+    ]
    },
    {
     "name": "check_referral_options",
@@ -22708,7 +22787,11 @@
       }
      ]
     },
-    "return_template": "Referral options for this customer: {result}"
+    "return_template": "Referral options for this customer: {result}",
+    "inject_when": [
+     "referral",
+     "refer"
+    ]
    }
   ],
   "derived": [
@@ -23781,7 +23864,8 @@
     ],
     "feedback": "'customer_max_liability_amount' is the cardholder's maximum liability set by policy — it is NOT the amount in dispute. You sent the same number for both. The policy that fixes this figure is delivered below; apply the tier that matches when this was reported, then re-send this call with that figure. Leave 'disputed_amount' unchanged."
    }
-  ]
+  ],
+  "_inject_when_source": "2026-09-12. Injection ran once in BaseOrchestrator.__init__, before the customer had said anything, so all seventeen verifier tools went into every window: 20,048 tool-simulations across our arms, of which 624 - 3.1 percent - were ever called. In task_016 that is 5,883 characters carried for zero calls in 88 simulations, and 016 turns on whether one env tool gets called at all. The words here are the subject each tool is about, taken from the tool's own name and the domain's vocabulary; replayed against the first customer message of 1,253 simulations they cut injection by 82 percent and miss 5.0 percent of real calls - and two thirds of those misses are check_card_application_fit being called in closure and credit-limit tasks, where it does not apply. A tool with no inject_when is injected unconditionally; verify_identity is answered on 1,592 of 1,644 injections and keeps none."
  },
  "LB3": {
   "grounding": [

@@ -80,10 +80,8 @@ def install(domain):
         agent = getattr(self, "agent", None)
         if agent is not None:
             agent._lb_a2, agent._lb_orch = a2, self
-            if enabled("LB2"):
-                names = inject_tools(agent, a2)
-                sidecar("lb-tools", "INJECTED %s" % ", ".join(names), None, sim=sim_id(agent), n=len(names))
-                diverge("inject-tools", ", ".join(names), sim=sim_id(agent), n=len(names))
+            # injection waits for the customer to speak - see turn_hook. At this point nothing
+            # has been said, so there is nothing to choose the tools against.
 
     def exec_hook(self, tool_calls):
         if not any_lever():
@@ -109,6 +107,14 @@ def turn_hook(self, message, state):
     state.messages.extend(message.tool_messages if isinstance(message, MultiToolMessage) else [message])
     self._system_messages = state.system_messages
     a2 = getattr(self, "_lb_a2", {}) or {}
+    if enabled("LB2") and not self.__dict__.get("_lb_injected"):
+        said = " ".join(str(getattr(m, "content", "") or "") for m in state.messages
+                        if getattr(m, "role", None) == "user").lower()
+        if said.strip():
+            self._lb_injected = True
+            names = inject_tools(self, a2, said=said)
+            sidecar("lb-tools", "INJECTED %s" % ", ".join(names), None, sim=sim_id(self), n=len(names))
+            diverge("inject-tools", ", ".join(names), sim=sim_id(self), n=len(names))
     trace(self, state.messages[-len(message.tool_messages) if isinstance(message, MultiToolMessage) else -1:])
     view = lb6_load.reduce(a2, state.messages) if enabled("LB6") else list(state.messages)
     fold_mark(self, state.messages, view)
@@ -308,7 +314,7 @@ def corpus():
 
 
 # ---- execution hook: verifier tools and derived facts ---------------------------------------------
-def inject_tools(agent, a2):
+def inject_tools(agent, a2, said=None):
     from tau2.environment.tool import Tool
     have, added = {getattr(t, "name", None) for t in (agent.tools or [])}, []
     for d in (a2.get("LB2") or {}).get("tools") or []:
@@ -318,6 +324,11 @@ def inject_tools(agent, a2):
         # `disable` withdraws the function: get_interest_correction abstained on 319 of 319 calls and
         # there is nothing left behind it to run.
         if d["name"] in have or d.get("hidden") or d.get("disable"):
+            continue
+        # a third switch, and the cheapest: a tool whose subject has not come up does not go in the
+        # window at all. `inject_when` names that subject; a tool without one is always injected.
+        when = d.get("inject_when")
+        if when and said is not None and not any(str(k).lower() in said for k in when):
             continue
         params, optional = d.get("params") or {}, set(d.get("optional") or [])
         sig = ", ".join(["%s: str" % p for p in params if p not in optional] + ['%s: str = ""' % p for p in params if p in optional])
