@@ -454,6 +454,18 @@ check("and reaches the model when it does", bool(_cond) and not _held,
       "withheld: %s" % _held)
 
 
+# The acquire advice names the tool that produces a value. Its condition was first written about the
+# customer's intent - "have they asked to dispute a charge" - and task_036 still drew it twice: that
+# customer reports two fraudulent charges and asks for a reissue, and a fraud report reads as a
+# dispute. A condition about the value carries the argument's own name into the question.
+_acq = [v for v in _decl.get("value_acquisition") or [] if v.get("when")]
+check("the acquire condition asks about the value, not about the intent",
+      bool(_acq) and all("{arg}" in v["when"] for v in _acq))
+_built = [h for h in (A2.get("LB7") or {}).get("have_value") or [] if h.get("acquire_when")]
+check("and it survives migration onto the spec that carries that argument",
+      bool(_built) and all(h.get("arg") for h in _built))
+
+
 # LB5's contract says to name what the ledger can still show as open at the moment the model leaves,
 # and only two kinds were declared - an unread transfer document and an exhausted search. task_016's
 # customer asks for a friend's purchase to be put through; the agent verifies the caller with base's

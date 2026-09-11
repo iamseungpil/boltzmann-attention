@@ -66,7 +66,9 @@ def have_value(turn):
                                    order=fill(sp["feedback"], value=value, arg=sp.get("arg"), write=sp.get("write"))))
         elif (sp.get("acquire_feedback") and sp.get("acquire_tool") and not _given(turn, sp)
               and (not sp.get("acquire_when")
-                   or _holds(turn, sp["acquire_when"], turn.user_text, "lb7_acquire"))):
+                   or _holds(turn, fill(sp["acquire_when"], arg=sp.get("arg"),
+                                        acquire_tool=sp.get("acquire_tool"), write=sp.get("write")),
+                             turn.user_text, "lb7_acquire"))):
             out.append(Finding(LB, SURFACE, fam(sp["acquire_tool"]), grade=RETRIEVED, source="value-acquire",
                                order=fill(sp["acquire_feedback"], arg=sp.get("arg"), acquire_tool=sp["acquire_tool"],
                                           give_tool=sp.get("give_tool"), write=sp.get("write"))))
