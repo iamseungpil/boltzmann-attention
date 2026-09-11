@@ -374,7 +374,9 @@ def execute(orch, a2, tool_calls, orig_exec):
         # The tool stays in the list and keeps running; only the passing answer shrinks to its
         # verdict. A failing answer is the whole point of the check and is left untouched.
         if d.get("hidden") and verdict == "met":
-            quiet = str(d.get("ok_text") or "OK")
+            # the verdict the engine computed is "met", so there is nothing to say. A2 may put a
+            # word back with ok_text; the default is silence.
+            quiet = str(d.get("ok_text") or "")
             sidecar("lb-quiet", "%s: %d -> %d chars" % (d["name"], len(text), len(quiet)), None,
                     sim=sim_id(agent), source=d["name"])
             text = quiet
