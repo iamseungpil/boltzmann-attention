@@ -115,6 +115,16 @@ def turn_hook(self, message, state):
             names = inject_tools(self, a2, said=said, ask=ask_fn(self))
             sidecar("lb-tools", "INJECTED %s" % ", ".join(names), None, sim=sim_id(self), n=len(names))
             diverge("inject-tools", ", ".join(names), sim=sim_id(self), n=len(names))
+    if enabled("LB2"):
+        ran = {str(getattr(tc, "name", "") or "") for m in state.messages
+               if getattr(m, "role", None) == "assistant" for tc in (getattr(m, "tool_calls", None) or [])}
+        have = {getattr(t, "name", None) for t in (self.tools or [])}
+        late = [d["name"] for d in ((a2.get("LB2") or {}).get("tools") or [])
+                if d.get("inject_after") and d["name"] not in have and set(d["inject_after"]) & ran]
+        if late:
+            names = inject_tools(self, a2, executed=ran, only=set(late))
+            sidecar("lb-tools", "INJECTED-AFTER %s" % ", ".join(names), None, sim=sim_id(self), n=len(names))
+            diverge("inject-after", ", ".join(names), sim=sim_id(self), n=len(names))
     trace(self, state.messages[-len(message.tool_messages) if isinstance(message, MultiToolMessage) else -1:])
     view = lb6_load.reduce(a2, state.messages) if enabled("LB6") else list(state.messages)
     fold_mark(self, state.messages, view)
@@ -314,7 +324,7 @@ def corpus():
 
 
 # ---- execution hook: verifier tools and derived facts ---------------------------------------------
-def inject_tools(agent, a2, said=None, ask=None):
+def inject_tools(agent, a2, said=None, ask=None, executed=None, only=None):
     from tau2.environment.tool import Tool
     have, added = {getattr(t, "name", None) for t in (agent.tools or [])}, []
     decls = (a2.get("LB2") or {}).get("tools") or []
@@ -334,13 +344,23 @@ def inject_tools(agent, a2, said=None, ask=None):
         sidecar("lb-select", "%s %s" % (status, ", ".join(sorted(chosen)) or "(none)"), None,
                 sim=sim_id(agent), status=status, n=len(chosen), of=len(cands))
         diverge("select-tools", status, sim=sim_id(agent), n=len(chosen), of=len(cands))
+    executed = set(executed or ())
     for d in decls:
         # two different things, and they are not the same switch. `hidden` keeps the tool out of the
         # model's list while its check goes on running elsewhere - verify_identity answered VERIFIED
         # on all 312 of its calls, so the check moved to LB3.identity and speaks only when it fails.
         # `disable` withdraws the function: get_interest_correction abstained on 319 of 319 calls and
         # there is nothing left behind it to run.
-        if d["name"] in have or d.get("hidden") or d.get("disable"):
+        if d["name"] in have or d.get("disable"):
+            continue
+        # a tool declared `inject_after` waits for an event the engine can see: one of the named
+        # tools has actually run. verify_identity is about an account record, and in the eight
+        # tasks whose winning base simulations never fetch one (card shopping, an email change) the
+        # tool only cost - 0 helped, 5 hurt, -13 points. Not a word is read; a call either ran or not.
+        after = d.get("inject_after")
+        if after and not (set(after) & executed):
+            continue
+        if only is not None and d["name"] not in only:
             continue
         if d.get("select") and d["name"] not in chosen:
             continue
