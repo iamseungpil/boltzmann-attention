@@ -1289,7 +1289,7 @@
       "unverified_requery_note": "The unverified row(s) are: {ids}. Tell the customer which ones could not be checked, and call this tool again with ONLY those row(s) so their rate can be looked up on its own — a single-row call often resolves what a batch could not. Do not supply the rate yourself."
      }
     },
-    "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The CORRECT total reward per policy is shown next to each id, so you can state it to the customer and carry it into that dispute: {details}. SCOPE OF THIS RESULT - detection only: this compared the transaction rows you passed in against the reward-rate policy. It read no dispute record, so it does not know whether any dispute exists for these transactions, nor how one was decided. Do NOT change any transaction's rewards on the strength of this result. Under the bank's internal procedure the rewards correction is a separate, later step: a transaction's rewards are corrected only for a dispute that has been resolved and approved, and the transaction_ids for that correction are read from the resolved disputes themselves, never from a discrepancy list. The step this result calls for is the dispute, one per id above.",
+    "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The CORRECT total reward per policy is shown next to each id, so you can state it to the customer and carry it into that dispute: {details}. SCOPE OF THIS RESULT - detection only: this compared the transaction rows you passed in against the reward-rate policy. It read no dispute record, so it does not know whether any dispute exists for these transactions, nor how one was decided. Under the bank's internal procedure the rewards correction is a separate, later step: a transaction's rewards are corrected only for a dispute that has been resolved and approved, and the transaction_ids for that correction are read from the resolved disputes themselves, never from a discrepancy list. The step this result calls for is the dispute, one per id above.",
     "return_template_empty": "No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this result. This says nothing about rows that could not be checked — see the [coverage] line above for those.",
     "grounded_params": {
      "account_open": {
@@ -14930,7 +14930,8 @@
       }
      ]
     },
-    "select": true
+    "select": true,
+    "return_template": ""
    },
    {
     "name": "get_atm_fee_discrepancies",
@@ -15600,7 +15601,7 @@
       "value": "NOT_ELIGIBLE - at least one of the five conditions fails (account under 60 days, a reason outside the eligible set, an amount under $25 or over the card tier's maximum, more than 2 disputes already filed in the past 12 months, or a non-fraud dispute the customer did not take to the merchant first). File the dispute with eligible_for_provisional_credit = false."
      }
     },
-    "return_template": "Provisional credit for this dispute (reason {dispute_reason}, amount {transaction_amount} on a {card_type}, {prior_disputes_12mo} disputes already filed): {result}. Pass the verdict as eligible_for_provisional_credit.",
+    "return_template": "Provisional credit, if a dispute is filed (reason {dispute_reason}, amount {transaction_amount} on a {card_type}, {prior_disputes_12mo} disputes already filed): {result}.",
     "select": true
    },
    {
