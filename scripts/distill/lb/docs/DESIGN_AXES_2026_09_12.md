@@ -160,7 +160,8 @@ user tools API — 구현 전 정확한 속성명 확인)을 읽어 `agent._lb_c
 네 트리 모두 각 1회 → 제거 후 **남은 개수 0**(`CLAUDE.md` 규칙 충족).
 
 **설계.** 세 문장 제거. 첫째는 `Provisional credit, if a dispute is filed:` 로 사실형. "빈 결과는 사실만"
-은 커밋 `04de2125`(a catalogue that could not rank says so) 가 이미 다뤘는지 **대조 후** 필요하면 별도 팔.
+은 **이미 되어 있다** — 커밋 `04de2125`(2026-09-10, *a catalogue that could not rank says so instead of
+ranking*; task_067 이 빈 필드로 불러 카탈로그 순서가 나온 것을 고침, 테스트 포함). M3a 에서 뺀다.
 
 **판정(축 E).** {036 038} · {018 019}. 036 은 여기서는 판정(도구 출력 프레임)이다.
 
@@ -201,7 +202,7 @@ keep-list 에서 `requires_reads` 제거, A2 의 세 선언을 `inject_after` �
 | `get_debit_dispute_liability_cap` | `unlock(file_debit_card_transaction_dispute_*)` | 같음 | ✔ |
 | `get_reward_discrepancies` | `get_credit_card_transactions_by_user` | `op.over: transactions` · `grounded_params.transaction_id.producer_contains: credit_card_transaction_history` | ✔ |
 | `get_correct_savings_apy` · `get_interest_correction` | `get_all_user_accounts_by_user_id` | 기존 `requires_reads` | ✔ |
-| `check_rebate_qualification` | **미정** — `get_credit_card_transactions_by_user` 는 확인 안 됨. ATM 리베이트면 checking 쪽(`get_bank_account_transactions_9173`) | 선언의 `ref_params`/`grounded_params` 로 정한다 | ⏳ |
+| `check_rebate_qualification` | **없음 — 선택만** | nc18 A2 에 `grounded_params`·`ref_params`·`requires_reads` 가 전혀 없다(확인함). 근거 도구를 먼저 선언(`grounded_params.transactions.producer_contains`)하기 전에는 `inject_after` 를 넣지 않는다 | ✗ |
 | fit 도구 4종 | 없음(상담 초반) | | — |
 
 **격리 측정이 표보다 먼저다.** 전 궤적에서 각 도구가 실제로 불린 sim 중 선행 사건이 그 전에 있었던
