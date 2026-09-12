@@ -1,172 +1,250 @@
-# 설계서 — 레버가 얻는 축과 잃는 축을 레버 안에서 가른다 (2026-09-12)
+# 설계서 v2 — 레버가 얻는 축과 잃는 축을 레버 안에서 가른다 (2026-09-12, 리뷰 반영)
 
-리뷰 후 구현. 팔 하나에 변경 하나, nt=4, 판정은 축의 양끝을 함께 본다.
+**기반 = `r153/arm/nc18` = `origin/arm/nc18` = `19b9575c`.** 리모트 팔 트리를 `git fetch ssh://…/repo_lbv2nc18`
+로 가져와 `arm/nc9 … nc18` 아홉 ref 를 origin 에 push 했다(2026-09-12). 이 문서가 인용하는 코드 지점은
+전부 그 sha 다 — `lb-v5`(설계 v1 이 커밋된 자리)의 같은 파일은 다른 코드다(`lb_runtime.py:121` hand-off
+유예 있음 · `:320` `hidden` 이 skip 조건). M 팔은 전부 `arm/nc18` 위에 세운다.
+
+v1 → v2 에서 바뀐 것: ①기반 sha 명시·브랜치 push ②M2 의 손님 도구 출처를 `env_surface.side` 로 정정,
+019 진단 정정 ③M3 를 둘로 나누고 되비춤은 표적이 없어 보류 ④채택 규칙에 잡음 임계 ⑤M1 의
+인과/상관 분리·`[LEDGER]` 시제 수정 포함 ⑥M5 는 새 키 `met_text` ⑦M4 의 `requires_reads` 통합·036 회귀
+감시로 이동 ⑧손실16 정의·8 태스크 측정을 문서에 ⑨비용·병렬 팔.
 
 ## 0. 전제와 원칙
 
-이 문서가 서는 사실(전부 실측, 출처는 `CLAUDE.md` 와 `docs/` 의 포렌식):
+사실(전부 실측, 출처 `CLAUDE.md`·`docs/`):
+- 한 레버가 얻는 태스크와 잃는 태스크는 **같은 축의 양 끝**이다.
+- 손해로 확정된 사례는 전부 ①문구의 지시 ②잘못된 시점 ③개입 총량 ④낱말로 판정한 의미론 ⑤인과 없는
+  무조건 호출 중 하나였다. 사실 진술은 손해로 지목된 적이 없다. **재생성**이 손해였다.
 
-- 한 레버가 얻는 태스크와 잃는 태스크는 **같은 축의 양 끝**이다. 태스크별로 맞추면 반대편을 잃는다.
-- 손해로 확정된 사례는 전부 ① 문구의 지시 ② 잘못된 시점 ③ 개입 총량 ④ 낱말로 판정한 의미론 ⑤ 인과 없는 무조건 호출 중 하나였다.
-- 사실 진술은 손해로 지목된 적이 없다. **재생성**이 손해였다.
+원칙(메모리 `94`): 필요한 시점에 최소로 · 문구는 관측만 · 의미론은 LLM 만 · 도구는 사건 뒤에 ·
+gold 로 조건 정하지 않음 · **팔 하나에 변경 하나** · 격리 실험은 배선과 같은 함수.
 
-지키는 원칙(메모리 `94`, canon):
+## 1. 축과 판정 묶음
 
-1. 필요한 시점에 최소로 개입한다. 최소는 0 이 아니다(빈 응답은 재호출을 부른다).
-2. 문구는 관측만 담는다. 명령형·규칙·프레임은 넣지 않는다.
-3. 의미론은 LLM 만 판단한다. 엔진은 자기가 계산한 값과 이름의 정확 일치로만 분기한다.
-4. 도구는 그것이 의미를 갖는 **사건 뒤에** 넣는다. 낱말이 아니라 실행 기록이다.
-5. gold 를 보고 조건을 정하지 않는다. 근거는 env 구조·base 행동 분포·우리 사이드카.
-6. 팔 하나에 변경 하나. 격리 실험이 배선과 같은 함수를 쓴다.
+| 축 | 한쪽 | 다른쪽 |
+|---|---|---|
+| A 요청의 종류 | 행동형 {049 047 045 043} | 조사형 {016 019 081 054 040} |
+| B 대화의 종류 | 계좌 다단계 {066 067 062 069 070} | 조회 없음 {001 002 003 006 007 024 025} |
+| C 다음 수의 주인 | 어시스턴트 gold {047 045 043 036 048} | **손님 gold** {049 016 019 081 098 023} |
+| D 전달 방식 | 쪽지(사실) | 재생성 |
+| E 도구 결과 | 사실 | 프레임·지시 |
 
-## 1. 축 — 판정은 이것으로 읽는다
+정의(리뷰 지적 — 어느 문서에도 없었다):
+- **손실16** = `PRERUN_FS_2026_09_11.md` 의 손해 15 {007 016 019 023 028 036 040 043 048 049 054 058 070 073
+  081 098} 에 **016 을 포함해 센 것**이 아니라, 그 15 에 `004`… 가 아니다 — 정확히는 손해 15 + 음성대조 043
+  = 16 이다. 이하 "손실16" 은 이 16 을 뜻한다.
+- **손님 gold 6** = 손실16 중 gold 쓰기에 손님 도구가 있는 것: 016(`submit_transaction`) 023
+  (`apply_for_credit_card`) 048 049 081(`request_human_agent_transfer`) 098(`submit_referral`). 판정은
+  base 승 sim 에서 그 도구를 `role=user` 만 불렀는가(§2 M2 의 `side` 목록과 일치).
+- **축 B "조회 없음" 8** = base 승 sim 이 `get_user_information_*` 를 한 번도 부르지 않는 태스크
+  {001 002 003 006 007 024 025} + 004(t8 에 조회하나 `log_verification` 없음). 측정: 53 태스크 팔 대조에서
+  이 8 은 `verify_identity` 도움 0 / 해 5 · 평균 −13.2%p, 나머지 46 은 +6.4%p. (이 측정은 세션
+  `vcond.sh` 결과이며 repo 에 없었다 — 이 절이 기록이다.)
 
-| 축 | 한쪽 | 다른쪽 | 대표 |
-|---|---|---|---|
-| A 요청의 종류 | 행동형 (`Close …`) | 조사형 (`Check …`) | `[LEDGER]` 049 +46 / 019 −84 |
-| B 대화의 종류 | 다단계 계좌 작업 | 즉시 처리 · 카드 쇼핑 | `verify_identity` 066 +75 / 003 −27 |
-| C 다음 수의 주인 | 어시스턴트가 부르는 gold | **손님이 부르는 gold** (손실 17 중 6) | 049 016 019 081 098 023 |
-| D 전달 방식 | 쪽지 (사실) | **재생성** | `[ORDER]` +35 / 같은 쪽지 유예로 004 0/4 |
-| E 도구 결과 | 사실 (적격 여부) | 프레임 · 지시 | `this dispute` 036 0/17 · `you may now call` 016 |
+**채택 규칙(잡음 임계).** 같은 sha 재런 차이는 태스크당 0~1 sim(`CLAUDE.md`). 그러므로
+- 태스크당 |Δ| ≤ 1 은 잡음으로 본다.
+- 묶음 합으로 판정: **이득 쪽 묶음 합 ≥ +2 이고 손해 쪽 묶음 합 ≥ −1** 이면 채택. 손해 쪽 합 ≤ −2 면
+  기각. 경계면 Fisher 한쪽꼬리(`CLAUDE.md` 의 방식)로.
+- 모든 팔 보고는 손실16 합계 옆에 축 A·B·C 의 양끝 묶음 합을 적는다.
 
-모든 팔의 보고는 손실16 합계 옆에 **축 A·B·C 의 양끝 태스크 묶음**을 따로 적는다. 한쪽만 오르면 그 레버는 축을 못 가른 것이다.
+## 2. 조치
 
-## 2. 조치 — 여섯 개, 각각 팔 하나
-
-구현 순서: **M1 → M5 → M2 → M3 → M4**. M6 은 보고 형식이라 즉시.
+구현은 **병렬 팔**(§3). 각각 `arm/nc18` 위에 변경 하나.
 
 ---
 
 ### M1. advice 는 재생성하지 않는다 — 사실은 다음 턴에 얹는다
 
-**문제.** advice 는 재생성으로만 모델에 닿는다(`lb_runtime.py turn_hook`, `ROUNDS=3`). 재생성 자체가 손해다: 0회 58% → 1회 53% → 2회 45% → 3회 32% (1,336 sim). advice-only 359 sim 49%, `[CLAIM-PROVENANCE]` 226 sim 38%. hand-off 유예는 41 sim 29% vs 무유예 127 sim 42%, 004·008·012·014 패 9/9. 같은 `[ORDER]` 쪽지가 재생성 없이 닿으면 016 +35.
+**근거 — 층을 나눈다.**
+- 상관(원인 확정 아님): 재생성 횟수별 승률 0회 58% → 1회 53% → 2회 45% → 3회 32% (1,336 sim). 어려운
+  sim 이 재생성을 더 부를 수 있으므로 인과가 아니다.
+- 인과 쪽: 같은 `[ORDER]` 쪽지가 재생성 없이 닿으면 016 +35(7/11 vs 9/31); hand-off **유예**(쪽지를
+  싣기 위한 재생성) 41 sim 29% vs 무유예 127 sim 42%; nc17_004 패 3/3 이 유예 형. advice-only 재생성
+  359 sim 49% 는 **`lb-regen` 레코드의 `denies==0`** 으로 센 값이다(`lb-advice` 로 센 것이 아님 — 리뷰가
+  지적한 오염 경로가 아니다. `say()` 가 `lb-advice` 를 적고 `turn_hook` 이 break 하는 경우는 `lb-regen`
+  에 안 남으므로 이 계수에 들어가지 않는다).
+- **nc19 가 인과 판정이다.**
 
 **설계.**
+- 재생성은 deny 에만. advice 는 `agent._lb_pending_advice` 에 쌓고 **다음 `generate()` 의 view 앞**에
+  `ADVICE_MARK` 로 얹는다. 소비 시 `lb-advice-carried`, 대화 종료로 미소비면 `lb-advice-dropped`.
+- 마지막 턴의 쪽지는 드롭된다. 받아들이는 근거: base 의 텍스트-전용 턴 2,286 중 마지막인 것 386(17%),
+  t4 이전 647 중 646 이 마지막 아님 → 텍스트 턴 대부분은 다음 턴이 있다. **`leaving()` 은 "떠나는 턴"
+  에 울리고 M1 은 "안 떠난 경우"에만 닿게 하므로 게이트의 의도와 전달 조건이 뒤집힌다** — 그래서
+  드롭률을 `lb-advice-dropped` 로 nc19 에서 실측하고, 높으면 "마지막 턴에 한해 재생성"을 별도 팔로 잰다.
+- **`[LEDGER]` 문구는 M1 에 포함**한다(리뷰: 다음 턴에 읽히면 첫 절이 거짓, 끝 절이 049 를 죽인 명령형).
+  nc18 A2 는 아직 `…make the call now…` 원문이다(확인함). →
+  `[LEDGER] At your previous turn the run record showed no action for: {open}.` 관측만, 시제 과거.
+  이것은 문구 변경이지만 M1 의 전달 방식 변경과 **분리할 수 없다**(전달 방식이 시제를 정한다) — 변경 하나로
+  본다.
 
-- 재생성은 **deny 에만** 남긴다. 거부된 호출은 실행되면 안 되므로 메시지를 버릴 이유가 있다.
-- advice 는 버리지 않는다. 모델의 메시지는 그대로 서고, 쪽지는 **다음 생성의 view 앞에** 얹는다(`ADVICE_MARK` 로 화자 표시 유지). 텍스트-전용 턴이든 hand-off 턴이든 같다.
-- 마지막 턴(모델이 떠나는 턴)에는 다음 생성이 없으므로 쪽지가 닿지 않는다. 이것은 **의도된 손실**이다 — 그 턴의 개입이 손해였다(`leaving_after` 실측, 004·049). `[LEDGER]` 의 존재 이유가 "떠나는 순간 한 번"이었으므로 M1 이후 `[LEDGER]` 는 사실상 다음 턴 쪽지가 된다. 이것이 축 C 의 손해(손님 턴 삭제)를 구조적으로 없앤다.
+**코드 지점(`arm/nc18`).** `lb_runtime.py:143` `if not d.denies and not (d.advice and not turn.calls):` →
+`if not d.denies:`; advice 는 pending 으로. `generate()` 직전 pending 소비. A2 `LB5.open_request.feedback`.
 
-**코드 지점.** `lb_runtime.py`
-- `turn_hook`: `if not d.denies and not (d.advice and not turn.calls): break` → `if not d.denies: break` 로. advice 가 있으면 `agent._lb_pending_advice` 에 쌓는다.
-- `generate()` 호출 직전: `_lb_pending_advice` 가 있으면 `view += [UserMessage(ADVICE_MARK + text)]` 로 얹고 비운다.
-- `REGEN_BUDGET`·`ROUNDS` 는 deny 전용이 되므로 그대로 둔다. nc14 의 게이트는 폐기(M1 이 상위 해법).
-
-**선언.** 없음. 동작 변경이며 A2 는 손대지 않는다.
-
-**엔진이 읽는 것.** `d.denies` 의 존재 여부뿐.
-
-**fail-safe.** 쌓인 advice 는 다음 생성에서 반드시 소비·기록(`lb-advice-carried`). 대화가 끝나 소비되지 않은 것은 `lb-advice-dropped` 로 사이드카에 남긴다.
-
-**검증.**
-- 격리: 기존 궤적 재생 — 재생성이 일어났던 562 sim 중 advice-only 였던 것을 세어 "M1 이면 재생성 0" 이 되는 수와, 마지막 턴에 걸려 드롭될 쪽지 수를 미리 낸다.
-- 팔: nc18(hand-off 무유예) 위에 M1 을 얹어 **nc19**. 판정 태스크 = 축 D 양끝: 004 008 012 014 040 005 037 (재생성이 해였던 곳) + 016 049 036 (`[ORDER]` 가 득이던 곳). 016·049·036 이 떨어지면 쪽지가 다음 턴에 얹혀서는 부족한 것이고, 그때만 "마지막 턴에 한해 재생성" 을 별도 팔로 잰다.
-
-**되돌림.** 한 줄 조건문과 pending 큐 — `git revert` 로 원복.
+**판정(축 D).** 재생성이 해였던 {004 008 012 014 040 005 037} vs `[ORDER]` 가 득이던 {016 049 036}.
+채택 = 앞 묶음 ≥ +2 · 뒤 묶음 ≥ −1.
 
 ---
 
-### M5. 통과는 한 낱말, 실패는 전문 (`verify_identity`)
+### M5. 통과는 한 낱말, 실패는 전문 — 새 키 `met_text`
 
-**문제.** nc17/nc18 은 `hidden:false` 라 328자 전문이 돌아왔다: `VERIFIED — … you may now call log_verification. Its time_verified argument must be …`. 016 이 네 팔 일관 손해(nc9 없음 3/4 · nc17 328자 2/4 · nc12 8자 1/4 · nc11 0자 1/4). 0자는 재호출(2~4회)을 부른다.
+**근거.** 016: nc9(도구 없음) 3/4 · nc17(328자, 조회 뒤) 2/4 · nc12(8자) 1/4 · nc11(0자, 재호출 2~4회)
+1/4. 0자는 재호출을 부른다. nc17/18 의 328자에는 `you may now call log_verification. Its time_verified
+argument must be…` 지시가 있다.
 
-**설계.** nc12 의 판정 기반 침묵을 nc18 계열로 옮긴다.
-- `lb2_decision._match_verdict`: `ctx["_verdict"] = "met"|"unmet"` (엔진의 산술이 곧 판정).
-- `run_tool` 이 `(text, err, ids, verdict)` 를 돌려주고, `execute` 에서 `hidden and verdict=="met"` 이면 `ok_text`(`"VERIFIED"`) 만 보낸다. `unmet` 은 4종 템플릿 전문.
-- A2: `verify_identity.hidden: true`, `ok_text: "VERIFIED"`, `inject_after` 유지.
-- `inject_tools` 의 skip 줄에서 `hidden` 은 이미 빠져 있다(nc17). `hidden` 은 "무엇을 말하나"의 스위치이지 "있나 없나"가 아니다.
+**설계(nc12 `bc165862` 의 코드를 nc18 로 이식).**
+- `lb2_decision._match_verdict`: `ctx["_verdict"] = "met"|"unmet"`; `run_tool` 은 `(text, err, ids, verdict)`.
+- `execute`: `verdict == "met"` 이고 선언에 **`met_text`** 가 있으면 그것만 보낸다. `unmet` 은 4종 템플릿 전문.
+- **`hidden` 의 주석이 nc17/18 에서 이미 거짓이다**(리뷰): `lb_runtime.py:355-357` 축자 *"`hidden` keeps the
+  tool out of the model's list while its check goes on running elsewhere"* 인데 `:360` 은 더 이상 `hidden`
+  을 보지 않고, A2 는 `hidden:false` + `check_moved_to:"identity_gate"` 가 남아 있으며,
+  `tests/test_lb.py:670-682` 의 두 검사는 이 상태에서 공허하게 통과한다. → M5 커밋 하나에서 함께 정리:
+  `:355-357` 주석을 현재 동작(`disable` 만 목록에서 뺀다)으로 고치고, `verify_identity` 의 `hidden`·
+  `check_moved_to` 키를 지우고, 그 두 테스트를 `met_text` 검사(통과 시 `met_text` 만, 실패 시 전문)로 바꾼다.
+- **`hidden` 은 원래 뜻으로 둔다** — 그 키는 `lb_a2.py:219`·`tests/test_lb.py:670`("a hidden verifier stays out
+  of the model's tool list") 대로 **목록에서 뺀다**는 뜻으로 둔다. nc17/18 이 `hidden:false` 로 둔 것도
+  그 뜻과 일치한다(목록에 있다). "무엇을 말하나"는 새 키 `met_text` 다. 세 뜻이 한 키에 겹치지 않는다.
+- A2: `verify_identity.met_text: "VERIFIED"`, `inject_after` 유지, `hidden:false` 유지.
+- **의도된 삭제**: `met` 이면 `_match_verdict` 끝의 `advice.unless_ran`(`lb2_decision.py:165-169`,
+  `log_verification` 재촉)도 함께 사라진다. 016 의 병이 그 문장이고, base 는 재촉 없이 `log_verification`
+  을 부른다.
 
-**엔진이 읽는 것.** `_verdict` 값. 문자열 매칭 없음.
-
-**검증.** 격리 = `lb2_decision` self-test 에 met/unmet 케이스. 팔 = nc19 위에 **nc20**, 판정 태스크 = 축 B 양끝: 016 070 (도구가 해였던 계좌 태스크) + 066 067 062 (도구가 득이던 곳) + 003 007 (도구가 안 나타나야 하는 곳, 회귀 감시).
+**판정(축 B).** {016 070} · {066 067 062} · 회귀 감시 {003 007}(도구가 안 나타나야 함).
 
 ---
 
 ### M2. 손님이 부를 gold 는 재촉하지 않는다
 
-**문제.** 손실 17 중 6 태스크의 gold 쓰기가 손님 도구다(`request_human_agent_transfer` 049 081, `submit_transaction` 016, `apply_for_credit_card` 023, `submit_referral` 098, 048). 손님은 어시스턴트의 텍스트에 반응하므로 그 텍스트를 바꾸는 개입(재촉·유예·장황)이 전부 결과를 바꿨다. 019 에서는 `[LEDGER]` 뒤 어시스턴트가 손님 도구를 **직접 4번 호출**했다.
+**근거.** 손님 gold 6 태스크(§1). 049: `make the call now` 가 사과 턴을 없애 손님이
+`request_human_agent_transfer` 를 부를 턴이 사라짐(손님 호출 1/4 → 하한 뒤 3/4). 004·008·012·014: 유예된
+hand-off 텍스트를 손님이 이관으로 읽고 종료.
 
-**설계.** 엔진은 "손님 차례"를 모르지만 **어느 도구가 손님 것인지는 env 가 안다**(`list_discoverable_user_tools`, 그리고 base 궤적에서 `role=user` 로만 불린 도구). 
-- A2 `LB5.open_request.form` 을 nc15 와 같은 **도구 이름 선택** 형식으로 바꾼다: 서브호출은 "손님이 실행해 달라고 요구한 것"을 **쓰기 도구 이름**으로 고른다(자유 서술 폐기, `acts` 산문 폐기). 엔진은 `ran` 과 대조해 이미 실행된 것을 빼고 남은 것만 말한다.
-- 그 남은 것이 **손님 도구**이면 말하지 않는다. 손님 도구 목록은 A2 `LB5.customer_tools` 로 선언하되 **env 도구 목록에서 기계적으로**(`list_discoverable_user_tools` 결과) 만든다. 손님 말은 읽지 않는다.
-- 어시스턴트가 손님 도구를 부르려 하면 deny 가 아니라 **사실 한 줄**(`이 도구는 손님이 실행하는 도구다`)을 다음 턴에 얹는다(M1 경로). 019 형.
+**정정(리뷰).** 019 에서 "어시스턴트가 손님 도구를 직접 4번 호출" 은 **오독**이었다. 실제 호출은
+`give_discoverable_user_tool` 이고 env 는 `Tool given to user: submit_cash_back_dispute_0589 …` 로 정상
+응답했다(sw_019 trial 0·2 확인). 손님 시뮬레이터가 *"I don't see any dispute tools"* 라고 한 것은 give 뒤
+안내의 문제이지 우리 사실 한 줄의 표적이 아니다. **019 는 M2 의 근거·판정에서 뺀다.**
 
-**엔진이 읽는 것.** 도구 이름의 정확 일치와 `ran`.
+**손님 도구의 출처(정정).** `list_discoverable_user_tools` 는 손님 측 런타임 도구("List all tools that
+have been given to you by the agent")라 정적 목록이 아니고 우리 층이 볼 수도 없다. 맞는 출처는 env 의
+등록 측: `scripts/distill/tau2/a2/env_surface.json` `banking_knowledge.tools[*].side == "user_tools"` —
+정확히 10개:
+`apply_for_credit_card call_discoverable_user_tool deposit_check_3847 get_card_last_4_digits
+get_referral_link list_discoverable_user_tools request_human_agent_transfer submit_cash_back_dispute_0589
+submit_referral submit_transaction`.
 
-**검증.** 격리 = 기존 `lb-ask` 답을 도구 이름으로 다시 받는 실험(97 태스크 × 2, nc15 의 `select_prompt/read_selection` 재사용). 팔 = **nc21**, 판정 = 축 C 양끝: 049 016 019 081 098 023 (손님 도구) + 047 045 043 (어시스턴트가 부르는 Close, `[LEDGER]` 이득 유지).
-
----
-
-### M3. 도구는 오라클이 아니다 — 인자를 되비추고 프레임을 뺀다
-
-**문제.** 070 에서 `check_business_checking_fit` 가 모든 sim 에서 `Cobalt Blue` 를 1순위로 냈고(정답 `Sky Blue`), 모델이 채운 인자가 sim 마다 달랐다(`can_keep_balance` = "", "0", "9999", "2850", "3000"). 패 sim 은 그 답을 그대로 따랐다. `check_credit_dispute_provisional_credit` 는 `Provisional credit for **this dispute**` 로 dispute 를 전제했고 비-dispute 태스크에서 0/17. `get_reward_discrepancies` 결과 2.7k자에 `Do NOT change any transaction's rewards` 지시가 있고 부른 4 태스크 전부 패.
+**단, `env_surface.json` 은 스냅샷이지 생성물이 아니다**(리뷰): 커밋 `c801a3e2` 한 번에 들어왔고 저장소
+어디에도 그것을 쓰는 스크립트가 없다(전부 읽기 — `_lit_scan` `t2_forensic` `x417` `x953` …). 출처 없는
+스냅샷은 저작 데이터와 구별이 안 된다. 그러므로 목록은 **설치 시점에 env 에서 직접 뽑는다**:
+`lb_runtime.install()` 에서 `get_environment("alltools")` 가 등록한 user-tool 집합(tau2 Environment 의
+user tools API — 구현 전 정확한 속성명 확인)을 읽어 `agent._lb_customer_tools` 로 두고 사이드카
+`lb-customer-tools` 에 찍는다. A2 에는 적지 않는다(런타임 사실이지 선언이 아니다). `env_surface.json` 의
+`side=="user_tools"` 10개는 **대조본**으로만 쓴다 — 설치 시 집합이 그것과 다르면 `lb-diverge` 로 남긴다.
 
 **설계.**
-- 모든 검증 도구 결과의 **머리**에 엔진이 받은 인자를 그대로 되비춘다: `Inputs you gave: can_keep_balance=9999, min_atm_rebates=15, …`. 판단은 없다. 모델이 자기 인자를 보게 하는 것뿐이다.
-- `return_template` 들에서 지시·프레임 문장을 뺀다 — 단, 51개 일괄이 아니라 **부작용이 확인된 셋만**: `Do NOT change any transaction's rewards…`(018/019), `Provisional credit for this dispute`→`Provisional credit, if a dispute is filed:`(036), `Pass the verdict as eligible_for_provisional_credit.`.
-- 결과가 비었거나(`eligible: []`) 전부 excluded 면 "권고"가 아니라 "조건에 맞는 항목이 없다" 는 사실만.
+- `LB5.open_request` 의 답을 nc15 형식(도구 이름 선택, `<name>: yes|no`)으로. 후보 = 쓰기 도구 전부
+  **+ 손님 도구 10개**(리뷰: 손님 도구가 후보에 없으면 서브가 가장 가까운 어시스턴트 도구
+  `transfer_to_human_agents` 를 골라 004 형 재촉이 된다). `acts` 산문·자유 서술 폐기.
+- 엔진: 고른 것 − `ran`. 남은 것이 `agent._lb_customer_tools` 에 있으면 **말하지 않는다**. 이름 정확 일치뿐.
+- 어시스턴트가 손님 도구를 **직접** 부르려는 경우는 env 가 스스로 거절/응답하므로 우리 문장은 없다.
 
-**검증.** 격리 = `lb2_decision` 렌더 테스트. 팔 = **nc22**, 판정 = 070 062 066 067 (fit 도구) + 036 038 (dispute 도구) + 018 019 (reward 도구).
-
----
-
-### M4. 조건부 주입은 사건으로 — 도구마다 선행 호출을 선언한다
-
-**문제.** `inject_after` 가 `verify_identity` 에서 003·007 을 살렸다. 나머지 도구는 LLM 선택(첫 발화)만으로 들어가는데, dispute 도구는 dispute 접수 경로에 들어간 뒤에야 의미가 있고(036), reward 도구는 거래 조회 뒤에야 의미가 있다(018/019).
-
-**설계.** A2 각 도구에 `inject_after` 를 **env 구조에서** 적는다(gold 아님):
-
-| 도구 | inject_after |
-|---|---|
-| `check_credit_dispute_provisional_credit` | `unlock_discoverable_agent_tool(file_credit_card_transaction_dispute_*)` — 접수 도구가 열린 뒤 |
-| `get_debit_dispute_liability_cap` | 같은 형태, debit |
-| `get_reward_discrepancies` | `get_credit_card_transactions_by_user` |
-| `check_rebate_qualification` | `get_credit_card_transactions_by_user` |
-| `get_correct_savings_apy` · `get_interest_correction` | `get_all_user_accounts_by_user_id_*` 또는 savings 계좌 조회 |
-| fit 도구 4종 | 선행 없음(상담 초반에 쓰임). LLM 선택만 |
-
-LLM 선택(`select`)과 `inject_after` 는 **AND** 다: 선택됐고 사건이 일어났을 때 들어간다. unlock 이름은 `fam()` 으로 접미사를 뗀다.
-
-**검증.** 격리 = 전 궤적에서 "그 도구가 실제로 불린 sim 중 선행 사건이 그 전에 있었던 비율"(놓침) 과 "선행 사건 없이 불린 sim 의 승률". 팔 = **nc23**, 판정 = 036 081 (dispute) + 018 019 021 028 (reward) + 059 063 064 (savings).
+**판정(축 C).** {049 016 081 098 023} · {047 045 043}.
 
 ---
 
-### M6. 보고 형식 — 축의 양끝을 함께
+### M3a. 프레임·지시 문장 셋 제거 (문구만, 변경 하나)
 
-모든 팔 결과 표에 다음 줄을 고정한다:
+**근거.** `Provisional credit for this dispute` — 비-dispute 태스크에서 부른 17 sim 전멸, 036 0/17.
+`Do NOT change any transaction's rewards…` — reward 도구를 부른 4 태스크 전패(018 −42, 019 −30).
+`Pass the verdict as eligible_for_provisional_credit.` — 같은 도구의 지시.
+네 트리 모두 각 1회 → 제거 후 **남은 개수 0**(`CLAUDE.md` 규칙 충족).
+
+**설계.** 세 문장 제거. 첫째는 `Provisional credit, if a dispute is filed:` 로 사실형. "빈 결과는 사실만"
+은 커밋 `04de2125`(a catalogue that could not rank says so) 가 이미 다뤘는지 **대조 후** 필요하면 별도 팔.
+
+**판정(축 E).** {036 038} · {018 019}. 036 은 여기서는 판정(도구 출력 프레임)이다.
+
+### M3b. 인자 되비춤 — **보류**
+
+070 2×2(12팔 42 sim): fit 호출 9승 9패(50%) vs 미호출 10승 14패(42%). **표적이 없다.** 070 의 −2 는
+`AUTOPSY_058_070` 대로 우리 문장에 귀속할 근거가 없고, 패 sim 의 `account_class` 오답은 fit 도구를
+불렀든 안 불렀든 같은 비율이다. 되비춤은 어느 태스크에서 "도구를 부른 sim 이 더 진다" 는 2×2 가 나올
+때만 다시 올린다. (`040` 도구 답 50건·38,634자에 헤더를 더 얹는 부담도 있다.)
+
+---
+
+### M4. 조건부 주입은 사건으로 — `inject_after`, 그리고 `requires_reads` 통합
+
+**근거.** `inject_after` 가 `verify_identity` 에서 003 2→4, 007 유지. 나머지 도구는 첫 발화 LLM 선택만.
+
+**`requires_reads` 처분(리뷰).** A2 에 이미 선언돼 있으나(`get_correct_savings_apy` 등
+`["get_all_user_accounts_by_user_id"]`) `lb_a2.py:220` 이 보존만 하고 **어느 코드도 읽지 않는 죽은
+필드**다(nc18 10개 파일 전수에서 소비처는 `lb_a2.py:220` 하나). 같은 개념에 키 둘을 두지 않는다 →
+**`requires_reads` 는 `inject_after` 로 흡수하고 지운다**(값 형태 동일: 선행 도구 이름 목록). `lb_a2.py`
+keep-list 에서 `requires_reads` 제거, A2 의 세 선언을 `inject_after` 로 옮김.
+
+**코드가 이미 있고, 설계와 한 군데 어긋난다**(리뷰, nc18 `lb_runtime.py:121-128`·`:362-372`):
+- `set(d["inject_after"]) & ran` — 목록은 **OR** 다. savings 행의 "A 또는 B" 는 선언만으로 된다.
+- `:371 if d.get("select") and d["name"] not in chosen: continue` — "선택 AND 사건" 은 코드와 일치.
+- **어긋남**: `ran` 은 어시스턴트 호출의 **도구 이름 집합**이다. dispute 행의 사건
+  `unlock_discoverable_agent_tool(file_credit_card_transaction_dispute_*)` 은 unlock 의 인자
+  `agent_tool_name` 을 `fam()` 으로 봐야 잡히는데, 지금은 `unlock_discoverable_agent_tool` 이라는 이름
+  자체만 걸린다. → **`lb_runtime` 한 줄**: `turn_hook` 에서 `ran` 을 만들 때 디스패처 호출이면
+  `dispatch.name_args` 의 인자값을 `fam()` 해서 `ran` 에 함께 넣는다(`Turn.named()` 와 같은 규칙).
+  `inject_after` 의 값도 `fam()` 형으로 적는다(`file_credit_card_transaction_dispute`).
+
+**표(env 구조 출처 · 확정 전 격리 측정이 전제).**
+
+| 도구 | inject_after | 출처 | 상태 |
+|---|---|---|---|
+| `check_credit_dispute_provisional_credit` | `unlock(file_credit_card_transaction_dispute_*)` | 존재 이유가 그 도구의 인자 `eligible_for_provisional_credit` | ✔ |
+| `get_debit_dispute_liability_cap` | `unlock(file_debit_card_transaction_dispute_*)` | 같음 | ✔ |
+| `get_reward_discrepancies` | `get_credit_card_transactions_by_user` | `op.over: transactions` · `grounded_params.transaction_id.producer_contains: credit_card_transaction_history` | ✔ |
+| `get_correct_savings_apy` · `get_interest_correction` | `get_all_user_accounts_by_user_id` | 기존 `requires_reads` | ✔ |
+| `check_rebate_qualification` | **미정** — `get_credit_card_transactions_by_user` 는 확인 안 됨. ATM 리베이트면 checking 쪽(`get_bank_account_transactions_9173`) | 선언의 `ref_params`/`grounded_params` 로 정한다 | ⏳ |
+| fit 도구 4종 | 없음(상담 초반) | | — |
+
+**격리 측정이 표보다 먼저다.** 전 궤적에서 각 도구가 실제로 불린 sim 중 선행 사건이 그 전에 있었던
+비율(놓침)과 선행 없이 불린 sim 의 승률을 내고, 놓침이 큰 행은 표에서 뺀다.
+
+**036 은 판정이 아니라 회귀 감시로.** 036 패 sim 은 이미 unlock 했다(`CLAUDE.md` 036 절) — M4 는 036 을
+못 고친다.
+
+**판정.** {081} · {018 019 021 028} · {059 063 064}. 회귀 감시 {036}.
+
+---
+
+### M6. 보고 형식
+
+§1 의 묶음과 채택 규칙을 모든 팔 보고에 고정한다.
+
+## 3. 팔 계보 — 병렬
+
+M1(`lb_runtime.py`)·M5(`lb2_decision.py`/`execute`)·M3a(A2 문구)·M2(A2 `open_request`+`lb5`)·M4(A2
+`inject_after`+`lb_a2`)는 서로 다른 파일/키를 만진다. **nc18 위에 병렬 팔**로 세우면 귀속이 깨지지 않고,
+이긴 것만 마지막에 한 팔로 쌓아 상호작용을 본다.
 
 ```
-축A 행동형 {049 047 045 043} / 조사형 {016 019 081 054 040}
-축B 계좌 다단계 {066 067 062 069 070} / 쇼핑·즉시 {001 002 003 006 007 024 025}
-축C 손님 gold {049 016 019 081 098 023} / 어시스턴트 gold {047 045 043 036 048}
+arm/nc19 = nc18 + M1      판정 D  {004 008 012 014 040 005 037} | {016 049 036}       10 태스크
+arm/nc20 = nc18 + M5      판정 B  {016 070} | {066 067 062} | 감시 {003 007}          7
+arm/nc21 = nc18 + M2      판정 C  {049 016 081 098 023} | {047 045 043}              8
+arm/nc22 = nc18 + M3a     판정 E  {036 038} | {018 019}                              4
+arm/nc23 = nc18 + M4      판정    {081} | {018 019 021 028} | {059 063 064} | 감시 {036}  9
+arm/nc24 = nc18 + 채택된 것 전부   손실16 + 위 판정 합집합                         ~25
 ```
 
-각 묶음의 nc/base 합계를 적는다. 한쪽만 오른 레버는 채택하지 않는다.
-
-## 3. 팔 계보와 판정 태스크
-
-```
-nc18 (지금)  = nc17 + hand-off 무유예            004 008 012 014 → 손실16 나머지
-nc19         = nc18 + M1 advice 무재생성          004 008 012 014 040 005 037 | 016 049 036
-nc20         = nc19 + M5 verify 8자               016 070 | 066 067 062 | 003 007
-nc21         = nc20 + M2 손님 gold 무재촉          049 016 019 081 098 023 | 047 045 043
-nc22         = nc21 + M3 인자 되비춤·프레임 제거     070 062 066 067 | 036 038 | 018 019
-nc23         = nc22 + M4 사건 기반 주입             036 081 | 018 019 021 028 | 059 063 064
-```
-
-각 팔은 이전 팔의 판정 태스크를 **회귀 감시로 다시 포함**한다(한 변경이 앞 변경을 되돌리지 않았는지). 전수 96 은 nc23 뒤에 한 번.
+**비용.** 38 태스크 × 4 sim = 152 sim(병렬 5팔) + 통합 ~100 sim ≈ **250 sim**. 엔진은 8141 하나 —
+태스크당 중앙값 43분이면 약 27시간(전수런이 9141·9143 을 쓰는 동안). 직렬 v1 안(≈520 sim)의 절반.
+엔진이 하나이므로 "병렬"은 큐 하나에 팔 태그를 섞어 넣는 것이고, 레인 시작 줄의 `sha`/`a2` 지문으로
+갈린다.
 
 ## 4. 하지 않는 것
 
-- 태스크별 조건. 축은 선언에 들어가지만 태스크 번호는 어디에도 들어가지 않는다.
-- 낱말 매칭으로 의미 판정. `inject_when` 류는 복구하지 않는다.
-- 51개 문구 일괄 변환. 부작용이 측정된 것만, 하나씩.
-- 횟수 상한. 필요성은 사건(deny)과 값(`_verdict`)으로 가른다.
-- `[ORDER notice]` 제거. 전체 이득이다(34% vs 25%).
+태스크별 조건 · 낱말 매칭 · 일괄 문구 변환 · 횟수 상한 · `[ORDER notice]` 제거 · `hidden` 의 뜻 변경 ·
+표적 2×2 없는 되비춤.
 
-## 5. 리뷰 포인트
+## 5. 남은 확인
 
-1. M1 의 "마지막 턴 쪽지는 드롭된다"를 받아들일 것인가. 대안은 마지막 턴에 한해 재생성 허용(별도 팔).
-2. M2 의 손님 도구 목록을 env 에서 기계 추출하는 것이 gold 참조가 아니라는 데 동의하는가.
-3. M4 의 `inject_after` 표 — 각 선행 사건이 env 구조에서 정당한가(문서·도구 설명으로 뒷받침).
-4. 판정 태스크 묶음이 축을 대표하는가. 빠진 태스크가 있으면 추가.
+- M4 표의 `check_rebate_qualification` 선행 사건(선언 `ref_params`/`grounded_params` 대조).
+- `04de2125` 가 "빈 결과는 사실만"을 이미 했는지.
+- M1 드롭률(nc19 `lb-advice-dropped` 실측).
