@@ -153,9 +153,14 @@ def turn_hook(self, message, state):
     for _ in range(ROUNDS):
         turn = build_turn(self, a2, state.messages, am)
         d = say(turn, evaluate(turn), owner=self)
-        # advice reaches the model only through a regeneration: on a text turn, and on a hand-off
-        # call (the transfer is deferred once with the open promise named; the model may re-issue it)
-        if not d.denies and not (d.advice and (not turn.calls or handing_off(turn))):
+        # advice reaches the model only through a regeneration, and only on a text turn. A hand-off
+        # call is never deferred for advice: the customer answers the assistant's text, and a
+        # regenerated hand-off turn is text that reads as the hand-off itself. Across every arm,
+        # 41 simulations had the transfer deferred with the notice note - 21 re-issued it, 29% won -
+        # against 127 that transferred undeferred, 42%. task_004/008/012/014 lost 9 of 9 that way:
+        # the note landed on the last turn, the model wrote "connecting you now", the customer
+        # said ###TRANSFER### and the tool was never called.
+        if not d.denies and not (d.advice and not turn.calls):
             break
         if not d.denies and d.advice:
             need, gst = advice_needed(self, a2, am, d.advice)
