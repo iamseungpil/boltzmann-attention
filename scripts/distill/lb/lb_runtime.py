@@ -129,18 +129,30 @@ def turn_hook(self, message, state):
     trace(self, state.messages[-len(message.tool_messages) if isinstance(message, MultiToolMessage) else -1:])
     view = lb6_load.reduce(a2, state.messages) if enabled("LB6") else list(state.messages)
     fold_mark(self, state.messages, view)
+    # advice carried over from the previous turn rides in front of this generation, in the
+    # customer's slot with the marker (task_070 answered an unmarked note as if the customer wrote
+    # it). It is consumed here once and recorded; a note still pending when the conversation ends
+    # was never read, which the sidecar shows as an lb-advice-carried row that never followed.
+    carried = self.__dict__.pop("_lb_pending_advice", None) or []
+    if carried:
+        view = view + [UserMessage(role="user", content=ADVICE_MARK + text) for text in carried]
+        sidecar("lb-advice-carried", " | ".join(carried)[:1200], None, sim=sim_id(self), n=len(carried),
+                at=len(state.messages))
     am = generate(self, view)
     for _ in range(ROUNDS):
         turn = build_turn(self, a2, state.messages, am)
         d = say(turn, evaluate(turn), owner=self)
-        # advice reaches the model only through a regeneration, and only on a text turn. A hand-off
-        # call is never deferred for advice: the customer answers the assistant's text, and a
-        # regenerated hand-off turn is text that reads as the hand-off itself. nc17 task_004: the
-        # three losing simulations each had the transfer deferred on the customer's "please transfer
-        # me", wrote "I'm transferring you now", and the customer said ###TRANSFER### - the tool was
-        # never called. The one that won kept the call in the regenerated turn. Across every arm, 41
-        # deferred hand-offs re-issued the call in 21 and won 29%; 127 undeferred won 42%.
-        if not d.denies and not (d.advice and not turn.calls):
+        # A regeneration throws the model's reply away, and only a denial has to: the refused call
+        # cannot stand. Advice is a fact, and it is carried to the next generation instead. The
+        # same [ORDER] note that scored 016 +35 when it arrived without a regeneration cost 004 0/4
+        # when the hand-off was regenerated to carry it (41 deferred hand-offs 29%, 127 undeferred
+        # 42%); advice-only regenerations ran 49% over 359 simulations, the ones [CLAIM-PROVENANCE]
+        # drove 38% over 226. A note on the model's last turn is never read - base's text-only turns
+        # are the last turn in 386 of 2,286, and 646 of the 647 at turn four or earlier are not.
+        if not d.denies:
+            if d.advice:
+                pend = self.__dict__.setdefault("_lb_pending_advice", [])
+                pend += [t for t in d.advice if t not in pend]
             break
         if self.__dict__.get("_lb_regen", 0) >= REGEN_BUDGET:
             print("[lb] regen budget spent - message stands", file=sys.stderr, flush=True)
