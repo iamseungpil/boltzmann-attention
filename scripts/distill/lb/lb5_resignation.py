@@ -95,8 +95,11 @@ def open_request(turn):
         return []
     # the sub-call chooses tool names - the environment's own, plus the customer's own tools - so the
     # engine can compare names and never a sentence. Our verifier tools are not candidates.
-    customer = set(ex.get("customer_tools") or ())
-    cands = sorted((set(turn.visible_tools) - set(ex.get("verifier_tools") or ())) | customer)
+    customer = {fam(x) for x in (ex.get("customer_tools") or ())}
+    # candidates are names collapsed by fam(): the listed tools, the dispatcher-reached registry
+    # (decoy suffixes fold together), and the customer's tools
+    cands = sorted(({fam(x) for x in turn.visible_tools} - {fam(x) for x in (ex.get("verifier_tools") or ())})
+                   | set(ex.get("discoverable_tools") or ()) | customer)
     if not cands:
         return []
     ran = [name for name, _ in getattr(turn, "ran", ())]
@@ -111,7 +114,7 @@ def open_request(turn):
     if status != "ok":
         return []
     done = {fam(n) for n in ran}
-    left = [n for n in picked if fam(n) not in done]
+    left = [n for n in picked if n not in done]
     # a tool the customer calls is the customer's turn to take: nothing is said about it. task_049's
     # request_human_agent_transfer is called by the customer in 4 of 4 base simulations, and the note
     # that pressed the assistant to act cut the customer's turn (customer called it 1/4 -> 3/4 without).

@@ -84,12 +84,21 @@ def install(domain):
             # snapshot, not a declaration): gold actions such as request_human_agent_transfer,
             # submit_transaction and apply_for_credit_card are the customer's to call, and a note
             # that presses the assistant to act on one of them deletes the turn the customer needed.
+            # and the tools the agent can reach only through the dispatchers (unlock/call): the
+            # environment's own registry, decoy variants included, collapsed by fam(). 174 of the
+            # 269 gold writes across the domain are such tools - agent.tools never lists them.
             try:
                 env = getattr(self, "environment", None)
                 agent._lb_customer_tools = {getattr(t, "name", None) for t in (env.get_user_tools() if env else [])} - {None}
+                reg = getattr(getattr(env, "tools", None), "get_agent_discoverable_tools_state", None)
+                agent._lb_discoverable_tools = {fam(k) for k in (reg() if reg else {}).keys()}
+                ureg = getattr(getattr(env, "tools", None), "get_user_discoverable_tools_state", None)
+                agent._lb_customer_tools |= {fam(k) for k in (ureg() if ureg else {}).keys()}
             except Exception as e:
-                agent._lb_customer_tools = set()
-                print("[lb] customer tools unavailable: %r" % (e,), file=sys.stderr, flush=True)
+                agent._lb_customer_tools = set(); agent._lb_discoverable_tools = set()
+                print("[lb] tool registries unavailable: %r" % (e,), file=sys.stderr, flush=True)
+            sidecar("lb-discoverable-tools", ", ".join(sorted(agent._lb_discoverable_tools)) or "(none)", None,
+                    sim=sim_id(agent), n=len(agent._lb_discoverable_tools))
             sidecar("lb-customer-tools", ", ".join(sorted(agent._lb_customer_tools)) or "(none)", None,
                     sim=sim_id(agent), n=len(agent._lb_customer_tools))
             # injection waits for the customer to speak - see turn_hook. At this point nothing
@@ -312,6 +321,7 @@ def build_turn(agent, a2, messages, am):
                 # simulations; anything that speaks at a decision point every turn repeats that.
                 extras={"ask": ask_fn(agent), "rows": dict(agent.__dict__.get("_lb_rows") or {}),
                         "customer_tools": set(agent.__dict__.get("_lb_customer_tools") or ()),
+                        "discoverable_tools": set(agent.__dict__.get("_lb_discoverable_tools") or ()),
                         "verifier_tools": {d["name"] for d in (a2.get("LB2") or {}).get("tools") or []},
                         "once": agent.__dict__.setdefault("_lb_once", set())},
                 sim=sim_id(agent))
