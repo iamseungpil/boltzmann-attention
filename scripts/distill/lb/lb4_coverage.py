@@ -165,6 +165,12 @@ def claims(spec, turn):
             return tool in done
         pats = emap.get(str((c or {}).get("kind") or "").lower())
         pats = pats if isinstance(pats, list) else ([pats] if pats else [])
+        # a kind with no event map (the generic "write": told, offered, documented) has no ledger
+        # entry to check against, so "NO such event" would be an accusation without evidence. On
+        # 008 that accusation, landing within two turns of the hand-off, reframed the transfer as
+        # "could not verify" and picked the Tier 2 reason code (2 of 2 wrong, 0 of 8 right).
+        if not pats:
+            return True
         # "some write ran" backs no particular claim: on 049 the closure write covered a false
         # "applied the $5 statement credit" in 4 of 4 simulations
         return any(d.startswith(p) for p in pats if p != "__effective_write__" for d in done)

@@ -686,5 +686,17 @@ check("a tool is only switched off with the measurement that justified it", not 
       "disabled with no note: %s" % _nomeasure)
 
 print("code base size: %d lines across %d files" % (lines, len([f for f in os.listdir(ROOT) if f.endswith('.py')])))
+# 008 (nc18 t0 / sw t3): a generic "write" claim has no ledger event to check, so it is not accused;
+# a claim that names a tool that never ran still is.
+from lb4_coverage import claims as _claims
+_spec = next(s for s in A2["LB4"]["sets"] if s["kind"] == "claims")
+_tr = Turn(A2, [M("user", "transfer me")], M(content="I have documented the details.",
+           calls=[C("transfer_to_human_agents", {"reason": "x", "summary": "y"})]))
+_tr.extras["ask"] = lambda q, tag: '{"claims": [{"kind": "write", "what": "documented conversation details"}], "pending": []}'
+check("008: prose write claim is not accused", not _claims(_spec, _tr), [f.order[:60] for f in _claims(_spec, _tr)])
+_tr.extras["ask"] = lambda q, tag: '{"claims": [{"kind": "record_update", "what": "applied statement credit", "tool": "apply_statement_credit_8472"}], "pending": []}'
+check("049: tool-named claim without the call is still accused", any("statement credit" in f.order for f in _claims(_spec, _tr)))
+
+
 print("RESULT: %s (%d/%d)" % ("PASS" if all(OK) else "FAIL", sum(OK), len(OK)))
 sys.exit(0 if all(OK) else 1)
