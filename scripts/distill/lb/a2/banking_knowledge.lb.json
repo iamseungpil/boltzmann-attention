@@ -24836,5 +24836,12 @@
     "when": null
    }
   ]
+ },
+ "regen": {
+  "gate": {
+   "question": "An agent has drafted a reply to a bank customer. A check of the agent's own run record produced the note below. Does the note change what this reply should say or do? Judge only from the draft and the note.",
+   "form": "Answer with exactly one line and nothing else:\nCHANGE: yes\nCHANGE: no",
+   "_source": "2026-09-12. A regeneration discards the reply. Over 1,336 simulations the win rate falls with each one (0: 58%, 1: 53%, 2: 45%, 3: 32%); advice-only regenerations are 49% over 359 simulations and [CLAIM-PROVENANCE]-driven ones 38% over 226. Denials must regenerate - the refused call cannot stand - so they are not gated. Whether a fact changes a given reply is a judgement, so it is asked, and the engine reads one value. Read off our own sidecars, not off any task."
+  }
  }
 }

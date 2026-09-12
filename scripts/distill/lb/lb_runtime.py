@@ -97,6 +97,37 @@ def install(domain):
 
 
 # ---- generation hook ---------------------------------------------------------------------------------
+def advice_needed(agent, a2, am, notes):
+    """Is a regeneration needed for this advice? Asked, not counted.
+
+    A regeneration throws the model's reply away. Across 1,336 simulations the win rate falls with
+    each one - 0: 58%, 1: 53%, 2: 45%, 3: 32% - and advice-only regenerations sit at 49% over 359
+    simulations, [CLAIM-PROVENANCE] alone at 38% over 226. A denial has to regenerate: the refused
+    call cannot stand. Advice is a fact, and whether that fact changes the reply is a judgement
+    about this reply - so it is put to one isolated sub-call with the draft and the note, and the
+    answer is a value. A blank or unreadable answer regenerates, as before; nothing is dropped
+    silently, and every answer is in the sidecar.
+    """
+    spec = ((a2 or {}).get("regen") or {}).get("gate") or {}
+    if not spec.get("question"):
+        return True, "off"
+    draft = str(getattr(am, "content", "") or "")
+    nl = chr(10)
+    prompt = (str(spec["question"]) + nl + nl + "The draft reply:" + nl + nl + draft[-3000:] + nl + nl
+              + "The note:" + nl + nl + nl.join(str(x) for x in notes) + nl + nl + str(spec.get("form") or ""))
+    out = str(ask_fn(agent)(prompt, "lb_regen_gate") or "")
+    for ln in out.splitlines():
+        if ":" in ln:
+            k, v = ln.split(":", 1)
+            if k.strip().strip("-*` ").lower() == "change":
+                v = v.strip().lower()
+                if v.startswith("yes"):
+                    return True, "ok"
+                if v.startswith("no"):
+                    return False, "ok"
+    return True, ("blank" if not out.strip() else "unparsed")
+
+
 def turn_hook(self, message, state):
     from tau2.data_model.message import MultiToolMessage, ToolMessage, UserMessage
     if not any_lever():
@@ -126,6 +157,12 @@ def turn_hook(self, message, state):
         # call (the transfer is deferred once with the open promise named; the model may re-issue it)
         if not d.denies and not (d.advice and (not turn.calls or handing_off(turn))):
             break
+        if not d.denies and d.advice:
+            need, gst = advice_needed(self, a2, am, d.advice)
+            sidecar("lb-regen-gate", "%s %s" % (gst, "yes" if need else "no"), turn, sim=turn.sim,
+                    status=gst, n=len(d.advice))
+            if not need:
+                break                       # the reply stands; the note is on record, not in the window
         if self.__dict__.get("_lb_regen", 0) >= REGEN_BUDGET:
             print("[lb] regen budget spent - message stands", file=sys.stderr, flush=True)
             sidecar("lb-regen-stop", "budget %d spent; the model message stands" % REGEN_BUDGET,
