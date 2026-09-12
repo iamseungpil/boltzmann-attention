@@ -150,7 +150,11 @@ def turn_hook(self, message, state):
         # drove 38% over 226. A note on the model's last turn is never read - base's text-only turns
         # are the last turn in 386 of 2,286, and 646 of the 647 at turn four or earlier are not.
         if not d.denies:
-            if d.advice:
+            # only advice from a text turn is carried - those are the turns nc18 regenerated. Advice
+            # raised on a call turn never reached the model before (say() records it, turn_hook let
+            # the message stand), and 31% of the sweep's advice rows were on turns that already held
+            # the write; delivering those a turn later would put "X normally comes after Y" after X.
+            if d.advice and not turn.calls:
                 pend = self.__dict__.setdefault("_lb_pending_advice", [])
                 pend += [t for t in d.advice if t not in pend]
             break
