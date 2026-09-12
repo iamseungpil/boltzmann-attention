@@ -321,3 +321,14 @@ sw 패:    assistant apply_statement_credit ×2 → assistant transfer_to_human_
 
 **부작용이 증거로 확인된 것만, 한 번에 하나씩.** 51개 문구를 일괄 변환한 판은 무엇이 효과인지
 지우므로 폐기했다. 팔 하나에 변경 하나, nt=4.
+
+## OpenRouter 402 는 잔액이 아니라 키 한도다 (2026-09-12)
+
+16:38~17:12 세 레인이 전부 `infrastructure_error` 를 persisted 했다(전수런 12 태스크, nc17 6 태스크).
+원인은 손님 시뮬레이터(`openrouter/openai/gpt-5.2`)의 402:
+`"You requested up to 65536 tokens, but can only afford 65423 … adjust the key's total limit"`.
+요청마다 64k 토큰을 **예약**하므로 키의 지출 한도가 그 아래로 내려오면 잔액이 있어도 실패한다.
+- `<120s` harness 가드는 못 잡는다 — 재시도 8회 뒤 실패라 태스크당 300~400초.
+- 결과에 `infrastructure_error` 가 하나라도 있으면 격리(`*.infra_void.gz`)하고 큐 앞에 되돌린다.
+  `void_sweeper.sh` 가 2분마다 그 일을 한다. 부분 void(045 1/4 유효)도 통째로 되돌린다.
+- 증상 확인은 드라이버 로그의 `requires more credits`; 잔액은 `GET /api/v1/credits`(키는 출력하지 않는다).
