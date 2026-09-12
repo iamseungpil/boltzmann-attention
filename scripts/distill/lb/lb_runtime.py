@@ -80,6 +80,18 @@ def install(domain):
         agent = getattr(self, "agent", None)
         if agent is not None:
             agent._lb_a2, agent._lb_orch = a2, self
+            # the tools the customer calls, read off the environment's own registration (not a
+            # snapshot, not a declaration): gold actions such as request_human_agent_transfer,
+            # submit_transaction and apply_for_credit_card are the customer's to call, and a note
+            # that presses the assistant to act on one of them deletes the turn the customer needed.
+            try:
+                env = getattr(self, "environment", None)
+                agent._lb_customer_tools = {getattr(t, "name", None) for t in (env.get_user_tools() if env else [])} - {None}
+            except Exception as e:
+                agent._lb_customer_tools = set()
+                print("[lb] customer tools unavailable: %r" % (e,), file=sys.stderr, flush=True)
+            sidecar("lb-customer-tools", ", ".join(sorted(agent._lb_customer_tools)) or "(none)", None,
+                    sim=sim_id(agent), n=len(agent._lb_customer_tools))
             # injection waits for the customer to speak - see turn_hook. At this point nothing
             # has been said, so there is nothing to choose the tools against.
 
@@ -299,6 +311,8 @@ def build_turn(agent, a2, messages, am):
                 # not be said again. LB1's walker was removed for firing 180 times over 216
                 # simulations; anything that speaks at a decision point every turn repeats that.
                 extras={"ask": ask_fn(agent), "rows": dict(agent.__dict__.get("_lb_rows") or {}),
+                        "customer_tools": set(agent.__dict__.get("_lb_customer_tools") or ()),
+                        "verifier_tools": {d["name"] for d in (a2.get("LB2") or {}).get("tools") or []},
                         "once": agent.__dict__.setdefault("_lb_once", set())},
                 sim=sim_id(agent))
 

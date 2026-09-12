@@ -63,27 +63,6 @@ def unread_definition(turn):
             if tpl and fam(turn.name_of(c)).lower() not in turn.tool_text]
 
 
-def read_form(out):
-    """Read KIND and REQUEST out of the sub-call's answer. The engine reads; it does not judge.
-
-    A2 declares the kinds and which of them this rule speaks for; whether this conversation is one of
-    them is the sub-call's answer, and all that happens here is that the two lines are taken apart.
-    """
-    kind, named = "", ""
-    for line in str(out or "").splitlines():
-        s = line.strip()
-        if ":" not in s:
-            continue
-        head, rest = s.split(":", 1)
-        head = head.strip().upper()
-        if head == "KIND":
-            w = rest.strip().upper().split()
-            kind = w[0].strip(".,") if w else ""
-        elif head == "REQUEST":
-            named = " ".join(rest.split())
-    return kind, ("" if named in ("", "-", "--") else named)
-
-
 def open_request(turn):
     """What the customer asked for and the run record does not show, named once as the model leaves.
 
@@ -103,34 +82,44 @@ def open_request(turn):
     on the way out and talking over the whole conversation.
     """
     spec = spec_of(turn).get("open_request") or {}
-    ask = (getattr(turn, "extras", None) or {}).get("ask")
-    once = (getattr(turn, "extras", None) or {}).get("once")
-    speak = {str(k).upper() for k in (spec.get("speak_when") or ())}
-    if not spec.get("question") or not spec.get("feedback") or not ask or once is None or not speak:
+    ex = getattr(turn, "extras", None) or {}
+    ask, once = ex.get("ask"), ex.get("once")
+    if not spec.get("question") or not spec.get("feedback") or not ask or once is None:
         return []
     if KEY in once:
         return []
     asked = sum(1 for k in once if isinstance(k, str) and k.startswith(KEY + "#"))
     if asked >= int(spec.get("ask_cap") or 0):
         return []
-    ran = [name for name, _ in getattr(turn, "ran", ())]
     if not turn.user_text.strip():
         return []
-    kinds = spec.get("kinds") or {}
+    # the sub-call chooses tool names - the environment's own, plus the customer's own tools - so the
+    # engine can compare names and never a sentence. Our verifier tools are not candidates.
+    customer = set(ex.get("customer_tools") or ())
+    cands = sorted((set(turn.visible_tools) - set(ex.get("verifier_tools") or ())) | customer)
+    if not cands:
+        return []
+    ran = [name for name, _ in getattr(turn, "ran", ())]
     nl = chr(10)
-    prompt = (spec["question"] + nl + nl
-              + nl.join("%s - %s" % (k, v) for k, v in kinds.items()) + nl + nl
-              + str(spec.get("acts") or "") + nl + nl
+    prompt = (spec["question"] + nl + nl + nl.join(cands) + nl + nl
               + "What the customer has said:" + nl + nl + turn.user_text[-8000:] + nl + nl
-              + "Every tool the agent actually ran, in order:" + nl + nl
-              + (", ".join(ran) or "(none)") + nl + nl
+              + "Every tool the agent actually ran, in order:" + nl + nl + (", ".join(ran) or "(none)") + nl + nl
               + str(spec.get("form") or ""))
-    kind, named = read_form(ask(prompt, KEY))
+    from lb2_decision import read_selection
+    picked, status = read_selection(ask(prompt, KEY), cands)
     once.add(KEY + "#%d" % asked)
-    if kind not in speak or not named:
+    if status != "ok":
+        return []
+    done = {fam(n) for n in ran}
+    left = [n for n in picked if fam(n) not in done]
+    # a tool the customer calls is the customer's turn to take: nothing is said about it. task_049's
+    # request_human_agent_transfer is called by the customer in 4 of 4 base simulations, and the note
+    # that pressed the assistant to act cut the customer's turn (customer called it 1/4 -> 3/4 without).
+    left = [n for n in left if n not in customer]
+    if not left:
         return []
     once.add(KEY)
-    return [fill(spec["feedback"], open=named)]
+    return [fill(spec["feedback"], open=", ".join(left))]
 
 
 def repeated_search(turn):
