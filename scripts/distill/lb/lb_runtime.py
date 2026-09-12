@@ -123,7 +123,8 @@ def turn_hook(self, message, state):
                 if d.get("inject_after") and d["name"] not in have and set(d["inject_after"]) & ran]
         if late:
             names = inject_tools(self, a2, executed=ran, only=set(late))
-            sidecar("lb-tools", "INJECTED-AFTER %s" % ", ".join(names), None, sim=sim_id(self), n=len(names))
+            sidecar("lb-tools", "INJECTED-AFTER %s" % ", ".join(names), None, sim=sim_id(self), n=len(names),
+                    at=len(state.messages))
             diverge("inject-after", ", ".join(names), sim=sim_id(self), n=len(names))
     trace(self, state.messages[-len(message.tool_messages) if isinstance(message, MultiToolMessage) else -1:])
     view = lb6_load.reduce(a2, state.messages) if enabled("LB6") else list(state.messages)
@@ -132,9 +133,14 @@ def turn_hook(self, message, state):
     for _ in range(ROUNDS):
         turn = build_turn(self, a2, state.messages, am)
         d = say(turn, evaluate(turn), owner=self)
-        # advice reaches the model only through a regeneration: on a text turn, and on a hand-off
-        # call (the transfer is deferred once with the open promise named; the model may re-issue it)
-        if not d.denies and not (d.advice and (not turn.calls or handing_off(turn))):
+        # advice reaches the model only through a regeneration, and only on a text turn. A hand-off
+        # call is never deferred for advice: the customer answers the assistant's text, and a
+        # regenerated hand-off turn is text that reads as the hand-off itself. nc17 task_004: the
+        # three losing simulations each had the transfer deferred on the customer's "please transfer
+        # me", wrote "I'm transferring you now", and the customer said ###TRANSFER### - the tool was
+        # never called. The one that won kept the call in the regenerated turn. Across every arm, 41
+        # deferred hand-offs re-issued the call in 21 and won 29%; 127 undeferred won 42%.
+        if not d.denies and not (d.advice and not turn.calls):
             break
         if self.__dict__.get("_lb_regen", 0) >= REGEN_BUDGET:
             print("[lb] regen budget spent - message stands", file=sys.stderr, flush=True)
