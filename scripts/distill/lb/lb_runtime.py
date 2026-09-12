@@ -352,11 +352,11 @@ def inject_tools(agent, a2, said=None, ask=None, executed=None, only=None):
         diverge("select-tools", status, sim=sim_id(agent), n=len(chosen), of=len(cands))
     executed = set(executed or ())
     for d in decls:
-        # two different things, and they are not the same switch. `hidden` keeps the tool out of the
-        # model's list while its check goes on running elsewhere - verify_identity answered VERIFIED
-        # on all 312 of its calls, so the check moved to LB3.identity and speaks only when it fails.
         # `disable` withdraws the function: get_interest_correction abstained on 319 of 319 calls and
-        # there is nothing left behind it to run.
+        # there is nothing left behind it to run. Whether a tool is in the list is decided here and by
+        # `select`/`inject_after` below; what its passing answer says is `met_text`, applied in
+        # execute(). (`hidden` used to mean "out of the list"; nc17 stopped reading it here and the
+        # key is gone from the declaration.)
         if d["name"] in have or d.get("disable"):
             continue
         # a tool declared `inject_after` waits for an event the engine can see: one of the named
@@ -405,11 +405,22 @@ def execute(orch, a2, tool_calls, orig_exec):
             args.update(fetch_formalize(orch, agent, d, iso, args, orig_exec) or {})
         elif iso.get("over") and iso.get("operand_schema"):
             formalize_rows(orch, agent, iso, args, orig_exec)
-        text, err, ids = lb2_decision.run_tool(d, args, corpora_of(orch, agent), evidence_of(orch, d))
+        text, err, ids, verdict = lb2_decision.run_tool(d, args, corpora_of(orch, agent), evidence_of(orch, d))
         if ids and agent is not None:
             # what a verifier settled travels as data. It used to be recovered by parsing the
             # sentence we had just written, which found nothing and left LB4 silent.
             agent.__dict__.setdefault("_lb_rows", {}).setdefault(fam(d["name"]), set()).update(ids)
+        # met_text: a verifier that passes has told the model nothing it did not already believe.
+        # verify_identity came back VERIFIED on 1,037 of 1,037 calls and each answer carried 328
+        # characters, an instruction to call log_verification next and a rule about its arguments;
+        # on task_016 that instruction rode every verified turn. The verdict is the engine's own
+        # arithmetic (ctx["_verdict"]), so nothing is read back out of the sentence. A failing
+        # answer is the whole point of the check and goes through in full. An empty passing answer
+        # made the model call again (2-4 times, 016 1/4), so the word stays.
+        if verdict == "met" and d.get("met_text"):
+            sidecar("lb-quiet", "%s: %d -> %d chars" % (d["name"], len(text), len(str(d["met_text"]))), None,
+                    sim=sim_id(agent), source=d["name"])
+            text = str(d["met_text"])
         by_id[tc.id] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=err, content=text)
         # result first: the sidecar keeps 4000 chars and a 47-row argument list alone exceeds that
         sidecar("lb-tool", "RESULT %s\nARGS %s" % (text[:2500], json_dumps(args)[:1400]), None, sim=sim_id(agent),

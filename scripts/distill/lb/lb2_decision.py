@@ -152,10 +152,15 @@ def _match_verdict(spec, ctx):
         # v2 names the way out - a different identifier, or stop and say the account cannot be
         # verified. It was written 2026-08-02 behind a flag this code base does not have, so
         # nothing read it.
+        ctx["_verdict"] = "unmet"
         tpl = (spec.get("no_record_template_v2") or spec.get("no_record_template")
                or spec.get("unmet_template") or "{count}")
     else:
-        tpl = spec.get("met_template" if len(matched) >= thr else "unmet_template") or "{count}"
+        met = len(matched) >= thr
+        # the verdict is the engine's own arithmetic; it leaves as a value, not as a word to be
+        # read back out of the sentence it rendered.
+        ctx["_verdict"] = "met" if met else "unmet"
+        tpl = spec.get("met_template" if met else "unmet_template") or "{count}"
     out = fill(tpl, count=len(matched), threshold=thr, matched=", ".join(matched) or "(none)",
                missing=", ".join(missing) or "(none)")
     # A sentence telling the caller how to get something it already has is noise, and noise is what
@@ -771,18 +776,19 @@ def run_tool(decl, args, corpora, evidence):
     bad = [p for p in over_params(decl.get("op")) if isinstance(ctx.get(p), str)]
     if bad:
         return ("Error: [ARGS-FORMAT] the '%s' argument could not be read as a JSON array. Re-issue this call with "
-                "'%s' as a valid JSON array (double quotes, plain numbers)." % (bad[0], bad[0])), True, []
+                "'%s' as a valid JSON array (double quotes, plain numbers)." % (bad[0], bad[0])), True, [], None
     flags = ground_operands(decl, ctx, corpora)
     result = evaluate_op(decl.get("op"), ctx)
     if result is None and flags:
-        return "Abstained: these inputs are not supported by any record or document in this conversation: %s" % "; ".join(flags), True, []
+        return ("Abstained: these inputs are not supported by any record or document in this conversation: %s"
+                % "; ".join(flags)), True, [], None
     if result is None:
-        return decl.get("missing_hint") or "Abstained: the inputs given do not determine a result.", True, []
+        return (decl.get("missing_hint") or "Abstained: the inputs given do not determine a result."), True, [], None
     # The rows this verifier settled leave as data, not as a sentence to be read back. settled_rows
     # used to recover them with records_in over the rendered text, found nothing, and never fired.
     idf = (decl.get("op") or {}).get("id_field")
     ids = [str(x) for x in result] if (idf and isinstance(result, list)) else []
-    return render_result(decl, ctx, result), False, ids
+    return render_result(decl, ctx, result), False, ids, ctx.get("_verdict")
 
 
 def _list(v):
@@ -1030,11 +1036,11 @@ if __name__ == "__main__":
     # a verifier tool end to end
     decl = {"name": "chk", "op": sd, "return_template": "bad: {ids}", "return_template_empty": "none",
             "ground": {"scalar_fields": [{"param": "cap", "corpus": ["ledger"], "kind": "number"}]}}
-    text, err, _ids = run_tool(decl, {"tx": json.dumps(c2["tx"]), "cap": "12"}, {"ledger": ["limit 12"]}, {})
+    text, err, _ids, _v = run_tool(decl, {"tx": json.dumps(c2["tx"]), "cap": "12"}, {"ledger": ["limit 12"]}, {})
     assert text.startswith("bad: t2") and not err, text
     assert run_tool(decl, {"tx": "not json"}, {}, {})[1]
     # an empty string for an array the declaration lets you omit is an omission, not a format error
-    _t, _e, _ = run_tool(decl, {"tx": "  ", "cap": "12"}, {"ledger": ["limit 12"]}, {})
+    _t, _e, _, _v2 = run_tool(decl, {"tx": "  ", "cap": "12"}, {"ledger": ["limit 12"]}, {})
     assert "[ARGS-FORMAT]" not in _t, _t
     # derived DAG with a fake formalizer
     a2 = {"LB2": {"derived": [

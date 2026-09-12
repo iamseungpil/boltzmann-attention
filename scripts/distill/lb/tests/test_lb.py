@@ -666,8 +666,9 @@ check("the identity check says nothing when the record backs the values",
       not _logv(_rec, date_of_birth="02/14/1988", email="a@b.com"))
 check("and speaks when it does not",
       bool(_logv(_rec, date_of_birth="01/01/1990", email="zz@zz.com")))
-_hidden = [t["name"] for t in (A2.get("LB2") or {}).get("tools") or [] if t.get("hidden")]
-check("a hidden verifier stays out of the model's tool list", "verify_identity" in _hidden)
+_met = {t["name"]: t.get("met_text") for t in (A2.get("LB2") or {}).get("tools") or [] if t.get("met_text")}
+check("a verifier whose passing answer is a single word declares it", _met.get("verify_identity") == "VERIFIED")
+check("and no verifier is still marked hidden", not [t["name"] for t in (A2.get("LB2") or {}).get("tools") or [] if t.get("hidden")])
 _offl = [t["name"] for t in (A2.get("LB2") or {}).get("tools") or [] if t.get("disable")]
 check("and a disabled tool stays out too", "get_interest_correction" in _offl)
 # Two switches, and they are not the same thing. `hidden` takes the tool out of the model's list while

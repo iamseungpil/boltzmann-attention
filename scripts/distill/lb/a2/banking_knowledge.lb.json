@@ -1340,14 +1340,13 @@
     },
     "return_template": "{result}",
     "missing_hint": "NOT_VERIFIED — provide 'provided' (the identity values the customer gave you).",
-    "hidden": false,
-    "check_moved_to": "identity_gate",
     "inject_after": [
      "get_user_information_by_name",
      "get_user_information_by_email",
      "get_user_information_by_id"
     ],
-    "_inject_after_source": "2026-09-12. Across 53 tasks with arms on both sides, the tool helped 16 and hurt 14. The split that holds with no semantics: the eight tasks whose winning base simulations never fetch an account record (001 002 003 006 007 024 025, and 004 which fetches at turn 8 and never verifies) are 0 helped / 5 hurt, -13 points; the 46 that verify are +6. So the tool enters the window only after get_user_information_* has actually run - the tool's own description already said to fetch the record first; the engine now waits for that event instead of injecting at turn zero. No word of the customer's is read for this."
+    "_inject_after_source": "2026-09-12. Across 53 tasks with arms on both sides, the tool helped 16 and hurt 14. The split that holds with no semantics: the eight tasks whose winning base simulations never fetch an account record (001 002 003 006 007 024 025, and 004 which fetches at turn 8 and never verifies) are 0 helped / 5 hurt, -13 points; the 46 that verify are +6. So the tool enters the window only after get_user_information_* has actually run - the tool's own description already said to fetch the record first; the engine now waits for that event instead of injecting at turn zero. No word of the customer's is read for this.",
+    "met_text": "VERIFIED"
    },
    {
     "name": "check_rebate_qualification",
