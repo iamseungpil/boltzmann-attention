@@ -712,6 +712,51 @@ def render_result(decl, ctx, result):
     return text
 
 
+# ---- which verifier tools this conversation gets (LB2.select) ----------------------------------------
+# The engine does not read the customer's words for meaning. It builds one prompt from the tools' own
+# documentation and what the customer said, asks once, and branches on the yes/no it parsed back -
+# nothing else. inject_when (nc9) matched words instead: 'charge' in 'what's been charged to my card'
+# put the dispute tool in task_036's window and the task went 0/4. Words are not meaning.
+# The same two functions serve the isolated experiment, so what was measured is what runs.
+
+def first_sentence(text):
+    """A tool's subject, cut mechanically from its own documentation. Nobody writes it by hand."""
+    t = " ".join(str(text or "").split())
+    for i, ch in enumerate(t):
+        if ch == "." and i > 30 and i + 1 < len(t) and t[i + 1] == " ":
+            return t[:i + 1]
+    return t[:240]
+
+
+def select_prompt(spec, decls, said):
+    nl = chr(10)
+    lines = nl.join("%s - %s" % (d["name"], first_sentence(d.get("description") or d["name"])) for d in decls)
+    return (str(spec.get("question") or "") + nl + nl + lines + nl + nl
+            + "What the customer said:" + nl + nl + str(said or "")[-4000:] + nl + nl
+            + str(spec.get("form") or ""))
+
+
+def read_selection(out, names):
+    """One line per tool, '<name>: yes|no'. Returns (chosen, status); status is ok / blank / unparsed.
+    A missing or unreadable line is not a no - the whole answer is unparsed, and the caller decides."""
+    text = str(out or "")
+    if not text.strip():
+        return set(), "blank"
+    seen, chosen = {}, set()
+    for ln in text.splitlines():
+        if ":" not in ln:
+            continue
+        k, v = ln.split(":", 1)
+        k = k.strip().strip("-*` ").lower(); v = v.strip().lower()
+        if k in names:
+            seen[k] = v
+            if v.startswith("yes"):
+                chosen.add(k)
+    if any(n not in seen for n in names):
+        return chosen, "unparsed"
+    return chosen, "ok"
+
+
 def run_tool(decl, args, corpora, evidence):
     """Execute one verifier tool: parse args, ground operands, run the op, render the declaration's text."""
     ctx = {k: (as_dict(v) or _list(v) if isinstance(v, str) and v[:1] in "[{" else v) for k, v in (args or {}).items()}

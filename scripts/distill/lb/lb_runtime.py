@@ -109,10 +109,10 @@ def turn_hook(self, message, state):
     a2 = getattr(self, "_lb_a2", {}) or {}
     if enabled("LB2") and not self.__dict__.get("_lb_injected"):
         said = " ".join(str(getattr(m, "content", "") or "") for m in state.messages
-                        if getattr(m, "role", None) == "user").lower()
+                        if getattr(m, "role", None) == "user")
         if said.strip():
             self._lb_injected = True
-            names = inject_tools(self, a2, said=said)
+            names = inject_tools(self, a2, said=said, ask=ask_fn(self))
             sidecar("lb-tools", "INJECTED %s" % ", ".join(names), None, sim=sim_id(self), n=len(names))
             diverge("inject-tools", ", ".join(names), sim=sim_id(self), n=len(names))
     trace(self, state.messages[-len(message.tool_messages) if isinstance(message, MultiToolMessage) else -1:])
@@ -314,10 +314,27 @@ def corpus():
 
 
 # ---- execution hook: verifier tools and derived facts ---------------------------------------------
-def inject_tools(agent, a2, said=None):
+def inject_tools(agent, a2, said=None, ask=None):
     from tau2.environment.tool import Tool
     have, added = {getattr(t, "name", None) for t in (agent.tools or [])}, []
-    for d in (a2.get("LB2") or {}).get("tools") or []:
+    decls = (a2.get("LB2") or {}).get("tools") or []
+    # tools declared `select` are chosen by one sub-call over the customer's words; the rest are
+    # unconditional. If the answer cannot be read, every candidate goes in - the behaviour before
+    # nc9 - and the sidecar says so. Silence is never the failure mode.
+    cands = [d for d in decls if d.get("select") and not d.get("disable") and d["name"] not in have]
+    chosen = {d["name"] for d in cands}
+    if cands and said is not None:
+        spec = (a2.get("LB2") or {}).get("select") or {}
+        status = "off"
+        if spec.get("question") and ask is not None:
+            out = ask(lb2_decision.select_prompt(spec, cands, said), "lb2_select")
+            picked, status = lb2_decision.read_selection(out, [d["name"] for d in cands])
+            if status == "ok":
+                chosen = picked
+        sidecar("lb-select", "%s %s" % (status, ", ".join(sorted(chosen)) or "(none)"), None,
+                sim=sim_id(agent), status=status, n=len(chosen), of=len(cands))
+        diverge("select-tools", status, sim=sim_id(agent), n=len(chosen), of=len(cands))
+    for d in decls:
         # two different things, and they are not the same switch. `hidden` keeps the tool out of the
         # model's list while its check goes on running elsewhere - verify_identity answered VERIFIED
         # on all 312 of its calls, so the check moved to LB3.identity and speaks only when it fails.
@@ -325,10 +342,7 @@ def inject_tools(agent, a2, said=None):
         # there is nothing left behind it to run.
         if d["name"] in have or d.get("hidden") or d.get("disable"):
             continue
-        # a third switch, and the cheapest: a tool whose subject has not come up does not go in the
-        # window at all. `inject_when` names that subject; a tool without one is always injected.
-        when = d.get("inject_when")
-        if when and said is not None and not any(str(k).lower() in said for k in when):
+        if d.get("select") and d["name"] not in chosen:
             continue
         params, optional = d.get("params") or {}, set(d.get("optional") or [])
         sig = ", ".join(["%s: str" % p for p in params if p not in optional] + ['%s: str = ""' % p for p in params if p in optional])
