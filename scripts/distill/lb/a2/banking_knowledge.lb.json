@@ -218,22 +218,9 @@
       ]
      },
      {
-      "id": "addressed",
-      "requires": [
-       "log_reason"
-      ],
-      "skip_when_tokens": [
-       "record(s) in 'credit_card_closure_reasons'"
-      ],
-      "tool_any": [
-       "apply_credit_card_account_flag_6147"
-      ],
-      "done_when": "The credit card retention protocol's Step 4 says to address the customer's stated reason on its own terms before any retention offer: for an annual fee, waive it for a year if they have been a customer 2+ years or offer a permanent downgrade to a no-annual-fee card if less; for not using the card, name the benefits they are missing and suggest a recurring subscription; for having found a better card, ask what drew them and offer a Rho-Bank card that matches it to apply for instead of closing; for being unhappy with rewards, check their bonus category enrolment and show how to earn more; for a negative experience, apologise and gather details. Has the agent done this for the card being closed? If the reason the customer actually gave is not one of those five, the protocol prescribes no response for it and there is nothing for the agent to address - answer YES in that case."
-     },
-     {
       "id": "offer",
       "requires": [
-       "addressed"
+       "log_reason"
       ],
       "skip_when_tokens": [
        "record(s) in 'credit_card_closure_reasons'"
@@ -269,7 +256,8 @@
      "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source})."
     },
     "id_key": "credit_card_account_id",
-    "prohibits": {}
+    "prohibits": {},
+    "_nc32_note": "2026-09-13: 'addressed' node removed. Its done_when sub-judgement denied apply_statement_credit 3-5 times per simulation in the f arm (049 t0/t3) and the model answered the denial by writing an annual-fee waiver the gold never has. Step 4 of the protocol is spoken advice; the record it leaves is the offer (Step 5)."
    },
    {
     "id": "incident_transfer_order",
@@ -625,7 +613,9 @@
     "id": "requires:apply_checking_account_credit",
     "enforce": true,
     "_quote_order": "requires_reads",
-    "_source": [],
+    "_source": [
+     "get_atm_fee_discrepancies (LB2): 'Do the fee math with this tool - do not eyeball it yourself.' nc31 073: the three simulations that called it credited the documented net (1.50); the one that did not eyeballed 3.00 and lost."
+    ],
     "nodes": [
      {
       "id": "get_all_user_accounts_by_user_id",
@@ -636,11 +626,16 @@
       "tool_prefix": "get_bank_account_transactions"
      },
      {
+      "id": "get_atm_fee_discrepancies",
+      "tool_prefix": "get_atm_fee_discrepancies"
+     },
+     {
       "id": "apply_checking_account_credit",
       "tool_prefix": "apply_checking_account_credit",
       "requires": [
        "get_all_user_accounts_by_user_id",
-       "get_bank_account_transactions"
+       "get_bank_account_transactions",
+       "get_atm_fee_discrepancies"
       ]
      }
     ],
