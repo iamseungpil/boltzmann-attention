@@ -14273,7 +14273,7 @@
    },
    {
     "name": "check_card_closure_eligibility",
-    "description": "USE THIS before closing a credit card account to determine whether the account is eligible for closure. The closure protocol disqualifies closing an account that still has an outstanding balance — the balance must be paid in full FIRST. It returns the deterministic eligibility verdict.",
+    "description": "USE THIS before closing a credit card account to check ONE of the closure protocol's conditions: the outstanding balance, which must be paid in full FIRST. It checks only the balance. The protocol's other conditions - no pending disputes, no pending replacement card, account open at least 60 days - are separate checks this tool does not make.",
     "params": {
      "credit_card_account_id": "The credit card account id being closed, copied from the account record.",
      "outstanding_balance": "The account's current outstanding balance (number, no $), copied EXACTLY from the account record. If you just paid the balance, re-read the account record first and copy the NEW balance.",
@@ -14289,11 +14289,11 @@
      },
      "then": {
       "op": "const",
-      "value": "CLOSURE_OK — no outstanding balance; the balance requirement of the closure protocol is satisfied."
+      "value": "BALANCE_OK - no outstanding balance; the balance condition of the closure protocol is met. This is not a closure eligibility verdict: pending disputes, a pending replacement card and minimum account age are not checked here."
      },
      "else": {
       "op": "const",
-      "value": "CLOSURE_BLOCKED_OUTSTANDING_BALANCE — this account still has an outstanding balance. Per the closure protocol the balance must be paid in full before the account can be closed. YOU (the agent) can execute the payment: search the knowledge base for how to pay a credit card balance from the customer's checking account — there is a DISCOVERABLE agent tool for this (unlock it via unlock_discoverable_agent_tool with its full name including the numeric suffix, then call it via call_discoverable_agent_tool, with the customer's consent). Do NOT tell the customer to pay through the app themselves. After paying, re-read the account record and call this tool again with the new balance."
+      "value": "BALANCE_BLOCKED — this account still has an outstanding balance. Per the closure protocol the balance must be paid in full before the account can be closed. YOU (the agent) can execute the payment: search the knowledge base for how to pay a credit card balance from the customer's checking account — there is a DISCOVERABLE agent tool for this (unlock it via unlock_discoverable_agent_tool with its full name including the numeric suffix, then call it via call_discoverable_agent_tool, with the customer's consent). Do NOT tell the customer to pay through the app themselves. After paying, re-read the account record and call this tool again with the new balance."
      }
     },
     "ground": {
@@ -14312,7 +14312,8 @@
     },
     "return_template": "Closure eligibility for credit card account {credit_card_account_id} (outstanding balance {outstanding_balance}): {result}",
     "missing_hint": "COULD NOT VERIFY — the balance you provided could not be verified against the account records. Re-read the credit card account record and copy the outstanding balance and its verbatim source line exactly.",
-    "select": true
+    "select": true,
+    "_nc32_note": "2026-09-14: verdict renamed from CLOSURE_OK. nc32p 048 t1/t3 called only this tool on every card, skipped get_pending_replacement_orders, read CLOSURE_OK as eligible and closed the EcoCard that has a pending replacement (gold keeps it open); t0/t2 checked the replacement order and did not. Retention protocol Step 1 lists four conditions; this tool computes one."
    },
    {
     "name": "check_cli_eligibility",
