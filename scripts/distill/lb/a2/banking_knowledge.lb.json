@@ -12446,7 +12446,16 @@
        "corpus": [
         "kb"
        ],
-       "require_value_in_source": true
+       "require_value_in_source": true,
+       "reclassify": [
+        {
+         "from": "relationship",
+         "source_has": [
+          "Card"
+         ],
+         "to": "card"
+        }
+       ]
       }
      ],
      "scalar_fields": [
@@ -14109,7 +14118,8 @@
     ],
     "return_template": "Correct savings APY computed from the components supplied in this call: {result}%. The stacking policy is base + highest checking boost + highest card bonus + all relationship/tier bonuses. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
     "missing_hint": "Abstained: no base APY was given. components must include one element with kind 'base' - the savings account's own rate at this balance, read from the knowledge base - plus one element per boost you found. Read the account's specification document, then call again with the list.",
-    "select": true
+    "select": true,
+    "_nc30_reclassify_note": "095: the sub listed 'Gold Rewards Card holder benefits ... 0.025% relationship bonus' as a relationship component next to the card's own +0.025% - the same benefit twice (gold 6.85 = 5.5 + 0.75 + 0.6). A component whose source names a Card is the card's bonus and joins the card max."
    },
    {
     "name": "get_interest_correction",
