@@ -10,6 +10,10 @@ The engine never produces a value; it only asks "where is this from?". Declared 
       also carry those state words (a dispute RESOLVED before its reward is corrected). A state is an
       environment record's word, never one of our own verifiers' verdicts - demanding our verdict is
       a prescription, and base passes 049 without it.
+  verified  [{applies_to, when, arg, verifier, operands{name: {arg}|{tool, pattern}|{near, pattern}}, value_pattern, feedback}]
+      the value of `arg` must equal what the named LB2 verifier returns for operands read from the
+      call and the records; when it differs the call is declined with the verifier's own line (the
+      same text the model would have read had it called the verifier itself). No value is composed.
   names     {feedback_wrong_suffix, feedback_not_discoverable, feedback_rejected}
       a name handed to the unlock / give / call wrappers must be in the registry (agent or user);
       a name the environment already rejected as unknown is not sent again
@@ -62,7 +66,78 @@ def present(value, text):
 
 def grounded(value, turn, sources):
     return (("records" in sources and present(value, turn.tool_text))
-            or ("customer" in sources and present(value, turn.user_text)))
+            or ("customer" in sources and present(value, turn.user_text))
+            or ("kb" in sources and any(present(value, d) for d in (turn.corpus or {}).values())))
+
+
+def outputs_of(turn, tool):
+    """Outputs of one tool, by name family, from the turn's own messages (call id -> tool message)."""
+    names = {}
+    for m in turn.messages:
+        for c in (getattr(m, "tool_calls", None) or []):
+            names[getattr(c, "id", None)] = fam(str(getattr(c, "name", "") or ""))
+    return [str(getattr(m, "content", "") or "") for m in turn.messages
+            if getattr(m, "role", None) == "tool" and names.get(getattr(m, "id", None)) == fam(tool)]
+
+
+def operand(spec, turn, args):
+    """One verifier operand from the call's own arguments or the conversation's records. Never a guess."""
+    import re
+    if "arg" in spec:
+        return args.get(spec["arg"])
+    texts = outputs_of(turn, spec["tool"]) if spec.get("tool") else turn.tool_outputs()
+    if spec.get("near"):
+        anchor = str(args.get(spec["near"]) or "")
+        if not anchor:
+            return None
+        texts = [t[i:i + 600] for t in texts for i in [t.find(anchor)] if i >= 0]
+    for t in texts:
+        m = re.search(spec["pattern"], t)
+        if m:
+            return m.group(1)
+    return None
+
+
+def verified_findings(turn, call):
+    """A written value the declaration ties to a verifier: the engine runs that verifier on operands read
+    from the call and the records, and if the value differs the call is declined with the verifier's own
+    line. Nothing is said when they agree, or when an operand is missing (that is not evidence)."""
+    import re
+    out = []
+    for spec in (turn.a2.get("LB3") or {}).get("verified") or []:
+        if not applies(spec, turn, call):
+            continue
+        args = turn.args_of(call)
+        got = args.get(spec.get("arg"))
+        if got in (None, ""):
+            continue
+        decl = next((t for t in (turn.a2.get("LB2") or {}).get("tools") or []
+                     if t.get("name") == spec.get("verifier")), None)
+        if decl is None:
+            continue
+        ops = {k: operand(v, turn, args) for k, v in (spec.get("operands") or {}).items()}
+        if any(v in (None, "") for v in ops.values()):
+            continue
+        import lb2_decision
+        res = lb2_decision.run_tool(decl, ops, {"kb": [], "ledger": turn.tool_outputs(),
+                                                "ledger_tools": turn.tool_outputs(), "user": [turn.user_text]},
+                                    {"__tool_outputs": {}, "__user_text": turn.user_text})
+        text, err = res[0], res[1]
+        if err:
+            continue
+        m = re.search(spec.get("value_pattern") or r"(-?\d+(?:\.\d+)?)", str(text))
+        if not m:
+            continue
+        try:
+            want, have = float(m.group(1)), float(str(got).replace("$", "").replace(",", ""))
+        except (TypeError, ValueError):
+            continue
+        if abs(want - have) > 0.005:
+            out.append(Finding(LB, DENY, fam(turn.name_of(call)), call,
+                               fill(spec.get("feedback"), arg=spec["arg"], got=got, text=str(text).strip()),
+                               grade=LEDGER, source="verified:" + spec["arg"]))
+            break
+    return out
 
 
 def grounding_findings(turn, call):
@@ -93,6 +168,14 @@ def grounding_findings(turn, call):
             # "Arguments: {...transaction_id...}\nStatus: RESOLVED", the state outside the braces
             if not any(present(value, o) and all(t in o for t in spec["state"]) for o in turn.tool_outputs()):
                 problem = fill(spec.get("feedback"), id=value, arg=spec["arg"], val=value, value=value)
+        elif spec.get("pattern"):
+            # a value's declared form (the tool's own parameter text: "the full official account name ending
+            # with 'Account'"). 060-069: 36 of 56 wrong account_class values were forms the tool never accepts
+            # ("Green Account (savings)", "Silver Plus Saver"); the documents themselves use those headings,
+            # so presence in the KB is not the test - the form is.
+            import re
+            if not re.fullmatch(spec["pattern"], str(value)):
+                problem = fill(spec.get("feedback"), val=value, value=value, arg=spec["arg"])
         elif not grounded(value, turn, spec.get("sources") or ["records", "customer"]):
             problem = fill(spec.get("feedback"), val=value, value=value, arg=spec["arg"])
         if problem:
@@ -198,8 +281,9 @@ def identity_findings(turn, call):
 
 
 def evaluate(turn):
-    return [f for c in turn.calls for f in grounding_findings(turn, c) + name_findings(turn, c)
-            + schema_findings(turn, c) + identifying_findings(turn, c) + identity_findings(turn, c)]
+    return [f for c in turn.calls for f in grounding_findings(turn, c) + verified_findings(turn, c)
+            + name_findings(turn, c) + schema_findings(turn, c) + identifying_findings(turn, c)
+            + identity_findings(turn, c)]
 
 
 if __name__ == "__main__":

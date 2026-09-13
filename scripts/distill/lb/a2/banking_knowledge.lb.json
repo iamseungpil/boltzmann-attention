@@ -712,17 +712,24 @@
     "id": "requires:file_debit_card_transaction_dispute",
     "enforce": true,
     "_quote_order": "requires_reads",
-    "_source": [],
+    "_source": [
+     "doc_bank_accounts_bank_accounts_(general)_031: \"Before proceeding, inform the customer of their liability exposure based on when they noticed the unauthorized activity: Reported within 2 business days of statement: Maximum liability $50 / Reported within 60 days of statement: Maximum liability $500 / Reported after 60 days: Unlimited liability\""
+    ],
     "nodes": [
      {
       "id": "get_bank_account_transactions",
       "tool_prefix": "get_bank_account_transactions"
      },
      {
+      "id": "get_debit_dispute_liability_cap",
+      "tool_prefix": "get_debit_dispute_liability_cap"
+     },
+     {
       "id": "file_debit_card_transaction_dispute",
       "tool_prefix": "file_debit_card_transaction_dispute",
       "requires": [
-       "get_bank_account_transactions"
+       "get_bank_account_transactions",
+       "get_debit_dispute_liability_cap"
       ]
      }
     ],
@@ -15642,8 +15649,17 @@
        "b": 60
       },
       "then": {
-       "op": "const",
-       "value": 500
+       "op": "min",
+       "of": [
+        {
+         "op": "const",
+         "value": 500
+        },
+        {
+         "op": "ref",
+         "path": "disputed_amount"
+        }
+       ]
       },
       "else": {
        "op": "const",
@@ -15652,7 +15668,8 @@
      }
     },
     "return_template": "Maximum customer liability for a debit card transaction dated {transaction_date}, reported {report_date} ({disputed_amount} disputed): {result}. Pass exactly this as customer_max_liability_amount - a value of -1 means unlimited liability.",
-    "select": true
+    "select": true,
+    "_nc29_note": "2026-09-13: offline replay of the 23 gold file_debit actions (082-091): the declared op = gold 18/19; the one miss (084, 412.88) is the $500 tier bounded by the disputed amount. The $50 tier is flat (gold keeps 50 for 47.50 and 14.99)."
    },
    {
     "name": "check_savings_account_fit",
@@ -24049,6 +24066,17 @@
      "Consecutive on-time payments"
     ],
     "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "open_bank_account"
+    },
+    "arg": "account_class",
+    "feedback": "Error: [WRITE-FORM] account_class '{val}' is not in the form the tool accepts. The tool's parameter text: \"account_class: the full official account name ending with 'Account' exactly as confirmed with the customer\" (no parenthetical, no product nickname).",
+    "pattern": "[A-Z][A-Za-z]*(?: [A-Z][A-Za-z]*)* Account",
+    "_source": "open_bank_account tool description (KB): \"account_class: the full official account name ending with 'Account' exactly as confirmed with the customer.\""
    }
   ],
   "names": {
@@ -24087,7 +24115,33 @@
     "user_id"
    ],
    "feedback": "Error: [GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be read from the records or given by the customer, never invented. Look it up (or ask), then retry with the actual value."
-  }
+  },
+  "verified": [
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_debit_card_transaction_dispute"
+    },
+    "arg": "customer_max_liability_amount",
+    "verifier": "get_debit_dispute_liability_cap",
+    "operands": {
+     "transaction_date": {
+      "near": "transaction_id",
+      "pattern": "date:\\s*(\\d{2}/\\d{2}/\\d{4})"
+     },
+     "report_date": {
+      "tool": "get_current_time",
+      "pattern": "(\\d{2}/\\d{2}/\\d{4})"
+     },
+     "disputed_amount": {
+      "arg": "disputed_amount"
+     }
+    },
+    "value_pattern": "disputed\\):\\s*(-?\\d+(?:\\.\\d+)?)",
+    "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. get_debit_dispute_liability_cap, run on this transaction's record, says: {text}"
+   }
+  ]
  },
  "LB4": {
   "sets": [
