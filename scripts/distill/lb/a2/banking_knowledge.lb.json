@@ -12446,7 +12446,24 @@
        "corpus": [
         "kb"
        ],
-       "require_value_in_source": true
+       "require_value_in_source": true,
+       "reclassify": [
+        {
+         "from": "relationship",
+         "to": "card",
+         "source_names": [
+          "Bronze Rewards Card",
+          "Silver Rewards Card",
+          "Gold Rewards Card",
+          "Platinum Rewards Card",
+          "Diamond Elite Card",
+          "EcoCard",
+          "Crypto-Cash Back Card"
+         ],
+         "_source": "doc_bank_accounts_bank_accounts_(general)_045 (Credit Card APY Bonus Stacking Policy): 'When a customer holds multiple Rho-Bank credit cards that each provide an APY bonus on their savings account, the bonuses do NOT stack. Only the highest applicable credit card APY bonus is applied' - its own example lists 'Gold Rewards Card: +0.025% APY bonus'. A cited line that names a card is that card's bonus.",
+         "_nc33_note": "2026-09-14 nc32 095 1/4: three sims passed the Gold Rewards Card's 0.025% both as card and as 'relationship' -> 6.875 (gold 6.85); with the amount verifier now answering, that APY went straight into the credit. nc31 4/4 only because the verifier abstained and the model re-read. nc30 had this relabel on the word 'Card'; nc31 removed it as word-matching. This form matches the declared product names only."
+        }
+       ]
       }
      ],
      "scalar_fields": [

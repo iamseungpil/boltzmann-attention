@@ -674,6 +674,16 @@ def ground_operands(decl, ctx, corpora):
             val_ok = not af.get("require_value_in_source", True) or v is None or \
                 any(abs(v - n) < 1e-9 for n in numbers_in(src))
             (kept.append(el) if src_ok and val_ok else flags.append("%s=%s" % (el.get(af.get("label_field", "kind"), "?"), v)))
+        for rc in af.get("reclassify") or []:
+            # a declared relabel by catalogue name: a component filed under `from` whose cited source names one
+            # of the declared products is that product's own bonus and joins that group (095: the Gold Rewards
+            # Card's +0.025% was listed once as a card bonus and once as a 'relationship' bonus - the same line
+            # twice; gold 6.85 = 5.5 + 0.75 + 0.6). The names are the declaration's data; nothing is inferred.
+            names = [str(n) for n in rc.get("source_names") or []]
+            for el in kept:
+                if isinstance(el, dict) and el.get(af.get("label_field", "kind")) == rc.get("from") and any(
+                        n and n in str(el.get(af.get("source_field", "source")) or "") for n in names):
+                    el[af.get("label_field", "kind")] = rc.get("to")
         ctx[af["param"]] = kept
     for sf in g.get("scalar_fields") or []:
         p = sf.get("param")
