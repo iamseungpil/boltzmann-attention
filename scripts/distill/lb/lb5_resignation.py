@@ -76,12 +76,44 @@ def read_form(out):
             continue
         head, rest = s.split(":", 1)
         head = head.strip().upper()
-        if head == "KIND":
+        if head in ("KIND", "PENDING"):
             w = rest.strip().upper().split()
             kind = w[0].strip(".,") if w else ""
-        elif head == "REQUEST":
+        elif head in ("REQUEST", "ACTION_NAME"):
             named = " ".join(rest.split())
     return kind, ("" if named in ("", "-", "--") else named)
+
+
+def conversation_text(messages, per_message=1200):
+    """The conversation as the customer and the agent spoke it - tool traffic removed, each side labelled."""
+    lines = []
+    for m in messages:
+        role, text = getattr(m, "role", None), str(getattr(m, "content", "") or "").strip()
+        if role in ("user", "assistant") and text:
+            lines.append(("CUSTOMER: " if role == "user" else "AGENT: ") + text[:per_message])
+    return chr(10).join(lines)
+
+
+def intent_prompt(spec, messages, ran=()):
+    """The sub-call's prompt, built only from A2's declared wording and the conversation.
+
+    material="conversation" (nc32) is the form measured on INTENT_BENCH_60: the whole conversation, both
+    roles, no tool list, no examples - 54/60 against 46/55 for the customer-text + tools + rules form.
+    The older form stays reachable (material unset) so the measurement can be repeated either way."""
+    nl, kinds = chr(10), spec.get("kinds") or {}
+    head = spec["question"] + nl + nl + nl.join("%s - %s" % (k, v) for k, v in kinds.items()) + nl + nl
+    if spec.get("material") == "conversation":
+        return (head + "=== CONVERSATION ===" + nl + conversation_text(messages)[-12000:] + nl + "=== END ===" + nl + nl
+                + str(spec.get("form") or ""))
+    examples = spec.get("examples") or []
+    return (head + str(spec.get("acts") or "") + nl + nl
+            + (str(spec.get("rules") or "") + nl + nl if spec.get("rules") else "")
+            + (("Examples of what a customer says and its kind:" + nl
+                + nl.join("- %s -> %s" % (e.get("say"), e.get("kind")) for e in examples) + nl + nl) if examples else "")
+            + "What the customer has said:" + nl + nl
+            + nl.join(str(getattr(m, "content", "") or "") for m in messages if getattr(m, "role", None) == "user")[-8000:]
+            + nl + nl + "Every tool the agent actually ran, in order:" + nl + nl + (", ".join(ran) or "(none)") + nl + nl
+            + str(spec.get("form") or ""))
 
 
 def open_request(turn):
@@ -113,22 +145,9 @@ def open_request(turn):
     asked = sum(1 for k in once if isinstance(k, str) and k.startswith(KEY + "#"))
     if asked >= int(spec.get("ask_cap") or 0):
         return []
-    ran = [name for name, _ in getattr(turn, "ran", ())]
     if not turn.user_text.strip():
         return []
-    kinds = spec.get("kinds") or {}
-    nl = chr(10)
-    examples = spec.get("examples") or []
-    prompt = (spec["question"] + nl + nl
-              + nl.join("%s - %s" % (k, v) for k, v in kinds.items()) + nl + nl
-              + str(spec.get("acts") or "") + nl + nl
-              + (str(spec.get("rules") or "") + nl + nl if spec.get("rules") else "")
-              + (("Examples of what a customer says and its kind:" + nl
-                  + nl.join("- %s -> %s" % (e.get("say"), e.get("kind")) for e in examples) + nl + nl) if examples else "")
-              + "What the customer has said:" + nl + nl + turn.user_text[-8000:] + nl + nl
-              + "Every tool the agent actually ran, in order:" + nl + nl
-              + (", ".join(ran) or "(none)") + nl + nl
-              + str(spec.get("form") or ""))
+    prompt = intent_prompt(spec, turn.messages, [name for name, _ in getattr(turn, "ran", ())])
     kind, named = read_form(ask(prompt, KEY))
     once.add(KEY + "#%d" % asked)
     if kind not in speak or not named:

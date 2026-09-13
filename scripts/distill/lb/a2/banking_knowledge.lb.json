@@ -24404,73 +24404,21 @@
   "search_feedback": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
   "open_request": {
    "kinds": {
-    "ACTION": "the customer has asked for something that only a change to their money or their records can finish - a payment put through, an application filed, an order placed, a card issued, an account or a limit changed. Telling them about it does not finish it.",
-    "INQUIRY": "the customer has asked to be told, shown, checked, looked up, confirmed or explained something. A reply finishes it, and nothing is left open once the agent has replied.",
-    "NONE": "the customer has not asked for either kind yet - they have raised a problem, given information, or are still deciding."
+    "ACTION": "the customer has asked for a change to their account records (open/close/freeze/order/file a dispute/apply a credit/submit a request) that has not been made yet - looking something up or explaining is NOT an action",
+    "INFO": "they are asking a question or waiting for an explanation",
+    "HANDOFF": "they are asking for a human agent",
+    "NONE": "nothing is pending (they are satisfied or the last request was already carried out)"
    },
-   "acts": "These are the things this bank can actually carry out, and nothing else is one: open or apply for an account or a card; close an account or a card; order, replace, reissue or activate a card; freeze, unfreeze or unlock a card, or reset its PIN; put a payment, a transfer, a deposit or a transaction through; file a dispute or a discrepancy report; request, approve or deny a credit limit change; apply a credit or a statement credit to an account; submit a referral; change a customer's contact details; hand the conversation to a human agent. Looking something up, checking a status, working out an amount, reading a policy and explaining it are not on this list - those are INQUIRY however urgently they are asked for.",
-   "question": "A bank agent is about to end its part of this conversation. Read what the customer has said and the list of tools the agent actually ran, and say which kind of thing the customer is still waiting for. The kinds are defined below; use them as written. If the customer has asked for more than one thing, answer for the one the run record does not show. Judge only from what is below: if the customer has not asked, in their own words, for one of the acts listed below, the answer is INQUIRY or NONE, never ACTION.",
-   "form": "Answer in exactly two lines and nothing else:\nKIND: ACTION or INQUIRY or NONE\nREQUEST: one short line naming it, or a single dash if there is none",
+   "question": "Below is a bank customer-service conversation so far (tool traffic removed). A bank agent is about to end its part of it. Say which kind of thing the customer is still waiting for. The kinds are defined below; use them as written.",
+   "form": "Answer in exactly this form and nothing else:\nPENDING: ACTION|INFO|HANDOFF|NONE\nACTION_NAME: <the operation the customer is waiting for the agent to perform, in 3-8 words, or ->",
    "speak_when": [
     "ACTION"
    ],
    "ask_cap": 4,
    "feedback": "[LEDGER] You are ending your part here and the run record shows no action for this: {open}.",
-   "_acts_source": "derived once from the domain's own tool inventory - tools.py's 20 and the 41 reachable through unlock - by keeping the ones that change a record and dropping every get_/check_/search. No task, and no task's evaluation criteria, was read to write it.",
    "_note": "2026-09-12 nc6. nc5 and before asked one free-form line and appended \"or the single word NONE\" in code; the exclusion lived in a subordinate clause of the question and never reached the output, so the sub-call named the only request it could see. In task_016 that was the right answer: at the leaving turn the customer had said only \"can you check what's going on\" - the request to put a purchase through first appears three turns later. The rule then never asked again, because the once-key was spent whether or not anything was named: measured across fs/nc/nc5/t17/tb, every firing in task_016 is at turn 5 and there is not one at any other turn. So the kinds are declared here, the answer is formalized as KIND plus REQUEST, the engine speaks only for the kinds in speak_when, and the once-key is spent only when it speaks - up to ask_cap asks per simulation.",
-   "rules": "Rules for the KIND: a request to be told, shown, checked, looked up, recommended or explained is INQUIRY even when the agent needs a tool to answer it. A change the customer has asked for is ACTION from the moment they asked, including while the agent is still verifying their identity for it, and stays ACTION while more of the same kind remain (the next dispute, the next card). When a question and a change are both open, it is ACTION only if the customer has said to go ahead with the change; while they are still deciding it is INQUIRY. It is NONE when the last request was carried out, when the customer is only acknowledging, or when they said they will do the next step themselves.",
-   "examples": [
-    {
-     "say": "Yes, go ahead and close that account.",
-     "kind": "ACTION"
-    },
-    {
-     "say": "Please order a replacement card and send it to the address on file.",
-     "kind": "ACTION"
-    },
-    {
-     "say": "Here is my date of birth and phone number (given so a requested change can proceed).",
-     "kind": "ACTION"
-    },
-    {
-     "say": "That one is done - now do the same for the second card.",
-     "kind": "ACTION"
-    },
-    {
-     "say": "Why was I charged this fee?",
-     "kind": "INQUIRY"
-    },
-    {
-     "say": "Can you check whether I qualify for that?",
-     "kind": "INQUIRY"
-    },
-    {
-     "say": "What is the requirement, and how much is left?",
-     "kind": "INQUIRY"
-    },
-    {
-     "say": "Which of these would you recommend for me?",
-     "kind": "INQUIRY"
-    },
-    {
-     "say": "I'm not sure yet - let me think about the downgrade.",
-     "kind": "INQUIRY"
-    },
-    {
-     "say": "Thanks, that answers it.",
-     "kind": "NONE"
-    },
-    {
-     "say": "All done on my side, appreciate the help.",
-     "kind": "NONE"
-    },
-    {
-     "say": "I'll take care of that step myself from the app.",
-     "kind": "NONE"
-    }
-   ],
-   "_rules_source": "2026-09-13 INTENT_BENCH_60: the sub without rules read 'checking', 'deciding' and 'the customer's own next step' as ACTION (9 of 60); the rules and examples are written from the customer scenarios' own phrasing, not from gold.",
-   "_examples_source": "2026-09-13 review: written from the tool inventory and generic customer phrasing, not from any task's dialogue; the earlier set paraphrased judge tasks (016/040/048/049) and was withdrawn."
+   "material": "conversation",
+   "_v2_source": "2026-09-13 INTENT_BENCH_60 (docs/INTENT_BENCH_60_2026_09_13.md): this wording with the whole conversation (both roles, tool traffic removed) scored 54/60 on the gold-rule labels; the previous engine prompt (customer text + tools ran + acts + rules + examples) 46/55; adding examples 53/60; a widened ACTION definition 55/60 with no gain on the held-out 20. Removed here: acts, rules, examples (kept in git history, commit 5e8db0cd)."
   },
   "repeat_tools": [
    "KB_search",
