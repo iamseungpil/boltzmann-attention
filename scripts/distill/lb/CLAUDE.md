@@ -200,6 +200,9 @@ task  base  cb_   ub_   mn_        비고
 | 물음 | 파일 |
 |---|---|
 | 기전·LB 표·판정 규칙·도는 실험·확정 결함·선행연구 | `docs/RESEARCH_BASE.md` |
+| **60% 설계서 v2** — 분류 재산출·레버 센서스·LB 재배치·M-A′(재료형)·계획 | `docs/DESIGN_60PCT_2026_09_13.md` |
+| 레버 센서스 표 원문(1,642 sim · 63 팔 · 태스크 내 짝비교 · 유의 레버 0) | `docs/LEVER_CENSUS_2026_09_13.md` · `lb_lever_census.py` |
+| 축 설계(M1~M5 팔, 리뷰 v2) | `docs/DESIGN_AXES_2026_09_12.md` |
 | 사전런 `fs_` 판정 — 손해 15, −22 → −15 | `docs/PRERUN_FS_2026_09_11.md` |
 | 아직 지는 9 태스크의 정밀 포렌식(007·016·048 세 가지 다른 병) | `docs/FORENSIC_LOSS9_2026_09_11.md` |
 | 클라우드 엔진 동시 사망 원인·오염·복구 | `docs/CLOUD_ENGINE_FAULT_2026_09_11.md` |
