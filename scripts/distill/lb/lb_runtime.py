@@ -475,7 +475,7 @@ def corpora_of(orch, agent):
 
 def evidence_of(orch, d):
     msgs = orch.get_messages() if hasattr(orch, "get_messages") else []
-    outs, pending = {}, {}
+    outs, alls, pending = {}, {}, {}
     for m in msgs:
         for c in (getattr(m, "tool_calls", None) or []):
             pending[getattr(c, "id", None)] = getattr(c, "name", None)
@@ -483,8 +483,10 @@ def evidence_of(orch, d):
             n = pending.get(getattr(m, "id", None))
             if n:
                 outs[n] = str(getattr(m, "content", "") or "")
-    return {"__tool_outputs": outs, "__user_text": " ".join(str(getattr(m, "content", "") or "")
-                                                             for m in msgs if getattr(m, "role", None) == "user")}
+                alls.setdefault(n, []).append(outs[n])
+    return {"__tool_outputs": outs, "__tool_outputs_all": alls,
+            "__user_text": " ".join(str(getattr(m, "content", "") or "")
+                                    for m in msgs if getattr(m, "role", None) == "user")}
 
 
 def fetch_formalize(orch, agent, d, iso, args, orig_exec):

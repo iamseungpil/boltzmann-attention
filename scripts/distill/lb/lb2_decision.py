@@ -634,6 +634,21 @@ def over_params(op):
     return out
 
 
+def texts_of(corpus_name, ctx, corpora):
+    """The texts of one declared corpus. `tool:NAME` is every output NAME returned in this conversation
+    (a verifier result is a record too: get_interest_correction grounds expected_apy in what
+    get_correct_savings_apy said - before this, that corpus was always empty, and the tool abstained
+    75 of 75 times in nc31 095/096/097)."""
+    if corpus_name.startswith("tool:"):
+        name = fam(corpus_name[5:])
+        alls = ctx.get("__tool_outputs_all") or {}
+        out = [t for n, ts in alls.items() if fam(n) == name for t in ts]
+        if not out:
+            out = [t for n, t in (ctx.get("__tool_outputs") or {}).items() if fam(n) == name]
+        return out
+    return corpora.get(corpus_name, [])
+
+
 def ground_operands(decl, ctx, corpora):
     """Drop operands whose value or cited source is not in the declared corpus. Returns the drops."""
     g, flags = decl.get("ground") or {}, []
@@ -641,7 +656,7 @@ def ground_operands(decl, ctx, corpora):
         arr = ctx.get(af.get("param"))
         if not isinstance(arr, list):
             continue
-        hay = [norm(t) for c in af.get("corpus") or ["kb"] for t in corpora.get(c, [])]
+        hay = [norm(t) for c in af.get("corpus") or ["kb"] for t in texts_of(c, ctx, corpora)]
         kept = []
         for el in arr:
             src = norm((el or {}).get(af.get("source_field", "source"))) if isinstance(el, dict) else ""
@@ -664,7 +679,7 @@ def ground_operands(decl, ctx, corpora):
         p = sf.get("param")
         if p not in ctx:
             continue
-        hay = norm(" ".join(t for c in sf.get("corpus") or ["ledger"] for t in corpora.get(c, [])))
+        hay = norm(" ".join(t for c in sf.get("corpus") or ["ledger"] for t in texts_of(c, ctx, corpora)))
         ok = grounded_scalar(ctx[p], hay, sf.get("kind"))
         dv = sf.get("derived_from")
         if not ok and isinstance(dv, dict) and dv.get("op"):
@@ -673,7 +688,7 @@ def ground_operands(decl, ctx, corpora):
             got = evaluate_op(dv["op"], ctx)
             if got is not None:
                 got = round(float(got), int(dv.get("round_to", 2)))
-                hay2 = norm(" ".join(t for c in dv.get("corpus") or sf.get("corpus") or ["ledger"] for t in corpora.get(c, [])))
+                hay2 = norm(" ".join(t for c in dv.get("corpus") or sf.get("corpus") or ["ledger"] for t in texts_of(c, ctx, corpora)))
                 ok = any(abs(got - n) < 0.005 for n in numbers_in(hay2))
         if not ok:
             flags.append("%s=%s" % (p, ctx[p]))
@@ -736,6 +751,9 @@ def render_result(decl, ctx, result):
     if isinstance(result, list) and not result and decl.get("return_template_empty"):
         text = decl["return_template_empty"]
     else:
+        if isinstance(result, float) and decl.get("result_round") is not None:
+            # declared since nc30, never applied: 222.91666666666666 went out where the credit is $222.92
+            result = round(result, int(decl["result_round"]))
         text = fill(decl.get("return_template") or "{result}", result=json.dumps(result, ensure_ascii=False)
                     if isinstance(result, (dict, list)) else result, ids=", ".join(map(str, ids)) or "(none)",
                     details=details or "(none)", **slots)
