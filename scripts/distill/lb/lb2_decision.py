@@ -651,11 +651,13 @@ def ground_operands(decl, ctx, corpora):
             # APY components were dropped for the "(doc_...)" suffix alone - 319 of 319 abstentions.
             import re as _re
             src = _re.sub(r"\s*\([^()]*\)\s*$", "", src).strip()
-            head = " ".join(src.split()[:5])
+            words = [w for w in src.split() if len(w) >= 5][:6]
+            need = min(3, len(words))
             v0 = num((el or {}).get(af.get("value_field", "value"))) if isinstance(el, dict) else None
             src_ok = bool(src) and (any(src in h for h in hay)
-                                    or (bool(head) and v0 is not None
-                                        and any(head in h and any(abs(v0 - n) < 1e-9 for n in numbers_in(h)) for h in hay)))
+                                    or (need > 0 and v0 is not None
+                                        and any(sum(1 for w in words if w in h) >= need
+                                                and any(abs(v0 - n) < 1e-9 for n in numbers_in(h)) for h in hay)))
             v = num((el or {}).get(af.get("value_field", "value"))) if isinstance(el, dict) else None
             val_ok = not af.get("require_value_in_source", True) or v is None or \
                 any(abs(v - n) < 1e-9 for n in numbers_in(src))

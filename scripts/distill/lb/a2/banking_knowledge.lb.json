@@ -24077,6 +24077,33 @@
     "feedback": "Error: [WRITE-FORM] account_class '{val}' is not in the form the tool accepts. The tool's parameter text: \"account_class: the full official account name ending with 'Account' exactly as confirmed with the customer\" (no parenthetical, no product nickname).",
     "pattern": "[A-Z][A-Za-z]*(?: [A-Z][A-Za-z]*)* Account",
     "_source": "open_bank_account tool description (KB): \"account_class: the full official account name ending with 'Account' exactly as confirmed with the customer.\""
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_debit_card_transaction_dispute"
+    },
+    "arg": "discovery_date",
+    "sources": [
+     "customer",
+     "records"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] discovery_date '{val}' is not a date the customer stated in this conversation and not one in a record read here. The date the customer noticed the transaction has to come from the customer.",
+    "_source": "argdiff 2026-09-13: discovery_date differed from gold in 33 debit-dispute calls (087: today's date written without asking)"
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_debit_card_transaction_dispute"
+    },
+    "arg": "disputed_amount",
+    "sources": [
+     "records"
+    ],
+    "feedback": "Error: [WRITE-GROUNDING] disputed_amount '{val}' is not an amount in any transaction record read in this conversation. Copy the amount from the transaction record.",
+    "_source": "argdiff 2026-09-13: disputed_amount differed from gold in 8 calls"
    }
   ],
   "names": {

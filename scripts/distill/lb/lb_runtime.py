@@ -200,9 +200,10 @@ def trace(agent, msgs, turn_len=None):
     for m in msgs:
         calls = [(getattr(c, "name", ""), str(getattr(c, "arguments", ""))[:160]) for c in (getattr(m, "tool_calls", None) or [])]
         head = str(getattr(m, "content", "") or "")[:600]
+        ids = [getattr(c, "id", None) for c in (getattr(m, "tool_calls", None) or [])] or getattr(m, "id", None)
         sidecar("lb-msg", ("%s %s" % (calls, head)) if calls else head, None, sim=sim_id(agent),
                 role=str(getattr(m, "role", "")), n=turn_len if turn_len is not None else -1,
-                error=bool(getattr(m, "error", False)))
+                error=bool(getattr(m, "error", False)), ids=str(ids))   # ids: the evaluator's replay checks them
 
 
 def fold_mark(agent, before, after):
@@ -447,6 +448,8 @@ def execute(orch, a2, tool_calls, orig_exec):
         diverge("our-tool", d["name"], sim=sim_id(agent), error=bool(err))
         print("[lb2] tool %s -> %s" % (d["name"], "error" if err else "ok"), file=sys.stderr, flush=True)
     out = [by_id[getattr(tc, "id", None)] for tc in tool_calls if getattr(tc, "id", None) in by_id]
+    sidecar("lb-exec", "in=%s out=%s" % ([getattr(tc, "id", None) for tc in tool_calls], [getattr(r, "id", None) for r in out]),
+            None, sim=sim_id(agent), n=len(tool_calls))   # the batch as executed, for the id-mismatch forensic
     if [getattr(r, "id", None) for r in out] != [getattr(r, "id", None) for r in results]:
         diverge("merge-order", "results reordered to the call order", ours=len(ours), rest=len(rest))
     if enabled("LB2"):
