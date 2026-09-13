@@ -332,3 +332,13 @@ sw 패:    assistant apply_statement_credit ×2 → assistant transfer_to_human_
 - 결과에 `infrastructure_error` 가 하나라도 있으면 격리(`*.infra_void.gz`)하고 큐 앞에 되돌린다.
   `void_sweeper.sh` 가 2분마다 그 일을 한다. 부분 void(045 1/4 유효)도 통째로 되돌린다.
 - 증상 확인은 드라이버 로그의 `requires more credits`; 잔액은 `GET /api/v1/credits`(키는 출력하지 않는다).
+
+## ⛔ `tests/test_lb.py` 를 돌리면 `a2/banking_knowledge.lb.json` 이 바뀐다 (2026-09-13 실측)
+
+테스트가 `lb_a2.migrate("banking_knowledge")` 를 호출해 선언 파일을 **제자리에서 다시 쓴다**(enforce·description·
+inject_after 등 39/95 줄이 구판으로 되돌아감). 테스트 뒤 `git status` 에 a2 가 M 으로 뜨는 것이 그것이다.
+2026-09-13 nc27 에서 테스트 뒤 `git add a2/…` 를 해 **구판 선언이 팔 커밋에 실려 push** 됐고, 리모트에서
+`git checkout arm/nc26 -- a2` 로 되살려 다시 저작했다(950253eb).
+⇒ **a2 를 커밋하기 전에 반드시 `git diff --stat` 로 바뀐 줄 수를 본다.** 한 문장 고친 커밋이 수십 줄이면 migrate 다.
+   테스트 뒤에는 `git checkout -- scripts/distill/lb/a2/banking_knowledge.lb.json` 으로 되돌린다.
+   팔 발사 전 레인 지문 `a2=<sha1>` 이 기대한 값(nc18 계열 = 759c3d5ab4ce, 문장 하나 바꾼 팔은 그와 다른 하나의 값)인지 대조한다.
