@@ -117,8 +117,19 @@ def turn_hook(self, message, state):
             sidecar("lb-tools", "INJECTED %s" % ", ".join(names), None, sim=sim_id(self), n=len(names))
             diverge("inject-tools", ", ".join(names), sim=sim_id(self), n=len(names))
     if enabled("LB2"):
-        ran = {str(getattr(tc, "name", "") or "") for m in state.messages
-               if getattr(m, "role", None) == "assistant" for tc in (getattr(m, "tool_calls", None) or [])}
+        ran = set()
+        for m in state.messages:
+            if getattr(m, "role", None) != "assistant":
+                continue
+            for tc in (getattr(m, "tool_calls", None) or []):
+                name = str(getattr(tc, "name", "") or "")
+                ran.add(name)
+                # a tool reached through the dispatcher is named in its arguments; inject_after on such a
+                # tool never matched the wrapper's name (nc30 review: get_bank_account_transactions)
+                key = ((a2.get("dispatch") or {}).get("name_args") or {}).get(name)
+                inner = (as_dict(getattr(tc, "arguments", None)) or {}).get(key) if key else None
+                if inner:
+                    ran.add(str(inner)); ran.add(fam(str(inner)))
         have = {getattr(t, "name", None) for t in (self.tools or [])}
         late = [d["name"] for d in ((a2.get("LB2") or {}).get("tools") or [])
                 if d.get("inject_after") and d["name"] not in have and set(d["inject_after"]) & ran]
@@ -409,25 +420,18 @@ def inject_tools(agent, a2, said=None, ask=None, executed=None, only=None):
 def execute(orch, a2, tool_calls, orig_exec):
     from tau2.data_model.message import ToolMessage
     decls = {d["name"]: d for d in (a2.get("LB2") or {}).get("tools") or []}
-    agent0 = getattr(orch, "agent", None)
-    blocked = agent0.__dict__.pop("_lb_blocked", None) if agent0 is not None else None   # unused since the replay fix; kept inert
-    blocked = blocked or {}
     ours, rest = {}, []
     for tc in tool_calls:
-        if getattr(tc, "id", None) in blocked:
-            continue            # declined in turn_hook: answered below, never sent to the environment
         d = decls.get(getattr(tc, "name", None)) if getattr(tc, "requestor", "assistant") == "assistant" else None
         if d is None:
             rest.append(tc)
         else:
             ours[id(tc)] = (tc, d)
-    if not rest and tool_calls and not blocked:
+    if not rest and tool_calls:
         diverge("empty-batch", "every call in this batch was ours; the environment was not asked",
                 n=len(tool_calls))
     results = list(orig_exec(orch, rest)) if rest else []
     by_id = {getattr(r, "id", None): r for r in results}
-    for cid, text in blocked.items():
-        by_id[cid] = ToolMessage(id=cid, role="tool", requestor="assistant", error=True, content=text)
     agent = getattr(orch, "agent", None)
     for tc, d in ours.values():
         args = {k: v for k, v in (as_dict(tc.arguments) or {}).items()}

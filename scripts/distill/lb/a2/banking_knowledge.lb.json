@@ -15679,7 +15679,11 @@
     },
     "return_template": "Maximum customer liability for a debit card transaction dated {transaction_date}, reported {report_date} ({disputed_amount} disputed): {result}. Pass exactly this as customer_max_liability_amount - a value of -1 means unlimited liability.",
     "select": true,
-    "_nc29_note": "2026-09-13: offline replay of the 23 gold file_debit actions (082-091): the declared op = gold 18/19; the one miss (084, 412.88) is the $500 tier bounded by the disputed amount. The $50 tier is flat (gold keeps 50 for 47.50 and 14.99)."
+    "_nc29_note": "2026-09-13: offline replay of the 23 gold file_debit actions (082-091): the declared op = gold 18/19; the one miss (084, 412.88) is the $500 tier bounded by the disputed amount. The $50 tier is flat (gold keeps 50 for 47.50 and 14.99).",
+    "inject_after": [
+     "get_bank_account_transactions"
+    ],
+    "_nc30_review": "required before file_debit_card_transaction_dispute (LB1), so it must be present once the transactions are read: inject_after, not select alone."
    },
    {
     "name": "check_savings_account_fit",
@@ -24038,7 +24042,9 @@
     "sources": [
      "records"
     ],
-    "feedback": "Error: [CHOICE-GROUND] '{value}' does not appear in any document this conversation retrieved — it may be a name you produced rather than one the bank offers. Search the knowledge base for the account classes that fit what the customer actually asked for, compare them on those stated criteria, and use the exact class name a document gives."
+    "feedback": "Error: [WRITE-FORM] account_class '{val}' is not in the form the tool accepts. The tool's parameter text: \"account_class: the full official account name exactly as confirmed with the customer\" - the official name only, no parenthetical such as '(savings)'.",
+    "pattern": "[A-Z][A-Za-z-]*(?: [A-Z][A-Za-z-]*)*",
+    "_nc30_review": "gold account_class values include business checking names without 'Account' (Cobalt Blue, Navy Blue, Sky Blue) and 'Green Fee-Free Account'; the form is therefore capitalised words (hyphen allowed), no parenthetical. Catches '(savings)' x12; does not catch 'Silver Plus Saver' (4)."
    },
    {
     "applies_to": "call_discoverable_agent_tool",
@@ -24169,7 +24175,7 @@
      },
      "report_date": {
       "tool": "get_current_time",
-      "pattern": "(\\d{2}/\\d{2}/\\d{4})"
+      "pattern": "(\\d{4}-\\d{2}-\\d{2}|\\d{2}/\\d{2}/\\d{4})"
      },
      "disputed_amount": {
       "arg": "disputed_amount"
