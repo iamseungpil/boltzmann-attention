@@ -10,7 +10,7 @@ The engine never produces a value; it only asks "where is this from?". Declared 
       also carry those state words (a dispute RESOLVED before its reward is corrected). A state is an
       environment record's word, never one of our own verifiers' verdicts - demanding our verdict is
       a prescription, and base passes 049 without it.
-  verified  [{applies_to, when, arg, verifier, operands{name: {arg}|{tool, pattern}|{near, pattern}}, value_pattern, feedback}]
+  verified  [{applies_to, when, arg, verifier, inputs{name: {arg}|{tool, kind}|{near, after, kind}}, value_after, text_until, feedback}]
       the value of `arg` must equal what the named LB2 verifier returns for operands read from the
       call and the records; when it differs the call is declined with the verifier's own line (the
       same text the model would have read had it called the verifier itself). No value is composed.
@@ -80,9 +80,36 @@ def outputs_of(turn, tool):
             if getattr(m, "role", None) == "tool" and names.get(getattr(m, "id", None)) == fam(tool)]
 
 
+def capitalised_words(value):
+    """The form 'Word Word-Word': every token starts with a capital letter and holds letters or hyphens
+    only - no parenthetical, no lower-case start, no digits. A form check, not a name check."""
+    toks = str(value or "").split()
+    return bool(toks) and all(t[:1].isalpha() and t[:1].isupper() and all(ch.isalpha() or ch == "-" for ch in t)
+                              for t in toks)
+
+
+def token_after(text, marker, kind):
+    """The token that follows `marker` in `text`, read as `kind` (date|number); None when absent."""
+    from lb2_decision import date, num
+    i = text.find(marker)
+    while i >= 0:
+        rest = text[i + len(marker):].split()
+        if rest:
+            tok = rest[0].strip(".,;:()")
+            if kind == "date" and date(tok) is not None:
+                return tok
+            if kind == "number" and num(tok) is not None:
+                return tok
+        i = text.find(marker, i + 1)
+    return None
+
+
 def operand(spec, turn, args):
-    """One verifier operand from the call's own arguments or the conversation's records. Never a guess."""
-    import re
+    """One verifier operand from the call's own arguments or the conversation's records. Never a guess:
+    {arg} copies the call's argument; {tool, kind} takes the first token of that kind in that tool's
+    output; {near, after, kind} takes the token after `after` in the record that names the call's
+    `near` argument."""
+    from lb2_decision import date, num
     if "arg" in spec:
         return args.get(spec["arg"])
     texts = outputs_of(turn, spec["tool"]) if spec.get("tool") else turn.tool_outputs()
@@ -92,9 +119,17 @@ def operand(spec, turn, args):
             return None
         texts = [t[i:i + 600] for t in texts for i in [t.find(anchor)] if i >= 0]
     for t in texts:
-        m = re.search(spec["pattern"], t)
-        if m:
-            return m.group(1)
+        if spec.get("after"):
+            got = token_after(t, spec["after"], spec.get("kind", "number"))
+            if got is not None:
+                return got
+            continue
+        for tok in t.split():
+            tok = tok.strip(".,;:()")
+            if spec.get("kind") == "date" and date(tok) is not None:
+                return tok
+            if spec.get("kind") == "number" and num(tok) is not None:
+                return tok
     return None
 
 
@@ -102,7 +137,6 @@ def verified_findings(turn, call):
     """A written value the declaration ties to a verifier: the engine runs that verifier on operands read
     from the call and the records, and if the value differs the call is declined with the verifier's own
     line. Nothing is said when they agree, or when an operand is missing (that is not evidence)."""
-    import re
     out = []
     for spec in (turn.a2.get("LB3") or {}).get("verified") or []:
         if not applies(spec, turn, call):
@@ -115,7 +149,7 @@ def verified_findings(turn, call):
                      if t.get("name") == spec.get("verifier")), None)
         if decl is None:
             continue
-        ops = {k: operand(v, turn, args) for k, v in (spec.get("operands") or {}).items()}
+        ops = {k: operand(v, turn, args) for k, v in (spec.get("inputs") or {}).items()}
         if any(v in (None, "") for v in ops.values()):
             continue
         import lb2_decision
@@ -125,16 +159,20 @@ def verified_findings(turn, call):
         text, err = res[0], res[1]
         if err:
             continue
-        m = re.search(spec.get("value_pattern") or r"(-?\d+(?:\.\d+)?)", str(text))
-        if not m:
+        tok = token_after(str(text), spec.get("value_after") or "", "number") if spec.get("value_after") else None
+        if tok is None:
             continue
         try:
-            want, have = float(m.group(1)), float(str(got).replace("$", "").replace(",", ""))
+            want, have = float(tok), float(str(got).replace("$", "").replace(",", ""))
         except (TypeError, ValueError):
             continue
         if abs(want - have) > 0.005:
+            shown = str(text).strip()
+            cut = spec.get("text_until")
+            if cut and cut in shown:
+                shown = shown[:shown.find(cut)].strip()      # the fact only, not the verifier's own instruction
             out.append(Finding(LB, DENY, fam(turn.name_of(call)), call,
-                               fill(spec.get("feedback"), arg=spec["arg"], got=got, text=str(text).strip()),
+                               fill(spec.get("feedback"), arg=spec["arg"], got=got, text=shown),
                                grade=LEDGER, source="verified:" + spec["arg"]))
             break
     return out
@@ -168,13 +206,13 @@ def grounding_findings(turn, call):
             # "Arguments: {...transaction_id...}\nStatus: RESOLVED", the state outside the braces
             if not any(present(value, o) and all(t in o for t in spec["state"]) for o in turn.tool_outputs()):
                 problem = fill(spec.get("feedback"), id=value, arg=spec["arg"], val=value, value=value)
-        elif spec.get("pattern"):
-            # a value's declared form (the tool's own parameter text: "the full official account name ending
-            # with 'Account'"). 060-069: 36 of 56 wrong account_class values were forms the tool never accepts
-            # ("Green Account (savings)", "Silver Plus Saver"); the documents themselves use those headings,
-            # so presence in the KB is not the test - the form is.
-            import re
-            if not re.fullmatch(spec["pattern"], str(value)):
+        elif spec.get("form"):
+            # a value's declared form (the tool's own parameter text: "the full official account name").
+            # 060-069: 36 of 56 wrong account_class values were forms the tool never accepts ("Green Account
+            # (savings)"); the documents themselves use those headings, so presence in the KB is not the
+            # test - the form is. Gold holds business names without 'Account' (Cobalt Blue, Sky Blue) and
+            # 'Green Fee-Free Account', so the form is capitalised words with hyphens, nothing more.
+            if spec["form"] == "capitalised-words" and not capitalised_words(value):
                 problem = fill(spec.get("feedback"), val=value, value=value, arg=spec["arg"])
         elif not grounded(value, turn, spec.get("sources") or ["records", "customer"]):
             problem = fill(spec.get("feedback"), val=value, value=value, arg=spec["arg"])

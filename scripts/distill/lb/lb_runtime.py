@@ -21,6 +21,8 @@ table: tests/test_lb.py fails if a `diverge(` kind is missing here or listed her
 
   kind             where                     gate        what changes for the model
   inject-tools     install/init              LB2         verifier tools appear in the tool list
+  inject-after     turn_hook                 LB2         a verifier declared inject_after appears once its event ran
+  select-tools     inject_tools              LB2         the sub-call's choice of verifier tools for this conversation
   our-tool         execute                   LB2         a call is answered by us, not the environment
   facts            append_facts              LB2         a read's output gains "[FACTS] ..."
   merge-order      execute                   any lever   results are reordered to the call order

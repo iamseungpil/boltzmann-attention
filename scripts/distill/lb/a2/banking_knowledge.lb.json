@@ -1358,7 +1358,7 @@
    },
    {
     "name": "check_rebate_qualification",
-    "description": "USE THIS to determine whether a customer qualifies for a spend-threshold annual fee rebate (e.g. the Platinum Rewards Card annual fee rebate). Do NOT eyeball the monthly totals yourself. It buckets every transaction into the anniversary-based monthly windows of the cardmember year (by posting date, from the opening date), sums each window, and returns QUALIFIES only if EVERY window meets the threshold (a single month below disqualifies; no proration). Call get_current_time first and pass today's date as as_of_date - the tool evaluates the last complete cardmember year as of that date.",
+    "description": "Use this when a customer asks whether a card's annual-fee rebate applies to them: USE THIS to determine whether a customer qualifies for a spend-threshold annual fee rebate (e.g. the Platinum Rewards Card annual fee rebate). Do NOT eyeball the monthly totals yourself. It buckets every transaction into the anniversary-based monthly windows of the cardmember year (by posting date, from the opening date), sums each window, and returns QUALIFIES only if EVERY window meets the threshold (a single month below disqualifies; no proration). Call get_current_time first and pass today's date as as_of_date - the tool evaluates the last complete cardmember year as of that date.",
     "params": {
      "transactions": "A JSON array of the card's transactions you read from the records. Each element MUST have ONLY these raw fields, copied as-is: date (string, the POSTING date, MM/DD/YYYY), amount (number, the purchase/spend amount, no $). Copy every transaction in the cardmember year; do not pre-filter or pre-sum. If you provide user_id and credit_card_account_id, you may OMIT this — the tool will read the transactions itself.",
      "account_opening_date": "The date the credit card account was opened (MM/DD/YYYY), copied from the account record. Monthly windows are anchored to this date.",
@@ -1484,7 +1484,7 @@
    },
    {
     "name": "get_correct_savings_apy",
-    "description": "USE THIS to compute the correct APY on a savings account under Rho-Bank stacking rules. Do NOT add the boosts up yourself. It applies the stacking policy: only the HIGHEST checking boost counts, only the HIGHEST card bonus counts, while relationship and tier bonuses all add on top. You may instead OMIT components and pass savings_account_type, current_balance and - if the customer holds them - credit_card and linked_checking_account by their documented names; the tool then reads the rate, the card's bonus and the linked checking boost from the same table check_savings_account_fit uses. Give components when you have read the boosts yourself and want them checked against the stacking policy.",
+    "description": "Use this whenever a customer questions the interest their savings account earns, before computing any correction: USE THIS to compute the correct APY on a savings account under Rho-Bank stacking rules. Do NOT add the boosts up yourself. It applies the stacking policy: only the HIGHEST checking boost counts, only the HIGHEST card bonus counts, while relationship and tier bonuses all add on top. You may instead OMIT components and pass savings_account_type, current_balance and - if the customer holds them - credit_card and linked_checking_account by their documented names; the tool then reads the rate, the card's bonus and the linked checking boost from the same table check_savings_account_fit uses. Give components when you have read the boosts yourself and want them checked against the stacking policy.",
     "params": {
      "components": "A JSON array of the APY components you read from the knowledge base for THIS savings account. Each element: {kind: one of 'base'|'checking'|'card'|'relationship'|'tier', value: <number, percentage points, no %>, source: <verbatim quote from the KB doc stating this value>}. Include the base APY as {kind:'base', value:<base>} and EVERY applicable boost (list all checking boosts and all card bonuses you find; the tool keeps only the highest of each per policy). Do not pre-select or pre-sum.",
      "savings_account_type": "The savings account's type/name, copied from the account record.",
@@ -12446,16 +12446,7 @@
        "corpus": [
         "kb"
        ],
-       "require_value_in_source": true,
-       "reclassify": [
-        {
-         "from": "relationship",
-         "source_has": [
-          "Card"
-         ],
-         "to": "card"
-        }
-       ]
+       "require_value_in_source": true
       }
      ],
      "scalar_fields": [
@@ -12483,7 +12474,7 @@
       "components"
      ],
      "max_rounds": 5,
-     "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE.",
+     "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE. KIND: 'base' is the account type's own APY; 'checking' is a boost for holding a checking account; 'card' is any bonus granted for holding a specific credit card - even where the document calls it a holder or relationship bonus, it is that card's bonus; 'relationship' and 'tier' are only programme-wide bonuses not tied to one card.",
      "answer_format": "Reply with exactly one JSON object and nothing else: {\"components\": [{\"kind\": \"base|checking|card|relationship|tier\", \"value\": <number>, \"source\": \"<verbatim quote>\"}]}",
      "docs": {
       "instructions": "You are a KB-extraction sub-task. Using ONLY the DOCUMENTS section below (you have no search tool), find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE.",
@@ -14118,12 +14109,11 @@
     ],
     "return_template": "Correct savings APY computed from the components supplied in this call: {result}%. The stacking policy is base + highest checking boost + highest card bonus + all relationship/tier bonuses. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
     "missing_hint": "Abstained: no base APY was given. components must include one element with kind 'base' - the savings account's own rate at this balance, read from the knowledge base - plus one element per boost you found. Read the account's specification document, then call again with the list.",
-    "select": true,
-    "_nc30_reclassify_note": "095: the sub listed 'Gold Rewards Card holder benefits ... 0.025% relationship bonus' as a relationship component next to the card's own +0.025% - the same benefit twice (gold 6.85 = 5.5 + 0.75 + 0.6). A component whose source names a Card is the card's bonus and joins the card max."
+    "select": true
    },
    {
     "name": "get_interest_correction",
-    "description": "USE THIS to compute the dollar interest correction owed when a savings account was paid the wrong APY. Do NOT do this arithmetic yourself. Provide the correct APY (from get_correct_savings_apy), the APY the system actually applied, the account principal/balance, and the period over which the wrong APY was applied. It returns the interest difference to credit. The correction amount = principal x (expected_apy - actual_apy)/100 / 12, i.e. ONE monthly interest credit difference (this account family credits interest MONTHLY at APY/12). If multiple months were wrong, call once per month.",
+    "description": "Use this only after get_correct_savings_apy has answered and the account's monthly interest credit has been read: USE THIS to compute the dollar interest correction owed when a savings account was paid the wrong APY. Do NOT do this arithmetic yourself. Provide the correct APY (from get_correct_savings_apy), the APY the system actually applied, the account principal/balance, and the period over which the wrong APY was applied. It returns the interest difference to credit. The correction amount = principal x (expected_apy - actual_apy)/100 / 12, i.e. ONE monthly interest credit difference (this account family credits interest MONTHLY at APY/12). If multiple months were wrong, call once per month.",
     "params": {
      "expected_apy": "The correct APY (percentage points, no %) — from get_correct_savings_apy.",
      "actual_apy": "The APY the system ACTUALLY applied (percentage points, no %). Derive it from the latest MONTHLY INTEREST CREDIT in the transactions: monthly credit amount x 12 / principal x 100. The APY stated on the account record may be the intended rate, NOT the rate actually applied - use the stated value only if no interest credit transaction is available.",
@@ -24042,9 +24032,7 @@
     "sources": [
      "records"
     ],
-    "feedback": "Error: [WRITE-FORM] account_class '{val}' is not in the form the tool accepts. The tool's parameter text: \"account_class: the full official account name exactly as confirmed with the customer\" - the official name only, no parenthetical such as '(savings)'.",
-    "pattern": "[A-Z][A-Za-z-]*(?: [A-Z][A-Za-z-]*)*",
-    "_nc30_review": "gold account_class values include business checking names without 'Account' (Cobalt Blue, Navy Blue, Sky Blue) and 'Green Fee-Free Account'; the form is therefore capitalised words (hyphen allowed), no parenthetical. Catches '(savings)' x12; does not catch 'Silver Plus Saver' (4)."
+    "feedback": "Error: [CHOICE-GROUND] '{value}' does not appear in any document this conversation retrieved — it may be a name you produced rather than one the bank offers. Search the knowledge base for the account classes that fit what the customer actually asked for, compare them on those stated criteria, and use the exact class name a document gives."
    },
    {
     "applies_to": "call_discoverable_agent_tool",
@@ -24090,23 +24078,10 @@
      "prefix": "open_bank_account"
     },
     "arg": "account_class",
-    "feedback": "Error: [WRITE-FORM] account_class '{val}' is not in the form the tool accepts. The tool's parameter text: \"account_class: the full official account name ending with 'Account' exactly as confirmed with the customer\" (no parenthetical, no product nickname).",
-    "pattern": "[A-Z][A-Za-z]*(?: [A-Z][A-Za-z]*)* Account",
-    "_source": "open_bank_account tool description (KB): \"account_class: the full official account name ending with 'Account' exactly as confirmed with the customer.\""
-   },
-   {
-    "applies_to": "call_discoverable_agent_tool",
-    "when": {
-     "arg": "agent_tool_name",
-     "prefix": "file_debit_card_transaction_dispute"
-    },
-    "arg": "discovery_date",
-    "sources": [
-     "customer",
-     "records"
-    ],
-    "feedback": "Error: [WRITE-GROUNDING] discovery_date '{val}' is not a date the customer stated in this conversation and not one in a record read here. The date the customer noticed the transaction has to come from the customer.",
-    "_source": "argdiff 2026-09-13: discovery_date differed from gold in 33 debit-dispute calls (087: today's date written without asking)"
+    "feedback": "Error: [WRITE-FORM] account_class '{val}' is not in the form the tool accepts. The tool's parameter text: \"account_class: the full official account name exactly as confirmed with the customer\" - the official name only, no parenthetical such as '(savings)'.",
+    "_source": "open_bank_account tool description (KB): \"account_class: the full official account name ... exactly as confirmed with the customer.\"",
+    "form": "capitalised-words",
+    "_nc31_review": "gold account_class values include business names without 'Account' (Cobalt Blue, Navy Blue, Sky Blue) and 'Green Fee-Free Account'; the form is capitalised words (hyphen allowed), no parenthetical. Winning sims: 'Green Account (savings)' x2 would be declined (form), 'Sky Blue' x26 pass."
    },
    {
     "applies_to": "call_discoverable_agent_tool",
@@ -24168,21 +24143,24 @@
     },
     "arg": "customer_max_liability_amount",
     "verifier": "get_debit_dispute_liability_cap",
-    "operands": {
+    "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. get_debit_dispute_liability_cap, run on this transaction's record, says: {text}",
+    "inputs": {
      "transaction_date": {
       "near": "transaction_id",
-      "pattern": "date:\\s*(\\d{2}/\\d{2}/\\d{4})"
+      "after": "date:",
+      "kind": "date"
      },
      "report_date": {
       "tool": "get_current_time",
-      "pattern": "(\\d{4}-\\d{2}-\\d{2}|\\d{2}/\\d{2}/\\d{4})"
+      "kind": "date"
      },
      "disputed_amount": {
       "arg": "disputed_amount"
      }
     },
-    "value_pattern": "disputed\\):\\s*(-?\\d+(?:\\.\\d+)?)",
-    "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. get_debit_dispute_liability_cap, run on this transaction's record, says: {text}"
+    "value_after": "disputed):",
+    "text_until": "Pass exactly",
+    "_nc31_review": "the returned text is the verifier's fact up to its own instruction ('Pass exactly this ...' is cut); the engine composes no value. Design: B (approved 2026-09-13) - the verifier the model was required to call, run on the call's own operands."
    }
   ]
  },
@@ -24443,55 +24421,56 @@
    "rules": "Rules for the KIND: a request to be told, shown, checked, looked up, recommended or explained is INQUIRY even when the agent needs a tool to answer it. A change the customer has asked for is ACTION from the moment they asked, including while the agent is still verifying their identity for it, and stays ACTION while more of the same kind remain (the next dispute, the next card). When a question and a change are both open, it is ACTION only if the customer has said to go ahead with the change; while they are still deciding it is INQUIRY. It is NONE when the last request was carried out, when the customer is only acknowledging, or when they said they will do the next step themselves.",
    "examples": [
     {
-     "say": "Yes, please go ahead and pay that off from my checking account.",
+     "say": "Yes, go ahead and close that account.",
      "kind": "ACTION"
     },
     {
-     "say": "I'd like to close my card. The annual fee is too expensive.",
+     "say": "Please order a replacement card and send it to the address on file.",
      "kind": "ACTION"
     },
     {
-     "say": "Sure. My full name is ... date of birth ... (given so the closure can proceed)",
+     "say": "Here is my date of birth and phone number (given so a requested change can proceed).",
      "kind": "ACTION"
     },
     {
-     "say": "Now I want to close my second card too.",
+     "say": "That one is done - now do the same for the second card.",
      "kind": "ACTION"
     },
     {
-     "say": "Can you help me figure out why my referral bonus hasn't arrived?",
+     "say": "Why was I charged this fee?",
      "kind": "INQUIRY"
     },
     {
-     "say": "Please check my eligibility for that referral.",
+     "say": "Can you check whether I qualify for that?",
      "kind": "INQUIRY"
     },
     {
-     "say": "What counts toward the qualifying spend, and how much is left?",
+     "say": "What is the requirement, and how much is left?",
      "kind": "INQUIRY"
     },
     {
-     "say": "A couple of constraints before we commit: ... which one would you recommend?",
+     "say": "Which of these would you recommend for me?",
      "kind": "INQUIRY"
     },
     {
-     "say": "Hmm, I'm not sure about downgrading. The other card only gets 1%.",
+     "say": "I'm not sure yet - let me think about the downgrade.",
      "kind": "INQUIRY"
     },
     {
-     "say": "Perfect, that answers it. I'll have my friend check their opening date.",
+     "say": "Thanks, that answers it.",
      "kind": "NONE"
     },
     {
-     "say": "Submitted the final dispute successfully. Thanks!",
+     "say": "All done on my side, appreciate the help.",
      "kind": "NONE"
     },
     {
-     "say": "Got it - I'll apply from my own app then.",
+     "say": "I'll take care of that step myself from the app.",
      "kind": "NONE"
     }
    ],
-   "_rules_source": "2026-09-13 INTENT_BENCH_60: the sub without rules read 'checking', 'deciding' and 'the customer's own next step' as ACTION (9 of 60); the rules and examples are written from the customer scenarios' own phrasing, not from gold."
+   "_rules_source": "2026-09-13 INTENT_BENCH_60: the sub without rules read 'checking', 'deciding' and 'the customer's own next step' as ACTION (9 of 60); the rules and examples are written from the customer scenarios' own phrasing, not from gold.",
+   "_examples_source": "2026-09-13 review: written from the tool inventory and generic customer phrasing, not from any task's dialogue; the earlier set paraphrased judge tasks (016/040/048/049) and was withdrawn."
   },
   "repeat_tools": [
    "KB_search",

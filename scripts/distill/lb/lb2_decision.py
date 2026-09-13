@@ -649,25 +649,16 @@ def ground_operands(decl, ctx, corpora):
             # not part of the sentence. If the quote is not verbatim (paraphrase), the citation still
             # holds when a document carries both the quote's opening words and the value. 094: all five
             # APY components were dropped for the "(doc_...)" suffix alone - 319 of 319 abstentions.
-            import re as _re
-            src = _re.sub(r"\s*\([^()]*\)\s*$", "", src).strip()
+            if src.endswith(")") and "(" in src:
+                src = src[:src.rfind("(")].strip()
             words = [w for w in src.split() if len(w) >= 5][:6]
             need = min(3, len(words))
             v0 = num((el or {}).get(af.get("value_field", "value"))) if isinstance(el, dict) else None
-            src_ok = bool(src) and (any(src in h for h in hay)
-                                    or (need > 0 and v0 is not None
-                                        and any(sum(1 for w in words if w in h) >= need
-                                                and any(abs(v0 - n) < 1e-9 for n in numbers_in(h)) for h in hay)))
+            src_ok = bool(src) and (any(src in h for h in hay) or (need > 0 and v0 is not None and cited_near(hay, words, need, v0)))
             v = num((el or {}).get(af.get("value_field", "value"))) if isinstance(el, dict) else None
             val_ok = not af.get("require_value_in_source", True) or v is None or \
                 any(abs(v - n) < 1e-9 for n in numbers_in(src))
             (kept.append(el) if src_ok and val_ok else flags.append("%s=%s" % (el.get(af.get("label_field", "kind"), "?"), v)))
-        for rc in af.get("reclassify") or []:
-            # a declared relabel on the cited source's own words (e.g. a 'relationship' line that names a
-            # Card is that card's bonus) - the label field only, values untouched
-            for el in kept:
-                if isinstance(el, dict) and el.get(af.get("label_field", "kind")) == rc.get("from")                         and any(w.lower() in str(el.get(af.get("source_field", "source"))).lower() for w in rc.get("source_has") or []):
-                    el[af.get("label_field", "kind")] = rc.get("to")
         ctx[af["param"]] = kept
     for sf in g.get("scalar_fields") or []:
         p = sf.get("param")
@@ -688,6 +679,19 @@ def ground_operands(decl, ctx, corpora):
             flags.append("%s=%s" % (p, ctx[p]))
             ctx.pop(p, None)
     return flags
+
+
+def cited_near(hay, words, need, value):
+    """A paraphrased citation holds when one document carries `need` of the quote's content words and
+    the value within the same 400-character window around one of them - not anywhere in the document."""
+    for h in hay:
+        i = h.find(words[0])
+        while i >= 0:
+            w = h[max(0, i - 200):i + 200]
+            if sum(1 for x in words if x in w) >= need and any(abs(value - n) < 1e-9 for n in numbers_in(w)):
+                return True
+            i = h.find(words[0], i + 1)
+    return False
 
 
 def numbers_in(text):
