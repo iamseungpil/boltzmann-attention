@@ -660,11 +660,16 @@
       "tool_prefix": "get_bank_account_transactions"
      },
      {
+      "id": "get_correct_savings_apy",
+      "tool_prefix": "get_correct_savings_apy"
+     },
+     {
       "id": "apply_savings_account_credit",
       "tool_prefix": "apply_savings_account_credit",
       "requires": [
        "get_all_user_accounts_by_user_id",
-       "get_bank_account_transactions"
+       "get_bank_account_transactions",
+       "get_correct_savings_apy"
       ]
      }
     ],
@@ -672,7 +677,8 @@
     "feedback": {
      "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
      "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
-    }
+    },
+    "_nc33_note": "2026-09-14: the APY verifier is a required read before this write. nc32 096 t0 called no verifier and credited both accounts the same 17.50 by hand; 073 t0 lost the same way before the ATM-fee verifier became required."
    },
    {
     "id": "requires:submit_interest_discrepancy_report",
@@ -689,11 +695,16 @@
       "tool_prefix": "get_bank_account_transactions"
      },
      {
+      "id": "get_correct_savings_apy",
+      "tool_prefix": "get_correct_savings_apy"
+     },
+     {
       "id": "submit_interest_discrepancy_report",
       "tool_prefix": "submit_interest_discrepancy_report",
       "requires": [
        "get_all_user_accounts_by_user_id",
-       "get_bank_account_transactions"
+       "get_bank_account_transactions",
+       "get_correct_savings_apy"
       ]
      }
     ],
@@ -701,7 +712,8 @@
     "feedback": {
      "unmet": "Error: [ORDER] '{tool}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {missing}. Do that now with the real tool calls.",
      "unmet_surface": "[ORDER] '{tool}' normally comes after {missing}."
-    }
+    },
+    "_nc33_note": "2026-09-14: the APY verifier is a required read before this write. nc32 096 t0 called no verifier and credited both accounts the same 17.50 by hand; 073 t0 lost the same way before the ATM-fee verifier became required."
    },
    {
     "id": "requires:file_debit_card_transaction_dispute",
