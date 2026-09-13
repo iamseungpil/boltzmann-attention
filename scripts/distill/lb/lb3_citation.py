@@ -163,7 +163,10 @@ def verified_findings(turn, call):
         if tok is None:
             continue
         try:
-            want, have = float(tok), float(str(got).replace("$", "").replace(",", ""))
+            raw = str(got).strip().lower()
+            # a true/false argument is compared as the 1/0 its verifier prints
+            have = 1.0 if raw == "true" else 0.0 if raw == "false" else float(raw.replace("$", "").replace(",", ""))
+            want = float(tok)
         except (TypeError, ValueError):
             continue
         if abs(want - have) > 0.005:

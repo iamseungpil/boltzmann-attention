@@ -720,11 +720,16 @@
       "tool_prefix": "get_debit_dispute_liability_cap"
      },
      {
+      "id": "check_debit_dispute_provisional_credit",
+      "tool_prefix": "check_debit_dispute_provisional_credit"
+     },
+     {
       "id": "file_debit_card_transaction_dispute",
       "tool_prefix": "file_debit_card_transaction_dispute",
       "requires": [
        "get_bank_account_transactions",
-       "get_debit_dispute_liability_cap"
+       "get_debit_dispute_liability_cap",
+       "check_debit_dispute_provisional_credit"
       ]
      }
     ],
@@ -22747,6 +22752,62 @@
     },
     "return_template": "Referral options for this customer: {result}",
     "select": true
+   },
+   {
+    "name": "check_debit_dispute_provisional_credit",
+    "description": "USE THIS before filing a debit card dispute to decide provisional_credit_eligible; do not decide it yourself. The Debit Card Provisional Credit Guidelines make provisional credit REQUIRED when the dispute category is one of unauthorized_transaction / card_present_fraud / card_not_present_fraud / atm_cash_discrepancy / duplicate_charge, the customer has provided a written statement, and the PIN was not voluntarily shared (pin_compromised is not yes_shared). Pass the three values exactly as you are about to file them.",
+    "params": {
+     "dispute_category": "The dispute_category you are about to file, exactly as the filing tool names it.",
+     "written_statement_provided": "true or false - the written_statement_provided you are about to file.",
+     "pin_compromised": "The pin_compromised you are about to file: yes_shared, yes_observed, no or unknown."
+    },
+    "op": {
+     "op": "if_then",
+     "cond": {
+      "op": "bool_expr",
+      "all": [
+       {
+        "ref": "dispute_category",
+        "in": [
+         "unauthorized_transaction",
+         "card_present_fraud",
+         "card_not_present_fraud",
+         "atm_cash_discrepancy",
+         "duplicate_charge"
+        ]
+       },
+       {
+        "ref": "written_statement_provided",
+        "eq": "true"
+       },
+       {
+        "not": {
+         "ref": "pin_compromised",
+         "in": [
+          "yes_shared"
+         ]
+        }
+       }
+      ]
+     },
+     "then": {
+      "op": "const",
+      "value": 1
+     },
+     "else": {
+      "op": "const",
+      "value": 0
+     }
+    },
+    "return_template": "Debit Card Provisional Credit Guidelines for category {dispute_category}, written statement {written_statement_provided}, PIN {pin_compromised}: provisional_credit_eligible = {result} (1 = true, 0 = false). Pass exactly this as provisional_credit_eligible.",
+    "select": true,
+    "inject_after": [
+     "get_bank_account_transactions"
+    ],
+    "_source": [
+     "doc_bank_accounts_bank_accounts_(general)_032: 'Provisional Credit is REQUIRED when ALL of these conditions are met: 1. Timely Reporting ... 2. Dispute Category: unauthorized_transaction / card_present_fraud / card_not_present_fraud / atm_cash_discrepancy / duplicate_charge 3. Written Statement ... 4. Account Standing' and 'NOT REQUIRED ... 3. Customer shared their PIN voluntarily (pin_compromised = yes_shared)'.",
+     "2026-09-13 offline replay over the 23 gold debit disputes (082-091): this rule = gold 22/23; the miss is 082's recurring_charge_after_cancellation marked eligible by the gold. Timely reporting and account standing are not passed: every gold case satisfies them and the liability cap already carries the timing."
+    ]
    }
   ],
   "derived": [
@@ -24156,6 +24217,29 @@
     "value_after": "disputed):",
     "text_until": "Pass exactly",
     "_nc31_review": "the returned text is the verifier's fact up to its own instruction ('Pass exactly this ...' is cut); the engine composes no value. Design: B (approved 2026-09-13) - the verifier the model was required to call, run on the call's own operands."
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_debit_card_transaction_dispute"
+    },
+    "arg": "provisional_credit_eligible",
+    "verifier": "check_debit_dispute_provisional_credit",
+    "inputs": {
+     "dispute_category": {
+      "arg": "dispute_category"
+     },
+     "written_statement_provided": {
+      "arg": "written_statement_provided"
+     },
+     "pin_compromised": {
+      "arg": "pin_compromised"
+     }
+    },
+    "value_after": "provisional_credit_eligible =",
+    "text_until": "Pass exactly",
+    "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. check_debit_dispute_provisional_credit, run on the values in this very call, says: {text}"
    }
   ]
  },
