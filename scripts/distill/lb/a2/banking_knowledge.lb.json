@@ -23868,24 +23868,16 @@
      }
     },
     "feedback": "Error: [POLICY-CAP] the requested increase ({value}) exceeds this card's tier maximum of {cap} per request ({pct} of the current credit limit {limit}, per the CLI policy). Do NOT submit this amount. Inform the customer of the maximum they are eligible for ({cap}) and ask whether they would like to proceed with that amount instead; submit only after they confirm."
-   },
-   {
-    "kind": "distinct",
-    "tool": "file_debit_card_transaction_dispute_6281",
-    "pairs": [
-     [
-      "customer_max_liability_amount",
-      "disputed_amount"
-     ]
-    ],
-    "feedback": "'customer_max_liability_amount' is the cardholder's maximum liability set by policy — it is NOT the amount in dispute. You sent the same number for both. The policy that fixes this figure is delivered below; apply the tier that matches when this was reported, then re-send this call with that figure. Leave 'disputed_amount' unchanged."
    }
   ],
   "select": {
    "question": "A bank customer has just opened a conversation. Below are tools that can be made available to the agent for this conversation, each described by its own documentation. For each tool, say whether this conversation will need it. Judge only from what the customer said.",
    "form": "Answer with exactly one line per tool, in the order listed, in this form and nothing else:\n<tool_name>: yes\n<tool_name>: no",
    "_note": "2026-09-12. Replaces inject_when. Words are not meaning: 'charge' in 'what's been charged to my card' put check_credit_dispute_provisional_credit into task_036's window and the task went 0/4; the customer was asking what was billed, not contesting anything. The subject line of each tool is cut mechanically from its own description - nobody reads customer messages to write it. The answer is one yes/no per tool so the engine parses a value and never a sentence; blank or unreadable answers inject every candidate and are recorded as lb-select status. verify_identity has no `select` and is always injected."
-  }
+  },
+  "_removed_nc32": [
+   "2026-09-13 computations 'distinct' customer_max_liability_amount/disputed_amount removed: since nc29 the $500 tier is min(500, disputed_amount), so the two are legitimately equal (084: 412.88). With that rule the model was denied both ways - 412.88 by 'distinct', 500 by LB3 verified - for four rounds and the last generation (500) went through. LB3 verified alone covers the case."
+  ]
  },
  "LB3": {
   "grounding": [
