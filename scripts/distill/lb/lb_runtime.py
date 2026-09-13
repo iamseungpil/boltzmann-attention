@@ -27,6 +27,7 @@ table: tests/test_lb.py fails if a `diverge(` kind is missing here or listed her
   empty-batch      execute                   any lever   orig_exec is skipped when we took every call
   fold             turn_hook                 LB6         the view is compacted
   regen            turn_hook                 any lever   the model's message is replaced
+  block            turn_hook/execute         any lever   a declined call is answered in place; the turn is not regenerated
   ctx-stop         generate                  any lever   a context-window error ends the run gracefully
 
 Two more differences exist and are recorded, but not through `diverge`: the text a lever speaks is
@@ -141,6 +142,17 @@ def turn_hook(self, message, state):
         # never called. The one that won kept the call in the regenerated turn. Across every arm, 41
         # deferred hand-offs re-issued the call in 21 and won 29%; 127 undeferred won 42%.
         if not d.denies and not (d.advice and not turn.calls):
+            break
+        # a declined call is answered in its own slot, as the tool's result, and the rest of the
+        # turn runs as written. Regenerating the whole turn dropped the sibling calls: on 066 the
+        # savings account sharing a turn with a declined close never came back (3 of 3), on 040 the
+        # last dispute batch, and the rewritten prose picked the wrong hand-off reason on 008.
+        blocked = {c.id: d.denies[id(c)] for c in turn.calls if id(c) in d.denies}
+        if blocked:
+            self._lb_blocked = blocked
+            sidecar("lb-block", " | ".join("%s: %s" % (turn.name_of(c), d.denies[id(c)][:200]) for c in turn.calls if id(c) in d.denies),
+                    turn, sim=turn.sim, n=len(blocked), of=len(turn.calls))
+            diverge("block", "%d of %d calls declined in place" % (len(blocked), len(turn.calls)), sim=turn.sim)
             break
         if self.__dict__.get("_lb_regen", 0) >= REGEN_BUDGET:
             print("[lb] regen budget spent - message stands", file=sys.stderr, flush=True)
@@ -385,18 +397,25 @@ def inject_tools(agent, a2, said=None, ask=None, executed=None, only=None):
 def execute(orch, a2, tool_calls, orig_exec):
     from tau2.data_model.message import ToolMessage
     decls = {d["name"]: d for d in (a2.get("LB2") or {}).get("tools") or []}
+    agent0 = getattr(orch, "agent", None)
+    blocked = agent0.__dict__.pop("_lb_blocked", None) if agent0 is not None else None
+    blocked = blocked or {}
     ours, rest = {}, []
     for tc in tool_calls:
+        if getattr(tc, "id", None) in blocked:
+            continue            # declined in turn_hook: answered below, never sent to the environment
         d = decls.get(getattr(tc, "name", None)) if getattr(tc, "requestor", "assistant") == "assistant" else None
         if d is None:
             rest.append(tc)
         else:
             ours[id(tc)] = (tc, d)
-    if not rest and tool_calls:
+    if not rest and tool_calls and not blocked:
         diverge("empty-batch", "every call in this batch was ours; the environment was not asked",
                 n=len(tool_calls))
     results = list(orig_exec(orch, rest)) if rest else []
     by_id = {getattr(r, "id", None): r for r in results}
+    for cid, text in blocked.items():
+        by_id[cid] = ToolMessage(id=cid, role="tool", requestor="assistant", error=True, content=text)
     agent = getattr(orch, "agent", None)
     for tc, d in ours.values():
         args = {k: v for k, v in (as_dict(tc.arguments) or {}).items()}
