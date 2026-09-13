@@ -645,7 +645,17 @@ def ground_operands(decl, ctx, corpora):
         kept = []
         for el in arr:
             src = norm((el or {}).get(af.get("source_field", "source"))) if isinstance(el, dict) else ""
-            src_ok = bool(src) and any(src in h for h in hay)
+            # the sub-agent quotes the sentence and appends the document id in parentheses; the id is
+            # not part of the sentence. If the quote is not verbatim (paraphrase), the citation still
+            # holds when a document carries both the quote's opening words and the value. 094: all five
+            # APY components were dropped for the "(doc_...)" suffix alone - 319 of 319 abstentions.
+            import re as _re
+            src = _re.sub(r"\s*\([^()]*\)\s*$", "", src).strip()
+            head = " ".join(src.split()[:5])
+            v0 = num((el or {}).get(af.get("value_field", "value"))) if isinstance(el, dict) else None
+            src_ok = bool(src) and (any(src in h for h in hay)
+                                    or (bool(head) and v0 is not None
+                                        and any(head in h and any(abs(v0 - n) < 1e-9 for n in numbers_in(h)) for h in hay)))
             v = num((el or {}).get(af.get("value_field", "value"))) if isinstance(el, dict) else None
             val_ok = not af.get("require_value_in_source", True) or v is None or \
                 any(abs(v - n) < 1e-9 for n in numbers_in(src))
@@ -656,7 +666,17 @@ def ground_operands(decl, ctx, corpora):
         if p not in ctx:
             continue
         hay = norm(" ".join(t for c in sf.get("corpus") or ["ledger"] for t in corpora.get(c, [])))
-        if not grounded_scalar(ctx[p], hay, sf.get("kind")):
+        ok = grounded_scalar(ctx[p], hay, sf.get("kind"))
+        dv = sf.get("derived_from")
+        if not ok and isinstance(dv, dict) and dv.get("op"):
+            # a derived figure (an APY read off a monthly credit) is grounded through what it implies:
+            # the declared op is run over the call's own operands and that number must be in the records
+            got = evaluate_op(dv["op"], ctx)
+            if got is not None:
+                got = round(float(got), int(dv.get("round_to", 2)))
+                hay2 = norm(" ".join(t for c in dv.get("corpus") or sf.get("corpus") or ["ledger"] for t in corpora.get(c, [])))
+                ok = any(abs(got - n) < 0.005 for n in numbers_in(hay2))
+        if not ok:
             flags.append("%s=%s" % (p, ctx[p]))
             ctx.pop(p, None)
     return flags
