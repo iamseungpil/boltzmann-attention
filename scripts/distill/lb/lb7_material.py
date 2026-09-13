@@ -7,7 +7,7 @@ orders nothing and blocks nothing. Declared in A2["LB7"]:
   have_value    [{write, arg, producer_marker, value_after, reask_signals, feedback, acquire_tool, give_tool,
                   acquire_feedback}]  a value a producer already returned is handed back instead of re-asked;
                   when no producer ran and the customer keeps being asked, the acquiring tool is named
-  write_rules   [{applies_to, text}]  a policy sentence carried to the decision point. The rule
+  write_rules   [{applies_to, text, when, when_material}]  a policy sentence carried to the decision point. The rule
                   reaches the conversation early, in a retrieved document, and the write comes much
                   later; by then it is far away. Surfaced when the model unlocks that write tool,
                   which is the last moment before it composes the call. Isolation x537 (085, n=4):
@@ -120,7 +120,11 @@ def write_rules(turn):
     for sp in (turn.a2.get("LB7") or {}).get("write_rules") or []:
         if not sp.get("text") or fam(sp.get("applies_to", "")) not in reaching:
             continue
-        if not sp.get("when") or _holds(turn, sp["when"], chr(10).join(turn.tool_outputs()), "lb7_rule"):
+        record = chr(10).join(turn.tool_outputs())
+        if sp.get("when_material") == "conversation":
+            # a condition about what the customer asked for is judged over their words as well as the records
+            record = "WHAT THE CUSTOMER HAS SAID:" + chr(10) + turn.user_text[-8000:] + chr(10) + chr(10) + "RECORDS:" + chr(10) + record
+        if not sp.get("when") or _holds(turn, sp["when"], record, "lb7_rule"):
             out.append(Finding(LB, SURFACE, fam(sp["applies_to"]), grade=RETRIEVED, source="write-rule",
                                order=sp["text"]))
     return out
