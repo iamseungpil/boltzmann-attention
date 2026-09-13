@@ -454,6 +454,15 @@ def execute(orch, a2, tool_calls, orig_exec):
         diverge("our-tool", d["name"], sim=sim_id(agent), error=bool(err))
         print("[lb2] tool %s -> %s" % (d["name"], "error" if err else "ok"), file=sys.stderr, flush=True)
     out = [by_id[getattr(tc, "id", None)] for tc in tool_calls if getattr(tc, "id", None) in by_id]
+    # tau2's get_trajectory() sorts every message by timestamp. The environment's results are created
+    # first (orig_exec above) and ours after, so when the model put one of our calls BEFORE an
+    # environment call in the same batch, the replay saw the environment's result first and raised
+    # "Tool call id mismatch" (nc31 082/084: liability-cap calls ahead of kb searches; nc18 13 retries).
+    # One timestamp for the whole batch keeps the call order under that stable sort.
+    stamps = [getattr(r, "timestamp", None) for r in out if getattr(r, "timestamp", None)]
+    if stamps:
+        for r in out:
+            r.timestamp = min(stamps)
     sidecar("lb-exec", "in=%s out=%s" % ([getattr(tc, "id", None) for tc in tool_calls], [getattr(r, "id", None) for r in out]),
             None, sim=sim_id(agent), n=len(tool_calls))   # the batch as executed, for the id-mismatch forensic
     if [getattr(r, "id", None) for r in out] != [getattr(r, "id", None) for r in results]:
