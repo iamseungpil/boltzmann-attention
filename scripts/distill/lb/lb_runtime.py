@@ -130,6 +130,11 @@ def turn_hook(self, message, state):
     trace(self, state.messages[-len(message.tool_messages) if isinstance(message, MultiToolMessage) else -1:])
     view = lb6_load.reduce(a2, state.messages) if enabled("LB6") else list(state.messages)
     fold_mark(self, state.messages, view)
+    notes = self.__dict__.pop("_lb_block_notes", None) or []
+    if notes:
+        # the decline facts of the previous turn, in the customer's slot with the marker, view only
+        view = view + [UserMessage(role="user", content=ADVICE_MARK + chr(10).join(notes))]
+        sidecar("lb-block-note", chr(10).join(notes)[:1200], None, sim=sim_id(self), n=len(notes), at=len(state.messages))
     am = generate(self, view)
     for _ in range(ROUNDS):
         turn = build_turn(self, a2, state.messages, am)
@@ -147,12 +152,18 @@ def turn_hook(self, message, state):
         # turn runs as written. Regenerating the whole turn dropped the sibling calls: on 066 the
         # savings account sharing a turn with a declined close never came back (3 of 3), on 040 the
         # last dispute batch, and the rewritten prose picked the wrong hand-off reason on 008.
-        blocked = {c.id: d.denies[id(c)] for c in turn.calls if id(c) in d.denies}
-        if blocked:
-            self._lb_blocked = blocked
-            sidecar("lb-block", " | ".join("%s: %s" % (turn.name_of(c), d.denies[id(c)][:200]) for c in turn.calls if id(c) in d.denies),
-                    turn, sim=turn.sim, n=len(blocked), of=len(turn.calls))
-            diverge("block", "%d of %d calls declined in place" % (len(blocked), len(turn.calls)), sim=turn.sim)
+        # A declined call cannot stay in the message with our text as its result: the evaluator replays
+        # every recorded call against a fresh environment and compares outputs (environment.py
+        # set_state, strict) - the replay would carry the call out for real and then reject the
+        # simulation (nc26 066: 6 retries). So the declined calls leave the message, the other calls
+        # run as written, and the decline facts ride into the next generation as a note.
+        keep = [c for c in turn.calls if id(c) not in d.denies]
+        if keep and len(keep) < len(turn.calls):
+            notes = ["[NOT EXECUTED] %s: %s" % (turn.name_of(c), d.denies[id(c)]) for c in turn.calls if id(c) in d.denies]
+            am.tool_calls = keep
+            self.__dict__.setdefault("_lb_block_notes", []).extend(notes)
+            sidecar("lb-block", " | ".join(n[:220] for n in notes), turn, sim=turn.sim, n=len(notes), of=len(turn.calls))
+            diverge("block", "%d of %d calls declined; the rest run" % (len(notes), len(turn.calls)), sim=turn.sim)
             break
         if self.__dict__.get("_lb_regen", 0) >= REGEN_BUDGET:
             print("[lb] regen budget spent - message stands", file=sys.stderr, flush=True)
@@ -398,7 +409,7 @@ def execute(orch, a2, tool_calls, orig_exec):
     from tau2.data_model.message import ToolMessage
     decls = {d["name"]: d for d in (a2.get("LB2") or {}).get("tools") or []}
     agent0 = getattr(orch, "agent", None)
-    blocked = agent0.__dict__.pop("_lb_blocked", None) if agent0 is not None else None
+    blocked = agent0.__dict__.pop("_lb_blocked", None) if agent0 is not None else None   # unused since the replay fix; kept inert
     blocked = blocked or {}
     ours, rest = {}, []
     for tc in tool_calls:
