@@ -118,9 +118,13 @@ def open_request(turn):
         return []
     kinds = spec.get("kinds") or {}
     nl = chr(10)
+    examples = spec.get("examples") or []
     prompt = (spec["question"] + nl + nl
               + nl.join("%s - %s" % (k, v) for k, v in kinds.items()) + nl + nl
               + str(spec.get("acts") or "") + nl + nl
+              + (str(spec.get("rules") or "") + nl + nl if spec.get("rules") else "")
+              + (("Examples of what a customer says and its kind:" + nl
+                  + nl.join("- %s -> %s" % (e.get("say"), e.get("kind")) for e in examples) + nl + nl) if examples else "")
               + "What the customer has said:" + nl + nl + turn.user_text[-8000:] + nl + nl
               + "Every tool the agent actually ran, in order:" + nl + nl
               + (", ".join(ran) or "(none)") + nl + nl

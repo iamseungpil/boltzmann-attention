@@ -24396,7 +24396,59 @@
    "ask_cap": 4,
    "feedback": "[LEDGER] You are ending your part here and the run record shows no action for this: {open}.",
    "_acts_source": "derived once from the domain's own tool inventory - tools.py's 20 and the 41 reachable through unlock - by keeping the ones that change a record and dropping every get_/check_/search. No task, and no task's evaluation criteria, was read to write it.",
-   "_note": "2026-09-12 nc6. nc5 and before asked one free-form line and appended \"or the single word NONE\" in code; the exclusion lived in a subordinate clause of the question and never reached the output, so the sub-call named the only request it could see. In task_016 that was the right answer: at the leaving turn the customer had said only \"can you check what's going on\" - the request to put a purchase through first appears three turns later. The rule then never asked again, because the once-key was spent whether or not anything was named: measured across fs/nc/nc5/t17/tb, every firing in task_016 is at turn 5 and there is not one at any other turn. So the kinds are declared here, the answer is formalized as KIND plus REQUEST, the engine speaks only for the kinds in speak_when, and the once-key is spent only when it speaks - up to ask_cap asks per simulation."
+   "_note": "2026-09-12 nc6. nc5 and before asked one free-form line and appended \"or the single word NONE\" in code; the exclusion lived in a subordinate clause of the question and never reached the output, so the sub-call named the only request it could see. In task_016 that was the right answer: at the leaving turn the customer had said only \"can you check what's going on\" - the request to put a purchase through first appears three turns later. The rule then never asked again, because the once-key was spent whether or not anything was named: measured across fs/nc/nc5/t17/tb, every firing in task_016 is at turn 5 and there is not one at any other turn. So the kinds are declared here, the answer is formalized as KIND plus REQUEST, the engine speaks only for the kinds in speak_when, and the once-key is spent only when it speaks - up to ask_cap asks per simulation.",
+   "rules": "Rules for the KIND: a request to be told, shown, checked, looked up, recommended or explained is INQUIRY even when the agent needs a tool to answer it. A change the customer has asked for is ACTION from the moment they asked, including while the agent is still verifying their identity for it, and stays ACTION while more of the same kind remain (the next dispute, the next card). When a question and a change are both open, it is ACTION only if the customer has said to go ahead with the change; while they are still deciding it is INQUIRY. It is NONE when the last request was carried out, when the customer is only acknowledging, or when they said they will do the next step themselves.",
+   "examples": [
+    {
+     "say": "Yes, please go ahead and pay that off from my checking account.",
+     "kind": "ACTION"
+    },
+    {
+     "say": "I'd like to close my card. The annual fee is too expensive.",
+     "kind": "ACTION"
+    },
+    {
+     "say": "Sure. My full name is ... date of birth ... (given so the closure can proceed)",
+     "kind": "ACTION"
+    },
+    {
+     "say": "Now I want to close my second card too.",
+     "kind": "ACTION"
+    },
+    {
+     "say": "Can you help me figure out why my referral bonus hasn't arrived?",
+     "kind": "INQUIRY"
+    },
+    {
+     "say": "Please check my eligibility for that referral.",
+     "kind": "INQUIRY"
+    },
+    {
+     "say": "What counts toward the qualifying spend, and how much is left?",
+     "kind": "INQUIRY"
+    },
+    {
+     "say": "A couple of constraints before we commit: ... which one would you recommend?",
+     "kind": "INQUIRY"
+    },
+    {
+     "say": "Hmm, I'm not sure about downgrading. The other card only gets 1%.",
+     "kind": "INQUIRY"
+    },
+    {
+     "say": "Perfect, that answers it. I'll have my friend check their opening date.",
+     "kind": "NONE"
+    },
+    {
+     "say": "Submitted the final dispute successfully. Thanks!",
+     "kind": "NONE"
+    },
+    {
+     "say": "Got it - I'll apply from my own app then.",
+     "kind": "NONE"
+    }
+   ],
+   "_rules_source": "2026-09-13 INTENT_BENCH_60: the sub without rules read 'checking', 'deciding' and 'the customer's own next step' as ACTION (9 of 60); the rules and examples are written from the customer scenarios' own phrasing, not from gold."
   },
   "repeat_tools": [
    "KB_search",
