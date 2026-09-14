@@ -21,7 +21,9 @@ table: tests/test_lb.py fails if a `diverge(` kind is missing here or listed her
 
   kind             where                     gate        what changes for the model
   inject-tools     install/init              LB2         verifier tools appear in the tool list
-  inject-after     turn_hook                 LB2         a verifier declared inject_after appears once its event ran
+  inject-after     turn_hook                 LB2         a verifier declared inject_after appears once its event ran;
+                                                         also_after is the same door for a select tool the opening
+                                                         turn did not choose (044: the card catalogue after a closure reason)
   select-tools     inject_tools              LB2         the sub-call's choice of verifier tools for this conversation
   our-tool         execute                   LB2         a call is answered by us, not the environment
   facts            append_facts              LB2         a read's output gains "[FACTS] ..."
@@ -134,7 +136,8 @@ def turn_hook(self, message, state):
                     ran.add(str(inner)); ran.add(fam(str(inner)))
         have = {getattr(t, "name", None) for t in (self.tools or [])}
         late = [d["name"] for d in ((a2.get("LB2") or {}).get("tools") or [])
-                if d.get("inject_after") and d["name"] not in have and set(d["inject_after"]) & ran]
+                if (d.get("inject_after") or d.get("also_after")) and d["name"] not in have
+                and set(d.get("inject_after") or d.get("also_after") or ()) & ran]
         if late:
             names = inject_tools(self, a2, executed=ran, only=set(late))
             sidecar("lb-tools", "INJECTED-AFTER %s" % ", ".join(names), None, sim=sim_id(self), n=len(names),
