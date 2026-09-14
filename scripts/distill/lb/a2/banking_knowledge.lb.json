@@ -14586,11 +14586,13 @@
    },
    {
     "name": "check_card_application_fit",
-   "also_after": ["log_credit_card_closure_reason_4521"],
-   "_also_after_source": "2026-09-14 nc37 (044): base 4/4 searches the card catalogue after logging found_better_card and finds the Platinum Rewards Card; nc35/nc36 losses offered points or compared only the Gold card and never reached it. The catalogue filter is not chosen at the opening turn (the customer said only close), so it enters once the closure reason is logged. The engine names no card.",
+    "also_after": [
+     "log_credit_card_closure_reason_4521"
+    ],
+    "_also_after_source": "2026-09-14 nc37 (044): base 4/4 searches the card catalogue after logging found_better_card and finds the Platinum Rewards Card; nc35/nc36 losses offered points or compared only the Gold card and never reached it. The catalogue filter is not chosen at the opening turn (the customer said only close), so it enters once the closure reason is logged. The engine names no card.",
     "description": "It deterministically filters Rho-Bank's documented card catalog and returns three buckets: 'eligible' (the documented value satisfies your constraint, with source docs), 'excluded' (it violates it, with the reason), and 'unverified' (that fact is NOT documented for that card). A card in 'unverified' is NOT known to meet the constraint you asked about — never tell the customer that it does, and only consider it after reading its cited source docs. Choose ONLY among the eligible cards; verify each remaining candidate's source docs for conditional clauses (e.g. subscriber discounts) and the customer's soft preferences before the final pick. The item name in the result is the name on file: pass it to the opening tool exactly as written, adding no words and dropping none - 'Sky Blue' is not 'Sky Blue Account'.",
     "params": {
-     "max_annual_fee": "number, optional",
+     "max_annual_fee": "number, optional - the most the customer said they are willing to pay per year. A competitor card's fee the customer quoted is what they are comparing against, not a ceiling; leave this out unless they stated a limit of their own.",
      "max_fx_fee": "number, optional (percent)",
      "max_min_payment_pct": "number, optional (percent)",
      "min_cashback": "number, optional (percent) — ONLY a number the customer explicitly stated as a minimum. A superlative request ('the highest cash back') is NOT a threshold: leave this out, then compare the cashback facts across the eligible cards yourself (mind cashback_scope — a category-limited rate is not comparable to an all-purchases rate).",
@@ -24971,6 +24973,12 @@
     "when_material": "conversation",
     "_source": "2026-09-14 nc33 (054): the customer asks for a limit increase, a dispute and a replacement; gold processes the increase first. nc31 054 t1-t3 filed the dispute or ordered the card first and the increase was then blocked (deny pending_replacement_card) or never attempted. The sentence is the KB's; the order stays the model's."
    }
-  ]
+  ],
+  "handover": {
+   "give_tool": "give_discoverable_user_tool",
+   "user_call": "call_discoverable_user_tool",
+   "text": "The tools just handed over reach the customer only in this form - there is no button or link on their side, and this is the whole of what they can run:\n{calls}",
+   "_source": "2026-09-15 nc40 (019): after a hand-over the customer says they see no such tool. base t1 and nc35 t0/t1/t2 named this call form and the customer ran it (4/4); nc38 t1/t2/t3 said tap/click, gave IDs for a phone call, or transferred, and the customer never ran it (0/3). Harness fact, surfaced once per hand-over batch."
+  }
  }
 }

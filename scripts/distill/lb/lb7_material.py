@@ -130,8 +130,42 @@ def write_rules(turn):
     return out
 
 
+def handover_form(turn):
+    """What a tool handed to the customer looks like on their side - a harness fact, surfaced once per hand-over.
+
+    019 (nc38 t1-t3, base t1, nc35 t0-t2): after give_ the customer says "I don't see any submit_cash_back_dispute
+    tool on my end". Every simulation where the agent then named the call form - call_discoverable_user_tool with
+    the tool name and the prefilled arguments - the customer ran it (base t1, nc35 t0/t1/t2 = 4/4); every one where
+    the agent said "tap the button", gave IDs for a phone call, or transferred, the customer never did (nc38 t1/t2/t3
+    = 0/3). The customer's side has no button: the handed tool exists for them only as that call. The agent's own
+    tool result says "Tool given to user" and nothing about how it is run, so the fact is supplied at the event.
+    """
+    spec = (turn.a2.get("LB7") or {}).get("handover") or {}
+    tpl, once = spec.get("text"), (getattr(turn, "extras", None) or {}).get("once")
+    give = str(spec.get("give_tool") or "")
+    if not tpl or once is None or not give or not turn.resigning():
+        return []
+    prior = [m for m in turn.messages if getattr(m, "role", None) == "assistant"]
+    if not prior:
+        return []
+    last = prior[-1]
+    given = []
+    for c in (getattr(last, "tool_calls", None) or []):
+        if getattr(c, "name", None) == give:
+            a = as_dict(getattr(c, "arguments", None)) or {}
+            given.append((str(a.get("discoverable_tool_name") or a.get("user_tool_name") or ""), str(a.get("arguments") or "")))
+    if not given:
+        return []
+    key = "lb7_handover#%d" % len(prior)
+    if key in once:
+        return []
+    once.add(key)
+    lines = ["%s(discoverable_tool_name='%s', arguments=%s)" % (str(spec.get("user_call") or "call_discoverable_user_tool"), n, a or "{}") for n, a in given]
+    return [Finding(LB, SURFACE, None, grade=RETRIEVED, source="handover-form", order=fill(tpl, calls=chr(10).join(lines)))]
+
+
 def evaluate(turn):
-    return have_value(turn) + action_index(turn) + write_rules(turn)
+    return have_value(turn) + action_index(turn) + write_rules(turn) + handover_form(turn)
 
 
 if __name__ == "__main__":
