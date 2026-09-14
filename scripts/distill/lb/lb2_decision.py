@@ -842,7 +842,14 @@ def run_tool(decl, args, corpora, evidence):
     # used to recover them with records_in over the rendered text, found nothing, and never fired.
     idf = (decl.get("op") or {}).get("id_field")
     ids = [str(x) for x in result] if (idf and isinstance(result, list)) else []
-    return render_result(decl, ctx, result), False, ids
+    text = render_result(decl, ctx, result)
+    if flags and not str(text).startswith("Error"):
+        # a component the citation check dropped used to vanish without a word: nc34 096, the Gold Rewards
+        # Card's +0.35% cited as 'Bonuses: Gold Rewards Card +0.35%' (the document's row reads
+        # '| Gold Rewards Card | +0.35% |') was left out, the card maximum fell to 0.3 and the APY came
+        # back 6.8 with nothing to say why. The caller can only re-cite what it is told was not counted.
+        text = "%s NOT COUNTED - the cited line was not found in the documents as quoted: %s. Quote the document's own line verbatim for a component to count." % (text, "; ".join(flags))
+    return text, False, ids
 
 
 def _list(v):
