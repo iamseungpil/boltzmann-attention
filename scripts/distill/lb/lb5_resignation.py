@@ -108,6 +108,8 @@ def tools_run(messages):
             n = str(getattr(c, "name", "") or "")
             a = as_dict(getattr(c, "arguments", None)) or {}
             inner = a.get("agent_tool_name") or a.get("discoverable_tool_name")
+            if n.startswith("unlock_"):
+                continue   # unlocking a tool is not running it
             if n.startswith("give_"):
                 out.append("%s (handed to the customer to run)" % (inner or n))
             elif inner:
@@ -117,7 +119,35 @@ def tools_run(messages):
     return out
 
 
-def intent_prompt(spec, messages, ran=()):
+def rules_shown(a2, messages):
+    """The policy sentences LB7 has already put in front of the agent for a tool it reached, as one block.
+    nc35 044 t1: the customer opened with 'close my Gold Rewards Card'; the agent logged the reason and drafted
+    the retention offer the protocol requires, and the sub - reading the conversation and the run record but
+    not the protocol - named 'close Gold Rewards Card account' as undone, so the regen closed the card. Wins
+    and losses in that cell differed only in how the model took that nudge. The rule is material the agent
+    has been shown; the sub sees the same. Rules with a condition stay out - LB7 judges those at its own point."""
+    from lb_coordinator import as_dict
+    rules = ((a2 or {}).get("LB7") or {}).get("write_rules") or []
+    if not rules:
+        return ""
+    reached = set()
+    for m in messages:
+        if getattr(m, "role", None) != "assistant":
+            continue
+        for c in (getattr(m, "tool_calls", None) or []):
+            reached.add(fam(getattr(c, "name", "") or ""))
+            inner = (as_dict(getattr(c, "arguments", None)) or {}).get("agent_tool_name")
+            if inner:
+                reached.add(fam(inner))
+    texts = [r["text"] for r in rules if r.get("text") and not r.get("when") and fam(r.get("applies_to", "")) in reached]
+    if not texts:
+        return ""
+    nl = chr(10)
+    return ("What the bank's procedure says about a step the agent has reached (the agent has been shown this):"
+            + nl + nl.join("- " + t for t in texts) + nl + nl)
+
+
+def intent_prompt(spec, messages, ran=(), a2=None):
     """The sub-call's prompt, built only from A2's declared wording and the conversation.
 
     material="conversation" (nc32) is the form measured on INTENT_BENCH_60: the whole conversation, both
@@ -129,7 +159,7 @@ def intent_prompt(spec, messages, ran=()):
         return (head + "=== CONVERSATION ===" + nl + conversation_text(messages)[-12000:] + nl + "=== END ===" + nl + nl
                 + "Every tool the agent has already run, in order (a tool handed to the customer to run counts as the "
                 + "agent's part done):" + nl + (", ".join(tools_run(messages)) or "(none)") + nl + nl
-                + str(spec.get("form") or ""))
+                + rules_shown(a2, messages) + str(spec.get("form") or ""))
     examples = spec.get("examples") or []
     return (head + str(spec.get("acts") or "") + nl + nl
             + (str(spec.get("rules") or "") + nl + nl if spec.get("rules") else "")
@@ -172,7 +202,7 @@ def open_request(turn):
         return []
     if not turn.user_text.strip():
         return []
-    prompt = intent_prompt(spec, turn.messages, [name for name, _ in getattr(turn, "ran", ())])
+    prompt = intent_prompt(spec, turn.messages, [name for name, _ in getattr(turn, "ran", ())], turn.a2)
     kind, named = read_form(ask(prompt, KEY))
     once.add(KEY + "#%d" % asked)
     if kind not in speak or not named:
