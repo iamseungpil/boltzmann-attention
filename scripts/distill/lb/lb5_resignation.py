@@ -94,6 +94,29 @@ def conversation_text(messages, per_message=1200):
     return chr(10).join(lines)
 
 
+def tools_run(messages):
+    """The agent's tool calls so far by their real names, hand-overs marked. nc34 019: the sub named 'file
+    four disputes' as undone right after the agent had handed the customer the four dispute tools, and the
+    regen handed them over again; 049: it named 'close the Green Rewards Card' long after that close ran.
+    The conversation text alone does not carry the record; this list does."""
+    from lb_coordinator import as_dict
+    out = []
+    for m in messages:
+        if getattr(m, "role", None) != "assistant":
+            continue
+        for c in (getattr(m, "tool_calls", None) or []):
+            n = str(getattr(c, "name", "") or "")
+            a = as_dict(getattr(c, "arguments", None)) or {}
+            inner = a.get("agent_tool_name") or a.get("discoverable_tool_name")
+            if n.startswith("give_"):
+                out.append("%s (handed to the customer to run)" % (inner or n))
+            elif inner:
+                out.append(str(inner))
+            elif n and not n.startswith(("KB_", "shell", "unlock_", "think")):
+                out.append(n)
+    return out
+
+
 def intent_prompt(spec, messages, ran=()):
     """The sub-call's prompt, built only from A2's declared wording and the conversation.
 
@@ -104,6 +127,8 @@ def intent_prompt(spec, messages, ran=()):
     head = spec["question"] + nl + nl + nl.join("%s - %s" % (k, v) for k, v in kinds.items()) + nl + nl
     if spec.get("material") == "conversation":
         return (head + "=== CONVERSATION ===" + nl + conversation_text(messages)[-12000:] + nl + "=== END ===" + nl + nl
+                + "Every tool the agent has already run, in order (a tool handed to the customer to run counts as the "
+                + "agent's part done):" + nl + (", ".join(tools_run(messages)) or "(none)") + nl + nl
                 + str(spec.get("form") or ""))
     examples = spec.get("examples") or []
     return (head + str(spec.get("acts") or "") + nl + nl
