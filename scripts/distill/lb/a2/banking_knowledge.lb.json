@@ -24512,7 +24512,7 @@
     "HANDOFF": "they are asking for a human agent",
     "NONE": "nothing is pending (they are satisfied or the last request was already carried out), or they are weighing an alternative the agent has offered and have not decided, or the agent has told them that what they asked for cannot be done or does not exist and they are disputing or repeating that request"
    },
-   "question": "Below is a bank customer-service conversation so far (tool traffic removed). A bank agent is about to end its part of it. Say which kind of thing the customer is still waiting for. The kinds are defined below; use them as written.",
+   "question": "Below is a bank customer-service conversation so far (tool traffic removed). A bank agent is about to end its part of it. Say which kind of thing the customer is still waiting for, judged from what the customer asked for. The agent's unsent draft, when shown, tells you only whether that request has been answered or refused; what the draft promises or offers is not something the customer asked for. The kinds are defined below; use them as written.",
    "form": "Answer in exactly this form and nothing else:\nPENDING: ACTION|INFO|HANDOFF|NONE\nACTION_NAME: <the operation the customer is waiting for the agent to perform, in 3-8 words, or ->",
    "speak_when": [
     "ACTION"

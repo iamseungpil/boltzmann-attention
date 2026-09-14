@@ -159,11 +159,15 @@ def intent_prompt(spec, messages, ran=(), a2=None, draft=""):
         # the reply the agent is about to send is the one thing the record cannot show: nc37/f97 008, the
         # customer asks for a flyer offer that does not exist, the draft is the refusal, and the sub - shown
         # everything but that draft - named the offer as still to be applied; the regen then transferred
-        about = (nl + "AGENT (about to send - not yet sent): " + str(draft).strip()[:2000]) if str(draft or "").strip() else ""
-        return (head + "=== CONVERSATION ===" + nl + conversation_text(messages)[-12000:] + about + nl + "=== END ===" + nl + nl
+        # nc39: the draft sits outside the conversation, after the record, under its own label. Inside the
+        # conversation (nc38) the sub took the draft's own framing - 010: the draft offered a hand-off and the
+        # sub answered HANDOFF for a customer who had asked for a referral to be submitted (nc38 010 0/4)
+        about = ((nl + str(spec.get("draft_label") or "The agent's draft of its next reply (not sent; nothing it promises or offers has happened):")
+                  + nl + str(draft).strip()[:2000] + nl) if str(draft or "").strip() else "")
+        return (head + "=== CONVERSATION ===" + nl + conversation_text(messages)[-12000:] + nl + "=== END ===" + nl + nl
                 + "Every tool the agent has already run, in order (a tool handed to the customer to run counts as the "
-                + "agent's part done):" + nl + (", ".join(tools_run(messages)) or "(none)") + nl + nl
-                + rules_shown(a2, messages) + str(spec.get("form") or ""))
+                + "agent's part done):" + nl + (", ".join(tools_run(messages)) or "(none)") + nl
+                + about + nl + rules_shown(a2, messages) + str(spec.get("form") or ""))
     examples = spec.get("examples") or []
     return (head + str(spec.get("acts") or "") + nl + nl
             + (str(spec.get("rules") or "") + nl + nl if spec.get("rules") else "")
