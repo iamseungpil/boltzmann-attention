@@ -24510,7 +24510,7 @@
     "ACTION": "the customer has asked for a change to their account records (open/close/freeze/order/file a dispute/apply a credit/submit a request) that has not been made yet - looking something up or explaining is NOT an action It is also ACTION when the customer offers or asks to do something themselves that the agent's records depend on - make a purchase or a payment, submit a transaction - and the agent has not yet told them to go ahead.",
     "INFO": "they are asking a question or waiting for an explanation",
     "HANDOFF": "they are asking for a human agent",
-    "NONE": "nothing is pending (they are satisfied or the last request was already carried out), or they are weighing an alternative the agent has offered and have not decided"
+    "NONE": "nothing is pending (they are satisfied or the last request was already carried out), or they are weighing an alternative the agent has offered and have not decided, or the agent has told them that what they asked for cannot be done or does not exist and they are disputing or repeating that request"
    },
    "question": "Below is a bank customer-service conversation so far (tool traffic removed). A bank agent is about to end its part of it. Say which kind of thing the customer is still waiting for. The kinds are defined below; use them as written.",
    "form": "Answer in exactly this form and nothing else:\nPENDING: ACTION|INFO|HANDOFF|NONE\nACTION_NAME: <the operation the customer is waiting for the agent to perform, in 3-8 words, or ->",

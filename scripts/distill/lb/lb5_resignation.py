@@ -147,7 +147,7 @@ def rules_shown(a2, messages):
             + nl + nl.join("- " + t for t in texts) + nl + nl)
 
 
-def intent_prompt(spec, messages, ran=(), a2=None):
+def intent_prompt(spec, messages, ran=(), a2=None, draft=""):
     """The sub-call's prompt, built only from A2's declared wording and the conversation.
 
     material="conversation" (nc32) is the form measured on INTENT_BENCH_60: the whole conversation, both
@@ -156,7 +156,11 @@ def intent_prompt(spec, messages, ran=(), a2=None):
     nl, kinds = chr(10), spec.get("kinds") or {}
     head = spec["question"] + nl + nl + nl.join("%s - %s" % (k, v) for k, v in kinds.items()) + nl + nl
     if spec.get("material") == "conversation":
-        return (head + "=== CONVERSATION ===" + nl + conversation_text(messages)[-12000:] + nl + "=== END ===" + nl + nl
+        # the reply the agent is about to send is the one thing the record cannot show: nc37/f97 008, the
+        # customer asks for a flyer offer that does not exist, the draft is the refusal, and the sub - shown
+        # everything but that draft - named the offer as still to be applied; the regen then transferred
+        about = (nl + "AGENT (about to send - not yet sent): " + str(draft).strip()[:2000]) if str(draft or "").strip() else ""
+        return (head + "=== CONVERSATION ===" + nl + conversation_text(messages)[-12000:] + about + nl + "=== END ===" + nl + nl
                 + "Every tool the agent has already run, in order (a tool handed to the customer to run counts as the "
                 + "agent's part done):" + nl + (", ".join(tools_run(messages)) or "(none)") + nl + nl
                 + rules_shown(a2, messages) + str(spec.get("form") or ""))
@@ -202,7 +206,7 @@ def open_request(turn):
         return []
     if not turn.user_text.strip():
         return []
-    prompt = intent_prompt(spec, turn.messages, [name for name, _ in getattr(turn, "ran", ())], turn.a2)
+    prompt = intent_prompt(spec, turn.messages, [name for name, _ in getattr(turn, "ran", ())], turn.a2, turn.am_text)
     kind, named = read_form(ask(prompt, KEY))
     once.add(KEY + "#%d" % asked)
     if kind not in speak or not named:
