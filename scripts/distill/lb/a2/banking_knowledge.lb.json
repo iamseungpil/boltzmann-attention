@@ -14586,11 +14586,13 @@
    },
    {
     "name": "check_card_application_fit",
-   "also_after": ["log_credit_card_closure_reason_4521"],
-   "_also_after_source": "2026-09-14 nc37 (044): base 4/4 searches the card catalogue after logging found_better_card and finds the Platinum Rewards Card; nc35/nc36 losses offered points or compared only the Gold card and never reached it. The catalogue filter is not chosen at the opening turn (the customer said only close), so it enters once the closure reason is logged. The engine names no card.",
+    "also_after": [
+     "log_credit_card_closure_reason_4521"
+    ],
+    "_also_after_source": "2026-09-14 nc37 (044): base 4/4 searches the card catalogue after logging found_better_card and finds the Platinum Rewards Card; nc35/nc36 losses offered points or compared only the Gold card and never reached it. The catalogue filter is not chosen at the opening turn (the customer said only close), so it enters once the closure reason is logged. The engine names no card.",
     "description": "It deterministically filters Rho-Bank's documented card catalog and returns three buckets: 'eligible' (the documented value satisfies your constraint, with source docs), 'excluded' (it violates it, with the reason), and 'unverified' (that fact is NOT documented for that card). A card in 'unverified' is NOT known to meet the constraint you asked about — never tell the customer that it does, and only consider it after reading its cited source docs. Choose ONLY among the eligible cards; verify each remaining candidate's source docs for conditional clauses (e.g. subscriber discounts) and the customer's soft preferences before the final pick. The item name in the result is the name on file: pass it to the opening tool exactly as written, adding no words and dropping none - 'Sky Blue' is not 'Sky Blue Account'.",
     "params": {
-     "max_annual_fee": "number, optional",
+     "max_annual_fee": "number, optional - the most the customer said they are willing to pay per year. A competitor card's fee the customer quoted is what they are comparing against, not a ceiling; leave this out unless they stated a limit of their own.",
      "max_fx_fee": "number, optional (percent)",
      "max_min_payment_pct": "number, optional (percent)",
      "min_cashback": "number, optional (percent) — ONLY a number the customer explicitly stated as a minimum. A superlative request ('the highest cash back') is NOT a threshold: leave this out, then compare the cashback facts across the eligible cards yourself (mind cashback_scope — a category-limited rate is not comparable to an all-purchases rate).",
@@ -24510,7 +24512,7 @@
     "ACTION": "the customer has asked for a change to their account records (open/close/freeze/order/file a dispute/apply a credit/submit a request) that has not been made yet - looking something up or explaining is NOT an action It is also ACTION when the customer offers or asks to do something themselves that the agent's records depend on - make a purchase or a payment, submit a transaction - and the agent has not yet told them to go ahead.",
     "INFO": "they are asking a question or waiting for an explanation",
     "HANDOFF": "they are asking for a human agent",
-    "NONE": "nothing is pending (they are satisfied or the last request was already carried out), or they are weighing an alternative the agent has offered and have not decided"
+    "NONE": "nothing is pending (they are satisfied or the last request was already carried out), or they are weighing an alternative the agent has offered and have not decided, or the agent has told them that what they asked for cannot be done or does not exist and they are disputing or repeating that request"
    },
    "question": "Below is a bank customer-service conversation so far (tool traffic removed). A bank agent is about to end its part of it. Say which kind of thing the customer is still waiting for. The kinds are defined below; use them as written.",
    "form": "Answer in exactly this form and nothing else:\nPENDING: ACTION|INFO|HANDOFF|NONE\nACTION_NAME: <the operation the customer is waiting for the agent to perform, in 3-8 words, or ->",
@@ -24971,6 +24973,12 @@
     "when_material": "conversation",
     "_source": "2026-09-14 nc33 (054): the customer asks for a limit increase, a dispute and a replacement; gold processes the increase first. nc31 054 t1-t3 filed the dispute or ordered the card first and the increase was then blocked (deny pending_replacement_card) or never attempted. The sentence is the KB's; the order stays the model's."
    }
-  ]
+  ],
+  "handover": {
+   "give_tool": "give_discoverable_user_tool",
+   "user_call": "call_discoverable_user_tool",
+   "text": "The tools just handed over reach the customer only in this form - there is no button or link on their side, and this is the whole of what they can run:\n{calls}",
+   "_source": "2026-09-15 nc40/nc41 (019): after a hand-over the customer says they see no such tool. base t1 and nc35 t0/t1/t2 named this call form and the customer ran it (4/4); nc38 t1/t2/t3 said tap/click, gave IDs for a phone call, or transferred, and the customer never ran it (0/3). nc40 019 1/4 -> 3/4. Harness fact, surfaced once per hand-over batch."
+  }
  }
 }
