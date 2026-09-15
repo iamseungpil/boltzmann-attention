@@ -162,7 +162,10 @@ def handover_form(turn):
         return []
     once.update(keys)
     lines = ["%s(discoverable_tool_name='%s', arguments=%s)" % (str(spec.get("user_call") or "call_discoverable_user_tool"), n, a or "{}") for n, a in given]
-    return [Finding(LB, SURFACE, None, grade=RETRIEVED, source="handover-form", order=fill(tpl, calls=chr(10).join(lines)))]
+    # a fact, not an order: the coordinator passes one order per turn and LB4's settled-rows note took it on
+    # f97c 019 (4/4 sims, no conflict line) - facts are unioned, so this reaches the model beside it
+    return [Finding(LB, SURFACE, "handover", grade=RETRIEVED, source="handover-form",
+                    facts=[fill(tpl, calls=chr(10).join(lines))])]
 
 
 def evaluate(turn):
