@@ -162,6 +162,14 @@ def turn_hook(self, message, state):
         # me", wrote "I'm transferring you now", and the customer said ###TRANSFER### - the tool was
         # never called. The one that won kept the call in the regenerated turn. Across every arm, 41
         # deferred hand-offs re-issued the call in 21 and won 29%; 127 undeferred won 42%.
+        if turn.calls and d.advice and not d.denies:
+            # a write rule fires when the model reaches for the tool (unlock or call), which is a call
+            # turn; advice only regenerates text turns, so every one of these was logged and dropped
+            # (f97c: 18 tasks, 43 sims, none delivered). It rides in this batch's tool result instead.
+            notes = [t for t, r in zip(d.advice, d.advice_rules) if r == "write-rule"]
+            if notes:
+                self._lb_call_notes = notes
+                sidecar("lb-note", chr(10).join(notes)[:1200], turn, sim=turn.sim, n=len(notes))
         if not d.denies and not (d.advice and not turn.calls):
             break
         # a declined call is answered in its own slot, as the tool's result, and the rest of the
@@ -475,6 +483,11 @@ def execute(orch, a2, tool_calls, orig_exec):
         # T2_LB2=0 still put "[FACTS] ..." into 016 and 098 in every simulation of the
         # levers-off cell, so that cell was not the control it was recorded as.
         append_facts(orch, a2, agent, out)
+    notes = agent.__dict__.pop("_lb_call_notes", None) if agent is not None else None
+    if notes and out:
+        # the policy sentence for the write, delivered with the result the model reads next
+        last = out[-1]
+        last.content = str(getattr(last, "content", "") or "") + chr(10) + chr(10) + chr(10).join("[POLICY NOTE] " + n for n in notes)
     return out
 
 

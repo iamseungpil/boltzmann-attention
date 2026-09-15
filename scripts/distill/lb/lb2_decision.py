@@ -370,6 +370,13 @@ def _word_bool(v):
     read as stated-and-true until task_007 applied for a business card (2026-09-10)."""
     if isinstance(v, str) and v.strip().lower() in ("true", "false", "yes", "no"):
         return v.strip().lower() in ("true", "yes")
+    # "null"/"none" is the model's word for a constraint it is not stating. Read as a stated value it
+    # made every row whose fact is undocumented 'unverified': f97c 067 (4 sims, base 0/4) passed
+    # withdrawals_per_month="null" and the Platinum Plus rows (free_withdrawals undocumented) vanished,
+    # so the top item was Gold Account (6800) instead of gold's Platinum Plus (7300). Offline replay of
+    # every f97c fit call with this reading: 067 t0/t1/t2 -> gold's item, no call moved away from gold.
+    if isinstance(v, str) and v.strip().lower() in ("null", "none", "nil", "n/a"):
+        return None
     return v
 
 
