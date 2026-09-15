@@ -263,6 +263,7 @@ def _select_discrepant(spec, ctx):
         if not isinstance(r, dict) or r.get(idf) in (None, ""):
             skipped += 1
             continue
+        r = _override_row(r, spec.get("row_overrides") or [])
         rctx = dict(ctx, r=r, steps={})
         for name, st in steps.items():
             rctx["steps"][name] = ordinals[name][i] if name in ordinals else evaluate_op(st, rctx)
@@ -290,6 +291,28 @@ def _select_discrepant(spec, ctx):
             ctx.setdefault("_matching", []).append({"id": r.get(idf), "actual": act, "expected": en})
     ctx["_stats"] = {"judged": len(recs) - skipped, "skipped": skipped, "total": len(recs)}
     return out
+
+
+def _override_row(r, overrides):
+    """A documented exception applied to a row before the arithmetic: [{when: {field: value | field_in: [..]},
+    set: {field: value}}]. 022 f97c: the isolated reader gave Dell on a Business Silver card the 10% software
+    rate; the card's Exceptions document lists Dell under Hardware/Electronics at the standard 1.0%. The lists
+    and the rates are the documents' own words, carried as data; the engine matches names and copies a value."""
+    for ov in overrides:
+        ok = True
+        for k, v in (ov.get("when") or {}).items():
+            if k.endswith("_in"):
+                have = str(r.get(k[:-3]) or "").strip().lower()
+                if have not in [str(x).strip().lower() for x in (v or [])]:
+                    ok = False
+            elif str(r.get(k) or "").strip().lower() != str(v).strip().lower():
+                ok = False
+            if not ok:
+                break
+        if ok:
+            r = dict(r)
+            r.update(ov.get("set") or {})
+    return r
 
 
 def _duplicates(recs, idf, dupf):

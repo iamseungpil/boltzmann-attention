@@ -1132,7 +1132,68 @@
        "b": "steps.rate"
       }
      },
-     "expected_ref": "steps.expected"
+     "expected_ref": "steps.expected",
+     "row_overrides": [
+      {
+       "when": {
+        "credit_card_type": "Business Silver Rewards Card",
+        "merchant_name_in": [
+         "Concur",
+         "SAP Concur",
+         "Expensify",
+         "Navan",
+         "Apple",
+         "Microsoft",
+         "Dell",
+         "Xbox Game Pass",
+         "PlayStation Plus",
+         "Nintendo Switch Online",
+         "Coursera",
+         "Udemy",
+         "LinkedIn Learning",
+         "Skillshare",
+         "Pluralsight"
+        ]
+       },
+       "set": {
+        "base_rate": 1.0
+       },
+       "_source": "doc_business_credit_cards_business_silver_rewards_card_005: 'The following specific merchants do NOT earn the 10.0% bonus rate and instead earn the standard 1.0% rate'"
+      },
+      {
+       "when": {
+        "credit_card_type": "EcoCard",
+        "merchant_name_in": [
+         "Target",
+         "Walmart",
+         "Amazon",
+         "ThredUp"
+        ]
+       },
+       "set": {
+        "base_rate": 1.0
+       },
+       "_source": "doc_credit_cards_ecocard_004: 'do NOT earn the higher sustainability points rate ($5.00 points per dollar) and instead earn the standard rate ($1.00 point per dollar)' - the table's rate is points per dollar (Gold 2.5, EcoCard green 5), so the standard rate is 1.0"
+      },
+      {
+       "when": {
+        "credit_card_type": "Business Bronze Rewards Card",
+        "merchant_name_in": [
+         "WeWork",
+         "Regus",
+         "Industrious",
+         "Gusto",
+         "ADP",
+         "Paychex",
+         "Rippling"
+        ]
+       },
+       "set": {
+        "base_rate": 0.0
+       },
+       "_source": "doc_business_credit_cards_business_bronze_rewards_card_003: 'The following specific merchants earn 0% cash back' (coworking, payroll). Slack/Zoom/HubSpot/Salesforce depend on subscription age and stay with the reader."
+      }
+     ]
     },
     "isolate": {
      "over": "transactions",
@@ -1322,7 +1383,8 @@
       ]
      }
     },
-    "select": true
+    "select": true,
+    "_row_overrides_note": "2026-09-15 nc45 (022 f97c t1/t2): the isolated rate reader missed the Dell exclusion; gold 10 of 10 disputes, ours 9. The EcoCard unit must match how the reader reports EcoCard rates - verify in replay before trusting the 100.0 row."
    },
    {
     "name": "verify_identity",
@@ -24148,7 +24210,7 @@
     "state": [
      "RESOLVED"
     ],
-    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction. Read the dispute status from an actual tool result. Only a dispute resolved in the customer's favor qualifies for a rewards correction: RESOLVED_BANK_FAVOR means the transaction was found valid and no credit is issued, so it must NOT be updated. If the status is RESOLVED_PARTIAL, do not update on your own — tell the customer what the partial resolution says and ask how they want to proceed. Otherwise explain that the correction will be applied once the dispute is actually resolved."
+    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction. Read the dispute status from an actual tool result - the dispute records come from get_user_dispute_history_7291 (unlock it, then call it with the user_id). Only a dispute resolved in the customer's favor qualifies for a rewards correction: RESOLVED_BANK_FAVOR means the transaction was found valid and no credit is issued, so it must NOT be updated. If the status is RESOLVED_PARTIAL, do not update on your own — tell the customer what the partial resolution says and ask how they want to proceed. Otherwise explain that the correction will be applied once the dispute is actually resolved."
    },
    {
     "applies_to": "call_discoverable_agent_tool",
