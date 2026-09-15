@@ -24276,19 +24276,7 @@
     "text_until": "Pass exactly",
     "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. check_debit_dispute_provisional_credit, run on the values in this very call, says: {text}"
    }
-  ],
-  "disclosure": {
-   "fields": [
-    "email",
-    "phone_number",
-    "date_of_birth",
-    "address"
-   ],
-   "record_marker": "Record ID",
-   "verified_marker": "Verification logged successfully",
-   "feedback": "Error: [DISCLOSURE] this reply reads the account record's {fields} back to the caller, and no verification has been logged in this conversation. The verification procedure checks values the customer provides against the record; a record value the agent supplies is not a value the customer provided.",
-   "_source": "2026-09-15 nc42 (005 f97b t0): after a failed verify the customer asked what email was on file, the reply quoted the record, the customer repeated it, verification passed and gold's hand-off never happened. base 4/4 never quotes the record. String presence x verification state."
-  }
+  ]
  },
  "LB4": {
   "sets": [
