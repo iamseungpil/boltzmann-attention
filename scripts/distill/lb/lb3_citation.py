@@ -27,7 +27,7 @@ Presence is judged on normalised text: case folded, punctuation dropped ("#1234"
 number is present under any conventional rendering (1500, 1500.0, 1,500.00). Rendering is not evidence.
 """
 
-from lb_coordinator import Finding, DENY, GRADES, fam, fill, records_in, as_dict
+from lb_coordinator import Finding, DENY, SURFACE, GRADES, fam, fill, records_in, as_dict
 
 LB = "LB3"
 LEDGER, ENV, POLICY = GRADES["execution_ledger"], GRADES["env_output"], GRADES["policy_verbatim"]
