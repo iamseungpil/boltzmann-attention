@@ -145,21 +145,22 @@ def handover_form(turn):
     give = str(spec.get("give_tool") or "")
     if not tpl or once is None or not give or not turn.resigning():
         return []
-    prior = [m for m in turn.messages if getattr(m, "role", None) == "assistant"]
-    if not prior:
-        return []
-    last = prior[-1]
-    given = []
-    for c in (getattr(last, "tool_calls", None) or []):
-        if getattr(c, "name", None) == give:
-            a = as_dict(getattr(c, "arguments", None)) or {}
-            given.append((str(a.get("discoverable_tool_name") or a.get("user_tool_name") or ""), str(a.get("arguments") or "")))
+    # every hand-over batch not yet spoken for, whatever the agent did in between (f97b 017: give_, then a
+    # search call, then text - a note keyed on the immediately preceding message never fired)
+    given, keys = [], []
+    for idx, m in enumerate(turn.messages):
+        if getattr(m, "role", None) != "assistant":
+            continue
+        batch = []
+        for c in (getattr(m, "tool_calls", None) or []):
+            if getattr(c, "name", None) == give:
+                a = as_dict(getattr(c, "arguments", None)) or {}
+                batch.append((str(a.get("discoverable_tool_name") or a.get("user_tool_name") or ""), str(a.get("arguments") or "")))
+        if batch and ("lb7_handover#%d" % idx) not in once:
+            given.extend(batch); keys.append("lb7_handover#%d" % idx)
     if not given:
         return []
-    key = "lb7_handover#%d" % len(prior)
-    if key in once:
-        return []
-    once.add(key)
+    once.update(keys)
     lines = ["%s(discoverable_tool_name='%s', arguments=%s)" % (str(spec.get("user_call") or "call_discoverable_user_tool"), n, a or "{}") for n, a in given]
     return [Finding(LB, SURFACE, None, grade=RETRIEVED, source="handover-form", order=fill(tpl, calls=chr(10).join(lines)))]
 
