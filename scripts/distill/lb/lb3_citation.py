@@ -279,6 +279,9 @@ def grounding_findings(turn, call):
             # a state the action depends on (a dispute resolved, an order shipped) must be read from a
             # record that names this value - the customer saying so is not a record. Base 026/027/029:
             # 12 of 12 simulations updated rewards on the customer's word that disputes were approved.
+            # nc47: that premise was misread - gold 026 and 028 DO update on the customer's word (the
+            # dispute tool's "Status: RESOLVED" is returned to the customer and no agent tool reads
+            # cash_back_disputes), so the rewards update no longer declares a state; see D18.
             # the output that names the value must carry the state words: an environment result reads
             # "Arguments: {...transaction_id...}\nStatus: RESOLVED", the state outside the braces
             if not any(present(value, o) and all(t in o for t in spec["state"]) for o in turn.tool_outputs()):

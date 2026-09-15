@@ -1369,7 +1369,7 @@
       "unverified_requery_note": "The unverified row(s) are: {ids}. Tell the customer which ones could not be checked, and call this tool again with ONLY those row(s) so their rate can be looked up on its own — a single-row call often resolves what a batch could not. Do not supply the rate yourself."
      }
     },
-    "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The CORRECT total reward per policy is shown next to each id, so you can state it to the customer and carry it into that dispute: {details}. Rows checked and matching the policy (recorded = expected, no dispute needed): {matching}. SCOPE OF THIS RESULT - detection only: this compared the transaction rows you passed in against the reward-rate policy. It read no dispute record, so it does not know whether any dispute exists for these transactions, nor how one was decided. Do NOT change any transaction's rewards on the strength of this result. Under the bank's internal procedure the rewards correction is a separate, later step: a transaction's rewards are corrected only for a dispute that has been resolved and approved, and the transaction_ids for that correction are read from the resolved disputes themselves, never from a discrepancy list. The step this result calls for is the dispute, one per id above.",
+    "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The procedure document \"Submitting a Cash Back Dispute (Internal)\" defines its case as \"a discrepancy between the cash back they received and the cash back they should have received\" and states \"This process applies to all credit card transactions\"; each row below says which way its delta runs. The CORRECT total reward per policy is shown next to each id, so you can state it to the customer and carry it into that dispute: {details}. Rows checked and matching the policy (recorded = expected, no dispute needed): {matching}. SCOPE OF THIS RESULT - detection only: this compared the transaction rows you passed in against the reward-rate policy. It read no dispute record, so it does not know whether any dispute exists for these transactions, nor how one was decided. Do NOT change any transaction's rewards on the strength of this result. Under the bank's internal procedure the rewards correction is a separate, later step, taken for a dispute that has been resolved and approved. No agent tool reads the cash_back_disputes records: the customer's own submission tool returns the dispute's status to the customer, and it reaches you only through what the customer reports. The step this result calls for is the dispute, one per id above.",
     "return_template_empty": "No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this result. This says nothing about rows that could not be checked — see the [coverage] line above for those. Rows checked and matching the policy (recorded = expected): {matching}.",
     "grounded_params": {
      "account_open": {
@@ -1384,7 +1384,8 @@
      }
     },
     "select": true,
-    "_row_overrides_note": "2026-09-15 nc45 (022 f97c t1/t2): the isolated rate reader missed the Dell exclusion; gold 10 of 10 disputes, ours 9. The EcoCard unit must match how the reader reports EcoCard rates - verify in replay before trusting the 100.0 row."
+    "_row_overrides_note": "2026-09-15 nc45 (022 f97c t1/t2): the isolated rate reader missed the Dell exclusion; gold 10 of 10 disputes, ours 9. The EcoCard unit must match how the reader reports EcoCard rates - verify in replay before trusting the 100.0 row.",
+    "_direction_note": "2026-09-15 nc47 (16) f97c 020 4/4, 026 3/4, 027 3/4 lost: the agent handed over three of the verifier's four ids and kept the over-credited one (txn_b7e2d4c5f506) as 'not a dispute'. Gold disputes it in every task where such a row exists (f97c census: 018 020 022 026 027 028 029 - 10 over-credited rows, 10 in gold). The verifier row now states the direction and the template carries the procedure document's definition verbatim; the choice stays with the model."
    },
    {
     "name": "verify_identity",
@@ -24207,10 +24208,8 @@
      "prefix": "update_transaction_rewards"
     },
     "arg": "transaction_id",
-    "state": [
-     "RESOLVED"
-    ],
-    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction. Read the dispute status from an actual tool result - the dispute records come from get_user_dispute_history_7291 (unlock it, then call it with the user_id). Only a dispute resolved in the customer's favor qualifies for a rewards correction: RESOLVED_BANK_FAVOR means the transaction was found valid and no credit is issued, so it must NOT be updated. If the status is RESOLVED_PARTIAL, do not update on your own — tell the customer what the partial resolution says and ask how they want to proceed. Otherwise explain that the correction will be applied once the dispute is actually resolved."
+    "feedback": "Error: [WRITE-EVIDENCE] transaction {id} appears in no tool output and in nothing the customer wrote in this conversation - read the transaction record (get_credit_card_transactions_by_user) before updating it.",
+    "_source": "2026-09-15 nc47 (17) D18: the state gate ('a tool output must show the dispute RESOLVED') could not be met by any agent tool - the dispute status is returned by the customer's submit_cash_back_dispute_0589 to the customer (not in the agent's messages; sidecar of f97c 026 traced 0 such outputs) and get_user_dispute_history_7291 lists transaction disputes only. Gold 026 and 028 update on the customer's report (env auto_resolve_disputes=true), gold 027 does not (auto_resolve=false, the customer lies) - indistinguishable to the agent. f97c: 026 0/4 (5-7 denies per sim, updates after the budget released), 028 t0/t1/t2 lost the updates; base 028 3/4. The id must still be grounded in a record or the customer's words."
    },
    {
     "applies_to": "call_discoverable_agent_tool",

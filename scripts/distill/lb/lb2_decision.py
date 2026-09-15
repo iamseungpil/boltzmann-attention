@@ -789,7 +789,11 @@ def render_result(decl, ctx, result):
         return ("Error: [COVERAGE] none of the %d rows could be judged: the values the comparison needs were not "
                 "established for any of them, so this result says nothing. Retrieve the document(s) that state "
                 "those values, then call again." % st.get("total", 0))
-    details = "; ".join("%s: recorded %s, expected %s (delta %s)" % (d["id"], d["actual"], d["expected"], d["delta"])
+    # the direction is part of the arithmetic: f97c 020/026/027 (9 of 12 simulations) handed the customer
+    # three of the four ids and kept the one whose recorded reward was above the expected one, calling an
+    # over-credit "not a dispute"; gold disputes it, and the procedure document's own words are in the template
+    details = "; ".join("%s: recorded %s, expected %s (delta %s, recorded %s expected)" % (
+        d["id"], d["actual"], d["expected"], d["delta"], "ABOVE" if d["delta"] > 0 else "BELOW")
                         for d in ctx.get("_details") or [])
     matching = "; ".join("%s: recorded %s = expected %s" % (d["id"], d["actual"], d["expected"])
                          for d in ctx.get("_matching") or [])
