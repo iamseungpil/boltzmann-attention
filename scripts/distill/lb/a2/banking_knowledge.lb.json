@@ -1308,8 +1308,8 @@
       "unverified_requery_note": "The unverified row(s) are: {ids}. Tell the customer which ones could not be checked, and call this tool again with ONLY those row(s) so their rate can be looked up on its own — a single-row call often resolves what a batch could not. Do not supply the rate yourself."
      }
     },
-    "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The CORRECT total reward per policy is shown next to each id, so you can state it to the customer and carry it into that dispute: {details}. SCOPE OF THIS RESULT - detection only: this compared the transaction rows you passed in against the reward-rate policy. It read no dispute record, so it does not know whether any dispute exists for these transactions, nor how one was decided. Do NOT change any transaction's rewards on the strength of this result. Under the bank's internal procedure the rewards correction is a separate, later step: a transaction's rewards are corrected only for a dispute that has been resolved and approved, and the transaction_ids for that correction are read from the resolved disputes themselves, never from a discrepancy list. The step this result calls for is the dispute, one per id above.",
-    "return_template_empty": "No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this result. This says nothing about rows that could not be checked — see the [coverage] line above for those.",
+    "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The CORRECT total reward per policy is shown next to each id, so you can state it to the customer and carry it into that dispute: {details}. Rows checked and matching the policy (recorded = expected, no dispute needed): {matching}. SCOPE OF THIS RESULT - detection only: this compared the transaction rows you passed in against the reward-rate policy. It read no dispute record, so it does not know whether any dispute exists for these transactions, nor how one was decided. Do NOT change any transaction's rewards on the strength of this result. Under the bank's internal procedure the rewards correction is a separate, later step: a transaction's rewards are corrected only for a dispute that has been resolved and approved, and the transaction_ids for that correction are read from the resolved disputes themselves, never from a discrepancy list. The step this result calls for is the dispute, one per id above.",
+    "return_template_empty": "No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this result. This says nothing about rows that could not be checked — see the [coverage] line above for those. Rows checked and matching the policy (recorded = expected): {matching}.",
     "grounded_params": {
      "account_open": {
       "producer_contains": [
@@ -24275,6 +24275,59 @@
     "value_after": "provisional_credit_eligible =",
     "text_until": "Pass exactly",
     "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. check_debit_dispute_provisional_credit, run on the values in this very call, says: {text}"
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_credit_card_transaction_dispute"
+    },
+    "arg": "eligible_for_provisional_credit",
+    "verifier": "check_credit_dispute_provisional_credit",
+    "inputs": {
+     "dispute_reason": {
+      "arg": "dispute_reason"
+     },
+     "purchase_date": {
+      "arg": "purchase_date"
+     },
+     "contacted_merchant": {
+      "arg": "contacted_merchant"
+     },
+     "as_of_date": {
+      "tool": "get_current_time",
+      "kind": "date"
+     },
+     "transaction_amount": {
+      "near": "transaction_id",
+      "after": "transaction_amount:",
+      "kind": "number"
+     },
+     "card_type": {
+      "near": "transaction_id",
+      "after": "credit_card_type:",
+      "kind": "text"
+     },
+     "date_of_account_open": {
+      "near_operand": "card_type",
+      "after": "date_of_account_open:",
+      "kind": "date"
+     },
+     "prior_disputes_12mo": {
+      "count": {
+       "tool": "get_user_dispute_history",
+       "marker": "Record ID: dsp",
+       "date_within_days": 365,
+       "as_of_operand": "as_of_date",
+       "plus_executed_prefix": "file_credit_card_transaction_dispute"
+      }
+     }
+    },
+    "value_after": "eligible_for_provisional_credit =",
+    "value_kind": "bool",
+    "text_until": "Pass the verdict",
+    "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. check_credit_dispute_provisional_credit, run on this dispute's own values and the records (disputes already filed counted), says: {text}",
+    "_source": "2026-09-15 nc44 (E2 (1)): base 039 (8 disputes) and 041 (16, one prior on file) - the verifier with the running count reproduces gold's flag on every dispute checked (8/8); base's only argument error on those tasks was this flag (039 4/4 sims, 041 3/4). Every operand comes from the call or a record; the dispute history must have been read, else nothing is said."
    }
   ]
  },

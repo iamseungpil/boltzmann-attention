@@ -98,26 +98,39 @@ def token_after(text, marker, kind):
             tok = rest[0].strip(".,;:()")
             if kind == "date" and date(tok) is not None:
                 return tok
-            if kind == "number" and num(tok) is not None:
-                return tok
+            if kind == "number" and num(tok.replace("$", "").replace(",", "")) is not None:
+                return tok.replace("$", "").replace(",", "")
+            if kind == "bool" and tok.lower() in ("true", "false", "yes", "no"):
+                return "1" if tok.lower() in ("true", "yes") else "0"
         i = text.find(marker, i + 1)
     return None
 
 
-def operand(spec, turn, args):
+def operand(spec, turn, args, done=None):
     """One verifier operand from the call's own arguments or the conversation's records. Never a guess:
     {arg} copies the call's argument; {tool, kind} takes the first token of that kind in that tool's
     output; {near, after, kind} takes the token after `after` in the record that names the call's
-    `near` argument."""
+    `near` argument; {near_operand} anchors on an operand already resolved (declaration order);
+    kind "text" takes the rest of the line; {count} counts records and this conversation's own writes."""
     from lb2_decision import date, num
     if "arg" in spec:
         return args.get(spec["arg"])
+    if "count" in spec:
+        return _count_operand(spec["count"], turn, done or {})
     texts = outputs_of(turn, spec["tool"]) if spec.get("tool") else turn.tool_outputs()
-    if spec.get("near"):
-        anchor = str(args.get(spec["near"]) or "")
+    if spec.get("near") or spec.get("near_operand"):
+        anchor = str(args.get(spec["near"]) or "") if spec.get("near") else str((done or {}).get(spec["near_operand"]) or "")
         if not anchor:
             return None
         texts = [t[i:i + 600] for t in texts for i in [t.find(anchor)] if i >= 0]
+    if spec.get("kind") == "text" and spec.get("after"):
+        for t in texts:
+            i = t.find(spec["after"])
+            if i >= 0:
+                line = t[i + len(spec["after"]):].split(chr(10))[0].split(" | ")[0].strip()
+                if line:
+                    return line
+        return None
     for t in texts:
         if spec.get("after"):
             got = token_after(t, spec["after"], spec.get("kind", "number"))
@@ -131,6 +144,42 @@ def operand(spec, turn, args):
             if spec.get("kind") == "number" and num(tok) is not None:
                 return tok
     return None
+
+
+def _count_operand(spec, turn, done):
+    """Records of one tool's output that carry a marker (optionally with a date inside a window), plus this
+    conversation's own successful writes of a family. None when that tool never answered - not evidence.
+    039/041: the provisional-credit rule counts disputes filed in the past 12 months including the ones filed
+    earlier in this conversation; gold's flags follow that running count exactly (E2 replay 8/8)."""
+    from lb2_decision import date
+    import datetime, re
+    outs = outputs_of(turn, spec["tool"]) if spec.get("tool") else []
+    if not outs:
+        return None
+    marker = str(spec.get("marker") or "")
+    n = 0
+    ref = date(done.get(spec.get("as_of_operand") or "") or "") if spec.get("date_within_days") else None
+    for o in outs:
+        parts = o.split(marker)[1:] if marker else []
+        for part in parts:
+            if ref is not None:
+                ds = [date(x) for x in re.findall(r"[0-9]{2}/[0-9]{2}/[0-9]{4}", part)]
+                ds = [d for d in ds if d is not None]
+                if ds and max(ds) < ref - datetime.timedelta(days=int(spec["date_within_days"])):
+                    continue
+            n += 1
+    pre = str(spec.get("plus_executed_prefix") or "")
+    if pre:
+        msgs = turn.messages
+        for i, m in enumerate(msgs):
+            for c in (getattr(m, "tool_calls", None) or []):
+                inner = str(turn.named(c) or "")
+                if inner.startswith(pre):
+                    nxt = msgs[i + 1] if i + 1 < len(msgs) else None
+                    res = str(getattr(nxt, "content", "") or "") if nxt is not None and getattr(nxt, "role", None) == "tool" else ""
+                    if not res.lower().startswith("error"):
+                        n += 1
+    return str(n)
 
 
 def verified_findings(turn, call):
@@ -149,7 +198,9 @@ def verified_findings(turn, call):
                      if t.get("name") == spec.get("verifier")), None)
         if decl is None:
             continue
-        ops = {k: operand(v, turn, args) for k, v in (spec.get("inputs") or {}).items()}
+        ops = {}
+        for k, v in (spec.get("inputs") or {}).items():
+            ops[k] = operand(v, turn, args, ops)
         if any(v in (None, "") for v in ops.values()):
             continue
         import lb2_decision
@@ -159,7 +210,7 @@ def verified_findings(turn, call):
         text, err = res[0], res[1]
         if err:
             continue
-        tok = token_after(str(text), spec.get("value_after") or "", "number") if spec.get("value_after") else None
+        tok = token_after(str(text), spec.get("value_after") or "", spec.get("value_kind") or "number") if spec.get("value_after") else None
         if tok is None:
             continue
         try:

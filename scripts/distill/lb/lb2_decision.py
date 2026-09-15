@@ -284,6 +284,10 @@ def _select_discrepant(spec, ctx):
         if abs(en - act) > tol:
             out.append(r.get(idf))
             details.append({"id": r.get(idf), "actual": act, "expected": en, "delta": round(act - en, 2)})
+        else:
+            # the rows that matched are part of the result too: 021 f97c t2 - a row with 0 rewards earned
+            # was read as "missing its points" and disputed on top of the two the check had found
+            ctx.setdefault("_matching", []).append({"id": r.get(idf), "actual": act, "expected": en})
     ctx["_stats"] = {"judged": len(recs) - skipped, "skipped": skipped, "total": len(recs)}
     return out
 
@@ -764,6 +768,8 @@ def render_result(decl, ctx, result):
                 "those values, then call again." % st.get("total", 0))
     details = "; ".join("%s: recorded %s, expected %s (delta %s)" % (d["id"], d["actual"], d["expected"], d["delta"])
                         for d in ctx.get("_details") or [])
+    matching = "; ".join("%s: recorded %s = expected %s" % (d["id"], d["actual"], d["expected"])
+                         for d in ctx.get("_matching") or [])
     slots = {k: v for k, v in ctx.items() if isinstance(v, (str, int, float))}
     if isinstance(result, list) and not result and st.get("skipped"):
         # a clean sweep of the rows that could be judged is not a clean sweep. On probe 017 the two
@@ -781,7 +787,7 @@ def render_result(decl, ctx, result):
             result = round(result, int(decl["result_round"]))
         text = fill(decl.get("return_template") or "{result}", result=json.dumps(result, ensure_ascii=False)
                     if isinstance(result, (dict, list)) else result, ids=", ".join(map(str, ids)) or "(none)",
-                    details=details or "(none)", **slots)
+                    details=details or "(none)", matching=matching or "(none)", **slots)
     if st.get("skipped"):
         text += " [coverage: %d of %d rows could not be judged - no policy rate was established for them]" % (st["skipped"], st["total"])
     return text
