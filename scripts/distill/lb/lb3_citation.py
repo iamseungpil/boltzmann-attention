@@ -75,7 +75,9 @@ def outputs_of(turn, tool):
     names = {}
     for m in turn.messages:
         for c in (getattr(m, "tool_calls", None) or []):
-            names[getattr(c, "id", None)] = fam(str(getattr(c, "name", "") or ""))
+            # a tool reached through the dispatcher is named in its arguments, not by the call's own name
+            # (nc44 replay: get_user_dispute_history never matched call_discoverable_agent_tool)
+            names[getattr(c, "id", None)] = fam(str(turn.named(c) or getattr(c, "name", "") or ""))
     return [str(getattr(m, "content", "") or "") for m in turn.messages
             if getattr(m, "role", None) == "tool" and names.get(getattr(m, "id", None)) == fam(tool)]
 
