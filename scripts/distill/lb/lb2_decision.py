@@ -409,7 +409,14 @@ def _catalog_filter(spec, ctx):
             facts = {k: facts[k] for k in spec["keep_fields"] if k in facts}
         item = row.get(spec.get("label_field", "card"))
         if why:
-            excl.append({"item": item, "reason": why})            # the fact that decided it is enough
+            ex = {"item": item, "reason": why}
+            # facts the declaration names travel with an exclusion: 002 - the customer's "effective $100/year"
+            # is the fee after the rebate the document describes, and a row excluded on its listed fee had
+            # no way to show that (f97b 002 t0)
+            keep = [k for k in (spec.get("excluded_facts") or []) if k in facts]
+            if keep:
+                ex["facts"] = {k: facts[k] for k in keep}
+            excl.append(ex)
         elif missing:
             unver.append({"item": item, "undocumented": missing})
         else:
@@ -448,7 +455,15 @@ def _catalog_filter(spec, ctx):
     if spec.get("top"):
         # a ranked catalogue is read top-down; handing back all of it costs more context than it informs
         elig = elig[:spec["top"]]
-    return {"eligible": elig, "excluded": _by_reason(excl, "reason"),
+    excluded = _by_reason(excl, "reason")
+    # the facts an exclusion carries (spec excluded_facts) survive the grouping, keyed by item
+    carried = {r["item"]: r["facts"] for r in excl if r.get("facts")}
+    if carried:
+        for g in excluded:
+            g["facts"] = {i: carried[i] for i in g["examples"] if i in carried} or None
+            if g["facts"] is None:
+                g.pop("facts")
+    return {"eligible": elig, "excluded": excluded,
             "unverified": _by_reason(unver, "undocumented"), "note": note}
 
 

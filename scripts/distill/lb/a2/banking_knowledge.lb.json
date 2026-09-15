@@ -14592,7 +14592,7 @@
     "_also_after_source": "2026-09-14 nc37 (044): base 4/4 searches the card catalogue after logging found_better_card and finds the Platinum Rewards Card; nc35/nc36 losses offered points or compared only the Gold card and never reached it. The catalogue filter is not chosen at the opening turn (the customer said only close), so it enters once the closure reason is logged. The engine names no card.",
     "description": "It deterministically filters Rho-Bank's documented card catalog and returns three buckets: 'eligible' (the documented value satisfies your constraint, with source docs), 'excluded' (it violates it, with the reason), and 'unverified' (that fact is NOT documented for that card). A card in 'unverified' is NOT known to meet the constraint you asked about — never tell the customer that it does, and only consider it after reading its cited source docs. Choose ONLY among the eligible cards; verify each remaining candidate's source docs for conditional clauses (e.g. subscriber discounts) and the customer's soft preferences before the final pick. The item name in the result is the name on file: pass it to the opening tool exactly as written, adding no words and dropping none - 'Sky Blue' is not 'Sky Blue Account'.",
     "params": {
-     "max_annual_fee": "number, optional - the most the customer said they are willing to pay per year. A competitor card's fee the customer quoted is what they are comparing against, not a ceiling; leave this out unless they stated a limit of their own.",
+     "max_annual_fee": "number, optional - the most the customer said they are willing to pay per year. A competitor card's fee the customer quoted is what they are comparing against, not a ceiling; leave this out unless they stated a limit of their own. Compared against the card's listed annual fee before any rebate; where a document describes a fee rebate, its amount, condition and the fee after rebate are listed with the card, including on an excluded card.",
      "max_fx_fee": "number, optional (percent)",
      "max_min_payment_pct": "number, optional (percent)",
      "min_cashback": "number, optional (percent) — ONLY a number the customer explicitly stated as a minimum. A superlative request ('the highest cash back') is NOT a threshold: leave this out, then compare the cashback facts across the eligible cards yourself (mind cashback_scope — a category-limited rate is not comparable to an all-purchases rate).",
@@ -14637,7 +14637,10 @@
        "virtual_card": true,
        "cashback_scope": "all",
        "base_cashback": 10.0,
-       "card_type": "Platinum Rewards Card"
+       "card_type": "Platinum Rewards Card",
+       "fee_rebate": 150.0,
+       "fee_rebate_condition": "$7,500 in net posted purchases in every month of the cardmember year (doc platinum_rewards_card_*)",
+       "effective_fee_with_rebate": 50.0
       },
       {
        "card": "Gold Rewards Card",
@@ -14878,7 +14881,13 @@
       "param": "business",
       "field": "business"
      },
-     "label_field": "card"
+     "label_field": "card",
+     "excluded_facts": [
+      "annual_fee",
+      "fee_rebate",
+      "fee_rebate_condition",
+      "effective_fee_with_rebate"
+     ]
     },
     "ground": {
      "intent_fields": [
@@ -24267,7 +24276,19 @@
     "text_until": "Pass exactly",
     "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. check_debit_dispute_provisional_credit, run on the values in this very call, says: {text}"
    }
-  ]
+  ],
+  "disclosure": {
+   "fields": [
+    "email",
+    "phone_number",
+    "date_of_birth",
+    "address"
+   ],
+   "record_marker": "Record ID",
+   "verified_marker": "Verification logged successfully",
+   "feedback": "Error: [DISCLOSURE] this reply reads the account record's {fields} back to the caller, and no verification has been logged in this conversation. The verification procedure checks values the customer provides against the record; a record value the agent supplies is not a value the customer provided.",
+   "_source": "2026-09-15 nc42 (005 f97b t0): after a failed verify the customer asked what email was on file, the reply quoted the record, the customer repeated it, verification passed and gold's hand-off never happened. base 4/4 never quotes the record. String presence x verification state."
+  }
  },
  "LB4": {
   "sets": [
