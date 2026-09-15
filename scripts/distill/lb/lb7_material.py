@@ -168,8 +168,28 @@ def handover_form(turn):
                     facts=[fill(tpl, calls=chr(10).join(lines))])]
 
 
+def customer_tools(turn):
+    """The tools the customer already holds on their own side, said once before the first retrieval - a
+    harness fact from the environment's registry, not a document. 023 f97c t1: the customer had an
+    invitation and asked to apply for the Diamond Elite Card; apply_for_credit_card is the customer's own
+    tool (no hand-over needed - the three winning simulations' customers ran it themselves), and the agent,
+    finding no application tool of its own after six searches, said the card could not be applied for here.
+    Discoverable user tools (the ones the agent hands over) are not listed - they enter through give_."""
+    spec = (turn.a2.get("LB7") or {}).get("customer_tools") or {}
+    tpl, once = spec.get("text"), (getattr(turn, "extras", None) or {}).get("once")
+    if not tpl or once is None or turn.tool_outputs() or "lb7_customer_tools" in once:
+        return []
+    reg = getattr(turn, "registry", None) or {}
+    own = sorted(set(reg.get("user_all", ())) - set(reg.get("user", ())))
+    if not own:
+        return []
+    once.add("lb7_customer_tools")
+    return [Finding(LB, SURFACE, "customer-tools", grade=RETRIEVED, source="customer-tools",
+                    facts=[fill(tpl, names=", ".join(own))])]
+
+
 def evaluate(turn):
-    return have_value(turn) + action_index(turn) + write_rules(turn) + handover_form(turn)
+    return have_value(turn) + action_index(turn) + write_rules(turn) + handover_form(turn) + customer_tools(turn)
 
 
 if __name__ == "__main__":

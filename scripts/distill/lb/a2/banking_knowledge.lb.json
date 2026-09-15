@@ -25104,6 +25104,10 @@
    "user_call": "call_discoverable_user_tool",
    "text": "The tools just handed over reach the customer only in this form - there is no button or link on their side, and this is the whole of what they can run:\n{calls}",
    "_source": "2026-09-15 nc40/nc41 (019): after a hand-over the customer says they see no such tool. base t1 and nc35 t0/t1/t2 named this call form and the customer ran it (4/4); nc38 t1/t2/t3 said tap/click, gave IDs for a phone call, or transferred, and the customer never ran it (0/3). nc40 019 1/4 -> 3/4. Harness fact, surfaced once per hand-over batch."
+  },
+  "customer_tools": {
+   "text": "The customer holds these tools on their own side and runs them themselves from their app (no hand-over from the agent is needed or possible): {names}",
+   "_source": "2026-09-15 nc46 (023 f97c t1): apply_for_credit_card is the customer's own tool; gold's customer runs it in 19 tasks, ours 3/4 without any hand-over, and the losing simulation's agent searched six times for an application tool of its own and said the card could not be applied for here. Registry fact (env.user_tools minus the discoverable ones), said once before the first retrieval."
   }
  }
 }
