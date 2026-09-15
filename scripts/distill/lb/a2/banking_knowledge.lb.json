@@ -24319,7 +24319,8 @@
        "marker": "Record ID: dsp",
        "date_within_days": 365,
        "as_of_operand": "as_of_date",
-       "plus_executed_prefix": "file_credit_card_transaction_dispute"
+       "plus_executed_prefix": "file_credit_card_transaction_dispute",
+       "range": true
       }
      }
     },
@@ -24327,7 +24328,7 @@
     "value_kind": "bool",
     "text_until": "Pass the verdict",
     "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. check_credit_dispute_provisional_credit, run on this dispute's own values and the records (disputes already filed counted), says: {text}",
-    "_source": "2026-09-15 nc44 (E2 (1)): base 039 (8 disputes) and 041 (16, one prior on file) - the verifier with the running count reproduces gold's flag on every dispute checked (8/8); base's only argument error on those tasks was this flag (039 4/4 sims, 041 3/4). Every operand comes from the call or a record; the dispute history must have been read, else nothing is said."
+    "_source": "2026-09-15 nc44 (E2 (1)): base 039 (8 disputes) and 041 (16, one prior on file) - the verifier with the running count reproduces gold's flag on every dispute checked (8/8); base's only argument error on those tasks was this flag (039 4/4 sims, 041 3/4). Every operand comes from the call or a record; the dispute history must have been read, else nothing is said. nc44b: the count is a range [on file, on file + filed in this conversation]; the verdict must be the same at both ends (order-independent) for the check to speak - 040 t1 / 041 t1 filed in an order other than gold's and a single count denied a correct flag."
    }
   ]
  },

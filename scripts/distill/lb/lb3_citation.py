@@ -171,6 +171,7 @@ def _count_operand(spec, turn, done):
                     continue
             n += 1
     pre = str(spec.get("plus_executed_prefix") or "")
+    filed = 0
     if pre:
         msgs = turn.messages
         for i, m in enumerate(msgs):
@@ -180,8 +181,16 @@ def _count_operand(spec, turn, done):
                     nxt = msgs[i + 1] if i + 1 < len(msgs) else None
                     res = str(getattr(nxt, "content", "") or "") if nxt is not None and getattr(nxt, "role", None) == "tool" else ""
                     if not res.lower().startswith("error"):
-                        n += 1
-    return str(n)
+                        filed += 1
+        # the calls of this very batch: 039 t0 filed three disputes in one message and each saw the same count
+        filed += sum(1 for c in turn.calls if str(turn.named(c) or "").startswith(pre)) - 1
+        filed = max(filed, 0)
+    if spec.get("range"):
+        # the order in which the model files is not the record's to know (gold's flags follow the customer's
+        # order; 040 t1 / 041 t1 filed in another order and a single count judged them backwards) - hand back
+        # both ends and let the comparison speak only when they agree
+        return (str(n), str(n + filed))
+    return str(n + filed)
 
 
 def verified_findings(turn, call):
@@ -206,15 +215,27 @@ def verified_findings(turn, call):
         if any(v in (None, "") for v in ops.values()):
             continue
         import lb2_decision
-        res = lb2_decision.run_tool(decl, ops, {"kb": [], "ledger": turn.tool_outputs(),
-                                                "ledger_tools": turn.tool_outputs(), "user": [turn.user_text]},
-                                    {"__tool_outputs": {}, "__user_text": turn.user_text})
-        text, err = res[0], res[1]
-        if err:
-            continue
-        tok = token_after(str(text), spec.get("value_after") or "", spec.get("value_kind") or "number") if spec.get("value_after") else None
-        if tok is None:
-            continue
+        ranged = [k for k, v in ops.items() if isinstance(v, tuple)]
+        variants = [dict(ops)]
+        if ranged:
+            lo, hi = dict(ops), dict(ops)
+            for k in ranged:
+                lo[k], hi[k] = ops[k][0], ops[k][1]
+            variants = [lo, hi]
+        texts, toks = [], []
+        for var in variants:
+            res = lb2_decision.run_tool(decl, var, {"kb": [], "ledger": turn.tool_outputs(),
+                                                    "ledger_tools": turn.tool_outputs(), "user": [turn.user_text]},
+                                        {"__tool_outputs": {}, "__user_text": turn.user_text})
+            if res[1]:
+                break
+            t_ = token_after(str(res[0]), spec.get("value_after") or "", spec.get("value_kind") or "number") if spec.get("value_after") else None
+            if t_ is None:
+                break
+            texts.append(res[0]); toks.append(t_)
+        if len(toks) != len(variants) or len(set(toks)) != 1:
+            continue                                       # an order-dependent verdict is not the record's to give
+        text, tok = texts[-1], toks[-1]
         try:
             raw = str(got).strip().lower()
             # a true/false argument is compared as the 1/0 its verifier prints
