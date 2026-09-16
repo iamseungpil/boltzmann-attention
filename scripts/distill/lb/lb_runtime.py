@@ -166,10 +166,11 @@ def turn_hook(self, message, state):
             # a write rule fires when the model reaches for the tool (unlock or call), which is a call
             # turn; advice only regenerates text turns, so every one of these was logged and dropped
             # (f97c: 18 tasks, 43 sims, none delivered). It rides in this batch's tool result instead.
-            notes = [t for t, r in zip(d.advice, d.advice_rules) if r == "write-rule"]
+            notes = [(f.target, f.order) for f in d.won.values() if f.source == "write-rule" and f.order]
             if notes:
                 self._lb_call_notes = notes
-                sidecar("lb-note", chr(10).join(notes)[:1200], turn, sim=turn.sim, n=len(notes))
+                sidecar("lb-note", chr(10).join("%s: %s" % (t, x) for t, x in notes)[:1200], turn,
+                        sim=turn.sim, n=len(notes), targets=",".join(str(t) for t, _ in notes))
         if not d.denies and not (d.advice and not turn.calls):
             break
         # a declined call is answered in its own slot, as the tool's result, and the rest of the
@@ -485,9 +486,21 @@ def execute(orch, a2, tool_calls, orig_exec):
         append_facts(orch, a2, agent, out)
     notes = agent.__dict__.pop("_lb_call_notes", None) if agent is not None else None
     if notes and out:
-        # the policy sentence for the write, delivered with the result the model reads next
-        last = out[-1]
-        last.content = str(getattr(last, "content", "") or "") + chr(10) + chr(10) + chr(10).join("[POLICY NOTE] " + n for n in notes)
+        # the sentence belongs to one write, so it rides on that write's own result; a batch can carry a
+        # KB search or another account's read after it, and a note on those reads as their words
+        fams = {}
+        for tc in tool_calls:
+            a = as_dict(getattr(tc, "arguments", None)) or {}
+            inner = str(a.get("agent_tool_name") or a.get("discoverable_tool_name") or "")
+            fams[getattr(tc, "id", None)] = fam(inner or str(getattr(tc, "name", "") or ""))
+        for target, text in notes:
+            mine = [r for r in out if fams.get(getattr(r, "id", None)) == fam(str(target or ""))]
+            dest = mine[-1] if mine else None
+            if dest is None:
+                sidecar("lb-note-drop", "no call in this batch is %s; the note stays back" % target,
+                        None, sim=sim_id(agent), target=str(target))
+                continue
+            dest.content = str(getattr(dest, "content", "") or "") + chr(10) + chr(10) + "[POLICY NOTE] " + str(text)
     return out
 
 
