@@ -24247,6 +24247,19 @@
     ],
     "feedback": "Error: [WRITE-GROUNDING] disputed_amount '{val}' is not an amount in any transaction record read in this conversation. Copy the amount from the transaction record.",
     "_source": "argdiff 2026-09-13: disputed_amount differed from gold in 8 calls"
+   },
+   {
+    "applies_to": "call_discoverable_agent_tool",
+    "when": {
+     "arg": "agent_tool_name",
+     "prefix": "file_debit_card_transaction_dispute"
+    },
+    "arg": "discovery_date",
+    "sources": [
+     "customer"
+    ],
+    "feedback": "Error: [FREE-TEXT-DEFAULT] discovery_date {value} is not a date the customer stated in this conversation. The tool's parameter text: \"discovery_date (string, MM/DD/YYYY) - Date customer first noticed the issue.\" Use the date they named for that, or ask them for it; today's date is not it.",
+    "_source": "2026-09-16 nc51 (32) f97c 083 0/4: t1 filed 11/14/2025, the day of the conversation, where the customer had said 11/08/2025 and gold holds 11/08/2025. The customer states these dates in every trial of this task. 037's issue_noticed_date came from the customer's own message, so this leaves it alone."
    }
   ],
   "names": {
@@ -25100,6 +25113,20 @@
     "when": "Has the customer, in what they have said, asked for a credit limit increase on a credit card in this conversation, and do the records show NO submitted, approved or denied credit limit increase request for that card yet?",
     "when_material": "conversation",
     "_source": "2026-09-14 nc33 (054): the customer asks for a limit increase, a dispute and a replacement; gold processes the increase first. nc31 054 t1-t3 filed the dispute or ordered the card first and the increase was then blocked (deny pending_replacement_card) or never attempted. The sentence is the KB's; the order stays the model's."
+   },
+   {
+    "applies_to": "pay_credit_card_from_checking",
+    "text": "Internal: Credit Card Retention Protocol, Step 1: \"Pending disputes: the account must not have any active or pending transaction disputes. If present, advise the customer to wait for resolution before closing.\" and \"If any requirement is not met, explain what must be resolved and do not proceed with retention offers.\" Paying the balance is one of that protocol's closure requirements, so while the dispute is open the closure it serves cannot proceed either.",
+    "when": "Is this payment being made so that a credit card can be closed, and do the records in this conversation show an active or pending transaction dispute on that same card?",
+    "when_material": "conversation",
+    "_source": "2026-09-16 nc51 (30) f97c 046 0/4 and base 046 0/4: gold is the dispute lookup and nothing else, and every simulation of both arms paid the $125 balance after the customer said they would wait for the dispute to resolve. doc_credit_cards_credit_card_account_logistics_003. Controls 043 044 047 049 pay a balance with no dispute on file and gold keeps it."
+   },
+   {
+    "applies_to": "close_debit_card_4721",
+    "text": "Internal: Freezing and Unfreezing a Debit Card: \"FREEZE: Temporary lock - card can be unfrozen later. Use when customer misplaced the card or wants temporary security.\" Internal: Lost/Stolen Card - Cross-Product Security Protocol: \"When a customer reports a lost or stolen debit card, there is a risk that other cards in their wallet were also compromised.\" A freeze is reversible with unfreeze_debit_card_3893; a closure is not.",
+    "when": "Has the customer reported losing more than one card at once, and do the records show cards of theirs that are still ACTIVE and have not been frozen?",
+    "when_material": "conversation",
+    "_source": "2026-09-16 nc51 (31) f97c 078 0/4 and base 078 0/4: gold freezes all three debit cards, reads the three accounts' transactions, unfreezes two and closes two as lost; every simulation of ours went straight to closing two. doc_bank_accounts (Freezing and Unfreezing a Debit Card, Lost/Stolen Card - Cross-Product Security Protocol)."
    }
   ],
   "handover": {
