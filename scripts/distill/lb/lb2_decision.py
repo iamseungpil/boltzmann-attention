@@ -425,6 +425,11 @@ def _catalog_filter(spec, ctx):
                 cv = not cv
             if cv is None or cv == "" or cv is False:
                 continue
+            if c["sense"] == "ge" and num(cv) is not None and num(cv) <= 0:
+                # "no withdrawals" (nc48 067 t0/t3: withdrawals_per_month="0") asks for nothing, so a row
+                # whose allowance is undocumented is not unverified by it - the Platinum Plus rows were,
+                # and gold's item (7500) fell out behind Gold Account (6800)
+                continue
             if rv is None:
                 missing.append("%s (constraint %s=%s)" % (c["field"], c["param"], cv))
             elif c["sense"] == "flag" and not rv:
