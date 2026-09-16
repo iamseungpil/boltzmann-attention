@@ -226,9 +226,7 @@
        "record(s) in 'credit_card_closure_reasons'"
       ],
       "tool_any": [
-       "apply_statement_credit_8472",
-       "apply_for_credit_card",
-       "apply_credit_card_account_flag_6147"
+       "apply_statement_credit_8472"
       ]
      },
      {
