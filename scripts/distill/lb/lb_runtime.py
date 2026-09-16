@@ -33,6 +33,7 @@ table: tests/test_lb.py fails if a `diverge(` kind is missing here or listed her
   regen            turn_hook                 any lever   the model's message is replaced
   block            turn_hook/execute         any lever   a declined call is answered in place; the turn is not regenerated
   ctx-stop         generate                  any lever   a context-window error ends the run gracefully
+  empty-retry      turn_hook                 any lever   a generation with neither content nor tool calls is asked again
 
 Two more differences exist and are recorded, but not through `diverge`: the text a lever speaks is
 already one sidecar row per utterance (lb-deny, lb-advice, lb-inject, lb-conflict, lb-release, from
@@ -51,6 +52,7 @@ import lb6_load
 from lb_coordinator import Turn, evaluate, say, fam, as_dict, sidecar, sim_id, enabled
 
 ROUNDS = 3            # regenerations per turn
+EMPTY_RETRIES = 2     # re-asks when a generation carried neither content nor tool calls
 REGEN_BUDGET = 12     # regenerations per simulation; after that the model's message stands as generated
 GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
 ADVICE_MARK = "[SERVICE LAYER NOTE - not written by the customer; do not reply to it, act on it] "
@@ -152,6 +154,18 @@ def turn_hook(self, message, state):
         view = view + [UserMessage(role="user", content=ADVICE_MARK + chr(10).join(notes))]
         sidecar("lb-block-note", chr(10).join(notes)[:1200], None, sim=sim_id(self), n=len(notes), at=len(state.messages))
     am = generate(self, view)
+    # A turn that is all thinking arrives empty: the engine splits the answer into `content` and the
+    # reasoning into `reasoning`, tau2 reads only content/tool_calls, and orchestrator.py validates the
+    # message right after it is returned - so the whole simulation is thrown away and restarted (706
+    # restarts, ~300 hours, 73 tasks; base hits it more often than we do). Ask again instead. Bounded:
+    # after EMPTY_RETRIES the message stands and tau2 does exactly what it does today.
+    for _n in range(EMPTY_RETRIES):
+        if str(getattr(am, "content", "") or "").strip() or (getattr(am, "tool_calls", None) or []):
+            break
+        sidecar("lb-empty", "the generation carried neither content nor tool calls; asking again",
+                None, sim=sim_id(self), n=_n + 1)
+        diverge("empty-retry", "round %d" % (_n + 1), sim=sim_id(self), n=_n + 1)
+        am = generate(self, view)
     for _ in range(ROUNDS):
         turn = build_turn(self, a2, state.messages, am)
         d = say(turn, evaluate(turn), owner=self)
