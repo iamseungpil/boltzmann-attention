@@ -24247,19 +24247,6 @@
     ],
     "feedback": "Error: [WRITE-GROUNDING] disputed_amount '{val}' is not an amount in any transaction record read in this conversation. Copy the amount from the transaction record.",
     "_source": "argdiff 2026-09-13: disputed_amount differed from gold in 8 calls"
-   },
-   {
-    "applies_to": "call_discoverable_agent_tool",
-    "when": {
-     "arg": "agent_tool_name",
-     "prefix": "file_debit_card_transaction_dispute"
-    },
-    "arg": "discovery_date",
-    "sources": [
-     "customer"
-    ],
-    "feedback": "Error: [FREE-TEXT-DEFAULT] discovery_date {value} is not a date the customer stated in this conversation. The tool's parameter text: \"discovery_date (string, MM/DD/YYYY) - Date customer first noticed the issue.\" Use the date they named for that, or ask them for it; today's date is not it.",
-    "_source": "2026-09-16 nc51 (32) f97c 083 0/4: t1 filed 11/14/2025, the day of the conversation, where the customer had said 11/08/2025 and gold holds 11/08/2025. The customer states these dates in every trial of this task. 037's issue_noticed_date came from the customer's own message, so this leaves it alone."
    }
   ],
   "names": {
@@ -24404,7 +24391,8 @@
     "feedback": "Error: [VERIFIED] {arg}={got} was not carried out. check_credit_dispute_provisional_credit, run on this dispute's own values and the records (disputes already filed counted), says: {text}",
     "_source": "2026-09-15 nc44 (E2 (1)): base 039 (8 disputes) and 041 (16, one prior on file) - the verifier with the running count reproduces gold's flag on every dispute checked (8/8); base's only argument error on those tasks was this flag (039 4/4 sims, 041 3/4). Every operand comes from the call or a record; the dispute history must have been read, else nothing is said. nc44b: the count is a range [on file, on file + filed in this conversation]; the verdict must be the same at both ends (order-independent) for the check to speak - 040 t1 / 041 t1 filed in an order other than gold's and a single count denied a correct flag."
    }
-  ]
+  ],
+  "_withdrawn_discovery_date": "2026-09-16 nc51 (32) withdrawn before any run. Preflight over the archives: 69 denies, 48 of them on values identical to gold (45 losing sims, 3 on f97c 084 t3 which won with gold's own three dates). The customer writes the date without the year ('11/10', 'today, 11/14'), and matching that would mean reading the meaning of their words. 083's date stays open."
  },
  "LB4": {
   "sets": [
