@@ -168,7 +168,12 @@ def turn_hook(self, message, state):
             # (f97c: 18 tasks, 43 sims, none delivered). It rides in this batch's tool result instead.
             notes = [(f.target, f.order) for f in d.won.values() if f.source == "write-rule" and f.order]
             if notes:
-                self._lb_call_notes = notes
+                # NOT on the tool result: tau2 replays every recorded call against a fresh environment and
+                # compares the output, so a sentence appended to an environment result is a mismatch and the
+                # whole simulation is retried (nc50 043: 7 retries, 0 of 4 sims landed in an hour, and the
+                # retry block printed our own note back at us). The decline-note channel already carries our
+                # words into the next generation in the customer's slot, marked as ours.
+                self.__dict__.setdefault("_lb_block_notes", []).extend("[POLICY NOTE] " + x for _t, x in notes)
                 sidecar("lb-note", chr(10).join("%s: %s" % (t, x) for t, x in notes)[:1200], turn,
                         sim=turn.sim, n=len(notes), targets=",".join(str(t) for t, _ in notes))
         if not d.denies and not (d.advice and not turn.calls):
@@ -484,23 +489,6 @@ def execute(orch, a2, tool_calls, orig_exec):
         # T2_LB2=0 still put "[FACTS] ..." into 016 and 098 in every simulation of the
         # levers-off cell, so that cell was not the control it was recorded as.
         append_facts(orch, a2, agent, out)
-    notes = agent.__dict__.pop("_lb_call_notes", None) if agent is not None else None
-    if notes and out:
-        # the sentence belongs to one write, so it rides on that write's own result; a batch can carry a
-        # KB search or another account's read after it, and a note on those reads as their words
-        fams = {}
-        for tc in tool_calls:
-            a = as_dict(getattr(tc, "arguments", None)) or {}
-            inner = str(a.get("agent_tool_name") or a.get("discoverable_tool_name") or "")
-            fams[getattr(tc, "id", None)] = fam(inner or str(getattr(tc, "name", "") or ""))
-        for target, text in notes:
-            mine = [r for r in out if fams.get(getattr(r, "id", None)) == fam(str(target or ""))]
-            dest = mine[-1] if mine else None
-            if dest is None:
-                sidecar("lb-note-drop", "no call in this batch is %s; the note stays back" % target,
-                        None, sim=sim_id(agent), target=str(target))
-                continue
-            dest.content = str(getattr(dest, "content", "") or "") + chr(10) + chr(10) + "[POLICY NOTE] " + str(text)
     return out
 
 
