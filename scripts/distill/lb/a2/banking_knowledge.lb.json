@@ -24243,10 +24243,11 @@
     },
     "arg": "disputed_amount",
     "sources": [
-     "records"
+     "records",
+     "customer"
     ],
     "feedback": "Error: [WRITE-GROUNDING] disputed_amount '{val}' is not an amount in any transaction record read in this conversation. Copy the amount from the transaction record.",
-    "_source": "argdiff 2026-09-13: disputed_amount differed from gold in 8 calls"
+    "_source": "argdiff 2026-09-13: disputed_amount differed from gold in 8 calls 2026-09-16 nc51 (33): the amount can be the customer's own arithmetic. 083 t1 filed 150.0, which is gold's value too, after the customer said they received 100 of the 250 they asked for; the record holds 250 and 100, never 150, so a records-only provenance denied a value gold itself holds. Audit over the archives: 4 denies on this argument, 1 of them on gold's own value."
    }
   ],
   "names": {
