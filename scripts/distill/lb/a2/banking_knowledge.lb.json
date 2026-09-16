@@ -226,7 +226,9 @@
        "record(s) in 'credit_card_closure_reasons'"
       ],
       "tool_any": [
-       "apply_statement_credit_8472"
+       "apply_statement_credit_8472",
+       "apply_for_credit_card",
+       "apply_credit_card_account_flag_6147"
       ]
      },
      {
@@ -257,7 +259,8 @@
     },
     "id_key": "credit_card_account_id",
     "prohibits": {},
-    "_nc32_note": "2026-09-13: 'addressed' node removed. Its done_when sub-judgement denied apply_statement_credit 3-5 times per simulation in the f arm (049 t0/t3) and the model answered the denial by writing an annual-fee waiver the gold never has. Step 4 of the protocol is spoken advice; the record it leaves is the offer (Step 5)."
+    "_nc32_note": "2026-09-13: 'addressed' node removed. Its done_when sub-judgement denied apply_statement_credit 3-5 times per simulation in the f arm (049 t0/t3) and the model answered the denial by writing an annual-fee waiver the gold never has. Step 4 of the protocol is spoken advice; the record it leaves is the offer (Step 5).",
+    "_nc55_note": "2026-09-16 nc55: offer 노드가 statement credit 하나만 인정해 044 에서 체크리스트가 모델에게 틀린 도구를 가리켰다. 문서가 부르는 리텐션 기록은 셋이다 - Step 4 \"offer to help them apply instead of closing\" (apply_for_credit_card, gold 044 047 066 067 068 069), Step 4 연회비 항의 apply_credit_card_account_flag_6147 (gold 043), Step 5 의 statement credit (gold 045 047 048 049). 아카이브 340 sim 재생: 새 거부 0 · 사라진 발화 0 · 없던 조언 1건(043 t1, 이미 0.0) · 문구 교정 61건 · 판정이 뒤집힌 노드는 offer 하나뿐(142 호출 전부 False->True). enforce 는 false 로 둔다 - 강제는 이미 0.0 인 sim 의 호출 10건을 막지만 막은 뒤의 거동은 정적 재생으로 모사할 수 없고, 이 절차의 게이트는 _nc32_note 의 사고 전력이 있다."
    },
    {
     "id": "incident_transfer_order",
