@@ -22914,6 +22914,316 @@
      "doc_bank_accounts_bank_accounts_(general)_032: 'Provisional Credit is REQUIRED when ALL of these conditions are met: 1. Timely Reporting ... 2. Dispute Category: unauthorized_transaction / card_present_fraud / card_not_present_fraud / atm_cash_discrepancy / duplicate_charge 3. Written Statement ... 4. Account Standing' and 'NOT REQUIRED ... 3. Customer shared their PIN voluntarily (pin_compromised = yes_shared)'.",
      "2026-09-13 offline replay over the 23 gold debit disputes (082-091): this rule = gold 22/23; the miss is 082's recurring_charge_after_cancellation marked eligible by the gold. Timely reporting and account standing are not passed: every gold case satisfies them and the liability cap already carries the timing."
     ]
+   },
+   {
+    "name": "score_pin_lock_risk",
+    "description": "USE THIS once for every debit card whose record shows pin_locked = true, before unlocking, resetting or closing it. It adds up the flags of the document Internal: PIN Lock Investigation Protocol - Fraud Risk Scoring (A location, B time, C amount, D card history, E account) and returns the total with the document's own threshold table; do not add the flags up yourself. Read each value off the card record and the declined transactions and pass it as it stands. Cards on one account are scored one at a time and may come out differently.",
+    "params": {
+     "location_relation": "same_city | different_city_same_state | different_state | different_country - the declined transaction's city against the customer's address city.",
+     "distinct_decline_locations": "How many different locations the declined attempts came from, as a number.",
+     "travel_pattern_conflict": "yes | no - yes when every successful transaction of the last 7 days is in the home city but the declines are elsewhere.",
+     "hour_of_attempt": "Hour of the declined attempt, 0-23, from the transaction timestamp.",
+     "days_since_last_pin_use": "Days since the last successful PIN use, as a number.",
+     "minutes_between_attempts": "The smallest gap between two consecutive failed attempts, in minutes (0 when they fall inside the same minute).",
+     "amount_pattern": "consistent | increasing | decreasing - across the consecutive failed attempts.",
+     "all_round_hundreds": "yes | no - whether every attempted amount is a round hundred.",
+     "attempted_vs_average_ratio": "The attempted amount divided by the customer's average successful ATM withdrawal, as a number.",
+     "attempts_total_vs_daily_limit": "below_50 | 50_to_80 | 80_to_100 | over_limit - the attempts against the card's daily ATM limit.",
+     "prior_locks_90_days": "pin_locks_last_90_days from the card record, as a number.",
+     "card_age_months": "Months since the card's issue_date, as a number.",
+     "other_card_velocity_block": "yes | no - whether another card of this customer has velocity_blocked = true.",
+     "other_card_fraud_alert": "yes | no - whether another card of this customer has fraud_alert_active = true.",
+     "account_age_months": "Months since the account was opened, as a number.",
+     "overdrafts_recent": "Overdraft fees in the recent transaction history, as a number.",
+     "account_balance": "The account's current balance, as a number."
+    },
+    "op": {
+     "op": "sum",
+     "of": [
+      {
+       "op": "case",
+       "key": "location_relation",
+       "cases": {
+        "same_city": 0,
+        "different_city_same_state": 1,
+        "different_state": 2,
+        "different_country": 3
+       },
+       "default": 0
+      },
+      {
+       "op": "lookup_table",
+       "key": "distinct_decline_locations",
+       "table": [
+        {
+         "cmp": "<=",
+         "thr": 1,
+         "result": 0
+        },
+        {
+         "cmp": "<=",
+         "thr": 2,
+         "result": 1
+        },
+        {
+         "result": 2
+        }
+       ]
+      },
+      {
+       "op": "case",
+       "key": "travel_pattern_conflict",
+       "cases": {
+        "yes": 1,
+        "no": 0
+       },
+       "default": 0
+      },
+      {
+       "op": "lookup_table",
+       "key": "hour_of_attempt",
+       "table": [
+        {
+         "cmp": "<",
+         "thr": 2,
+         "result": 2
+        },
+        {
+         "cmp": "<",
+         "thr": 6,
+         "result": 3
+        },
+        {
+         "cmp": "<",
+         "thr": 22,
+         "result": 0
+        },
+        {
+         "result": 1
+        }
+       ]
+      },
+      {
+       "op": "lookup_table",
+       "key": "days_since_last_pin_use",
+       "table": [
+        {
+         "cmp": "<",
+         "thr": 7,
+         "result": 0
+        },
+        {
+         "cmp": "<=",
+         "thr": 30,
+         "result": 1
+        },
+        {
+         "result": 2
+        }
+       ]
+      },
+      {
+       "op": "lookup_table",
+       "key": "minutes_between_attempts",
+       "table": [
+        {
+         "cmp": "<",
+         "thr": 1,
+         "result": 3
+        },
+        {
+         "cmp": "<",
+         "thr": 2,
+         "result": 2
+        },
+        {
+         "cmp": "<=",
+         "thr": 5,
+         "result": 1
+        },
+        {
+         "result": 0
+        }
+       ]
+      },
+      {
+       "op": "case",
+       "key": "amount_pattern",
+       "cases": {
+        "decreasing": 2,
+        "increasing": 0,
+        "consistent": 0
+       },
+       "default": 0
+      },
+      {
+       "op": "case",
+       "key": "all_round_hundreds",
+       "cases": {
+        "yes": 1,
+        "no": 0
+       },
+       "default": 0
+      },
+      {
+       "op": "lookup_table",
+       "key": "attempted_vs_average_ratio",
+       "table": [
+        {
+         "cmp": "<=",
+         "thr": 2,
+         "result": 0
+        },
+        {
+         "cmp": "<=",
+         "thr": 5,
+         "result": 1
+        },
+        {
+         "result": 2
+        }
+       ]
+      },
+      {
+       "op": "case",
+       "key": "attempts_total_vs_daily_limit",
+       "cases": {
+        "below_50": 0,
+        "50_to_80": 0,
+        "80_to_100": 1,
+        "over_limit": 2
+       },
+       "default": 0
+      },
+      {
+       "op": "lookup_table",
+       "key": "prior_locks_90_days",
+       "table": [
+        {
+         "cmp": "<",
+         "thr": 1,
+         "result": 0
+        },
+        {
+         "cmp": "<",
+         "thr": 2,
+         "result": 1
+        },
+        {
+         "cmp": "<",
+         "thr": 3,
+         "result": 2
+        },
+        {
+         "result": 3
+        }
+       ]
+      },
+      {
+       "op": "lookup_table",
+       "key": "card_age_months",
+       "table": [
+        {
+         "cmp": "<",
+         "thr": 1,
+         "result": 2
+        },
+        {
+         "cmp": "<",
+         "thr": 3,
+         "result": 1
+        },
+        {
+         "result": 0
+        }
+       ]
+      },
+      {
+       "op": "case",
+       "key": "other_card_velocity_block",
+       "cases": {
+        "yes": 1,
+        "no": 0
+       },
+       "default": 0
+      },
+      {
+       "op": "case",
+       "key": "other_card_fraud_alert",
+       "cases": {
+        "yes": 2,
+        "no": 0
+       },
+       "default": 0
+      },
+      {
+       "op": "lookup_table",
+       "key": "account_age_months",
+       "table": [
+        {
+         "cmp": "<",
+         "thr": 3,
+         "result": 2
+        },
+        {
+         "cmp": "<",
+         "thr": 6,
+         "result": 1
+        },
+        {
+         "result": 0
+        }
+       ]
+      },
+      {
+       "op": "lookup_table",
+       "key": "overdrafts_recent",
+       "table": [
+        {
+         "cmp": "<",
+         "thr": 1,
+         "result": 0
+        },
+        {
+         "cmp": "<",
+         "thr": 2,
+         "result": 1
+        },
+        {
+         "result": 2
+        }
+       ]
+      },
+      {
+       "op": "lookup_table",
+       "key": "account_balance",
+       "table": [
+        {
+         "cmp": "<",
+         "thr": 50,
+         "result": 2
+        },
+        {
+         "cmp": "<",
+         "thr": 100,
+         "result": 1
+        },
+        {
+         "result": 0
+        }
+       ]
+      }
+     ]
+    },
+    "return_template": "PIN Lock Investigation Protocol - fraud risk score for this card: {result}. The document's thresholds: 0-4 LOW, unlock after standard identity verification; 5-7 MEDIUM, unlock only after asking whether the failed attempts were theirs; 8-10 HIGH, ask about location and time and unlock only if the customer confirms and explains; 11-14 VERY HIGH, cannot unlock on this call; 15+ CRITICAL, cannot unlock, check for successful unauthorized transactions and recommend card closure and replacement. Single Flag Escalation: if ANY single flag equals 3 points, escalate to supervisor review regardless of total score. The three-point flags are a different country (A1), an attempt hour between 2 AM and 6 AM (B1), consecutive attempts less than a minute apart (B3), and three or more prior locks in 90 days (D1, which the document makes an automatic PIN reset). Post-unlock by prior locks: none, nothing further; one, offer PIN lock notifications; two, ask whether to reset the PIN; three or more, cannot unlock and the PIN must be reset. Before any of this, STEP 1: a card whose pin_lock_reason is security_hold cannot be unlocked by a chat agent, so offer the security team for that card. Scored here: location {location_relation}, {distinct_decline_locations} location(s), travel conflict {travel_pattern_conflict}, hour {hour_of_attempt}, {days_since_last_pin_use} days since last PIN use, {minutes_between_attempts} minute(s) between attempts, amounts {amount_pattern}, round hundreds {all_round_hundreds}, {attempted_vs_average_ratio}x average, {attempts_total_vs_daily_limit} of the daily limit, {prior_locks_90_days} prior lock(s), card {card_age_months} months old, other card velocity block {other_card_velocity_block}, other card fraud alert {other_card_fraud_alert}, account {account_age_months} months old, {overdrafts_recent} overdraft(s), balance {account_balance}.",
+    "select": true,
+    "inject_after": [
+     "get_debit_cards_by_account_id"
+    ],
+    "_source": [
+     "doc: Internal: PIN Lock Investigation Protocol - Fraud Risk Scoring (STEP 2 flags, STEP 3 thresholds, STEP 5 post-unlock)",
+     "2026-09-16 nc53: 091 and 092 are 0/4 in base and in every arm of ours. gold's four outcomes track this document: 092 green's three attempts fall inside one minute (B3=3, scripted attack) and gold closes the card; 092 evergreen's are two minutes apart (B3=1) and gold resets the PIN; 092 lightblue carries pin_lock_reason=security_hold and gold transfers; 091 blue has pin_locks_last_90_days=4 and gold resets the PIN as D1 requires. No tool of ours computed any of it."
+    ]
    }
   ],
   "derived": [
