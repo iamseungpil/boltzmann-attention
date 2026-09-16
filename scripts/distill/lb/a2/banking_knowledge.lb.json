@@ -15755,17 +15755,24 @@
        "b": 60
       },
       "then": {
-       "op": "min",
-       "of": [
-        {
-         "op": "const",
-         "value": 500
-        },
-        {
+       "op": "if_then",
+       "cond": {
+        "op": "compare",
+        "cmp": "<",
+        "a": {
          "op": "ref",
          "path": "disputed_amount"
-        }
-       ]
+        },
+        "b": 500
+       },
+       "then": {
+        "op": "ref",
+        "path": "disputed_amount"
+       },
+       "else": {
+        "op": "const",
+        "value": 500
+       }
       },
       "else": {
        "op": "const",
@@ -15779,7 +15786,8 @@
     "inject_after": [
      "get_bank_account_transactions"
     ],
-    "_nc30_review": "required before file_debit_card_transaction_dispute (LB1), so it must be present once the transactions are read: inject_after, not select alone."
+    "_nc30_review": "required before file_debit_card_transaction_dispute (LB1), so it must be present once the transactions are read: inject_after, not select alone.",
+    "_nc54_note": "2026-09-16 nc54: the 60-day tier came back as 500.0 because min() runs every operand through num(), which returns a float. The documents write the tiers as whole dollars - Internal: Filing a Debit Card Transaction Dispute: Reported within 2 business days of statement: Maximum liability $50 / Reported within 60 days of statement: Maximum liability $500 - and the $50 tier already returned the integer 50 because it is a const. The same shape now serves both tiers: below 500 the cap is the disputed amount itself, otherwise the documents own 500. The DB hash is taken over a JSON dump with no type coercion, so 500 and 500.0 are different records."
    },
    {
     "name": "check_savings_account_fit",
